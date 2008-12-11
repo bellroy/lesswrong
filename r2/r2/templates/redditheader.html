@@ -37,13 +37,7 @@
   ##</div>
 
   <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
-    <%
-        if c.site.title: 
-            header_text = c.site.title
-        else:
-            header_text = "Overcoming Bias"
-    %>
-    <h1>${header_text}</h1>
+    <h1>${c.site.title if c.site.title else g.front_page_title}</h1>
 
     ##keeps the height of the header from varying when there isnt any content
     &nbsp;

@@ -508,7 +508,7 @@ class DefaultSR(FakeSubreddit):
 
     @property
     def title(self):
-        return _("reddit.com: what's new online!")
+        return _(g.front_page_title)
 
 class MultiReddit(DefaultSR):
     name = 'multi'
