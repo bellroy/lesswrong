@@ -38,13 +38,12 @@
 
   <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
     <%
-        if c.site.header and c.allow_styles:
-            header_img = c.site.header
+        if c.site.title: 
+            header_text = c.site.title
         else:
-            header_img = DefaultSR.header
-
+            header_text = "Overcoming Bias"
     %>
-    ${img_link(c.site.name, header_img, '/', _id = "header-img-a", img_id = 'header-img')}
+    <h1>${header_text}</h1>
 
     ##keeps the height of the header from varying when there isnt any content
     &nbsp;
