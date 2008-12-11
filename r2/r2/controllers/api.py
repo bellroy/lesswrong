@@ -228,12 +228,13 @@ class ApiController(RedditController):
               save = nop('save'),
               )
     def POST_submit(self, res, url, title, save, sr, ip):
+        # TODO: find out where arguments come from
         res._update('status', innerHTML = '')
         if isinstance(url, str):
             res._update('url', value=url)
             
         should_ratelimit = sr.should_ratelimit(c.user, 'link')
-
+        
         #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
@@ -273,7 +274,9 @@ class ApiController(RedditController):
                 errors.BANNED_DOMAIN in c.errors)
 
         # well, nothing left to do but submit it
-        l = Link._submit(request.post.title, url, c.user, sr, ip, spam)
+        # TODO: include article body in arguments to Link model
+        # print "\n".join(request.post.va)
+        l = Link._submit(request.post.title, request.post.article, c.user, sr, ip, spam)
         if url.lower() == 'self':
             l.url = l.make_permalink_slow()
             l.is_self = True

@@ -72,6 +72,11 @@
     &#32;
     ${self.domain()}
   </p>
+  % if hasattr(thing, 'article'):
+    <p class="article">
+      ${thing.article}
+    </p>
+  %endif
   <p class="tagline">
     ${self.tagline()}
   </p>

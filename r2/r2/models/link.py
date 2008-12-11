@@ -111,14 +111,16 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, url, author, sr, ip, spam = False):
+    def _submit(cls, title, article, author, sr, ip, spam = False):
         l = cls(title = title,
-                url = url,
+                url = 'self',
                 _spam = spam,
                 author_id = author._id,
                 sr_id = sr._id, 
                 lang = sr.lang,
-                ip = ip)
+                ip = ip,
+                article = article
+                )
         l._commit()
         l.set_url_cache()
         return l
