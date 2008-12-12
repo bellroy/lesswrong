@@ -33,10 +33,11 @@
   ${thing.footer_nav().render()}
 
   <p class="bottommenu">
-    ${text_with_links(_("Use of this site constitutes acceptance of our %(user_agreement)s and %(privacy_policy)s"), nocname=True, user_agreement= (_("User Agreement {Genitive}"), "http://reddit.com/help/useragreement"), privacy_policy = (_("Privacy Policy {Genitive}"), "http://reddit.com/help/privacypolicy"))}.  
-    ${_("(c) %(year)d CondeNet, Inc. All rights reserved.") % \
-    dict(year=datetime.datetime.now().timetuple()[0])}
+    <a href="http://code.reddit.com" title="Powered by Reddit">Powered by <img alt="Reddit" src="${static('littlehead.png')}"/></a>&#32;
+    ${_("Copyright (c) %(year)s CondeNet, Inc. All rights reserved.") % \
+    dict(year="2006-2008")}
   </p>
+
  %if g.tracker_url:
   <img alt="" src="${tracking.UserInfo.gen_url()}"/>
  %endif
