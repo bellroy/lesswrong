@@ -33,19 +33,9 @@
   %if not thing.subreddits:
     <input type="hidden" name="sr" value="${c.site.name}" />
   %endif
+  <input id="url" name="url" type="hidden" value="self" />
+
   <table>
-    <tr>
-      <th>
-        <label for="url">${_("url")}</label>
-      </th>
-      <td>
-        <input id="url" name="url" type="text" 
-               value="${thing.url}" onfocus="clearTitle(this);"/>
-        ${error_field("NO_URL", "span")}
-        ${error_field("BAD_URL", "span")}
-        ${error_field("ALREADY_SUB", "span")}
-      </td>
-    </tr>
     <tr>
       <th>
         <label for="title">${_("title")}</label>
@@ -97,15 +87,8 @@
   <script type="text/javascript">
     var form = $('newlink');
     if(form) {
-      setMessage(form.url,
-                 '${unsafe(_('type "self" here to make this post refer to itself.'))}');
       setMessage(form.title, 
                  "${_('enter a title, or click submit to find one automatically.')}")
     }
   </script>
-
-  <p>
-    ${text_with_links(_("use reddit from your toolbar with the %(bookmarklets)s"),
-                      bookmarklets = (_('reddit bookmarklets'), '/bookmarklets'))}
-  </p>
 </%call>
