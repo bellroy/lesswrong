@@ -35,6 +35,7 @@ from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
 from r2.lib.template_helpers import add_sr, get_domain
+from r2.lib.promote import promote_builder_wrapper
 import sys
 
 datefmt = _force_utf8(_('%d %b %Y'))
@@ -67,10 +68,10 @@ class Reddit(Wrapped):
           (e.g. js, xml for rss, etc.)
     '''
 
-    create_reddit_box  = True
+    create_reddit_box  = False
     submit_box         = True
     searchbox          = True
-    extension_handling = True
+    extension_handling = False
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
@@ -120,11 +121,11 @@ class Reddit(Wrapped):
             ps.append(SubredditInfoBar())
 
         if self.submit_box:
-            ps.append(SideBox(_('Submit a link'),
+            ps.append(SideBox(_('Create new article'),
                               '/submit', 'submit',
-                              sr_path = True,
-                              subtitles = [strings.submit_box_text],
-                              show_cover = True))
+                              sr_path = False,
+                              subtitles = [],
+                              show_cover = False))
             
         if self.create_reddit_box:
            ps.append(SideBox(_('Create your own reddit'),

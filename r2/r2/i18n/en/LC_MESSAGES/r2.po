@@ -1442,8 +1442,8 @@ msgid "type \"self\" here to make this post refer to itself."
 msgstr "type \"self\" here to make this post refer to itself."
 
 #: r2/templates/newlink.html:77
-msgid "enter a title, or click submit to find one automatically."
-msgstr "enter a title, or click submit to find one automatically."
+msgid "enter a title."
+msgstr "enter a title."
 
 #: r2/templates/newlink.html:82
 #, python-format
