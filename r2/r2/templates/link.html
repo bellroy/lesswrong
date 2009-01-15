@@ -75,8 +75,11 @@
   </p>
   % if hasattr(thing, '_summary'):
     <p class="summary">
-      ${thing._summary()}
+      ${unsafe(thing._summary())}
     </p>
+    % if thing._has_more():
+        <p><a>Read More...</a></p>
+    % endif
   %endif
   <ul class="flat-list buttons">
     ${self.buttons()}

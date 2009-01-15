@@ -127,7 +127,15 @@ class Link(Thing, Printable):
         
     def _summary(self):
         if hasattr(self, 'article'):
-            return self.article[0:300]
+            return self.article.split('<a id="more"></a>')[0]
+            
+    def _has_more(self):
+        if hasattr(self, 'article'):
+            return self.article.find('<a id="more"></a>') >= 0
+            
+    def _more(self):
+        if hasattr(self, 'article'):
+            return self.article.split('<a id="more"></a>')[1]
 
     @classmethod
     def _somethinged(cls, rel, user, link, name):
