@@ -30,12 +30,8 @@
 <%namespace file="utils.html" import="text_with_links, plain_link"/>
 
 <div class="footer">
-  ${thing.footer_nav().render()}
-
   <p class="bottommenu">
-    <a href="http://code.reddit.com" title="Powered by Reddit">Powered by <img alt="Reddit" src="${static('littlehead.png')}"/></a>&#32;
-    ${_("Copyright (c) %(year)s CondeNet, Inc. All rights reserved.") % \
-    dict(year="2006-2008")}
+    <a href="http://code.reddit.com" title="Powered by Reddit">Powered by<br /> <img alt="Reddit" src="${static('littlehead.png')}"/></a>
   </p>
 
  %if g.tracker_url:

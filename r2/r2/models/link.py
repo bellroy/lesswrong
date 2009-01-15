@@ -124,6 +124,10 @@ class Link(Thing, Printable):
         l._commit()
         l.set_url_cache()
         return l
+        
+    def _summary(self):
+        if hasattr(self, 'article'):
+            return self.article[0:300]
 
     @classmethod
     def _somethinged(cls, rel, user, link, name):

@@ -69,19 +69,19 @@ class Reddit(Wrapped):
     '''
 
     create_reddit_box  = False
-    submit_box         = True
-    searchbox          = True
+    submit_box         = False
+    searchbox          = False
     extension_handling = False
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
-                 show_sidebar = True, **context):
+                 show_sidebar = False, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
         self.infotext       = infotext
         self.loginbox       = True
-        self.show_sidebar   = show_sidebar
+        self.show_sidebar   = False
         self.space_compress = space_compress
 
         #put the sort menus at the top
@@ -170,19 +170,10 @@ class Reddit(Wrapped):
                 else:
                    buttons += [NamedButton("adminon",  False,
                                            nocname=not c.authorized_cname,
-                                           target = "_self")]
+                                           target = "_self")]            
+            buttons += [NamedButton("submit", False, nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
-        else:
-            lang = c.lang.split('-')[0] if c.lang else ''
-            buttons += [JsButton(g.lang_name.get(lang, lang),  
-                                  onclick = "return showlang();",
-                                  css_class = "pref-lang")]
-        #buttons += [NamedButton("stats", False, nocname=True)]
-        #buttons += [NamedButton("help", False, nocname=True),
-                    #NamedButton("blog", False, nocname=True)]                    
-        
-        if c.user_is_loggedin:
             buttons += [NamedButton("logout", False,
                                     nocname=not c.authorized_cname,
                                     target = "_self")]
@@ -445,13 +436,13 @@ class LinkInfoPage(Reddit):
             return NamedButton(name, dest = '/%s%s' % (name, base_path),
                                aliases = ['/%s/%s' % (name, self.link._id36)])
         
-        buttons = [info_button('comments'),
+        buttons = [info_button('comment'),
                    info_button('related')]
 
         if c.user_is_admin:
             buttons += [info_button('details')]
 
-        toolbar = [NavMenu(buttons, base_path = "", type="tabmenu")]
+        toolbar = []#[NavMenu(buttons, base_path = "", type="tabmenu")]
 
         if c.site != Default and not c.cname:
             toolbar.insert(0, PageNameNav('subreddit'))

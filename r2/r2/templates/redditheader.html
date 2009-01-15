@@ -29,15 +29,10 @@
 <%namespace file="utils.html" import="plain_link, text_with_js, img_link, separator"/>
 
 <div id="header">
-  %if thing.srtopbar:
-    ${thing.srtopbar.render()}
-  %endif
-
-  ##<div id="header-top" class="hover">
-  ##</div>
-
   <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
-    <h1>${c.site.title if c.site.title else g.front_page_title}</h1>
+    <h1>
+      ${c.site.title if c.site.title else g.front_page_title}
+    </h1>
 
     ##keeps the height of the header from varying when there isnt any content
     &nbsp;
@@ -73,11 +68,10 @@
          mail_img = static(mail_img)
        %>
       ${img_link(_("messages"), mail_img, path="/message/inbox/",
-                 _id = "mail" )}
+                 _id = "mail" )}               
+      ${separator("|")}
+      ${thing.corner_buttons().render()}
     %endif
-      
-    ${separator("|")}
-    ${thing.corner_buttons().render()}
     
 
   </div>

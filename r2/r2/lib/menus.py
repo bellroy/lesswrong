@@ -42,7 +42,7 @@ class MenuHandler(StringHandler):
             return getattr(plurals, attr)
 
 # selected menu styles, primarily used on the main nav bar
-menu_selected=StringHandler(hot          = _("what's hot"),
+menu_selected=StringHandler(hot          = _("hot"),
                             new          = _("what's new"),
                             top          = _("top scoring"),
                             controversial= _("most controversial"),

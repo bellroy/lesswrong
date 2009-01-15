@@ -69,17 +69,15 @@
     <%call expr="make_link('title', 'title')">
       ${thing.title} 
     </%call>
-    &#32;
-    ${self.domain()}
   </p>
-  % if hasattr(thing, 'article'):
-    <p class="article">
-      ${thing.article}
-    </p>
-  %endif
   <p class="tagline">
     ${self.tagline()}
   </p>
+  % if hasattr(thing, '_summary'):
+    <p class="summary">
+      ${thing._summary()}
+    </p>
+  %endif
   <ul class="flat-list buttons">
     ${self.buttons()}
     ${self.admintagline()}
