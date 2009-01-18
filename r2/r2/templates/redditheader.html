@@ -48,8 +48,8 @@
   ##  %endif
     %if not c.user_is_loggedin:
       <span class="user">
-        ${text_with_js(_("want to join? %(register)s in seconds"),
-                          register=(_("register"), "return showcover(false);"))}
+        ${text_with_js(_("%(register)s"),
+                          register=(_("register | login"), "return showcover(false);"))}
       </span>
     %else:
       <span class="user">

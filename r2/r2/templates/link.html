@@ -23,6 +23,7 @@
 <%!
    from r2.models.subreddit import Default 
    from r2.lib.template_helpers import get_domain
+   from r2.lib.filters import safemarkdown
  %>
 
 <%inherit  file="printable.html"/>
@@ -75,7 +76,7 @@
   </p>
   % if hasattr(thing, '_summary'):
     <p class="summary">
-      ${unsafe(thing._summary())}
+      ${safemarkdown(unsafe(thing._summary()))}
     </p>
     % if thing._has_more():
         <p><a>Read More...</a></p>
