@@ -76,7 +76,7 @@
   </p>
   % if hasattr(thing, '_summary'):
     <p class="summary">
-      ${safemarkdown(unsafe(thing._summary()))}
+      ${unsafe(safemarkdown(thing._summary()))}
     </p>
     % if thing._has_more():
         <p><a>Read More...</a></p>
