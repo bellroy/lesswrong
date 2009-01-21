@@ -491,6 +491,11 @@ before enabling */
 .tagline a.friend {color: orangered }
 .tagline a:hover { text-decoration: underline }
 
+.more {
+    font-size: small;
+}
+.more a:hover { text-decoration: underline }
+
 .watch-play { 
     background: transparent url(/static/reddit-button-play.gif) no-repeat scroll right center;
     padding-right: 15px;

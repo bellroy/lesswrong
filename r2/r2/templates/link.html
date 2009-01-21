@@ -81,7 +81,9 @@
       ${unsafe(safemarkdown(thing._summary()))}
     </p>
     % if thing._has_more():
-        <p><a>Read More...</a></p>
+        <p class="more"><a href="${thing.url}#more">
+        Continue reading &ldquo;Title&rdquo;...
+        </a></p>
     % endif
   %endif
   ${self.mediadiv()}
