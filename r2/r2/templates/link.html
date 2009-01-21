@@ -26,6 +26,7 @@
    from r2.lib.filters import safemarkdown
  %>
 
+<%namespace file="utils.html" import="separator"/>
 <%inherit  file="printable.html"/>
  
 <%def name="numcol()">
@@ -72,7 +73,7 @@
     </%call>
   </p>
   <ul class="flat-list buttons">
-    <li class="tagline">${self.tagline()}&#32;|</li>
+    <li class="tagline">${self.tagline()}${separator("|")}</li>
     ${self.buttons()}
     ${self.admintagline()}
   </ul>
