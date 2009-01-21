@@ -71,9 +71,11 @@
       ${thing.title} 
     </%call>
   </p>
-  <p class="tagline">
-    ${self.tagline()}
-  </p>
+  <ul class="flat-list buttons">
+    <li class="tagline">${self.tagline()}&#32;|</li>
+    ${self.buttons()}
+    ${self.admintagline()}
+  </ul>
   % if hasattr(thing, '_summary'):
     <p class="summary">
       ${unsafe(safemarkdown(thing._summary()))}
@@ -82,10 +84,6 @@
         <p><a>Read More...</a></p>
     % endif
   %endif
-  <ul class="flat-list buttons">
-    ${self.buttons()}
-    ${self.admintagline()}
-  </ul>
   ${self.mediadiv()}
 </%def>
 
