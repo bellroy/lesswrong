@@ -77,15 +77,21 @@
     ${self.buttons()}
     ${self.admintagline()}
   </ul>
-  % if hasattr(thing, '_summary'):
-    <p class="summary">
-      ${unsafe(safemarkdown(thing._summary()))}
+  % if thing.render_full:
+    <p class="article">
+      ${unsafe(thing.article)}
     </p>
-    % if thing._has_more():
+  %else:
+    % if hasattr(thing, '_summary'):
+      <p class="summary">
+        ${unsafe(thing._summary())}
+      </p>
+      % if thing._has_more():
         <p class="more"><a href="${thing.url}#more">
         Continue reading &ldquo;Title&rdquo;...
         </a></p>
-    % endif
+      % endif
+    %endif
   %endif
   ${self.mediadiv()}
 </%def>

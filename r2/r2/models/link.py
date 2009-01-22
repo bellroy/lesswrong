@@ -52,7 +52,8 @@ class Link(Thing, Printable):
                      promote_until = None,
                      promoted_by = None,
                      disable_comments = False,
-                     ip = '0.0.0.0')
+                     ip = '0.0.0.0',
+                     render_full = False)
 
     def __init__(self, *a, **kw):
         Thing.__init__(self, *a, **kw)

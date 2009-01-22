@@ -409,6 +409,9 @@ class LinkInfoPage(Reddit):
     def __init__(self, link = None, comment = None,
                  link_title = '', *a, **kw):
         # TODO: temp hack until we find place for builder_wrapper
+        
+        link.render_full = True
+        
         from r2.controllers.listingcontroller import ListingController
         link_builder = IDBuilder(link._fullname,
                                  wrap = ListingController.builder_wrapper)
