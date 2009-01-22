@@ -1724,3 +1724,10 @@ ul#image-preview-list .description pre {
 }
 
 .subscription-box h1{ text-align: center; }
+
+#tinymce a#more {
+    width: 4em;
+    height: 1ex;
+    background-color: blue;
+    display: block;
+}
