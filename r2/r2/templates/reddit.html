@@ -124,9 +124,11 @@
               var fold_marker = ed.dom.get("more");
               if(fold_marker) {
                 ed.dom.remove(fold_marker);
+                ed.controlManager.setActive('summary', false)
               }
               else {
                 ed.selection.setContent('<a id="more"></a>');
+                ed.controlManager.setActive('summary', true)
               }
             }
         });
