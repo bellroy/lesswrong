@@ -26,6 +26,7 @@ from r2.lib.utils import vote_hash, UrlParser
 from mako.filters import url_escape
 import simplejson
 import os.path
+import re
 from copy import copy
 
 from pylons import i18n, g, c
@@ -35,7 +36,7 @@ def static(file):
     fname = os.path.basename(file).split('?')[0]
     v = g.static_md5.get(fname, '')
     if v: v = "?v=" + v
-    if os.path.dirname(file):
+    if re.match("%s?static" % os.path.sep, os.path.dirname(file)):
         return file + v
     return os.path.join(c.site.static_path, file) + v
 
