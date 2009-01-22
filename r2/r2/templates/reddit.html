@@ -121,7 +121,13 @@
             title : 'Insert summary marker',
             image : 'img/example.gif',
             onclick : function() {
+              var fold_marker = ed.dom.get("more");
+              if(fold_marker) {
+                ed.dom.remove(fold_marker);
+              }
+              else {
                 ed.selection.setContent('<a id="more"></a>');
+              }
             }
         });
     }
