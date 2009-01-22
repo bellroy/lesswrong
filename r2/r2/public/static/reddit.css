@@ -646,7 +646,6 @@ before enabling */
 .md strong { font-weight: bold; }
 .md em { font-style: italic; }
 .md strong em { font-style: italic; font-weight: bold }
-.md img { display: none }
 .md ol, .md ul { margin: 10px 2em; }
 .md ul { list-style: disc outside }
 .md ol { list-style: decimal outside }
@@ -1388,8 +1387,12 @@ a.star { text-decoration: none; color: #ff8b60 }
 .pretty-form textarea,
 .pretty-form input[type=password] {
     border: 1px solid gray;
-    width: 300px; 
+    width: 100%; 
     padding: 2px;
+}
+.pretty-form table {
+    width: 100%;
+    padding: 2em;
 }
 
 .pretty-form .infobar { 

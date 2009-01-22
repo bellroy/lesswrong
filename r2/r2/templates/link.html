@@ -78,18 +78,18 @@
     ${self.admintagline()}
   </ul>
   % if thing.render_full:
-    <p class="article">
+    <div class="md">
       ${unsafe(thing.article)}
-    </p>
+    </div>
   %else:
     % if hasattr(thing, '_summary'):
-      <p class="summary">
+      <div class="md">
         ${unsafe(thing._summary())}
-      </p>
+      </div>
       % if thing._has_more():
-        <p class="more"><a href="${thing.url}#more">
-        Continue reading &ldquo;Title&rdquo;...
-        </a></p>
+        <div class="md"><a href="${thing.url}#more">
+        Continue reading &ldquo;${thing.title}&rdquo;...
+        </a></div>
       % endif
     %endif
   %endif
