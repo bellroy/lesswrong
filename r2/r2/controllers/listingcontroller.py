@@ -232,13 +232,6 @@ class HotController(FixListing, ListingController):
             return c.site.get_links('hot', 'all')
 
     def content(self):
-        # only send an organic listing for HTML rendering
-        if (c.site == Default and c.render_style == "html"
-            and (not c.user_is_loggedin
-                 or (c.user_is_loggedin and c.user.pref_organic))):
-            org = self.organic()
-            if org:
-                return PaneStack([org, self.listing_obj], css_class='spacer')
         return self.listing_obj
 
     def title(self):
