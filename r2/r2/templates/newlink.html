@@ -50,13 +50,11 @@
     </tr>
     %if thing.subreddits:
       <tr>
-        <th>
-          <label for="sr">${_("subreddit")}</label>
-        </th>
         <td>
+        <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
-              <option value="${sr}">${sr}</option>
+              <option value="${sr.name}">${sr.title}</option>
             %endfor
           </select>
         </td>

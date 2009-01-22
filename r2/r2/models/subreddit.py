@@ -320,25 +320,26 @@ class Subreddit(Thing, Printable):
             user._commit()
 
     @classmethod
-    def submit_sr_names(cls, user):
+    def submit_sr(cls, user):
         """subreddit names that appear in a user's submit page. basically a
         sorted/rearranged version of user_subreddits()."""
         sub_ids = cls.user_subreddits(user, False)
         srs = Subreddit._byID(sub_ids, True,
                               return_dict = False)
-        names = [s.name for s in srs if s.can_submit(user)]
-        names.sort()
+        srs = [s for s in srs if s.can_submit(user)]
 
-        #add the current site to the top (default_sr)
-        if g.default_sr in names:
-            names.remove(g.default_sr)
-            names.insert(0, g.default_sr)
+        # names.sort()
+        # 
+        # #add the current site to the top (default_sr)
+        # if g.default_sr in names:
+        #     names.remove(g.default_sr)
+        #     names.insert(0, g.default_sr)
+        # 
+        # if c.lang in names:
+        #     names.remove(c.lang)
+        #     names.insert(0, c.lang)
 
-        if c.lang in names:
-            names.remove(c.lang)
-            names.insert(0, c.lang)
-
-        return names
+        return srs
 
     @property
     def path(self):

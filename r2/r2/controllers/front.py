@@ -485,12 +485,12 @@ class FrontController(RedditController):
                 return self.redirect(redirect_link.already_submitted_link)
             
         captcha = Captcha() if c.user.needs_captcha() else None
-        sr_names = Subreddit.submit_sr_names(c.user) if c.default_sr else ()
+        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
 
         return FormPage(_("submit"), 
                         content=NewLink(url=url or '',
                                         title=title or '',
-                                        subreddits = sr_names,
+                                        subreddits = srs,
                                         captcha=captcha)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):

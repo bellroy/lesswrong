@@ -207,12 +207,12 @@ class ApiController(RedditController):
                 return self.redirect(redirect_link.already_submitted_link)
             
         captcha = Captcha() if c.user.needs_captcha() else None
-        sr_names = Subreddit.submit_sr_names(c.user) if c.default_sr else ()
+        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
 
         return FormPage(_("submit"), 
                         content=NewLink(url=url or '',
                                         title=title or '',
-                                        subreddits = sr_names,
+                                        subreddits = srs,
                                         captcha=captcha)).render()
 
 
@@ -387,6 +387,20 @@ class ApiController(RedditController):
         user._commit()
             
         c.user = user
+
+        # Create a drafts subredit for this user
+        sr = Subreddit._new(
+            name = user.name + "-drafts",
+            title = "Drafts for " + user.name,
+            type = "private"
+        )
+        Subreddit.subscribe_defaults(user)
+        # make sure this user is on the admin list of that site!
+        if sr.add_subscriber(user):
+            sr._incr('_ups', 1)
+        sr.add_moderator(user)
+        sr.add_contributor(user)
+
         if reason:
             if reason[0] == 'redirect':
                 dest = reason[1]
