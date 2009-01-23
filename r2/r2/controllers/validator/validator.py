@@ -388,6 +388,16 @@ class VSubmitParent(Validator):
                     return parent
         #else
         abort(403, "forbidden")
+        
+class VSubmitLink(VLink):
+    def __init__(self, param, redirect = True, *a, **kw):
+        VLink.__init__(self, param, redirect = redirect, *a, **kw)
+        
+    def run(self, link_name):
+        link = VLink.run(self, link_name)
+        if not (c.user_is_loggedin and link.can_submit(c.user)):
+            abort(403, "forbidden")
+        return link
 
 class VSubmitSR(Validator):
     def run(self, sr_name):

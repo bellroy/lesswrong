@@ -82,6 +82,15 @@ class Link(Thing, Printable):
                 return links
 
         raise NotFound, 'Link "%s"' % url
+        
+
+    def can_submit(self, user):
+        if c.user_is_admin:
+            return True
+        elif self.author_id == c.user._id:
+            return True
+        else:
+            return False
 
     def set_url_cache(self):
         if self.url != 'self':

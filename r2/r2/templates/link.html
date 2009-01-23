@@ -175,12 +175,11 @@
     ${parent.simple_button("share", fullname, _("share"), "share")}
   </li>
   %if c.user_is_loggedin:
-    <%
-      edit_link = "/edit/%s" % thing._id36
-    %>
-    <li>
-      ${plain_link("edit", edit_link, False)}
-    </li>
+    %if thing.can_submit(c.user):
+      <li>
+        ${plain_link("edit", "/edit/%s" % thing._id36, False)}
+      </li>
+    %endif
     <li>
     %if thing.saved:
        ${parent.state_button("unsave", fullname, _("unsave"), \

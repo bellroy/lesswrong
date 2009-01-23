@@ -496,10 +496,10 @@ class FrontController(RedditController):
 
     @validate(VUser(),
               VSRSubmitPage(),
-              article = VLink('article'))
+              article = VSubmitLink('article'))
     def GET_editarticle(self, article):
-      srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
-      return FormPage(_("submit"), 
+        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
+        return FormPage(_("submit"), 
                       content=EditLink(article, subreddits=srs, captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
