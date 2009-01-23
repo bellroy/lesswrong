@@ -638,8 +638,11 @@ before enabling */
 
 .menuarea .spacer {display: inline; margin-right: 15px}
 
+.commentbody {
+  max-width: 60em; overflow: auto;
+}
 /* markdown */
-.md { max-width: 60em; overflow: auto; font-size: small; }
+.md { font-size: small; }
 .md p, .md h1 { margin: 5px 0}
 .md h1 { font-weight: normal; font-size: 100%; }
 .md > * { margin-bottom: 0px }
@@ -1726,8 +1729,9 @@ ul#image-preview-list .description pre {
 .subscription-box h1{ text-align: center; }
 
 #tinymce a#more {
-    width: 25px;
+    width: 100%;
     height: 9px;
-    background: #FFF url(/static/continue-thread.png) no-repeat top left;
+    border-top: 1px dotted gray;
+    background: #FFF url(/static/continue-thread.png) no-repeat top right;
     display: block;
 }
