@@ -219,32 +219,23 @@ class ApiController(RedditController):
     @Json
     @validate(VUser(),
               VCaptcha(),
-              ValidDomain('url'),
               VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
               ip = ValidIP(),
               sr = VSubmitSR('sr'),
-              url = VUrl(['url', 'sr']),
               title = VTitle('title'),
-              save = nop('save'),
+              l = VLink('article_id'),
+              new_content = nop('article'),
+              save = nop('save')
               )
-    def POST_submit(self, res, url, title, save, sr, ip):
+    def POST_submit(self, res, l, new_content, title, save, sr, ip):
         # TODO: find out where arguments come from
         res._update('status', innerHTML = '')
-        if isinstance(url, str):
-            res._update('url', value=url)
-            
         should_ratelimit = sr.should_ratelimit(c.user, 'link')
         
         #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
 
-        # check for no url, or clear that error field on return
-        if res._chk_errors((errors.NO_URL, errors.BAD_URL)):
-            res._focus('url')
-        elif res._chk_error(errors.ALREADY_SUB):
-            link = url[0] 
-            res._redirect(link.already_submitted_link)
         #ratelimiter
         elif res._chk_error(errors.RATELIMIT):
             pass
@@ -276,26 +267,27 @@ class ApiController(RedditController):
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
-        l = Link._submit(request.post.title, request.post.article, c.user, sr, ip, spam)
-        if url.lower() == 'self':
-            l.url = l.make_permalink_slow()
-            l.is_self = True
-            l._commit()
-            l.set_url_cache()
-        v = Vote.vote(c.user, l, True, ip, spam)
-        if save == 'on':
-            r = l._save(c.user)
-            if g.write_query_queue:
-                queries.new_savehide(r)
-        #set the ratelimiter
-        if should_ratelimit:
-            VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
+        if not l:
+          l = Link._submit(request.post.title, request.post.article, c.user, sr, ip, spam)
+          v = Vote.vote(c.user, l, True, ip, spam)
+          if save == 'on':
+              r = l._save(c.user)
+              if g.write_query_queue:
+                  queries.new_savehide(r)
+          #set the ratelimiter
+          if should_ratelimit:
+              VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
 
-        #update the queries
-        if g.write_query_queue:
-            queries.new_link(l)
-            queries.new_vote(v)
-
+          #update the queries
+          if g.write_query_queue:
+              queries.new_link(l)
+              queries.new_vote(v)
+        else:
+          l.title = request.post.title
+          l.article = request.post.article
+          l.sr_id = sr._id
+          l._commit()
+          
         #update the modified flags
         set_last_modified(c.user, 'overview')
         set_last_modified(c.user, 'submitted')

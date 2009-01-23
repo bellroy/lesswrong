@@ -486,11 +486,12 @@ class FrontController(RedditController):
             
         captcha = Captcha() if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
+        sr = srs[0] if len(srs) else None
 
         return FormPage(_("submit"), 
-                        content=NewLink(url=url or '',
-                                        title=title or '',
+                        content=NewLink(title=title or '',
                                         subreddits = srs,
+                                        sr_id = sr._id,
                                         captcha=captcha)).render()
 
     @validate(VUser(),

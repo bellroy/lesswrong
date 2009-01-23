@@ -36,7 +36,6 @@
   %if not thing.subreddits:
     <input type="hidden" name="sr" value="${c.site.name}" />
   %endif
-  <input id="url" name="url" type="hidden" value="self" />
   ${self.form_extra()}
   <table>
     <tr>
@@ -57,7 +56,7 @@
         <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
-              <option value="${sr.name}">${sr.title}</option>
+              <option value="${sr.name}" ${unsafe('selected="selected"' if sr._id == thing.sr_id else '')}>${sr.title}</option>
             %endfor
           </select>
         </td>

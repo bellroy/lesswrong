@@ -328,17 +328,7 @@ class Subreddit(Thing, Printable):
                               return_dict = False)
         srs = [s for s in srs if s.can_submit(user)]
 
-        # names.sort()
-        # 
-        # #add the current site to the top (default_sr)
-        # if g.default_sr in names:
-        #     names.remove(g.default_sr)
-        #     names.insert(0, g.default_sr)
-        # 
-        # if c.lang in names:
-        #     names.remove(c.lang)
-        #     names.insert(0, c.lang)
-
+        srs.sort(key=lambda a:a.title)
         return srs
 
     @property
