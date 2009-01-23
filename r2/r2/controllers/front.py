@@ -491,7 +491,7 @@ class FrontController(RedditController):
         return FormPage(_("submit"), 
                         content=NewLink(title=title or '',
                                         subreddits = srs,
-                                        sr_id = sr._id,
+                                        sr_id = sr._id if sr else None,
                                         captcha=captcha)).render()
 
     @validate(VUser(),
