@@ -493,6 +493,19 @@ class FrontController(RedditController):
                                         subreddits = srs,
                                         captcha=captcha)).render()
 
+    @validate(VUser(),
+              VSRSubmitPage(),
+              article = VLink('article'))
+    def GET_editarticle(self, article):
+      srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
+      thing = Link._byID(article._id, data = True)
+
+      return FormPage(_("submit"), 
+                      content=NewLink(url='',
+                                      title=thing.title,
+                                      subreddits = srs
+                                      )).render()
+
     def _render_opt_in_out(self, msg_hash, leave):
         """Generates the form for an optin/optout page"""
         email = Email.handler.get_recipient(msg_hash)

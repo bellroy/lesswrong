@@ -26,7 +26,7 @@
    from r2.lib.filters import safemarkdown
  %>
 
-<%namespace file="utils.html" import="separator"/>
+<%namespace file="utils.html" import="separator,plain_link"/>
 <%inherit  file="printable.html"/>
  
 <%def name="numcol()">
@@ -175,6 +175,12 @@
     ${parent.simple_button("share", fullname, _("share"), "share")}
   </li>
   %if c.user_is_loggedin:
+    <%
+      edit_link = "/edit/%s" % thing._id36
+    %>
+    <li>
+      ${plain_link("edit", edit_link, False)}
+    </li>
     <li>
     %if thing.saved:
        ${parent.state_button("unsave", fullname, _("unsave"), \
