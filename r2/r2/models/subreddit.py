@@ -71,6 +71,15 @@ class Subreddit(Thing, Printable):
             clear_memo('subreddit.subreddits', Subreddit)
             return sr
 
+    @classmethod
+    @memoize('subreddit.default_sr')
+    def default(cls):
+        return cls._by_name(g.default_sr)
+
+    @classmethod
+    @memoize('subreddit.blessed_sr')
+    def blessed(cls):
+        return cls._by_name(g.blessed_sr)
 
     @classmethod
     @memoize('subreddit._by_name')

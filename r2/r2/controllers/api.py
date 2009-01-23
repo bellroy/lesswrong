@@ -217,6 +217,20 @@ class ApiController(RedditController):
 
 
     @Json
+    @validate(VAdmin(),
+              link = VByName('id'))
+    def POST_bless(self, res, link):
+        link.sr_id = Subreddit.blessed()._id
+        link._commit()
+
+    @Json
+    @validate(VAdmin(),
+              link = VByName('id'))
+    def POST_unbless(self, res, link):
+        link.sr_id = Subreddit.default()._id
+        link._commit()
+
+    @Json
     @validate(VUser(),
               VCaptcha(),
               VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
@@ -718,6 +732,8 @@ class ApiController(RedditController):
             #set the ratelimiter
             if should_ratelimit:
                 VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix = "rate_share_")
+            
+            
             
     @Json
     @validate(VUser(),

@@ -177,7 +177,18 @@
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>
-        ${plain_link("edit", "/edit/%s" % thing._id36, False)}
+        ${plain_link("edit", "/edit/%s" % thing._id36)}
+      </li>
+    %endif
+    %if c.user_is_admin:
+      <li>
+      %if thing.is_blessed():
+        ${parent.state_button("unbless", fullname, _("unbless"), \
+            "return change_state(this, 'unbless');", _("unblessed"))}
+      %else:
+        ${parent.state_button("bless", fullname, _("bless"), \
+            "return change_state(this, 'bless');", _("blessed"))}
+      %endif
       </li>
     %endif
     <li>

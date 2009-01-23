@@ -91,6 +91,9 @@ class Link(Thing, Printable):
             return True
         else:
             return False
+            
+    def is_blessed(self):
+        return self.sr_id == Subreddit.blessed()._id
 
     def set_url_cache(self):
         if self.url != 'self':
