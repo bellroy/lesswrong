@@ -498,13 +498,8 @@ class FrontController(RedditController):
               article = VLink('article'))
     def GET_editarticle(self, article):
       srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
-      thing = Link._byID(article._id, data = True)
-
       return FormPage(_("submit"), 
-                      content=NewLink(url='',
-                                      title=thing.title,
-                                      subreddits = srs
-                                      )).render()
+                      content=EditLink(article, subreddits=srs, captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
         """Generates the form for an optin/optout page"""

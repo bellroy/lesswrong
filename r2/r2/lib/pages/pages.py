@@ -865,9 +865,13 @@ class FrameToolbar(Wrapped):
 
 class NewLink(Wrapped):
     """Render the link submission form"""
-    def __init__(self, captcha = None, url = '', title= '', subreddits = ()):
-        Wrapped.__init__(self, captcha = captcha, url = url,
+    def __init__(self, captcha = None, article = '', title= '', subreddits = ()):
+        Wrapped.__init__(self, captcha = captcha, article = article,
                          title = title, subreddits = subreddits)
+
+class EditLink(Wrapped):
+    """Render the edit link form"""
+    pass
 
 class ShareLink(Wrapped):
     def __init__(self, link_name = "", emails = None):

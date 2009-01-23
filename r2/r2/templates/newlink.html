@@ -28,13 +28,16 @@
   <h1>${_("Submit article to %(site)s") % dict(site=c.site.name)}</h1>
 %endif
 
+## Exists to be overidden by child templates
+<%def name="form_extra()"></%def>
+
 <%call expr="submit_form(onsubmit='tinyMCE.get(\'article\').save(); return post_form(this, \'submit\', linkstatus, null, true)', 
              action='/submit', _class='long-text content', _id='newlink')">
   %if not thing.subreddits:
     <input type="hidden" name="sr" value="${c.site.name}" />
   %endif
   <input id="url" name="url" type="hidden" value="self" />
-
+  ${self.form_extra()}
   <table>
     <tr>
       <td>
@@ -46,7 +49,7 @@
       </td>
     </tr>
     <tr>
-      <td><textarea id="article" name="article" rows="35"></textarea></td>
+      <td><textarea id="article" name="article" rows="35">${thing.article}</textarea></td>
     </tr>
     %if thing.subreddits:
       <tr>
