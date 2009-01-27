@@ -113,26 +113,10 @@
     content_css : "${static('reddit.css')}",
     body_class : "md",
     theme_advanced_toolbar_location : "top",
-    theme_advanced_buttons1 : "formatselect,|,bold,italic,underline,strikethrough,blockquote,summary,|,bullist,numlist,|,outdent,indent,|,link,unlink,anchor,image,code,html,|,hr,removeformat,|,sub,sup,|,charmap",
+    theme_advanced_buttons1 : "formatselect,|,bold,italic,underline,strikethrough,blockquote,summarybreak,|,bullist,numlist,|,outdent,indent,|,link,unlink,anchor,image,code,html,|,hr,removeformat,|,sub,sup,|,charmap",
     theme_advanced_buttons2 : "",
     theme_advanced_buttons3 : "",
-    setup : function(ed) {
-        ed.addButton('summary', {
-            title : 'Insert summary marker',
-            'class' : 'mce_pagebreak',
-            onclick : function() {
-              var fold_marker = ed.dom.get("more");
-              if(fold_marker) {
-                ed.dom.remove(fold_marker);
-                ed.controlManager.setActive('summary', false)
-              }
-              else {
-                ed.selection.setContent('<a id="more"></a>');
-                ed.controlManager.setActive('summary', true)
-              }
-            }
-        });
-    }
+    plugins : "summarybreak",
   });
 </%def>
 
