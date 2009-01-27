@@ -29,9 +29,27 @@ namespace :deploy do
     run "if [ -e #{public_dir} ]; then rm -rf #{public_dir} && echo '***\n*** #{public_dir} removed (in favour of a symlink to the shared version) ***\n***'; fi"
     run "ln -sv #{shared_dir} #{public_dir}"
   end
+ 
+  desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
+  task :symlink_remote_reddit_ini, :roles => [:app, :db] do
+    run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
+  end
+
+  desc 'Run Reddit setup routine'
+  task :setup_reddit, :roles => [:app] do
+    run "sudo /bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
+  end
+
+  desc "Restart the Application"
+  task :restart, :roles => :app do
+    run "killall paster || true"
+    run "cd #{deploy_to}/current/r2 && paster serve --daemon #{application}.ini"
+  end
 end
 
 #before 'deploy:update_code', 'git:ensure_pushed'
 #before 'deploy:update_code', 'git:ensure_deploy_branch'
 #after "deploy:update_code", "deploy:symlink_remote_db_yaml"
 #after "deploy:symlink", "deploy:apache:config"
+after "deploy:update_code", "deploy:setup_reddit"
+after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
