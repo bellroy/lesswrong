@@ -44,14 +44,14 @@
   </span>
 </%def>
 
-<%def name="make_link(name, css_class)">
+<%def name="make_link(name, css_class, anchor=None)">
   <a id="${name}_${thing._fullname}" 
      onmousedown="setClick(this, '${css_class}')"
      class="${css_class} ${ c.user_is_loggedin and 'loggedin' or ''} ${thing.clicked and 'click' or ''}" 
      %if c.user.pref_frame:
        href="http://${get_domain(cname = c.cname, subreddit = False)}/goto?id=${thing._id36}"
      %else:
-       href="${thing.url}" 
+       href="${thing.url}${anchor and ("#" + anchor) or ''}"
      %endif
      %if thing.nofollow:
        rel="nofollow"
@@ -87,7 +87,7 @@
         ${unsafe(thing._summary())}
       </div>
       % if thing._has_more():
-        <%call expr="make_link('title', 'md')">
+        <%call expr="make_link('read_more', 'md', 'more')">
           Continue reading &ldquo;${thing.title}&rdquo;...
         </%call>
       % endif
