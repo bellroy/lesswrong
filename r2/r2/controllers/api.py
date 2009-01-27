@@ -283,6 +283,11 @@ class ApiController(RedditController):
         # print "\n".join(request.post.va)
         if not l:
           l = Link._submit(request.post.title, request.post.article, c.user, sr, ip, spam)
+          if l.url.lower() == 'self':
+              l.url = l.make_permalink_slow()
+              l.is_self = True
+              l._commit()
+              l.set_url_cache()
           v = Vote.vote(c.user, l, True, ip, spam)
           if save == 'on':
               r = l._save(c.user)
