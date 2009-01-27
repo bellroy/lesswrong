@@ -87,9 +87,9 @@
         ${unsafe(thing._summary())}
       </div>
       % if thing._has_more():
-        <div class="md"><a href="${thing.url}#more">
-        Continue reading &ldquo;${thing.title}&rdquo;...
-        </a></div>
+        <%call expr="make_link('title', 'md')">
+          Continue reading &ldquo;${thing.title}&rdquo;...
+        </%call>
       % endif
     %endif
   %endif
