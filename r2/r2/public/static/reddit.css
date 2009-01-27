@@ -1728,11 +1728,6 @@ ul#image-preview-list .description pre {
 
 .subscription-box h1{ text-align: center; }
 
-#tinymce br#more {
-    width: 100%;
-    height: 9px;
-    border-top: 1px dotted gray;
-    background: #FFF url(/static/continue-thread.png) no-repeat top right;
+a#more {
     display: block;
-    content: '';
 }
