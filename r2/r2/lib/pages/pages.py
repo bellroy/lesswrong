@@ -170,8 +170,9 @@ class Reddit(Wrapped):
                 else:
                    buttons += [NamedButton("adminon",  False,
                                            nocname=not c.authorized_cname,
-                                           target = "_self")]            
-            buttons += [NavButton('create new article', '/submit')]
+                                           target = "_self")]
+            buttons += [NamedButton('submit', False,
+                                    nocname=not c.authorized_cname)] 
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
             buttons += [NamedButton("logout", False,
