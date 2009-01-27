@@ -38,6 +38,7 @@ namespace :deploy do
   desc 'Run Reddit setup routine'
   task :setup_reddit, :roles => [:app] do
     sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
+    sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
   end
 
   desc "Restart the Application"
