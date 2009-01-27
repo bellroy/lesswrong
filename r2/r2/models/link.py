@@ -247,7 +247,8 @@ class Link(Thing, Printable):
                               wrapped.show_reports,
                               wrapped.can_ban,
                               wrapped.thumbnail,
-                              wrapped.moderator_banned))
+                              wrapped.moderator_banned,
+                              wrapped.render_full))
         # htmllite depends on other get params
         s = ''.join(s)
         if c.render_style == "htmllite":
