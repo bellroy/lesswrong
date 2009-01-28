@@ -304,7 +304,9 @@ class ApiController(RedditController):
         else:
           l.title = request.post.title
           l.article = request.post.article
-          l.sr_id = sr._id
+          if l.sr_id != sr._id:
+            l.sr_id = sr._id
+            l._date = datetime.now(g.tz)
           l._commit()
           
         #update the modified flags
