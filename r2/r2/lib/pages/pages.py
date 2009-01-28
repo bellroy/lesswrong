@@ -206,8 +206,8 @@ class Reddit(Wrapped):
         """Sets the layout of the navigation topbar on a Reddit.  The result
         is a list of menus which will be rendered in order and
         displayed at the top of the Reddit."""
-        main_buttons = [NamedButton('hot', dest='', aliases=['/hot']),
-                        NamedButton('new'), 
+        main_buttons = [NamedButton('new', dest='', aliases=['/new']), 
+                        NamedButton('hot'),
                         NamedButton('controversial'),
                         NamedButton('top'),
                         ]

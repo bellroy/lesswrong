@@ -105,7 +105,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/promote/edit_promo/:link', controller='promote', action = 'edit_promo')
     mc('/promote/:action', controller='promote')
 
-    mc('/', controller='hot', action='listing')
+    mc('/', controller='new', action='listing')
     
     listing_controllers = "hot|saved|toplinks|new|recommended|randomrising|comments"
 

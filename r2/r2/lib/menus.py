@@ -422,7 +422,7 @@ class RecSortMenu(SortMenu):
 
 class NewMenu(SimpleGetMenu):
     get_param = 'sort'
-    default   = 'rising'
+    default   = 'new'
     options   = ('new', 'rising')
     type = 'flatlist'
 
