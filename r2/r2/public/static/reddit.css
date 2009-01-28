@@ -656,10 +656,10 @@ before enabling */
 .md h1 { font-weight: normal; font-size: 100%; }
 .md > * { margin-bottom: 0px }
 .md strong { font-weight: bold; }
-.md em { font-style: italic; }
+.md em, .help em { font-style: italic; }
 .md strong em { font-style: italic; font-weight: bold }
-.md ol, .md ul { margin: 10px 2em; }
-.md ul { list-style: disc outside }
+.md ol, .md ul, .help ul { margin: 10px 2em; }
+.md ul, .help ul { list-style: disc outside }
 .md ol { list-style: decimal outside }
 .md pre { margin: 10px; }
 .md blockquote, .help blockquote {
