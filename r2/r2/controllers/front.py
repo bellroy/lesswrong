@@ -498,9 +498,13 @@ class FrontController(RedditController):
               VSRSubmitPage(),
               article = VSubmitLink('article'))
     def GET_editarticle(self, article):
-        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
+        author = Account._byID(article.author_id, data=True)
+        subreddits = Subreddit.submit_sr(author) if c.default_sr else ()
+        if c.user_is_admin:
+          # Add this admin subreddits to the list
+          subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
         return FormPage(_("submit"), 
-                      content=EditLink(article, subreddits=srs, captcha=None)).render()
+                      content=EditLink(article, subreddits=subreddits, captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
         """Generates the form for an optin/optout page"""
