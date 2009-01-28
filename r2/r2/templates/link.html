@@ -183,11 +183,11 @@
     %if c.user_is_admin:
       <li>
       %if thing.is_blessed():
-        ${parent.state_button("unbless", fullname, _("unbless"), \
-            "return change_state(this, 'unbless');", _("unblessed"))}
+        ${parent.state_button("unbless", fullname, _("demote"), \
+            "return change_state(this, 'unbless');", _("demoted"))}
       %else:
-        ${parent.state_button("bless", fullname, _("bless"), \
-            "return change_state(this, 'bless');", _("blessed"))}
+        ${parent.state_button("bless", fullname, _("promote"), \
+            "return change_state(this, 'bless');", _("promoted"))}
       %endif
       </li>
     %endif
