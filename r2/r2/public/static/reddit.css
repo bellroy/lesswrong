@@ -95,6 +95,15 @@ input[type=checkbox], input[type=radio] { margin-top: .4em; }
     z-index: 99;
 }
 
+#alternate {
+  float: right;
+  padding: 4px 4px 0 0;
+}
+
+#alternate:hover {
+  text-decoration: underline;
+}
+
 #header-img {margin-top: 2px;}
 
 #header-top {
