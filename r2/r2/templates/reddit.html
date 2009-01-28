@@ -97,7 +97,11 @@
 <%def name="javascript_run()">
   var class_dict = ${class_dict()};
   var where = ${path_info()};
-  var cur_site = "${c.site._fullname if not c.default_sr else ''}";
+  %if hasattr(c.site, '_fullname'):
+    var cur_site = "${c.site._fullname if not c.default_sr else ''}";
+  %else:
+    var cur_site = '';
+  %endif
   window.onload = init;
   window.onpageshow = function(evt) {
     if (evt.persisted) init()
