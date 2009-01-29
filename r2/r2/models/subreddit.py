@@ -72,7 +72,6 @@ class Subreddit(Thing, Printable):
             return sr
 
     @classmethod
-    @memoize('subreddit.default_sr')
     def default(cls):
       try:
         return cls._by_name(g.default_sr)
@@ -80,7 +79,6 @@ class Subreddit(Thing, Printable):
         return DefaultSR()
 
     @classmethod
-    @memoize('subreddit.blessed_sr')
     def blessed(cls):
       try:
         return cls._by_name(g.blessed_sr)
