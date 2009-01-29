@@ -35,6 +35,7 @@ from pylons import c, g, request
 from pylons.i18n import ungettext
 
 import random
+from datetime import datetime
 
 class LinkExists(Exception): pass
 
@@ -349,6 +350,13 @@ class Link(Thing, Printable):
         on the wrapped link (as .subreddit), and that should be used
         when possible. """
         return Subreddit._byID(self.sr_id, True, return_dict = False)
+
+    def change_subreddit(self, new_sr_id):
+        """Change the subreddit of the link and update its date"""
+        if self.sr_id != new_sr_id:
+            self.sr_id = new_sr_id
+            self._date = datetime.now(g.tz)
+            self._commit()
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour

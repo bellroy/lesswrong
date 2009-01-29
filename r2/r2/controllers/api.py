@@ -215,23 +215,17 @@ class ApiController(RedditController):
                                         subreddits = srs,
                                         captcha=captcha)).render()
 
-    def change_subreddit(self, link, new_sr_id):
-        if link.sr_id != new_sr_id:
-          link.sr_id = new_sr_id
-          link._date = datetime.now(g.tz)
-          link._commit()
-
     @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_bless(self, res, link):
-        self.change_subreddit(link, Subreddit.blessed()._id)
+        link.change_subreddit(Subreddit.blessed()._id)
 
     @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_unbless(self, res, link):
-        self.change_subreddit(link, Subreddit.default()._id)
+        link.change_subreddit(Subreddit.default()._id)
 
     @Json
     @validate(VUser(),
@@ -307,9 +301,7 @@ class ApiController(RedditController):
         else:
           l.title = request.post.title
           l.article = request.post.article
-          if l.sr_id != sr._id:
-            l.sr_id = sr._id
-            l._date = datetime.now(g.tz)
+          l.change_subreddit(sr._id)
           l._commit()
           
         #update the modified flags
