@@ -263,6 +263,22 @@ class ToplinksController(ListingController):
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
+class BlessedController(ListingController):
+    where = 'new'
+    title_text = _('latest articles')
+
+    def query(self):
+        return c.site.get_links('new', 'all')
+      
+    def GET_listing(self, **env):
+        return ListingController.GET_listing(self, **env)
+
+# Controller for '/' depending on the subreddit
+class RootController(ListingController):
+  def __before__(self):
+    ListingController.__before__(self)
+    self.__class__ = HotController if c.default_sr else BlessedController
+
 class NewController(ListingController):
     where = 'new'
     title_text = _('newest submissions')
