@@ -215,20 +215,23 @@ class ApiController(RedditController):
                                         subreddits = srs,
                                         captcha=captcha)).render()
 
+    def change_subreddit(self, link, new_sr_id):
+        if link.sr_id != new_sr_id:
+          link.sr_id = new_sr_id
+          link._date = datetime.now(g.tz)
+          link._commit()
 
     @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_bless(self, res, link):
-        link.sr_id = Subreddit.blessed()._id
-        link._commit()
+        self.change_subreddit(link, Subreddit.blessed()._id)
 
     @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_unbless(self, res, link):
-        link.sr_id = Subreddit.default()._id
-        link._commit()
+        self.change_subreddit(link, Subreddit.default()._id)
 
     @Json
     @validate(VUser(),
