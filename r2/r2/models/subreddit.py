@@ -74,12 +74,18 @@ class Subreddit(Thing, Printable):
     @classmethod
     @memoize('subreddit.default_sr')
     def default(cls):
+      try:
         return cls._by_name(g.default_sr)
+      except NotFound:
+        return DefaultSR()
 
     @classmethod
     @memoize('subreddit.blessed_sr')
     def blessed(cls):
+      try:
         return cls._by_name(g.blessed_sr)
+      except NotFound:
+        return DefaultSR()
 
     @classmethod
     @memoize('subreddit._by_name')
