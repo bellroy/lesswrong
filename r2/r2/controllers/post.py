@@ -102,6 +102,7 @@ class PostController(ApiController):
         u.update_query(done = 'true')
         if c.cname:
             u.put_in_frame()
+        print "*** redirect to %s" % u.unparse()
         return self.redirect(u.unparse())
             
     def GET_over18(self):
