@@ -128,6 +128,12 @@ input[type=checkbox], input[type=radio] { margin-top: .4em; }
 #mail img {position: relative; top: 2px}
 .user {color: gray;}
 
+.contributors {
+    font-size: larger;
+}
+.contributors .user {
+    margin: 8px;
+}
 
 .pagename {
     font-weight: bold;
@@ -353,6 +359,13 @@ input[type=checkbox], input[type=radio] { margin-top: .4em; }
     margin-left: 10px;
     color: dimgray;
     font-size: 110%;
+}
+
+.reddit-entry {
+    padding: 5px;
+}
+.reddit-link-title {
+    font-size: small;
 }
 
 /* raised box */

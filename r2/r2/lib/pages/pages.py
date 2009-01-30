@@ -30,6 +30,7 @@ from pylons.controllers.util import abort
 
 from r2.lib.captcha import get_iden
 from r2.lib.filters import spaceCompress, _force_unicode, _force_utf8
+from r2.lib.db.queries import db_sort
 from r2.lib.menus import NavButton, NamedButton, NavMenu, PageNameNav, JsButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
@@ -260,17 +261,20 @@ class LoginFormWide(Wrapped):
 
 class RecentComments(Wrapped):
     def __init__(self, *args, **kwargs):
-        from r2.lib.db.queries import db_sort
-        self.things = QueryBuilder(InlineComment._query(sort=db_sort('new'), limit=5))
+        self.things = QueryBuilder(InlineComment._query(InlineComment.c.sr_id == c.site._id, sort=db_sort('new'), limit=5))
         Wrapped.__init__(self, *args, **kwargs)
         
 class RecentArticles(Wrapped):
     def __init__(self, *args, **kwargs):
-        self.things = QueryBuilder(InlineArticle._query())
+        self.things = QueryBuilder(InlineArticle._query(InlineArticle.c.sr_id == c.site._id, sort=db_sort('new'), limit=5))
         Wrapped.__init__(self, *args, **kwargs)
 
 class TopContributors(Wrapped):
-    pass
+    def __init__(self, *args, **kwargs):
+        from r2.lib.user_stats import top_users
+        uids = top_users()
+        self.things = Account._byID(uids, data=True)
+        Wrapped.__init__(self, *args, **kwargs)
 
 class SubredditInfoBar(Wrapped):
     """When not on Default, renders a sidebox which gives info about
@@ -481,12 +485,6 @@ class LinkInfoPage(Reddit):
     def content(self):
         return self.content_stack(self.infobar, self.link_listing,
                                   self.nav_menu, self._content)
-
-    def rightbox(self):
-        rb = Reddit.rightbox(self)
-        if not (self.link.promoted and not c.user_is_sponsor):
-            rb.insert(1, LinkInfoBar(a = self.link))
-        return rb
 
 class LinkInfoBar(Wrapped):
     """Right box for providing info about a link."""

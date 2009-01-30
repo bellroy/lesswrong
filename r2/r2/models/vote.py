@@ -59,10 +59,6 @@ class Vote(MultiRelation('vote',
         kind = obj.__class__.__name__.lower()
         karma = sub.karma(kind, sr)
 
-        is_self_link = (kind == 'link'
-                        and hasattr(obj,'is_self')
-                        and obj.is_self)
-        
         #check for old vote
         rel = cls.rel(sub, obj)
         oldvote = list(rel._query(rel.c._thing1_id == sub._id,
@@ -95,8 +91,7 @@ class Vote(MultiRelation('vote',
             v.ip = ip
             old_valid_thing = v.valid_thing = (valid_thing(v, karma) and
                                                not spam)
-            v.valid_user = (v.valid_thing and valid_user(v, sr, karma)
-                            and not is_self_link)
+            v.valid_user = v.valid_thing and valid_user(v, sr, karma)
             if organic:
                 v.organic = organic
 

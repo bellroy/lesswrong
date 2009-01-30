@@ -40,72 +40,18 @@
 
    domain = get_domain(subreddit=False)
    permalink = "http://%s%s" % (domain, thing.permalink)
-   if thing.likes == False:
-      arrow = "http://%s/static/widget_arrows_down.gif"
-   elif thing.likes:
-      arrow = "http://%s/static/widget_arrows_up.gif"
-   else:
-      arrow = "http://%s/static/widget_arrows.gif"
-   arrow = arrow % domain
-   expanded = request.get.get("expanded")
-   two_col = request.get.has_key("twocolumn") if l else False
  %>
-  %if expanded:
-  <div class="reddit-voting-arrows" 
-     ${optionalstyle("float:left; margin: 1px;")}>
-    <script type="text/javascript">
-      var reddit_bordercolor="FFFFFF";
-    </script>
-    <%
-       url = "http://%s/button_content?t=4&id=%s" % (get_domain(cname = c.cname, subreddit = True), thing._fullname)
-       if c.bgcolor:
-          url += "&bgcolor=%s&bordercolor=%s" % (c.bgcolor, c.bgcolor)
-       else:
-          url += "&bgcolor=FFFFFF&bordercolor=FFFFFF"
-     %>
-    <iframe src="${url}" height="55" width="51" scrolling="no" frameborder="0"
-            ${optionalstyle("margin:0px;")}>
-    </iframe>
-  </div>
-  %else:
-  <a href="${permalink}" class="reddit-voting-arrows" target="_blank"
-     ${optionalstyle("float:left; display:block;")}>
-    <img src="${arrow}" alt="vote" ${optionalstyle("border:none;margin-top:3px;")}/>
-  </a>
-  %endif
-  <div class="reddit-entry" 
-       %if expanded:
-         ${optionalstyle("margin-left: 58px;")}
-       %else:
-         ${optionalstyle("margin-left: 20px; min-height:32px;")}
-       %endif
-       >
-    <a href="${thing.url}" class="reddit-link-title"
-      ${optionalstyle("text-decoration:none;color:#336699;font-size:small;")}>
+  <div class="reddit-entry">
+    <a href="${thing.url}" class="reddit-link-title">
       ${thing.title}
-    </a>
-    %if not expanded:
-      <br />
-    %endif
-    <small 
-       %if expanded:
-         ${optionalstyle("color:gray;margin-left:5px;")}
-       %else:
-         ${optionalstyle("color:gray;")}
-       %endif
-       >
-      %if not expanded:
+    </a><br />
+    <small>
       by&#32;<a href="http://${get_domain(True, True)}/user/${thing.author.name}">
-        <b>${thing.author.name}</b></a> |&#32;
+        <b>${thing.author.name}</b></a>&#32;|&#32;
       ${thing.score} ${ungettext("point", "points", thing.score)} 
-      |&#32;
-      %endif
-      <a class="reddit-comment-link"
-         ${optionalstyle("color:gray")}
-         href="${permalink}">${com_label}</a>
     </small>
   </div>
-  <div class="reddit-link-end" ${optionalstyle("clear:left; padding:3px;")}>
+  <div class="reddit-link-end">
     <!--IE6sux-->
   </div>
 </%def>
