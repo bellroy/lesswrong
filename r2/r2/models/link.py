@@ -405,6 +405,10 @@ class LinkCompressed(Link):
             item.score_fmt = Score.points
 
 
+class InlineArticle(Link):
+    """Exists to gain a different render_class in Wrapped"""
+    _nodb = True
+
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
     _defaults = dict(reported = 0, 
@@ -553,6 +557,10 @@ class Comment(Thing, Printable):
             item.num_children = 0
             item.score_fmt = Score.points
             item.permalink = item.make_permalink(item.link, item.subreddit)
+
+class InlineComment(Comment):
+    """Exists to gain a different render_class in Wrapped"""
+    _nodb = True
 
 class MoreComments(object):
     show_spam = False

@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, LinkListing, Account, Default, FakeSubreddit, Subreddit
+from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -75,13 +75,13 @@ class Reddit(Wrapped):
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
-                 show_sidebar = False, **context):
+                 show_sidebar = True, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
         self.infotext       = infotext
         self.loginbox       = True
-        self.show_sidebar   = False
+        self.show_sidebar   = show_sidebar if not c.default_sr else False
         self.space_compress = space_compress
 
         #put the sort menus at the top
@@ -134,6 +134,11 @@ class Reddit(Wrapped):
                               '/reddits/create', 'create',
                               subtitles = rand_strings.get("create_reddit", 2),
                               show_cover = True, nocname=True))
+        
+        ps.append(RecentArticles())
+        ps.append(RecentComments())
+        ps.append(TopContributors())
+        
         return ps
 
     def render(self, *a, **kw):
@@ -251,6 +256,19 @@ class Reddit(Wrapped):
 
 class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
+    pass
+
+class RecentComments(Wrapped):
+    def __init__(self, *args, **kwargs):
+        self.things = QueryBuilder(InlineComment._query())
+        Wrapped.__init__(self, *args, **kwargs)
+        
+class RecentArticles(Wrapped):
+    def __init__(self, *args, **kwargs):
+        self.things = QueryBuilder(InlineArticle._query())
+        Wrapped.__init__(self, *args, **kwargs)
+
+class TopContributors(Wrapped):
     pass
 
 class SubredditInfoBar(Wrapped):
