@@ -260,7 +260,8 @@ class LoginFormWide(Wrapped):
 
 class RecentComments(Wrapped):
     def __init__(self, *args, **kwargs):
-        self.things = QueryBuilder(InlineComment._query())
+        from r2.lib.db.queries import db_sort
+        self.things = QueryBuilder(InlineComment._query(sort=db_sort('new'), limit=5))
         Wrapped.__init__(self, *args, **kwargs)
         
 class RecentArticles(Wrapped):

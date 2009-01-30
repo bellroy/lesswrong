@@ -4,7 +4,7 @@
    comment_generator = t.item_iter(t.get_items())
 %>
 %for a in comment_generator:
-  <div class="reddit-comment">
+  <div class="comment inline">
    ${a.render()}
   </div>
 %endfor:

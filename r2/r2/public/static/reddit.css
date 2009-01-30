@@ -813,6 +813,23 @@ a.star { text-decoration: none; color: #ff8b60 }
     margin-left: 15px; 
 }
 
+.comment.inline {
+    margin: 8px;
+    width: 280px;
+}
+.comment.inline .tagline {
+    font-size: smaller;
+    margin: 0;
+}
+.comment.inline .body {
+    font-size: smaller;
+    display: block;
+    margin: 0 0 1em 1em;
+    width: 90%;
+    height: 2em;
+    overflow: hidden;
+}
+
 .commentreply {
     margin: 10px; 
     margin-left: 15px; 
