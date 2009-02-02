@@ -38,7 +38,8 @@ def top_users():
                           tt.c.deleted == False,
                           karma.c.thing_id == tt.c.thing_id,
                           karma.c.key.like('%link_karma')),
-                  order_by = sa.desc(sa.cast(karma.c.value, sa.Integer)),
+                  group_by = [tt.c.thing_id],
+                  order_by = sa.desc(sa.func.sum(sa.cast(karma.c.value, sa.Integer))),
                   limit = 10)
     # Translation of query:
     # SELECT
@@ -49,7 +50,7 @@ def top_users():
     #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
     #   reddit_data_account.key LIKE '%link_karma')
     # ORDER BY
-    #  to_number(reddit_data_account.value) DESC
+    #  sum(CAST(reddit_data_acc_3355.value AS INTEGER)) DESC
     # LIMIT 10
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
