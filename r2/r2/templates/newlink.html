@@ -6,21 +6,22 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
 <%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links"/>
+<%namespace file="printable.html" import="yes_no_button"/>
 
 %if thing.subreddits:
   <h1>${_("Submit article")}</h1>
@@ -31,7 +32,7 @@
 ## Exists to be overidden by child templates
 <%def name="form_extra()"></%def>
 
-<%call expr="submit_form(onsubmit='tinyMCE.get(\'article\').save(); return post_form(this, \'submit\', linkstatus, null, true)', 
+<%call expr="submit_form(onsubmit='tinyMCE.get(\'article\').save(); return post_form(this, \'submit\', linkstatus, null, true)',
              action='/submit', _class='long-text content', _id='newlink')">
   %if not thing.subreddits:
     <input type="hidden" name="sr" value="${c.site.name}" />
@@ -41,7 +42,7 @@
     <tr>
       <td>
       <label for="title">${_("Title")}:</label>
-      <input id="title" name="title" value="${thing.title}" 
+      <input id="title" name="title" value="${thing.title}"
                  onfocus="clearTitle(this)" type="text" />
         ${error_field("NO_TITLE", "span")}
         ${error_field("TITLE_TOO_LONG", "span")}
@@ -77,8 +78,153 @@
   <script type="text/javascript">
     var form = $('newlink');
     if(form) {
-      setMessage(form.title, 
+      setMessage(form.title,
                  "${_('enter a title for the article.')}")
     }
   </script>
 </%call>
+
+<div id="images">
+  <h2><a name="images">${_("images")}</a></h2>
+
+  <form class="pretty-form image-upload" enctype="multipart/form-data"
+        target="upload-iframe" id="image-upload"
+        action="/api/upload_sr_img" method="post"
+        onsubmit="return check_name(this)">
+    <input type="hidden" name="uh" value="${c.modhash}" />
+    <!-- <input type="hidden" name="r"  value="${c.site.name}" /> -->
+    <input type="hidden" name="r"  value="lesswrong" />
+    <table>
+      <tr>
+        <th>
+          <label for="srfile">${_("image file:")}</label>
+        </th>
+        <td>
+          <input type="file" name="file" id="srfile"
+                 onchange="return file_changed(this)"/>
+          <button id="submit-header-img" type="submit" name="upload"
+                  onclick="return upload_image(this.form, '${_('uploading')}');"
+                  style="display: none;" >
+            ${_('Upload')}
+          </button>
+          <span style="display: none;" class="error" id="img-status"></span>
+          ${error_field("IMAGE_ERROR", "span")}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          <label for="img-name">${_("new image name:")}</label>
+        </th>
+        <td>
+          <input id="img-name" name="name" value="" type="text"/>
+          ${error_field("BAD_CSS_NAME", "span")}
+          <br/>
+          <span class="little gray">
+            ${_("(image names should consist of alphanumeric characters and '-' only)")}
+          </span>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <script type="text/javascript">
+    /* <![CDATA[ */
+      function too_big() {
+          $("IMAGE_ERROR").innerHTML = "image too big: there is a 500k cap";
+          $("img-status").innerHTML = "";
+      }
+      function get_name(source) {
+          if(source.id && source.id.split) {
+             var name = source.id.split('_');
+             return name[name.length - 1];
+          }
+      }
+      function paste_url(source) {
+          insertAtCursor("stylesheet_contents",
+                         "url(%%" + get_name(source) + "%%)");
+          return false;
+      }
+      function delete_img(button) {
+          var n=get_name(button);
+          var form = button.parentNode.parentNode;
+          if (n && form && form.id && typeof(form.id) != "string") {
+            form.id.value = n;
+            form.img_name.value = n;
+          }
+          return deletetoggle(button, 'delete_sr_img');
+      }
+      function file_changed(file_input) {
+          show('submit-header-img');
+          $("img-status").innerHTML = "";
+          if(file_input.value) {
+              var f = file_input.value.replace(/.*[\/\\]/, "").split('.')[0];
+              f = f.replace(/[ _]/g, "-");
+              if(! $('img-name').value)
+                  $('img-name').value = f;
+          }
+      }
+      function check_name(form) {
+         var name = form.name.value;
+         var r = new RegExp(/[^a-zA-Z0-9\-]/);
+         if (name == "" || name.match(r)) {
+            $("img-status").innerHTML = "";
+            show("BAD_CSS_NAME");
+            $("BAD_CSS_NAME").innerHTML = "${_('bad image name')}";
+            return false;
+         }
+         else if(form.srfile.value) {
+            $("BAD_CSS_NAME").innerHTML = "";
+            $("IMAGE_ERROR").innerHTML = "";
+            return true;
+         } else {
+            $("img-status").innerHTML = "";
+            show("IMAGE_ERROR");
+            $("IMAGE_ERROR").innerHTML = "${_('please select an image')}";
+            return false;
+         }
+      }
+  /* ]]> */
+  </script>
+  <ul id="image-preview-list" class="image-list">
+    <%def name="make_li(name='', img = None, prototype=False)">
+      <li ${"style='display:none'" if img is None else ""}
+          id="${'img-prototype' if prototype else ('img-li_%s' % name) }">
+        <%
+           if img is not None:
+               img = "http:/%s%s_%d.png" % (g.s3_thumb_bucket, c.site._fullname, img)
+           else:
+               img = "/static/kill.png"
+           %>
+        <a href="${img}" id="img-preview-a_${name}" class="preview">
+          <img id="img-preview_${name}" src="${img}" alt="Image ${name}"
+               title="click to preview"/>
+        </a>
+        <div class="description">
+          <b id="img_name_${name}">
+            ${name}
+          </b>
+          <br/>
+          <span id="description_${name}">link:</span>
+          <pre id="img_url_${name}">url(%%${name}%%)</pre>
+          <br/>
+          <a id="paste_image_${name}" href="javascript:void(0)"
+             onclick="return paste_url(this)">
+            ${_("paste into stylesheet")}
+          </a>
+          <br/>
+          ${yes_no_button("delete_sr_img", name,
+                          _("delete this image"),
+                          "return delete_img(this)",
+                          "", img_name = name)}
+        </div>
+      </li>
+    </%def>
+    ${make_li(prototype=True)}
+    %for name, img_num in c.site.get_images():
+       ${make_li(name = name, img = img_num)}
+    %endfor
+  </ul>
+
+  <iframe src="about:blank" width="600" height="200" style="display: none;"
+          name="upload-iframe" id="upload-iframe"></iframe>
+
+</div>
