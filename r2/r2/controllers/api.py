@@ -904,8 +904,7 @@ class ApiController(RedditController):
         """
         return "nothing to see here."
 
-    @validate(VSrModerator(),
-              VModhash(),
+    @validate(VModhash(),
               file = VLength('file', length=1024*500),
               name = VCssName("name"),
               header = nop('header'))
