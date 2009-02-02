@@ -273,7 +273,11 @@ class TopContributors(Wrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users
         uids = top_users()
-        self.things = Account._byID(uids, data=True)
+        # Returns a hash keyed in the uid
+        users = Account._byID(uids, data=True)
+        # Retrieve the Account objects in this way to preseve the sort order
+        self.things = (users[u] for u in uids)
+
         Wrapped.__init__(self, *args, **kwargs)
 
 class SubredditInfoBar(Wrapped):

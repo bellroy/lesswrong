@@ -37,15 +37,28 @@ def top_users():
                   sa.and_(tt.c.spam == False,
                           tt.c.deleted == False,
                           karma.c.thing_id == tt.c.thing_id,
-                          karma.c.key == 'link_karma'),
+                          karma.c.key.like('%link_karma')),
                   order_by = sa.desc(sa.cast(karma.c.value, sa.Integer)),
                   limit = 10)
+    # Translation of query:
+    # SELECT
+    #  reddit_thing_account.thing_id,
+    # WHERE
+    #  (reddit_thing_account.spam = f AND
+    #   reddit_thing_account.deleted = f AND
+    #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
+    #   reddit_data_account.key LIKE '%link_karma')
+    # ORDER BY
+    #  to_number(reddit_data_account.value) DESC
+    # LIMIT 10
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
 
 def top_user_change(period = '1 day'):
     rel = Vote.rel(Account, Link)
     type = tdb.rel_types_id[rel._type_id]
+    # rt = rel table
+    # dt = data table
     rt, account, link, dt = type.rel_table
 
     author = dt.alias()
