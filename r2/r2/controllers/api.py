@@ -963,6 +963,54 @@ class ApiController(RedditController):
                                  errors = errors).render()
     
 
+    @validate(VModhash(),
+              link = VLink('article_id'),
+              file = VLength('file', length=1024*500),
+              name = VCssName("name"))
+    def POST_upload_link_img(self, link, file, name):
+        """
+        Upload an image to a link
+
+        The result of this function is a rendered UploadedImage()
+        object in charge of firing the completedUploadImage() call in
+        JS.
+        """
+
+        # default error list (default values will reset the errors in
+        # the response if no error is raised)
+        errors = dict(BAD_CSS_NAME = "", IMAGE_ERROR = "")
+        try:
+            cleaned = cssfilter.clean_image(file,'PNG')
+            if not name:
+                # error if the name wasn't specified or didn't satisfy
+                # the validator
+                errors['BAD_CSS_NAME'] = _("bad image name")
+            else:
+                num = link.add_image(name, max_num = g.max_sr_images)
+                link._commit()
+
+        except cssfilter.BadImage:
+            # if the image doesn't clean up nicely, abort
+            errors["IMAGE_ERROR"] = _("bad image")
+        except ValueError:
+            # the add_image method will raise only on too many images
+            errors['IMAGE_ERROR'] = (
+                _("too many images (you only get %d)") % g.max_sr_images)
+
+        if any(errors.values()):
+            return  UploadedImage("", "", "", errors = errors).render()
+        else:
+            # with the image num, save the image an upload to s3.  the
+            #  image will be of the form ${link._fullname}_${num}.png
+            # Note save_sr_image expects the first argument to be a
+            # subreddit, however that argument just needs to respond to
+            # fullname, which links do.
+            new_url = cssfilter.save_sr_image(link, cleaned, num = num)
+
+            return UploadedImage(_('saved'), new_url, name,
+                                 errors = errors).render()
+
+
     @Json
     @validate(VUser(),
               VModhash(),

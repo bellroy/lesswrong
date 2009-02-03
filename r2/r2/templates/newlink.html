@@ -84,16 +84,16 @@
   </script>
 </%call>
 
+%if hasattr(thing, 'images'):
 <div id="images">
   <h2><a name="images">${_("images")}</a></h2>
 
   <form class="pretty-form image-upload" enctype="multipart/form-data"
         target="upload-iframe" id="image-upload"
-        action="/api/upload_sr_img" method="post"
+        action="/api/upload_link_img" method="post"
         onsubmit="return check_name(this)">
     <input type="hidden" name="uh" value="${c.modhash}" />
-    <!-- <input type="hidden" name="r"  value="${c.site.name}" /> -->
-    <input type="hidden" name="r"  value="lesswrong" />
+    ${self.form_extra()}
     <table>
       <tr>
         <th>
@@ -190,7 +190,7 @@
           id="${'img-prototype' if prototype else ('img-li_%s' % name) }">
         <%
            if img is not None:
-               img = "http:/%s%s_%d.png" % (g.s3_thumb_bucket, c.site._fullname, img)
+               img = "http:/%s%s_%d.png" % (g.s3_thumb_bucket, thing._fullname, img)
            else:
                img = "/static/kill.png"
            %>
@@ -219,7 +219,7 @@
       </li>
     </%def>
     ${make_li(prototype=True)}
-    %for name, img_num in c.site.get_images():
+    %for name, img_num in thing.get_images():
        ${make_li(name = name, img = img_num)}
     %endfor
   </ul>
@@ -228,3 +228,4 @@
           name="upload-iframe" id="upload-iframe"></iframe>
 
 </div>
+%endif
