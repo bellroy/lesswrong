@@ -236,9 +236,10 @@ class ApiController(RedditController):
               title = VTitle('title'),
               l = VLink('article_id'),
               new_content = nop('article'),
-              save = nop('save')
+              save = nop('save'),
+              continue_editing = VBoolean('continue')
               )
-    def POST_submit(self, res, l, new_content, title, save, sr, ip):
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip):
         # TODO: find out where arguments come from
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link')
@@ -311,13 +312,16 @@ class ApiController(RedditController):
         # flag search indexer that something has changed
         tc.changed(l)
         
-        # make_permalink is designed for links that can be set to _top
-        # here, we need to generate an ajax redirect as if we were not on a
-        # cname.
-        cname = c.cname
-        c.cname = False
-        path = l.make_permalink_slow()
-        c.cname = cname
+        if continue_editing:
+          path = "/edit/%s" % l._id36
+        else:
+          # make_permalink is designed for links that can be set to _top
+          # here, we need to generate an ajax redirect as if we were not on a
+          # cname.
+          cname = c.cname
+          c.cname = False
+          path = l.make_permalink_slow()
+          c.cname = cname
 
         res._redirect(path)
 
