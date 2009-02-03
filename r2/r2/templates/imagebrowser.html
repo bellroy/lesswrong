@@ -1,4 +1,4 @@
-<%! 
+<%!
    import simplejson
    import os
  %>
@@ -21,15 +21,15 @@
             type="text/css" />
     %endif
   %else:
-    <link rel="stylesheet" href="${static(g.stylesheet)}" 
+    <link rel="stylesheet" href="${static(g.stylesheet)}"
           type="text/css" />
     %if c.allow_styles:
       %if c.site.stylesheet:
-      <link rel="stylesheet" href="${static(c.site.stylesheet)}" 
+      <link rel="stylesheet" href="${static(c.site.stylesheet)}"
             type="text/css" />
       %endif
       %if c.site.stylesheet_contents:
-      <link rel="stylesheet" 
+      <link rel="stylesheet"
             href="http://${get_domain(cname=False, subreddit=True)}/stylesheet.css?v=${c.site.stylesheet_hash}"
             title="applied_subreddit_stylesheet"
             type="text/css" />
@@ -67,17 +67,31 @@
 ##      parent.completedUploadImage('${thing.status}','${thing.img_src or ""}',
 ##                                  '${thing.name or ""}', ${unsafe(errors)});
 
-      var FileBrowserDialogue = {
-          init : function () {
-              // Here goes your code for setting your custom things onLoad.
-          },
-          mySubmit : function () {
-              // Here goes your code to insert the retrieved URL value into the original dialogue window.
-              // For example code see below.
-          }
+  var FileBrowserDialogue = {
+    init : function () {
+      // Here goes your code for setting your custom things onLoad.
+    },
+    mySubmit : function () {
+      var URL = document.my_form.my_field.value;
+      var win = tinyMCEPopup.getWindowArg("window");
+
+      // insert information now
+      win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = URL;
+
+      // are we an image browser
+      if (typeof(win.ImageDialog) != "undefined")
+      {
+        // we are, so update image dimensions and preview if necessary
+        if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+        if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(URL);
       }
 
-      tinyMCEPopup.onInit.add(FileBrowserDialogue.init, FileBrowserDialogue);
+      // close popup window
+      tinyMCEPopup.close();
+    }
+  }
+
+  tinyMCEPopup.onInit.add(FileBrowserDialogue.init, FileBrowserDialogue);
 </%def>
 
 <%def name="bodyHTML()">
@@ -150,6 +164,22 @@
               }
               return deletetoggle(button, 'delete_link_img');
           }
+          function choose_img (img) {
+              var win = tinyMCEPopup.getWindowArg("window");
+            
+              win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = img.src;
+
+              // are we an image browser
+              if (typeof(win.ImageDialog) != "undefined")
+              {
+                  // we are, so update image dimensions and preview if necessary
+                  if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+                  if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(img.src);
+              }
+
+              // close popup window
+              tinyMCEPopup.close();
+          }
           function file_changed(file_input) {
               show('submit-header-img');
               $("img-status").innerHTML = "";
@@ -194,7 +224,8 @@
                %>
             <a href="${img}" id="img-preview-a_${name}" class="preview">
               <img id="img-preview_${name}" src="${img}" alt="Image ${name}"
-                   title="click to preview"/>
+                title="click to select"
+                onclick="return choose_img(this)"/>
             </a>
             <div class="description">
               <b id="img_name_${name}">
