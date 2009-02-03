@@ -867,7 +867,27 @@ class ApiController(RedditController):
         res._hide("img-li_%s" % name)
         # reset the status
         res._update('img-status', innerHTML = _("deleted"))
-    
+
+
+    @Json
+    @validate(VModhash(),
+              link = VLink('article_id'),
+              name = VCssName('img_name'))
+    def POST_delete_link_img(self, res, link, name):
+        """
+        Updates the link's image list, and causes the <li> which wraps
+        the image to be hidden.
+        """
+        # just in case we need to kill this feature from XSS
+        if g.css_killswitch:
+            return self.abort(403,'forbidden')
+        link.del_image(name)
+        link._commit()
+        # hide the image and it's container
+        res._hide("img-li_%s" % name)
+        # reset the status
+        res._update('img-status', innerHTML = _("deleted"))
+
 
     @Json
     @validate(VSrModerator(),
@@ -901,6 +921,12 @@ class ApiController(RedditController):
         URL of the POST, and safari attempts to execute a GET against
         it.  The iframe is hidden, so what it returns is completely
         irrelevant.
+        """
+        return "nothing to see here."
+
+    def GET_upload_link_img(self, *a, **kw):
+        """
+        As above
         """
         return "nothing to see here."
 

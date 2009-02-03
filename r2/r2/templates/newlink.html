@@ -150,7 +150,7 @@
             form.id.value = n;
             form.img_name.value = n;
           }
-          return deletetoggle(button, 'delete_sr_img');
+          return deletetoggle(button, 'delete_link_img');
       }
       function file_changed(file_input) {
           show('submit-header-img');
@@ -211,10 +211,11 @@
             ${_("paste into stylesheet")}
           </a>
           <br/>
-          ${yes_no_button("delete_sr_img", name,
+          ${yes_no_button("delete_link_img", name,
                           _("delete this image"),
                           "return delete_img(this)",
-                          "", img_name = name)}
+                          "", img_name = name,
+                          article_id = thing._id36)}
         </div>
       </li>
     </%def>
