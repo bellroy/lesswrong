@@ -781,6 +781,12 @@ class UploadedImage(Wrapped):
         self.errors = list(errors.iteritems())
         Wrapped.__init__(self, status=status, img_src=img_src, name = name)
 
+class ImageBrowser(Wrapped):
+    "The page rendered in the tinyMCE image browser window"
+    def __init__(self, article):
+        self.article = article
+        Wrapped.__init__(self)
+
 class Password(Wrapped):
     """Form encountered when 'recover password' is clicked in the LoginFormWide."""
     def __init__(self, success=False):
