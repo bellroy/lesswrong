@@ -198,6 +198,10 @@ class Account(Thing):
         from subreddit import Subreddit
         return Subreddit.user_subreddits(self)
 
+    @property
+    def draft_sr_name(self):
+      return self.name + "-drafts"
+
     def recent_share_emails(self):
         return self.share.get('recent', set([]))
 

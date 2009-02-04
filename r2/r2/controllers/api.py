@@ -394,7 +394,7 @@ class ApiController(RedditController):
 
         # Create a drafts subredit for this user
         sr = Subreddit._new(
-            name = user.name + "-drafts",
+            name = user.draft_sr_name,
             title = "Drafts for " + user.name,
             type = "private"
         )
