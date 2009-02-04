@@ -55,7 +55,7 @@ class Link(Thing, Printable):
                      disable_comments = False,
                      ip = '0.0.0.0',
                      render_full = False,
-                     images = {})
+                     images = None)
 
     def __init__(self, *a, **kw):
         Thing.__init__(self, *a, **kw)
@@ -364,9 +364,10 @@ class Link(Thing, Printable):
         Iterator over list of (name, image_num) pairs which have been
         uploaded for custom styling of this subreddit.
         """
-        for name, img_num in self.images.iteritems():
-            if isinstance(img_num, int):
-                yield (name, img_num)
+        if self.images:
+          for name, img_num in self.images.iteritems():
+              if isinstance(img_num, int):
+                  yield (name, img_num)
 
     def add_image(self, name, max_num = None):
         """
@@ -383,6 +384,9 @@ class Link(Thing, Printable):
         The Link will be _dirty if a new image has been added to
         its images list, and no _commit is called.
         """
+        if not self.images:
+          self.images = {}
+          
         if not self.images.has_key(name):
             # copy and blank out the images list to flag as _dirty
             l = self.images
@@ -413,6 +417,9 @@ class Link(Thing, Printable):
         The Subreddit will be _dirty if image has been removed from
         its images list, and no _commit is called.
         """
+        if not self.images:
+          return
+
         if self.images.has_key(name):
             l = self.images
             self.images = None
