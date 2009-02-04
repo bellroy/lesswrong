@@ -236,6 +236,10 @@ def get_hidden(user):
 def get_saved(user):
     return user_rel_query(SaveHide, user, 'save')
 
+def get_drafts(user):
+    draft_sr = Subreddit._by_name(user.draft_sr_name)
+    return get_links(draft_sr, 'new', 'all')
+
 inbox_message_rel = Inbox.rel(Account, Message)
 def get_inbox_messages(user):
     return user_rel_query(inbox_message_rel, user, 'inbox')

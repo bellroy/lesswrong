@@ -382,7 +382,8 @@ class UserController(ListingController):
                   'submitted': _("submitted by %(user)s"),
                   'liked': _("liked by %(user)s"),
                   'disliked': _("disliked by %(user)s"),
-                  'hidden': _("hidden by %(user)s")}
+                  'hidden': _("hidden by %(user)s"),
+                  'drafts': _("drafts for %(user)s")}
         title = titles.get(self.where, _('profile for %(user)s')) \
             % dict(user = self.vuser.name, site = c.site.name)
         return title
@@ -410,6 +411,9 @@ class UserController(ListingController):
 
         elif self.where == 'hidden':
             q = queries.get_hidden(self.vuser)
+
+        elif self.where == 'drafts':
+            q = queries.get_drafts(self.vuser)
 
         elif c.user_is_admin:
             q = admin_profile_query(self.vuser, self.where, desc('_date'))
