@@ -478,7 +478,7 @@ class AllSR(FakeSubreddit):
 
 class DefaultSR(FakeSubreddit):
     #notice the space before reddit.com
-    name = g.front_page_title
+    name = g.default_sr
     path = '/'
     header = 'http://static.reddit.com/reddit.com.header.png'
 
