@@ -272,7 +272,7 @@ class ApiController(RedditController):
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
         if not l:
-          l = Link._submit(request.post.title, request.post.article, c.user, sr, ip, spam)
+          l = Link._submit(request.post.title, (new_content if new_content else ''), c.user, sr, ip, spam)
           if l.url.lower() == 'self':
               l.url = l.make_permalink_slow()
               l.is_self = True
