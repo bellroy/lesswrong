@@ -199,6 +199,12 @@
                 $("BAD_CSS_NAME").innerHTML = "${_('bad image name')}";
                 return false;
              }
+             else if($("img_name_" + name)) {
+               $("img-status").innerHTML = "";
+               show("BAD_CSS_NAME");
+               $("BAD_CSS_NAME").innerHTML = "${_('an image named ')}" + name + "${_(' already exists')}";
+               return false;
+             }
              else if(form.srfile.value) {
                 $("BAD_CSS_NAME").innerHTML = "";
                 $("IMAGE_ERROR").innerHTML = "";
