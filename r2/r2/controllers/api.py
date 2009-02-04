@@ -249,20 +249,12 @@ class ApiController(RedditController):
             c.errors.remove(errors.RATELIMIT)
 
         #ratelimiter
-        elif res._chk_error(errors.RATELIMIT):
+        if res._chk_error(errors.RATELIMIT):
             pass
         # check for title, otherwise look it up and return it
         elif res._chk_error(errors.NO_TITLE):
             # clear out this error
             res._chk_error(errors.TITLE_TOO_LONG)
-            # try to fetch the title
-            title = get_title(url)
-            if title:
-                res._update('title', value = title)
-                res._focus('title')
-                res._clear_error(errors.NO_TITLE)
-                c.errors.remove(errors.NO_TITLE)
-                return 
             res._focus('title')
         elif res._chk_error(errors.TITLE_TOO_LONG):
             res._focus('title')
