@@ -29,6 +29,9 @@
 <%namespace file="utils.html" import="plain_link, text_with_js, img_link, separator"/>
 
 <div id="header">
+  %if thing.srtopbar:
+    ${thing.srtopbar.render()}
+  %endif
   <a id="alternate" href="http://${thing.alternate_sr.domain}${(':' + g.port) if hasattr(g, 'port') else ''}/">Visit ${thing.alternate_sr.title}</a>
   <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
     <h1>
