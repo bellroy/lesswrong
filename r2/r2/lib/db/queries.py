@@ -19,7 +19,8 @@ db_sorts = dict(hot = (desc, '_hot'),
                 top = (desc, '_score'),
                 controversial = (desc, '_controversy'),
                 old = (asc, '_date'),
-                toplinks = (desc, '_hot'))
+                toplinks = (desc, '_hot'),
+                blessed = (desc, '_date'))
 
 def db_sort(sort):
     cls, col = db_sorts[sort]
@@ -183,6 +184,8 @@ def get_links(sr, sort, time):
 
     if sort == 'toplinks':
         q._filter(Link.c.top_link == True)
+    elif sort == 'blessed':
+        q._filter(Link.c.blessed == True)
 
     if time != 'all':
         q._filter(db_times[time])

@@ -285,11 +285,11 @@ class ToplinksController(ListingController):
         return ListingController.GET_listing(self, **env)
 
 class BlessedController(ListingController):
-    where = 'new'
-    title_text = _('latest articles')
+    where = 'blessed'
+    title_text = _('editor\'s picks')
 
     def query(self):
-        return c.site.get_links('new', 'all')
+        return c.site.get_links('blessed', 'all')
       
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)

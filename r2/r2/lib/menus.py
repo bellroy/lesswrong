@@ -49,6 +49,7 @@ menu_selected=StringHandler(hot          = _("popular"),
                             saved        = _("saved"),
                             recommended  = _("recommended"),
                             promote      = _('promote'),
+                            blessed      = _('editor\'s picks'),
                             )
 
 # translation strings for every menu on the site
@@ -66,6 +67,7 @@ menu =   MenuHandler(hot          = _('popular'),
                      rising       = _('rising'), 
                      admin        = _('admin'),
                      drafts       = _('drafts'),
+                     blessed      = _('blessed'),
                                  
                      # time sort words
                      hour         = _('this hour'),

@@ -219,13 +219,13 @@ class ApiController(RedditController):
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_bless(self, res, link):
-        link.change_subreddit(Subreddit.blessed()._id)
+        link.set_blessed(True)
 
     @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_unbless(self, res, link):
-        link.change_subreddit(Subreddit.default()._id)
+        link.set_blessed(False)
 
     @Json
     @validate(VUser(),

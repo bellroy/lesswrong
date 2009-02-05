@@ -55,7 +55,8 @@ class Link(Thing, Printable):
                      disable_comments = False,
                      ip = '0.0.0.0',
                      render_full = False,
-                     images = None)
+                     images = None,
+                     blessed = False)
 
     def __init__(self, *a, **kw):
         Thing.__init__(self, *a, **kw)
@@ -95,7 +96,7 @@ class Link(Thing, Printable):
             return False
             
     def is_blessed(self):
-        return self.sr_id == Subreddit.blessed()._id
+        return self.blessed
 
     def set_url_cache(self):
         if self.url != 'self':
@@ -358,6 +359,12 @@ class Link(Thing, Printable):
             self.sr_id = new_sr_id
             self._date = datetime.now(g.tz)
             self._commit()
+
+    def set_blessed(self, is_blessed):
+        if self.blessed != is_blessed:
+          self.blessed = is_blessed
+          self.date = datetime.now(g.tz)
+          self._commit()
 
     def get_images(self):
         """
