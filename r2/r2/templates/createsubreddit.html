@@ -24,7 +24,7 @@
    from r2.lib.filters import keep_space
 %>
 <%namespace file="utils.html" import="error_field, language_tool, plain_link"/>
-<%namespace file="utils.html" import="image_upload"/>
+<%namespace file="utils.html" import="image_upload, select_listing"/>
 
 <script type="text/javascript">
 function update_title() {
@@ -195,6 +195,18 @@ function update_title() {
       </td>
       <td class="note" id="note_domain">
         <a id="example_domain" href="javascript:show('domainhelp'); hide('example_domain')">what's this?</a>
+        ${error_field("BAD_CNAME", "span")}
+        ${error_field("USED_CNAME", "span")}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <label for="default_listing">${_("default listing")}</label>
+      </th>
+      <td class="prefright">
+        ${select_listing(thing.site, thing.listings)}
+      </td>
+      <td class="note" id="note_default_listing">
         ${error_field("BAD_CNAME", "span")}
         ${error_field("USED_CNAME", "span")}
       </td>

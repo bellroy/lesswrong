@@ -1047,13 +1047,14 @@ class ApiController(RedditController):
               lang = VLang("lang"),
               over_18 = VBoolean('over_18'),
               show_media = VBoolean('show_media'),
-              type = VOneOf('type', ('public', 'private', 'restricted'))
+              type = VOneOf('type', ('public', 'private', 'restricted')),
+              default_listing = VOneOf('default_listing', ListingController.listing_names())
               )
     def POST_site_admin(self, res, name ='', sr = None, **kw):
         redir = False
         kw = dict((k, v) for k, v in kw.iteritems()
                   if k in ('name', 'title', 'domain', 'description', 'over_18',
-                           'show_media', 'type', 'lang',))
+                           'show_media', 'type', 'lang', 'default_listing',))
 
         #if a user is banned, return rate-limit errors
         if c.user._spam:

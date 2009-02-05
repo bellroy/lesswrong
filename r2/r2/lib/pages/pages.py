@@ -762,8 +762,8 @@ class SubscriptionBox(Wrapped):
 
 class CreateSubreddit(Wrapped):
     """reddit creation form."""
-    def __init__(self, site = None, name = ''):
-        Wrapped.__init__(self, site = site, name = name)
+    def __init__(self, site = None, name = '', listings = []):
+        Wrapped.__init__(self, site = site, name = name, listings = listings)
 
 class SubredditStylesheet(Wrapped):
     """form for editing or creating subreddit stylesheets"""

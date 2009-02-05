@@ -70,6 +70,27 @@ class ListingController(RedditController):
     #extra parameters to send to the render_cls constructor
     render_params = {}
 
+    _link_listings = None
+
+    @classmethod
+    def link_listings(cls):
+        # This is done to defer generation of the dictionary until after
+        # the classes have been defined
+        if not cls._link_listings:
+            cls._link_listings = {
+                'blessed'       : BlessedController,
+                'hot'           : HotController,
+                'new'           : NewController,
+                'top'           : ToplinksController,
+                'controversial' : BrowseController,
+            }
+
+        return cls._link_listings
+
+    @classmethod
+    def listing_names(cls):
+        return sorted(cls.link_listings().keys())
+
     @property
     def menus(self):
         """list of menus underneat the header (e.g., sort, time, kind,
@@ -275,9 +296,10 @@ class BlessedController(ListingController):
 
 # Controller for '/' depending on the subreddit
 class RootController(ListingController):
-  def __before__(self):
-    ListingController.__before__(self)
-    self.__class__ = HotController if c.default_sr else BlessedController
+
+    def __before__(self):
+        ListingController.__before__(self)
+        self.__class__ = HotController if c.default_sr else BlessedController
 
 class NewController(ListingController):
     where = 'new'

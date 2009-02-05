@@ -262,3 +262,16 @@ ${unsafe(txt)}
     %endif
   </form>
 </%def>
+
+<%def name="select_listing(sr, listings)">
+  <%
+    selected_listing = sr.default_listing if sr else 'hot'
+  %>
+  <select id="default_listing" name="default_listing">
+    %for listing in listings:
+      <option ${listing == selected_listing and "selected='selected'" or ""}>
+        ${listing}
+      </option>
+    %endfor
+  </select>
+</%def>

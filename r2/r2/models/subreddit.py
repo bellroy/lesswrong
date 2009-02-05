@@ -50,6 +50,7 @@ class Subreddit(Thing, Printable):
                      valid_votes = 0,
                      show_media = False,
                      domain = None,
+                     default_listing = 'hot'
                      )
     sr_limit = 50
 

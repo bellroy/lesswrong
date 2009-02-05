@@ -207,7 +207,7 @@ class FrontController(RedditController):
     def GET_newreddit(self, name):
         """Create a reddit form"""
         title = _('create a reddit')
-        content=CreateSubreddit(name = name or '')
+        content=CreateSubreddit(name = name or '', listings = ListingController.listing_names())
         res = FormPage(_("create a reddit"), 
                        content = content,
                        ).render()
@@ -233,7 +233,7 @@ class FrontController(RedditController):
         is_moderator = c.user_is_loggedin and c.site.is_moderator(c.user) or c.user_is_admin
 
         if is_moderator and location == 'edit':
-            pane = CreateSubreddit(site = c.site)
+            pane = CreateSubreddit(site = c.site, listings = ListingController.listing_names())
         elif location == 'moderators':
             pane = ModList(editable = is_moderator)
         elif is_moderator and location == 'banned':
