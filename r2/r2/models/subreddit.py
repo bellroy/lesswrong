@@ -517,6 +517,10 @@ class DefaultSR(FakeSubreddit):
     def title(self):
         return _(g.front_page_title)
 
+    @property
+    def default_listing(self):
+        return 'blessed'
+
 class MultiReddit(DefaultSR):
     name = 'multi'
 
