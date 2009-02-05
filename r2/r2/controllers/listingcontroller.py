@@ -73,7 +73,7 @@ class ListingController(RedditController):
     _link_listings = None
 
     @classmethod
-    def link_listings(cls):
+    def link_listings(cls, key = None):
         # This is done to defer generation of the dictionary until after
         # the classes have been defined
         if not cls._link_listings:
@@ -85,7 +85,7 @@ class ListingController(RedditController):
                 'controversial' : BrowseController,
             }
 
-        return cls._link_listings
+        return cls._link_listings if not key else cls._link_listings[key]
 
     @classmethod
     def listing_names(cls):
@@ -299,7 +299,8 @@ class RootController(ListingController):
 
     def __before__(self):
         ListingController.__before__(self)
-        self.__class__ = HotController if c.default_sr else BlessedController
+        controller = self.link_listings(c.site.default_listing)
+        self.__class__ = controller
 
 class NewController(ListingController):
     where = 'new'

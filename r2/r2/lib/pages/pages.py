@@ -212,14 +212,18 @@ class Reddit(Wrapped):
         """Sets the layout of the navigation topbar on a Reddit.  The result
         is a list of menus which will be rendered in order and
         displayed at the top of the Reddit."""
-        if c.default_sr:
-          main_buttons = [NamedButton('hot', dest='', aliases=['/hot']),
-                          NamedButton('new'),
-                          NamedButton('controversial'),
-                          NamedButton('top'),
-                          ]
-        else:
-          main_buttons = [NamedButton('new', dest='', aliases=['/new'])]
+        
+        # Ensure the default button is the first tab
+        default_button_name = c.site.default_listing
+        button_names = ['hot', 'new', 'controversial', 'top']
+        button_names.remove(default_button_name)
+        button_names.insert(0, default_button_name)
+        
+        main_buttons = []
+        for name in button_names:
+          kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
+          print kw
+          main_buttons.append(NamedButton(name, **kw))
 
         more_buttons = []
 
