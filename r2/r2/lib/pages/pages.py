@@ -179,9 +179,9 @@ class Reddit(Wrapped):
                    buttons += [NamedButton("adminon",  False,
                                            nocname=not c.authorized_cname,
                                            target = "_self")]
-            if c.default_sr:
-              buttons += [NamedButton('submit', False,
-                                      nocname=not c.authorized_cname)] 
+
+            buttons += [NamedButton('submit', False,
+                                    nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
             buttons += [NamedButton("logout", False,
@@ -696,7 +696,7 @@ class SubredditTopBar(Wrapped):
                                              css_class = 'bottom-option',
                                              dest = '/reddits/'))
         self.sr_dropdown = SubredditMenu(drop_down_buttons,
-                                         title = _('my reddits'),
+                                         title = _('my categories'),
                                          type = 'srdrop')
 
     
