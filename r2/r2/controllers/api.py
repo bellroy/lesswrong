@@ -396,7 +396,8 @@ class ApiController(RedditController):
         sr = Subreddit._new(
             name = user.draft_sr_name,
             title = "Drafts for " + user.name,
-            type = "private"
+            type = "private",
+            default_listing = 'new',
         )
         Subreddit.subscribe_defaults(user)
         # make sure this user is on the admin list of that site!
