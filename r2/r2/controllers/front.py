@@ -486,7 +486,12 @@ class FrontController(RedditController):
             
         captcha = Captcha() if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
-        sr = srs[0] if len(srs) else None
+
+        # Set the default sr to the user's draft when creating a new article
+        try:
+            sr = Subreddit._by_name(c.user.draft_sr_name)
+        except NotFound:
+            sr = None
 
         return FormPage(_("submit"), 
                         content=NewLink(title=title or '',
