@@ -222,7 +222,6 @@ class Reddit(Wrapped):
         main_buttons = []
         for name in button_names:
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
-          print kw
           main_buttons.append(NamedButton(name, **kw))
 
         more_buttons = []
