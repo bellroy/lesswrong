@@ -131,6 +131,18 @@ class VLink(Validator):
                 else:
                     return None
 
+class VTagByName(Validator):
+    def __init__(self, param, *a, **kw):
+        Validator.__init__(self, param, *a, **kw)
+        
+    def run(self, name):
+        if name:
+            try:
+                return Tag._by_name(name)
+            except NotFound:
+                abort(404, 'page not found')
+
+
 class VMessage(Validator):
     def run(self, message_id):
         if message_id:

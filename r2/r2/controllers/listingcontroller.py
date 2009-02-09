@@ -321,6 +321,26 @@ class NewController(ListingController):
         self.sort = sort
         return ListingController.GET_listing(self, **env)
 
+class TagController(ListingController):
+    where = 'tag'
+    title_text = _('articles tagged')
+
+    def query(self):
+        q = LinkTag._query(LinkTag.c._thing2_id == self._tag._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t1_deleted == False,
+                           # eager_load = True,
+                           # thing_data = not g.use_query_cache
+                      )
+        q.prewrap_fn = lambda x: x._thing1
+        return q
+    
+    @validate(tag = VTagByName('tag'))
+    def GET_listing(self, tag, **env):
+        self._tag = tag
+        TagController.title_text = _('articles tagged ' + tag.name)
+        return ListingController.GET_listing(self, **env)
+
 class BrowseController(ListingController):
     where = 'browse'
 

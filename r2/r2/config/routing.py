@@ -114,6 +114,8 @@ def make_map(global_conf={}, app_conf={}):
     mc('/:controller', action='listing',
        requirements=dict(controller=listing_controllers))
 
+    mc('/tag/:tag', controller='tag', action='listing')
+
     mc('/by_id/:names', controller='byId', action='listing')
 
     mc('/:sort', controller='browse', sort='top', action = 'listing',
