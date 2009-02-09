@@ -30,6 +30,7 @@ from r2.lib.memoize import memoize, clear_memo
 from r2.lib import utils
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
+from r2.lib.db.operators import lower
 
 from pylons import c, g, request
 from pylons.i18n import ungettext
@@ -437,6 +438,40 @@ class Link(Thing, Printable):
             self.images = l
 
 
+    def add_tag(self, tag_name):
+        """Adds a tag of the given name to the link. If the tag does not
+           exist it is created"""
+        try:
+            tag = Tag._by_name(tag_name)
+        except NotFound:
+            tag = Tag._new(tag_name)
+            tag._commit()
+
+        try:
+            link_tag = LinkTag(self, tag, name='tag')
+            link_tag._commit()
+        except CreationError:
+             q = LinkTag._query(LinkTag.c._thing1_id == self._id,
+                                LinkTag.c._thing2_id == tag._id,
+                                LinkTag.c._name == 'tag',
+                                LinkTag.c._t2_deleted == False,
+                                # eager_load = True,
+                                # thing_data = not g.use_query_cache
+                           )
+             link_tag = list(q)[0]
+        
+        return link_tag
+
+    def get_tags(self):
+        q = LinkTag._query(LinkTag.c._thing1_id == self._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t2_deleted == False,
+                           # eager_load = True,
+                           # thing_data = not g.use_query_cache
+                      )
+        return [link_tag._thing2 for link_tag in q]
+        
+
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour
 # (except for add_props). These classes are used to override the
@@ -487,6 +522,46 @@ class LinkCompressed(Link):
 class InlineArticle(Link):
     """Exists to gain a different render_class in Wrapped"""
     _nodb = True
+
+
+class TagExists(Exception): pass
+
+class Tag(Thing):
+    """A tag on a link/article"""
+    @classmethod
+    def _new(self, name, **kw):
+        try:
+            tag = Tag._by_name(name)
+            raise TagExists
+        except NotFound:
+            tag = Tag(name = name, **kw)
+            tag._commit()
+            clear_memo('tag._by_name', Tag, name.lower())
+            # clear_memo('subreddit.subreddits', Subreddit)
+            return tag
+
+    @classmethod
+    @memoize('tag._by_name')
+    def _by_name_cache(cls, name):
+        q = cls._query(lower(cls.c.name) == name.lower(), limit = 1)
+        l = list(q)
+        if l:
+            return l[0]._id
+
+    @classmethod
+    def _by_name(cls, name):
+        #lower name here so there is only one cache
+        name = name.lower()
+
+        tag_id = cls._by_name_cache(name)
+        if tag_id:
+            return cls._byID(tag_id, True)
+        else:
+            raise NotFound, 'Tag %s' % name
+
+class LinkTag(Relation(Link, Tag)):
+    pass
+
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
