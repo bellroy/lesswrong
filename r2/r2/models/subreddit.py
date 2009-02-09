@@ -82,13 +82,6 @@ class Subreddit(Thing, Printable):
         return DefaultSR()
 
     @classmethod
-    def blessed(cls):
-      try:
-        return cls._by_name(g.blessed_sr)
-      except NotFound:
-        return DefaultSR()
-
-    @classmethod
     @memoize('subreddit._by_name')
     def _by_name_cache(cls, name):
         q = cls._query(lower(cls.c.name) == name.lower(),

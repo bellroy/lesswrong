@@ -106,7 +106,7 @@ class Reddit(Wrapped):
         
         self.toolbars = self.build_toolbars()
         
-        self.alternate_sr = Subreddit.blessed() if c.default_sr else Subreddit.default()
+        self.alternate_sr = Subreddit.default()
 
     def rightbox(self):
         """generates content in <div class="rightbox">"""
