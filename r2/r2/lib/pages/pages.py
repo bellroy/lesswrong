@@ -72,7 +72,7 @@ class Reddit(Wrapped):
     create_reddit_box  = False
     submit_box         = False
     searchbox          = True
-    extension_handling = False
+    extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
