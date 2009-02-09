@@ -142,6 +142,18 @@ class VTagByName(Validator):
             except NotFound:
                 abort(404, 'page not found')
 
+class VTags(Validator):
+    comma_sep = re.compile('[,\s]+', re.UNICODE)
+    
+    def __init__(self, param, *a, **kw):
+        Validator.__init__(self, param, *a, **kw)
+        
+    def run(self, tag_field):
+        tags = []
+        if tag_field:
+            # Tags are comma delimited
+            tags = self.comma_sep.split(tag_field)
+        return tags
 
 class VMessage(Validator):
     def run(self, message_id):

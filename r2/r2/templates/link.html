@@ -84,7 +84,7 @@
     <% tags = thing.get_tags() %>
     %if len(tags):
       <div class="tags">
-        Filed under:&#32;<ul class="flat-list">
+        Tags:&#32;<ul class="flat-list">
         %for tag in thing.get_tags():
           <li><a href="/tag/${tag.name}">${tag.name}</a>${separator(" ")}</li>
         %endfor

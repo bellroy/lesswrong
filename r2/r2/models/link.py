@@ -35,6 +35,7 @@ from r2.lib.db.operators import lower
 from pylons import c, g, request
 from pylons.i18n import ungettext
 
+import re
 import random
 from datetime import datetime
 
@@ -58,6 +59,8 @@ class Link(Thing, Printable):
                      render_full = False,
                      images = None,
                      blessed = False)
+
+    _only_whitespace = re.compile('^\s*$', re.UNICODE)
 
     def __init__(self, *a, **kw):
         Thing.__init__(self, *a, **kw)
@@ -128,7 +131,7 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, spam = False):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False):
         l = cls(title = title,
                 url = 'self',
                 _spam = spam,
@@ -140,6 +143,9 @@ class Link(Thing, Printable):
                 )
         l._commit()
         l.set_url_cache()
+        # Add tags
+        for tag in tags:
+            l.add_tag(tag)
         return l
         
     def _summary(self):
@@ -441,21 +447,25 @@ class Link(Thing, Printable):
     def add_tag(self, tag_name, name = 'tag'):
         """Adds a tag of the given name to the link. If the tag does not
            exist it is created"""
+        if self._only_whitespace.match(tag_name):
+            # Don't allow an empty tag
+            return
+
         try:
             tag = Tag._by_name(tag_name)
         except NotFound:
             tag = Tag._new(tag_name)
             tag._commit()
 
-        try:
+        # See if link already has this tag
+        tags = LinkTag._fast_query(tup(self), tup(tag), name=name)
+        link_tag = tags[(self, tag, name)]
+        if not link_tag:
             link_tag = LinkTag(self, tag, name=name)
             link_tag._commit()
-        except CreationError:
-            tags = LinkTag._fast_query(tup(self), tup(tag), name=name)
-            link_tag = tags[(self, tag, name)]
-        
+
         return link_tag
-    
+
     def remove_tag(self, tag_name, name='tag'):
         """Removes a tag from the link. The tag is not deleted,
            just the relationship between the link and the tag"""
@@ -463,7 +473,7 @@ class Link(Thing, Printable):
             tag = Tag._by_name(tag_name)
         except NotFound:
             return False
-        
+
         tags = LinkTag._fast_query(tup(self), tup(tag), name=name)
         link_tag = tags[(self, tag, name)]
         if link_tag:
@@ -478,7 +488,23 @@ class Link(Thing, Printable):
                            # thing_data = not g.use_query_cache
                       )
         return [link_tag._thing2 for link_tag in q]
+
+    def set_tags(self, tags):
+        """Adds and/or removes tags to match the list given"""
+        current_tags = set(self.tag_names())
+        updated_tags = set(tags)
+        removed_tags = current_tags.difference(updated_tags)
+        new_tags = updated_tags.difference(current_tags)
         
+        for tag in new_tags:
+            self.add_tag(tag)
+        
+        for tag in removed_tags:
+            self.remove_tag(tag)
+        
+    def tag_names(self):
+        """Returns just the names of the tags of this article"""
+        return [tag.name for tag in self.get_tags()]
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour

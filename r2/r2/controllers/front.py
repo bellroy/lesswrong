@@ -453,8 +453,9 @@ class FrontController(RedditController):
     @validate(VUser(),
               VSRSubmitPage(),
               url = VRequired('url', None),
-              title = VRequired('title', None))
-    def GET_submit(self, url, title):
+              title = VRequired('title', None),
+              tags = VTags('tags'))
+    def GET_submit(self, url, title, tags):
         """Submit form."""
         if url and not request.get.get('resubmit'):
             # check to see if the url has already been submitted
@@ -497,6 +498,7 @@ class FrontController(RedditController):
         return FormPage(_("submit"), 
                         content=NewLink(title=title or '',
                                         subreddits = srs,
+                                        tags=tags,
                                         sr_id = sr._id if sr else None,
                                         captcha=captcha)).render()
 
@@ -510,7 +512,7 @@ class FrontController(RedditController):
           # Add this admin subreddits to the list
           subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
         return FormPage(_("submit"), 
-                      content=EditLink(article, subreddits=subreddits, captcha=None)).render()
+                      content=EditLink(article, subreddits=subreddits, tags=article.tag_names(), captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
         """Generates the form for an optin/optout page"""

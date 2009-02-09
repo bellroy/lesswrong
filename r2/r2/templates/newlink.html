@@ -51,6 +51,13 @@
     <tr>
       <td><textarea id="article" name="article" rows="35">${thing.article}</textarea></td>
     </tr>
+    <tr>
+      <td>
+      <label for="tags">${_("Tags:")}</label>
+      <input id="tags" name="tags" value="${', '.join(thing.tags)}"
+                 onfocus="clearTitle(this)" type="text" />
+      </td>
+    </tr>
     %if thing.subreddits:
       <tr>
         <td>
@@ -82,7 +89,9 @@
     var form = $('newlink');
     if(form) {
       setMessage(form.title,
-                 "${_('enter a title for the article.')}")
+                 "${_('enter a title for the article.')}");
+      setMessage(form.tags,
+                 "${_('enter tags separated by commas.')}");
     }
   </script>
 </%call>

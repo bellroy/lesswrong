@@ -237,10 +237,9 @@ class ApiController(RedditController):
               l = VLink('article_id'),
               new_content = nop('article'),
               save = nop('save'),
-              continue_editing = VBoolean('continue')
-              )
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip):
-        # TODO: find out where arguments come from
+              continue_editing = VBoolean('continue'),
+              tags = VTags('tags'))
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link')
         
@@ -272,7 +271,7 @@ class ApiController(RedditController):
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
         if not l:
-          l = Link._submit(request.post.title, (new_content if new_content else ''), c.user, sr, ip, spam)
+          l = Link._submit(request.post.title, (new_content if new_content else ''), c.user, sr, ip, tags, spam)
           if l.url.lower() == 'self':
               l.url = l.make_permalink_slow()
               l.is_self = True
@@ -296,6 +295,7 @@ class ApiController(RedditController):
           l.article = request.post.article
           l.change_subreddit(sr._id)
           l._commit()
+          l.set_tags(tags)
           
         #update the modified flags
         set_last_modified(c.user, 'overview')
