@@ -243,9 +243,19 @@ class Subreddit(Thing, Printable):
             sr_ids = (self._id,)
         return sr_ids
 
-    def get_links(self, sort, time):
+    def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
-        return queries.get_links(self, sort, time)
+        from r2.models import Link
+        
+        if not link_cls:
+            link_cls = Link
+        return queries.get_links(self, sort, time, link_cls)
+
+    def get_comments(self, sort, time):
+        """This method relies on the fact that Link and Comment can be
+          queried with the same filters"""
+        from r2.models import InlineComment
+        return self.get_links(sort, time, InlineComment)
 
     @classmethod
     def add_props(cls, user, wrapped):
@@ -452,7 +462,7 @@ class FriendsSR(FakeSubreddit):
     name = 'friends'
     title = 'friends'
 
-    def get_links(self, sort, time):
+    def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
         from r2.models import Link
         from r2.controllers.errors import UserRequiredException
@@ -470,10 +480,13 @@ class AllSR(FakeSubreddit):
     name = 'all'
     title = 'all'
 
-    def get_links(self, sort, time):
+    def get_links(self, sort, time, link_cls = None):
         from r2.models import Link
         from r2.lib.db import queries
-        q = Link._query(sort = queries.db_sort(sort))
+        
+        if not link_cls:
+            link_cls = Link
+        q = link_cls._query(sort = queries.db_sort(sort))
         if time != 'all':
             q._filter(queries.db_times[time])
         return q
@@ -485,9 +498,12 @@ class DefaultSR(FakeSubreddit):
     path = '/'
     header = 'http://static.reddit.com/reddit.com.header.png'
 
-    def get_links_sr_ids(self, sr_ids, sort, time):
+    def get_links_sr_ids(self, sr_ids, sort, time, link_cls = None):
         from r2.lib.db import queries
         from r2.models import Link
+
+        if not link_cls:
+            link_cls = Link
 
         if not sr_ids:
             return []
@@ -500,20 +516,20 @@ class DefaultSR(FakeSubreddit):
                 results.append(queries.get_links(sr, sort, time))
             return queries.merge_cached_results(*results)
         else:
-            q = Link._query(Link.c.sr_id == sr_ids,
+            q = link_cls._query(link_cls.c.sr_id == sr_ids,
                             sort = queries.db_sort(sort))
             if sort == 'toplinks':
-                q._filter(Link.c.top_link == True)
+                q._filter(link_cls.c.top_link == True)
             elif sort == 'blessed':
-                q._filter(Link.c.blessed == True)
+                q._filter(link_cls.c.blessed == True)
             if time != 'all':
                 q._filter(queries.db_times[time])
             return q
 
-    def get_links(self, sort, time):
+    def get_links(self, sort, time, link_cls = None):
         user = c.user if c.user_is_loggedin else None
         sr_ids = Subreddit.user_subreddits(user)
-        return self.get_links_sr_ids(sr_ids, sort, time)
+        return self.get_links_sr_ids(sr_ids, sort, time, link_cls)
 
     @property
     def title(self):
@@ -535,8 +551,8 @@ class MultiReddit(DefaultSR):
     def path(self):
         return '/r/' + self.real_path
 
-    def get_links(self, sort, time):
-        return self.get_links_sr_ids(self.sr_ids, sort, time)
+    def get_links(self, sort, time, link_cls = None):
+        return self.get_links_sr_ids(self.sr_ids, sort, time, link_cls)
 
 class SubSR(FakeSubreddit):
     stylesheet = 'subreddit.css'
@@ -567,7 +583,7 @@ class DomainSR(FakeSubreddit):
         self.name = domain 
         self.title = domain + ' ' + _('on reddit.com')
 
-    def get_links(self, sort, time):
+    def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
         return queries.get_domain_links(self.domain, sort, time)
         

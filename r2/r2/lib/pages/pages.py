@@ -82,7 +82,7 @@ class Reddit(Wrapped):
         self.robots         = robots
         self.infotext       = infotext
         self.loginbox       = True
-        self.show_sidebar   = show_sidebar if not c.default_sr else False
+        self.show_sidebar   = show_sidebar
         self.space_compress = space_compress
 
         #put the sort menus at the top
@@ -264,12 +264,16 @@ class LoginFormWide(Wrapped):
 
 class RecentComments(Wrapped):
     def __init__(self, *args, **kwargs):
-        self.things = QueryBuilder(InlineComment._query(InlineComment.c.sr_id == c.site._id, sort=db_sort('new'), limit=5))
-        Wrapped.__init__(self, *args, **kwargs)
+      q = c.site.get_comments('new', 'all')
+      q._limit = 5
+      self.things = QueryBuilder(q)
+      Wrapped.__init__(self, *args, **kwargs)
         
 class RecentArticles(Wrapped):
     def __init__(self, *args, **kwargs):
-        self.things = QueryBuilder(InlineArticle._query(InlineArticle.c.sr_id == c.site._id, sort=db_sort('new'), limit=5))
+        q = c.site.get_links('new', 'all', InlineArticle)
+        q._limit = 5
+        self.things = QueryBuilder(q)
         Wrapped.__init__(self, *args, **kwargs)
 
 class TopContributors(Wrapped):

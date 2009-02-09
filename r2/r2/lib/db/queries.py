@@ -177,15 +177,15 @@ def merge_results(*results):
         m.prewrap_fn = results[0].prewrap_fn
         return m
 
-def get_links(sr, sort, time):
+def get_links(sr, sort, time, link_cls = Link):
     """General link query for a subreddit."""
-    q = Link._query(Link.c.sr_id == sr._id,
+    q = link_cls._query(link_cls.c.sr_id == sr._id,
                     sort = db_sort(sort))
 
     if sort == 'toplinks':
-        q._filter(Link.c.top_link == True)
+        q._filter(link_cls.c.top_link == True)
     elif sort == 'blessed':
-        q._filter(Link.c.blessed == True)
+        q._filter(link_cls.c.blessed == True)
 
     if time != 'all':
         q._filter(db_times[time])
