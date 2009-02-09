@@ -438,7 +438,7 @@ class Link(Thing, Printable):
             self.images = l
 
 
-    def add_tag(self, tag_name):
+    def add_tag(self, tag_name, name = 'tag'):
         """Adds a tag of the given name to the link. If the tag does not
            exist it is created"""
         try:
@@ -448,19 +448,27 @@ class Link(Thing, Printable):
             tag._commit()
 
         try:
-            link_tag = LinkTag(self, tag, name='tag')
+            link_tag = LinkTag(self, tag, name=name)
             link_tag._commit()
         except CreationError:
-             q = LinkTag._query(LinkTag.c._thing1_id == self._id,
-                                LinkTag.c._thing2_id == tag._id,
-                                LinkTag.c._name == 'tag',
-                                LinkTag.c._t2_deleted == False,
-                                # eager_load = True,
-                                # thing_data = not g.use_query_cache
-                           )
-             link_tag = list(q)[0]
+            tags = LinkTag._fast_query(tup(self), tup(tag), name=name)
+            link_tag = tags[(self, tag, name)]
         
         return link_tag
+    
+    def remove_tag(self, tag_name, name='tag'):
+        """Removes a tag from the link. The tag is not deleted,
+           just the relationship between the link and the tag"""
+        try:
+            tag = Tag._by_name(tag_name)
+        except NotFound:
+            return False
+        
+        tags = LinkTag._fast_query(tup(self), tup(tag), name=name)
+        link_tag = tags[(self, tag, name)]
+        if link_tag:
+            link_tag._delete()
+            return link_tag
 
     def get_tags(self):
         q = LinkTag._query(LinkTag.c._thing1_id == self._id,
