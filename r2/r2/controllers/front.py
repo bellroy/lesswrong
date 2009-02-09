@@ -399,7 +399,8 @@ class FrontController(RedditController):
 
         return builder.total_num, timing, res
 
-
+    def GET_search_results(self):
+          return GoogleSearchResults(_('search results')).render()
 
     def GET_login(self):
         """The /login form.  No link to this page exists any more on

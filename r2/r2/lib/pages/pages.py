@@ -71,7 +71,7 @@ class Reddit(Wrapped):
 
     create_reddit_box  = False
     submit_box         = False
-    searchbox          = False
+    searchbox          = True
     extension_handling = False
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
@@ -114,7 +114,7 @@ class Reddit(Wrapped):
         ps = PaneStack(css_class='spacer')
 
         if self.searchbox:
-            ps.append(SearchForm())
+            ps.append(GoogleSearchForm())
 
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
@@ -533,7 +533,6 @@ class SubredditsPage(Reddit):
     SearchBar for searching over reddits.  As a result this class
     takes the same arguments as SearchBar, which it uses to construct
     self.searchbar"""
-    searchbox    = False
     submit_box   = False
     def __init__(self, prev_search = '', num_results = 0, elapsed_time = 0,
                  title = '', loginbox = True, infotext = None, *a, **kw):
@@ -868,6 +867,28 @@ class SearchForm(Wrapped):
     def __init__(self, prev_search = ''):
         Wrapped.__init__(self, prev_search = prev_search)
 
+class GoogleSearchForm(Wrapped):
+    """Shows Google Custom Search box"""
+    def __init__(self):
+        Wrapped.__init__(self)
+
+class GoogleSearchResultsFrame(Wrapped):
+    """Shows Google Custom Search box"""
+    def __init__(self):
+        Wrapped.__init__(self)
+
+class GoogleSearchResults(BoringPage):
+    """Receieves search results from Google"""
+    searchbox = False
+
+    def __init__(self, pagename, *a, **kw):
+        kw['content'] = GoogleSearchResultsFrame()
+        BoringPage.__init__(self, pagename, robots='noindex', *a, **kw)
+
+    def content(self):
+      return self.content_stack(self._content)
+        # return self.content_stack(self.infobar,
+                                  # self.nav_menu, self._content)
 
 class SearchBar(Wrapped):
     """More detailed search box for /search and /reddits pages.

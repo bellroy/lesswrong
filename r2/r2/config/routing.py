@@ -43,6 +43,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/over18',   controller='post', action='over18')
     
     mc('/search', controller='front', action='search')
+    mc('/search/results', controller='front', action='search_results')
     
     mc('/about/:location', controller='front', 
        action='editreddit', location = 'about')
@@ -153,7 +154,6 @@ def make_map(global_conf={}, app_conf={}):
     
     mc('/mobile', controller='redirect', action='redirect',
        dest='http://m.reddit.com/')
-
     
     # This route handles displaying the error page and 
     # graphics used in the 404/500
