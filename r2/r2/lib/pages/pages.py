@@ -321,9 +321,13 @@ class TagCloud(Wrapped):
         # From: http://www.car-chase.net/2007/jan/16/log-based-tag-clouds-python/
         import types
         import math
-        if not type(input) == types.ListType or len(input) <= 0 or steps <= 0:  
+        
+
+        if not type(input) == types.ListType or steps <= 0:  
             raise InvalidInputException,\
                   "Please be sure steps > 0 and your input list is not empty."  
+        elif len(input) <= 0:
+          return []
         else:  
             temp, newThresholds, results = [], [], []  
             for item in input:  
