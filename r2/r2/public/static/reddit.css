@@ -126,6 +126,12 @@ input[type=checkbox], input[type=radio] { margin-top: .4em; }
  }
 
 #mail img {position: relative; top: 2px}
+
+.tags {
+    padding-bottom: 8px;
+    font-size: x-small;
+}
+
 .user {color: gray;}
 
 .contributors {
