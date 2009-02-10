@@ -593,6 +593,11 @@ class Tag(Thing):
         else:
             raise NotFound, 'Tag %s' % name
 
+    @property
+    def path(self):
+        """Returns the path to the tag listing for this tag"""
+        return "/tag/%s/" % self.name
+
 class LinkTag(Relation(Link, Tag)):
     pass
 

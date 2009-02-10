@@ -86,7 +86,7 @@
       <div class="tags">
         Tags:&#32;<ul class="flat-list">
         %for tag in thing.get_tags():
-          <li><a href="/tag/${tag.name}">${tag.name}</a>${separator(" ")}</li>
+          <li><a href="${tag.path}">${tag.name}</a>${separator(" ")}</li>
         %endfor
         </ul>
       </div>
