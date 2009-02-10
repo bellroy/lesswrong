@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment
+from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, LinkTag
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -113,15 +113,15 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
-
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
 
         #don't show the subreddit info bar on cnames
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
+
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
 
         if self.submit_box:
             ps.append(SideBox(_('Create new article'),
@@ -139,6 +139,7 @@ class Reddit(Wrapped):
         ps.append(RecentArticles())
         ps.append(RecentComments())
         ps.append(TopContributors())
+        ps.append(TagCloud())
         
         return ps
 
@@ -286,6 +287,61 @@ class TopContributors(Wrapped):
         self.things = (users[u] for u in uids)
 
         Wrapped.__init__(self, *args, **kwargs)
+
+class TagCloud(Wrapped):
+    
+    numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
+    
+    def __init__(self, *args, **kwargs):
+        from r2.lib.db import tdb_sql as tdb
+        import sqlalchemy as sa
+
+        type = tdb.rel_types_id[LinkTag._type_id]
+        linktag_thing_table = type.rel_table[0]
+
+        s = sa.select([linktag_thing_table.c.thing2_id, sa.func.count(linktag_thing_table.c.thing1_id)],
+                      group_by = [linktag_thing_table.c.thing2_id],
+                      having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
+        rows = s.execute().fetchall()
+        tags = []
+        for result in rows:
+            tag = Tag._byID(result.thing2_id)
+            tags.append((tag.name, result.count))
+
+        # Order by tag name
+        tags.sort()
+        #self.max_count = max(tags, key=lambda tag:tag._link_count)
+        #self.things = tags
+        self.things = self.makeCloud(10, tags)
+        
+        Wrapped.__init__(self, *args, **kwargs)
+
+    @classmethod
+    def makeCloud(cls, steps, input):
+        # From: http://www.car-chase.net/2007/jan/16/log-based-tag-clouds-python/
+        import types
+        import math
+        if not type(input) == types.ListType or len(input) <= 0 or steps <= 0:  
+            raise InvalidInputException,\
+                  "Please be sure steps > 0 and your input list is not empty."  
+        else:  
+            temp, newThresholds, results = [], [], []  
+            for item in input:  
+                if not type(item) == types.TupleType:  
+                    raise InvalidInputException, "Be sure input list holds tuples."  
+                else: temp.append(item[1])  
+            maxWeight = float(max(temp))  
+            minWeight = float(min(temp))  
+            newDelta = (maxWeight - minWeight)/float(steps)  
+            for i in range(steps + 1):  
+               newThresholds.append((100 * math.log((minWeight + i * newDelta) + 2), i))  
+            for tag in input:  
+                fontSet = False  
+                for threshold in newThresholds[1:int(steps)+1]:  
+                    if (100 * math.log(tag[1] + 2)) <= threshold[0] and not fontSet:  
+                        results.append(dict({str(tag[0]):threshold[1]}))  
+                        fontSet = True  
+            return results
 
 class SubredditInfoBar(Wrapped):
     """When not on Default, renders a sidebox which gives info about
