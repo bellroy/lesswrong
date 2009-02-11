@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, LinkTag
+from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -298,11 +298,25 @@ class TagCloud(Wrapped):
 
         type = tdb.rel_types_id[LinkTag._type_id]
         linktag_thing_table = type.rel_table[0]
+        
+        link_type = tdb.types_id[Link._type_id]
+        link_data_table = link_type.data_table[0]
 
-        s = sa.select([linktag_thing_table.c.thing2_id, sa.func.count(linktag_thing_table.c.thing1_id)],
-                      group_by = [linktag_thing_table.c.thing2_id],
-                      having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
-        rows = s.execute().fetchall()
+        link_sr = sa.select([
+            link_data_table.c.thing_id,
+            sa.cast(link_data_table.c.value, sa.INT).label('sr_id')],
+            link_data_table.c.key == 'sr_id').alias('link_sr')
+
+        sr_ids = Subreddit.user_subreddits(c.user) if c.default_sr else [c.site._id]
+
+        query = sa.select([linktag_thing_table.c.thing2_id,
+                          sa.func.count(linktag_thing_table.c.thing1_id)],
+                          sa.and_(linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
+                                  link_sr.c.sr_id.in_(*sr_ids)),
+                          group_by = [linktag_thing_table.c.thing2_id],
+                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
+
+        rows = query.execute().fetchall()
         tags = []
         for result in rows:
             tag = Tag._byID(result.thing2_id)
