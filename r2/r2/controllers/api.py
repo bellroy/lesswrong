@@ -1091,19 +1091,7 @@ class ApiController(RedditController):
 
         #creating a new reddit
         elif not sr:
-            #sending kw is ok because it was sanitized above
-            sr = Subreddit._new(name = name, **kw)
-            Subreddit.subscribe_defaults(c.user)
-            # make sure this user is on the admin list of that site!
-            if sr.add_subscriber(c.user):
-                sr._incr('_ups', 1)
-            sr.add_moderator(c.user)
-            sr.add_contributor(c.user)
-            redir =  sr.path + "about/edit/"
-            if not c.user_is_admin:
-                VRatelimit.ratelimit(rate_user=True,
-                                     rate_ip = True,
-                                     prefix = "create_reddit_")
+            sr = Subreddit._create_and_subscribe(name, c.user, kw)
 
         #editting an existing reddit
         elif sr.is_moderator(c.user) or c.user_is_admin:

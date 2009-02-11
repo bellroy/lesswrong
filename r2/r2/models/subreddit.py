@@ -75,6 +75,18 @@ class Subreddit(Thing, Printable):
             return sr
 
     @classmethod
+    def _create_and_subscribe(self, name, user, kw):
+      # kw is expected to have been sanitised by the caller
+      sr = Subreddit._new(name = name, **kw)
+      Subreddit.subscribe_defaults(user)
+      # make sure this user is on the admin list of that site!
+      if sr.add_subscriber(user):
+        sr._incr('_ups', 1)
+      sr.add_moderator(user)
+      sr.add_contributor(user)
+      return sr
+
+    @classmethod
     def default(cls):
       try:
         return cls._by_name(g.default_sr)
