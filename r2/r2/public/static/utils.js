@@ -605,3 +605,10 @@ function show_hide_child(el, tagName, label) {
         }
 }
     
+function continueEditing(continue_editing) {
+    var form = document.getElementById('newlink');
+    if(form && continue_editing) {
+        form.keep_editing.value = 'on';
+    }
+    return true;
+};

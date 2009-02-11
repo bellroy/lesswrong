@@ -237,7 +237,7 @@ class ApiController(RedditController):
               l = VLink('article_id'),
               new_content = nop('article'),
               save = nop('save'),
-              continue_editing = VBoolean('continue'),
+              continue_editing = VBoolean('keep_editing'),
               tags = VTags('tags'))
     def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
         res._update('status', innerHTML = '')
