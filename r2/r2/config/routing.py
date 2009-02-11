@@ -41,23 +41,23 @@ def make_map(global_conf={}, app_conf={}):
     mc('/validuser',   controller='front', action='validuser')
 
     mc('/over18',   controller='post', action='over18')
-    
+
     mc('/search', controller='front', action='search')
     mc('/search/results', controller='front', action='search_results')
-    
+
     mc('/about/:location', controller='front', 
        action='editreddit', location = 'about')
-    
-    mc('/reddits/create', controller='front', action='newreddit')
-    mc('/reddits/search', controller='front', action='search_reddits')
-    mc('/reddits/:where', controller='reddits', action='listing',
+
+    mc('/categories/create', controller='front', action='newreddit')
+    mc('/categories/search', controller='front', action='search_reddits')
+    mc('/categories/:where', controller='reddits', action='listing',
        where = 'popular',
        requirements=dict(where="popular|new|banned"))
 
-    mc('/reddits/mine/:where', controller='myreddits', action='listing',
+    mc('/categories/mine/:where', controller='myreddits', action='listing',
        where='subscriber',
        requirements=dict(where='subscriber|contributor|moderator'))
-    
+
     mc('/buttons', controller='buttons', action='button_demo_page')
     #the frame
     mc('/button_content', controller='buttons', action='button_content')
@@ -148,11 +148,8 @@ def make_map(global_conf={}, app_conf={}):
 
     mc('/doquery', controller='query', action='doquery')
 
-    mc('/store', controller='redirect', action='redirect',
-       dest='http://store.reddit.com/index.html')
-    
     mc('/code', controller='redirect', action='redirect',
-       dest='http://code.reddit.com/')
+       dest='http://code.google.com/p/lesswrong/')
     
     mc('/mobile', controller='redirect', action='redirect',
        dest='http://m.reddit.com/')

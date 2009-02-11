@@ -28,7 +28,7 @@
 
 <%def name="reddits()">
   <span class="hover pagename redditname">
-    <a href="/reddits/">${_("reddits")}</a>
+    <a href="/categories/">${_("reddits")}</a>
   </span>
 </%def>
 

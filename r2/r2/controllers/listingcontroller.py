@@ -583,7 +583,7 @@ class MyredditsController(ListingController):
                     NavButton(plurals.contributor, 'contributor'),
                     NavButton(plurals.moderator,   'moderator'))
 
-        return [NavMenu(buttons, base_path = '/reddits/mine/', default = 'subscriber', type = "flatlist")]
+        return [NavMenu(buttons, base_path = '/categories/mine/', default = 'subscriber', type = "flatlist")]
 
     def title(self):
         return _('reddits: ') + self.where

@@ -132,7 +132,7 @@ class Reddit(Wrapped):
             
         if self.create_reddit_box:
            ps.append(SideBox(_('Create your own reddit'),
-                              '/reddits/create', 'create',
+                              '/categories/create', 'create',
                               subtitles = rand_strings.get("create_reddit", 2),
                               show_cover = True, nocname=True))
         
@@ -628,13 +628,13 @@ class SubredditsPage(Reddit):
         #removing the 'my reddits' listing for now
         #if c.user_is_loggedin:
         #    #add the aliases to "my reddits" stays highlighted
-        #    buttons.append(NamedButton("mine", aliases=['/reddits/mine/subscriber',
-        #                                                '/reddits/mine/contributor',
-        #                                                '/reddits/mine/moderator']))
+        #    buttons.append(NamedButton("mine", aliases=['/categories/mine/subscriber',
+        #                                                '/categories/mine/contributor',
+        #                                                '/categories/mine/moderator']))
                
 
         return [PageNameNav('reddits'),
-                NavMenu(buttons, base_path = '/reddits', type="tabmenu")]
+                NavMenu(buttons, base_path = '/categories', type="tabmenu")]
 
     def content(self):
         return self.content_stack(self.searchbar, self.nav_menu,
@@ -770,7 +770,7 @@ class SubredditTopBar(Wrapped):
         #                                        dest = '/'))
         drop_down_buttons.append(NamedButton('edit', sr_path = False,
                                              css_class = 'bottom-option',
-                                             dest = '/reddits/'))
+                                             dest = '/categories/'))
         self.sr_dropdown = SubredditMenu(drop_down_buttons,
                                          title = _('my categories'),
                                          type = 'srdrop')
@@ -793,8 +793,8 @@ class SubredditBox(Wrapped):
         
         self.title = _('Other reddit communities')
         self.subtitle = 'Visit your subscribed reddits (in bold) or explore new ones'
-        self.create_link = ('/reddits/', menu.more)
-        self.more_link   = ('/reddits/create', _('create'))
+        self.create_link = ('/categories/', menu.more)
+        self.more_link   = ('/categories/create', _('create'))
 
         my_reddits = []
         sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
@@ -965,7 +965,7 @@ class GoogleSearchResults(BoringPage):
                                   # self.nav_menu, self._content)
 
 class SearchBar(Wrapped):
-    """More detailed search box for /search and /reddits pages.
+    """More detailed search box for /search and /categories pages.
     Displays the previous search as well as info of the elapsed_time
     and num_results if any."""
     def __init__(self, num_results = 0, prev_search = '', elapsed_time = 0, **kw):

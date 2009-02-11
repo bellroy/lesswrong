@@ -575,7 +575,7 @@ class SubSR(DefaultSR):
 
     @property
     def path(self):
-        return "/reddits/"
+        return "/categories/"
 
 class DomainSR(FakeSubreddit):
     @property

@@ -238,7 +238,7 @@ def set_subreddit():
         except NotFound:
             c.site = Default
             if chksrname(sr_name):
-                redirect_to("/reddits/create?name=%s" % sr_name)
+                redirect_to("/categories/create?name=%s" % sr_name)
             elif not c.error_page:
                 abort(404, "not found")
 
