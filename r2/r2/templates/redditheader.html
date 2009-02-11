@@ -32,7 +32,7 @@
   %if thing.srtopbar:
     ${thing.srtopbar.render()}
   %endif
-  <a id="alternate" href="http://${thing.alternate_sr.domain}${(':' + g.port) if hasattr(g, 'port') else ''}/">Visit ${thing.alternate_sr.title}</a>
+  <a id="alternate" href="/">Home</a>
   <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
     <h1>
       ${plain_link(c.site.title if c.site.title else g.front_page_title, '')}
