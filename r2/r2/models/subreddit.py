@@ -559,7 +559,7 @@ class MultiReddit(DefaultSR):
     def get_links(self, sort, time, link_cls = None):
         return self.get_links_sr_ids(self.sr_ids, sort, time, link_cls)
 
-class SubSR(FakeSubreddit):
+class SubSR(DefaultSR):
     stylesheet = 'subreddit.css'
     #this will make the javascript not send an SR parameter
     name = ''
