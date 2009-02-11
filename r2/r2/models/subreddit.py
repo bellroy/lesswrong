@@ -511,7 +511,7 @@ class DefaultSR(FakeSubreddit):
             link_cls = Link
 
         if not sr_ids:
-            return []
+            srs = []
         else:
             srs = Subreddit._byID(sr_ids, return_dict = False)
 
