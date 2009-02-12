@@ -776,8 +776,13 @@ class SubredditTopBar(Wrapped):
                                          type = 'srdrop')
 
     
-        pop_reddits = Subreddit.default_srs(c.content_langs, limit = 30)        
-        buttons = [SubredditButton(sr) for sr in c.recent_reddits]
+        pop_reddits = Subreddit.default_srs(c.content_langs, limit = 30)
+        buttons = []
+        for sr in c.recent_reddits:
+            # Extra guarding for Issue #50
+            if hasattr(sr, 'name'):
+                buttons.append(SubredditButton(sr))
+
         for sr in pop_reddits:
             if sr not in c.recent_reddits:
                 buttons.append(SubredditButton(sr))
