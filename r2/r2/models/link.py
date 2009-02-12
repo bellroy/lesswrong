@@ -37,6 +37,7 @@ from pylons.i18n import ungettext
 
 import re
 import random
+import urllib
 from datetime import datetime
 
 class LinkExists(Exception): pass
@@ -596,7 +597,7 @@ class Tag(Thing):
     @property
     def path(self):
         """Returns the path to the tag listing for this tag"""
-        return "/tag/%s/" % self.name
+        return "/tag/%s/" % (urllib.quote(self.name))
 
 class LinkTag(Relation(Link, Tag)):
     pass
