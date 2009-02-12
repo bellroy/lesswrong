@@ -1,11 +1,12 @@
 <h3>Tags</h3>
 <div class="tag-cloud">
 <ul>
+<% import urllib %>
 %for tag_dict in thing.things:
   %for tag in tag_dict.iteritems():
     <% name, weight = tag %>
     <li class="tag ${thing.numbers[weight - 1]}">
-      <a href="/tag/${name}">${name}</a>
+      <a href="/tag/${urllib.quote(name)}">${name}</a>
     </li>
   %endfor
 %endfor
