@@ -801,7 +801,9 @@ class VCleanHTML(Validator):
     """Returns a cleaned version of the HTML passed"""
     
     # Cleaner is initialised with differences to the defaults
-    sanitizer = Cleaner(embedded=False,style=False)
+    # embedded: We want to allow flash movies in posts
+    # style: enable removal of style
+    sanitizer = Cleaner(embedded=False,style=True)
 
     def run(self, html):
         return self.sanitizer.clean_html(html) if html else ''
