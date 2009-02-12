@@ -475,7 +475,10 @@ class FriendsSR(FakeSubreddit):
         if not c.user_is_loggedin:
             raise UserRequiredException
 
-        q = Link._query(self.c.author_id == c.user.friends,
+        if not link_cls:
+            link_cls = Link
+
+        q = link_cls._query(self.c.author_id == c.user.friends,
                         sort = queries.db_sort(sort))
         if time != 'all':
             q._filter(queries.db_times[time])
