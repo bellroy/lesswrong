@@ -319,7 +319,7 @@ class TagCloud(Wrapped):
         rows = query.execute().fetchall()
         tags = []
         for result in rows:
-            tag = Tag._byID(result.thing2_id)
+            tag = Tag._byID(result.thing2_id, data=True)
             tags.append((tag.name, result.count))
 
         # Order by tag name
