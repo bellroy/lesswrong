@@ -565,11 +565,12 @@ class Tag(Thing):
     """A tag on a link/article"""
     @classmethod
     def _new(self, name, **kw):
+        tag_name = name.lower()
         try:
-            tag = Tag._by_name(name)
+            tag = Tag._by_name(tag_name)
             raise TagExists
         except NotFound:
-            tag = Tag(name = name.lower(), **kw)
+            tag = Tag(name = tag_name, **kw)
             tag._commit()
             clear_memo('tag._by_name', Tag, name.lower())
             # clear_memo('subreddit.subreddits', Subreddit)
