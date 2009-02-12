@@ -357,7 +357,7 @@ class TagCloud(Wrapped):
                 fontSet = False  
                 for threshold in newThresholds[1:int(steps)+1]:  
                     if (100 * math.log(tag[1] + 2)) <= threshold[0] and not fontSet:  
-                        results.append(dict({str(tag[0]):threshold[1]}))  
+                        results.append(dict({tag[0]:threshold[1]}))  
                         fontSet = True  
             return results
 
