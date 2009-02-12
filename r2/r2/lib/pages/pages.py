@@ -602,21 +602,12 @@ class EditReddit(Reddit):
 
 
 class SubredditsPage(Reddit):
-    """container for rendering a list of reddits.  The corner
-    searchbox is hidden and its functionality subsumed by an in page
-    SearchBar for searching over reddits.  As a result this class
-    takes the same arguments as SearchBar, which it uses to construct
-    self.searchbar"""
+    """container for rendering a list of reddits."""
     submit_box   = False
     def __init__(self, prev_search = '', num_results = 0, elapsed_time = 0,
                  title = '', loginbox = True, infotext = None, *a, **kw):
         Reddit.__init__(self, title = title, loginbox = loginbox, infotext = infotext,
                         *a, **kw)
-        self.searchbar = SearchBar(prev_search = prev_search,
-                                   elapsed_time = elapsed_time,
-                                   num_results = num_results,
-                                   header = _('search reddits')
-                                   )
         self.sr_infobar = InfoBar(message = strings.sr_subscribe)
 
     def build_toolbars(self):
@@ -631,14 +622,12 @@ class SubredditsPage(Reddit):
         #    buttons.append(NamedButton("mine", aliases=['/categories/mine/subscriber',
         #                                                '/categories/mine/contributor',
         #                                                '/categories/mine/moderator']))
-               
 
         return [PageNameNav('reddits'),
                 NavMenu(buttons, base_path = '/categories', type="tabmenu")]
 
     def content(self):
-        return self.content_stack(self.searchbar, self.nav_menu,
-                                  self.sr_infobar, self._content)
+        return self.content_stack(self.nav_menu, self.sr_infobar, self._content)
 
     def rightbox(self):
         ps = Reddit.rightbox(self)

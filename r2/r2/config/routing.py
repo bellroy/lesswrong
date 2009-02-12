@@ -49,7 +49,6 @@ def make_map(global_conf={}, app_conf={}):
        action='editreddit', location = 'about')
 
     mc('/categories/create', controller='front', action='newreddit')
-    mc('/categories/search', controller='front', action='search_reddits')
     mc('/categories/:where', controller='reddits', action='listing',
        where = 'popular',
        requirements=dict(where="popular|new|banned"))
