@@ -569,7 +569,7 @@ class Tag(Thing):
             tag = Tag._by_name(name)
             raise TagExists
         except NotFound:
-            tag = Tag(name = name, **kw)
+            tag = Tag(name = name.lower(), **kw)
             tag._commit()
             clear_memo('tag._by_name', Tag, name.lower())
             # clear_memo('subreddit.subreddits', Subreddit)
