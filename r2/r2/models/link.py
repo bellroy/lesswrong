@@ -485,8 +485,8 @@ class Link(Thing, Printable):
         q = LinkTag._query(LinkTag.c._thing1_id == self._id,
                            LinkTag.c._name == 'tag',
                            LinkTag.c._t2_deleted == False,
-                           # eager_load = True,
-                           # thing_data = not g.use_query_cache
+                           eager_load = True,
+                           thing_data = not g.use_query_cache
                       )
         return [link_tag._thing2 for link_tag in q]
 
