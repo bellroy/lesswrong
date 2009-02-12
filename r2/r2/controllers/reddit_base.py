@@ -352,8 +352,11 @@ def set_recent_reddits():
     c.recent_reddits = []
     if names:
         names = filter(None, names.split(','))
-        c.recent_reddits = Subreddit._by_fullname(names, data = True,
-                                                  return_dict = False)
+        srs = Subreddit._by_fullname(names, data = True,
+                                     return_dict = False)
+        # Ensure all the objects returned are Subreddits. Due to the nature
+        # of _by_fullname its possible to get any type back
+        c.recent_reddits = filter(lambda x: isinstance(x, Subreddit), names)
 
 def ratelimit_agents():
     user_agent = request.user_agent
