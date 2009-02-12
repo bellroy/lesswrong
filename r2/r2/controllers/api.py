@@ -235,7 +235,7 @@ class ApiController(RedditController):
               sr = VSubmitSR('sr'),
               title = VTitle('title'),
               l = VLink('article_id'),
-              new_content = nop('article'),
+              new_content = VCleanHTML('article'),
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
               tags = VTags('tags'))
@@ -271,7 +271,7 @@ class ApiController(RedditController):
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
         if not l:
-          l = Link._submit(request.post.title, (new_content if new_content else ''), c.user, sr, ip, tags, spam)
+          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
           if l.url.lower() == 'self':
               l.url = l.make_permalink_slow()
               l.is_self = True
@@ -292,7 +292,7 @@ class ApiController(RedditController):
               queries.new_vote(v)
         else:
           l.title = request.post.title
-          l.article = request.post.article
+          l.article = new_content
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)

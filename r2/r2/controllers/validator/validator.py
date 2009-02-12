@@ -35,6 +35,7 @@ from r2.controllers.errors import errors, UserRequiredException
 
 from copy import copy
 from datetime import datetime, timedelta
+from lxml.html.clean import Cleaner
 import re
 
 class Validator(object):
@@ -795,3 +796,12 @@ class ValidDomain(Validator):
     def run(self, url):
         if url and is_banned_domain(url):
             c.errors.add(errors.BANNED_DOMAIN)
+
+class VCleanHTML(Validator):
+    """Returns a cleaned version of the HTML passed"""
+    
+    # Cleaner is initialised with differences to the defaults
+    sanitizer = Cleaner(embedded=False,style=True)
+
+    def run(self, html):
+        return self.sanitizer.clean_html(html) if html else ''
