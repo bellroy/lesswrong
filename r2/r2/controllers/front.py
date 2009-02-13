@@ -202,7 +202,7 @@ class FrontController(RedditController):
 
         return PrefsPage(content = content, infotext=infotext).render()
 
-    @validate(VUser(),
+    @validate(VAdmin(),
               name = nop('name'))
     def GET_newreddit(self, name):
         """Create a reddit form"""

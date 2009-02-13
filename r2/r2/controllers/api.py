@@ -1035,7 +1035,7 @@ class ApiController(RedditController):
 
 
     @Json
-    @validate(VUser(),
+    @validate(VAdmin(),
               VModhash(),
               VRatelimit(rate_user = True,
                          rate_ip = True,
