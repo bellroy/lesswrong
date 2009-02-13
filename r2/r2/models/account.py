@@ -37,7 +37,7 @@ class Account(Thing):
                                                'report_ignored', 'spammer',
                                                'reported')
     _int_prop_suffix = '_karma'
-    _defaults = dict(pref_numsites = 25,
+    _defaults = dict(pref_numsites = 10,
                      pref_frame = False,
                      pref_newwindow = False,
                      pref_public_votes = False,

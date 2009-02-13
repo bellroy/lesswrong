@@ -37,7 +37,7 @@
 
 <%def name="link_options()">
   <select name="numsites" style="margin: 0 .5em 0 .5em">
-        %for x in [10, 25, 50, 100]:
+        %for x in [5, 10, 25]:
         <option ${x == c.user.pref_numsites and "selected='selected'" or ""}>
           ${x}
         </option>
