@@ -563,7 +563,7 @@ class FrontController(RedditController):
         return self.abort404()
 
     @validate(VUser(),
-              article = VSubmitLink('article'))
+              article = VSubmitLink('article', redirect=False))
     def GET_imagebrowser(self, article):
-      return ImageBrowser(article).render()
+        return ImageBrowser(article).render()
 

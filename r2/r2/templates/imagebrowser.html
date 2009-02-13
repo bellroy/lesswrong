@@ -238,14 +238,6 @@
                 ${name}
               </b>
               <br/>
-              <span id="description_${name}">link:</span>
-              <pre id="img_url_${name}">url(%%${name}%%)</pre>
-              <br/>
-##              <a id="paste_image_${name}" href="javascript:void(0)"
-##                 onclick="return paste_url(this)">
-##                ${_("paste into stylesheet")}
-##              </a>
-##              <br/>
               ${yes_no_button("delete_link_img", name,
                               _("delete this image"),
                               "return delete_img(this)",
@@ -264,6 +256,9 @@
               name="upload-iframe" id="upload-iframe"></iframe>
 
     </div>
+    %else:
+    <h2>Article not saved</h2>
+    <p>You must save your article before you can upload an image for it.</p>
     %endif
   </body>
 </%def>
