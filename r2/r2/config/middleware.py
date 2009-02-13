@@ -25,6 +25,8 @@ from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from paste.deploy.converters import asbool
 from paste.gzipper import make_gzip_middleware
+from paste.request import resolve_relative_url
+from paste.response import header_value, replace_header
 
 from pylons import config, request, Response
 from pylons.error import error_template
@@ -388,7 +390,24 @@ class LimitUploadSize(object):
 
         return self.app(environ, start_response)
 
-#god this shit is disorganized and confusing
+class AbsoluteRedirectMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+
+        def start_response_wrapper(status, headers, exc_info=None):
+            location_header = 'location'
+            status_code = int(status.split(None,1)[0])
+            if (status_code >= 301 and status_code <= 303) or status_code == 307:
+                location = header_value(headers, location_header)
+                if location:
+                    replace_header(headers, location_header, resolve_relative_url(location, environ))
+            return start_response(status, headers, exc_info)
+
+        return self.app(environ, start_response_wrapper)
+
+#god this stuff is disorganized and confusing
 class RedditApp(PylonsBaseWSGIApp):
     def find_controller(self, controller):
         if controller in self.controller_classes:
@@ -463,6 +482,8 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = Cascade([static_app, javascripts_app, app])
 
     app = make_gzip_middleware(app, app_conf)
+
+    app = AbsoluteRedirectMiddleware(app)
 
     #add the rewrite rules
     app = RewriteMiddleware(app)
