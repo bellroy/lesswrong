@@ -299,7 +299,7 @@ class Subreddit(Thing, Printable):
         #return 1
 
     @classmethod
-    def default_srs(cls, lang, ids = False, limit = 10):
+    def default_srs(cls, lang, ids = False, limit = None):
         """Returns the default list of subreddits for a given language, sorted
         by popularity"""
         pop_reddits = Subreddit._query(Subreddit.c.type == ('public', 'restricted'),
