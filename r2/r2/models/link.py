@@ -274,7 +274,9 @@ class Link(Thing, Printable):
     def make_permalink(self, sr, force_domain = False):
         from r2.lib.template_helpers import get_domain
         p = "comments/%s/%s/" % (self._id36, title_to_url(self.title))
-        if not c.cname:
+        if c.default_sr:
+            res = "/%s" % p
+        elif not c.cname:
             res = "/r/%s/%s" % (sr.name, p)
         elif sr != c.site or force_domain:
             res = "http://%s/%s" % (get_domain(cname = (c.cname and sr == c.site),
