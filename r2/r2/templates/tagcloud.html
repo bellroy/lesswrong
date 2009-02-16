@@ -6,7 +6,7 @@
   %for tag in tag_dict.iteritems():
     <% name, weight = tag %>
     <li class="tag ${thing.numbers[weight - 1]}">
-      <a href="/tag/${urllib.quote(name)}">${name}</a>
+      <a href="/tag/${urllib.quote(name.encode('utf8'))}">${name}</a>
     </li>
   %endfor
 %endfor
