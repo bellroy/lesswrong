@@ -69,7 +69,7 @@ class Link(Thing, Printable):
 
     @classmethod
     def by_url_key(cls, url):
-        return str(base_url(url.lower()))
+        return base_url(url.lower()).encode('utf8')
 
     @classmethod
     def _by_url(cls, url, sr):
