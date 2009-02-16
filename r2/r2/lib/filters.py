@@ -25,9 +25,18 @@ import cgi
 import urllib
 import re
 
+import lxml.html
+from lxml.html import soupparser
+from lxml.html.clean import Cleaner
+
 MD_START = '<div class="md">'
 MD_END = '</div>'
 
+
+# Cleaner is initialised with differences to the defaults
+# embedded: We want to allow flash movies in posts
+# style: enable removal of style
+sanitizer = Cleaner(embedded=False,style=True)
 
 def python_websafe(text):
     return text.replace('&', "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -146,3 +155,9 @@ def keep_space(text):
 
 def unkeep_space(text):
     return text.replace('&#32;', ' ').replace('&#10;', '\n').replace('&#09;', '\t')
+
+def safehtml(html):
+    html_doc = soupparser.fromstring(html)
+    cleaned_html = sanitizer.clean_html(html_doc)
+    return lxml.html.tostring(cleaned_html)
+

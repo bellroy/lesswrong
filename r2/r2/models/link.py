@@ -62,6 +62,7 @@ class Link(Thing, Printable):
                      blessed = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
+    _more_marker = '<a id="more"></a>'
 
     def __init__(self, *a, **kw):
         Thing.__init__(self, *a, **kw)
@@ -151,15 +152,15 @@ class Link(Thing, Printable):
         
     def _summary(self):
         if hasattr(self, 'article'):
-            return self.article.split('<a id="more"></a>')[0]
+            return self.article.split(self._more_marker)[0]
             
     def _has_more(self):
         if hasattr(self, 'article'):
-            return self.article.find('<a id="more"></a>') >= 0
+            return self.article.find(self._more_marker) >= 0
             
     def _more(self):
         if hasattr(self, 'article'):
-            return self.article.split('<a id="more"></a>')[1]
+            return self.article.split(self._more_marker)[1]
 
     @classmethod
     def _somethinged(cls, rel, user, link, name):

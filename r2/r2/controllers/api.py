@@ -235,7 +235,7 @@ class ApiController(RedditController):
               sr = VSubmitSR('sr'),
               title = VTitle('title'),
               l = VLink('article_id'),
-              new_content = VCleanHTML('article'),
+              new_content = nop('article'),
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
               tags = VTags('tags'))
@@ -266,6 +266,9 @@ class ApiController(RedditController):
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.BANNED_DOMAIN in c.errors)
+        
+        if not new_content:
+            new_content = ''
 
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
