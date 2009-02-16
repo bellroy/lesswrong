@@ -1778,28 +1778,26 @@ a#more {
 }
 
 .tag-cloud ul {
-    margin: 0;
-    padding: 0;
+    padding: 0 8px;
     list-style: none;
+    text-align: justify;
 }
 
 .tag-cloud li {
     font-size: small;
     display: inline;
-    text-align: left;
-    margin: 0.25em;
 }
 
-.tag-cloud .one { font-size: 1em; }
-.tag-cloud .two { font-size: 1.25em; }
-.tag-cloud .three { font-size: 1.5em; }
-.tag-cloud .four { font-size: 1.75em; }
-.tag-cloud .five { font-size: 2em; }
-.tag-cloud .six { font-size: 2.25em; }
-.tag-cloud .seven { font-size: 2.5em; }
-.tag-cloud .eight { font-size: 2.75em; }
-.tag-cloud .nine { font-size: 3em; }
-.tag-cloud .ten { font-size: 3.25em; }
+.tag-cloud .one   { font-size: 1.0em; }
+.tag-cloud .two   { font-size: 1.2em; }
+.tag-cloud .three { font-size: 1.4em; }
+.tag-cloud .four  { font-size: 1.6em; }
+.tag-cloud .five  { font-size: 1.8em; }
+.tag-cloud .six   { font-size: 2.0em; }
+.tag-cloud .seven { font-size: 2.2em; }
+.tag-cloud .eight { font-size: 2.4em; }
+.tag-cloud .nine  { font-size: 2.6em; }
+.tag-cloud .ten   { font-size: 2.8em; }
 
 .tag-cloud a:hover {
     text-decoration: underline;
