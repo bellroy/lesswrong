@@ -288,6 +288,12 @@ class Link(Thing, Printable):
     def make_permalink_slow(self):
         return self.make_permalink(self.subreddit_slow)
     
+    @property
+    def canonical_url(self):
+        from r2.lib.template_helpers import get_domain
+        p = "comments/%s/%s/" % (self._id36, title_to_url(self.title))
+        return "http://%s/%s" % (get_domain(subreddit = False), p)
+
     @classmethod
     def add_props(cls, user, wrapped):
         from r2.lib.count import incr_counts

@@ -73,6 +73,9 @@
     <link rel="alternate" type="application/rss+xml" title="RSS"
           href="${add_sr(join_urls(request.path,'.rss'))}" />
   %endif
+  %if hasattr(thing, 'canonical_link'):
+    <link rel="canonical" href="${thing.canonical_link}" />
+  %endif
 </%def>
 
 <%def name="javascript()">

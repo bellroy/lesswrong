@@ -545,6 +545,11 @@ class LinkInfoPage(Reddit):
         else:
             params = {'title':_force_unicode(link_title), 'site' : c.site.name}
             title = strings.link_info_title % params
+
+        if not c.default_sr:
+            # Not on the main page, so include a pointer to the canonical URL for this link
+            self.canonical_link = link.canonical_url
+
         Reddit.__init__(self, title = title, *a, **kw)
 
     def build_toolbars(self):
