@@ -36,7 +36,8 @@ MD_END = '</div>'
 # Cleaner is initialised with differences to the defaults
 # embedded: We want to allow flash movies in posts
 # style: enable removal of style
-sanitizer = Cleaner(embedded=False,style=True)
+# safe_attrs_only: need to allow strange arguments to <object>
+sanitizer = Cleaner(embedded=False,style=True,safe_attrs_only=False)
 
 def python_websafe(text):
     return text.replace('&', "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
