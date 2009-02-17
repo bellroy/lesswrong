@@ -1,12 +1,4 @@
 <h3>Tags</h3>
 <div class="tag-cloud">
-<ul>
-<% import urllib %>
-%for tag, weight in thing.things:
-  <li class="tag ${thing.numbers[weight - 1]}">
-    <a href="${tag.path}">${tag.name}</a>&#32;
-  </li>
-%endfor
-</ul>
-
+  ${thing.nav().render()}
 </div>

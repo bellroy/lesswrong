@@ -1779,19 +1779,15 @@ ul#image-preview-list .description pre {
 
 .subscription-box h1{ text-align: center; }
 
-a#more {
-    display: block;
-}
+a#more { display: block; }
 
-.tag-cloud ul {
-    padding: 0 8px;
-    list-style: none;
+.tag-cloud {
     text-align: justify;
+    padding: 0 8px;
 }
-
-.tag-cloud li {
-    font-size: small;
-    display: inline;
+.tag-cloud a { font-size: small; }
+.tag-cloud li.selected {
+    font-weight: normal;
 }
 
 .tag-cloud .one   { font-size: 1.0em; }

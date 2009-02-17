@@ -292,7 +292,7 @@ class TagCloud(Wrapped):
     
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
-    def __init__(self, *args, **kwargs):
+    def nav(self):
         from r2.lib.db import tdb_sql as tdb
         import sqlalchemy as sa
 
@@ -324,9 +324,13 @@ class TagCloud(Wrapped):
 
         # Order by tag name
         tags.sort(key=lambda x: x[0].name)
-        self.things = self.makeCloud(10, tags)
-        
-        Wrapped.__init__(self, *args, **kwargs)
+        cloud = self.makeCloud(10, tags)
+
+        buttons =[]
+        for tag, weight in cloud:
+            buttons.append(NavButton(tag.name, tag.name, css_class=self.numbers[weight - 1]))
+
+        return NavMenu(buttons, type="flatlist", separator=' ', base_path='/tag/')
 
     @classmethod
     def makeCloud(cls, steps, input):
