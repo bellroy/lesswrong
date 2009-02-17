@@ -572,7 +572,8 @@ class SubredditsPage(Reddit):
 
     def rightbox(self):
         ps = Reddit.rightbox(self)
-        ps.append(SubscriptionBox())
+        position = 1 if not c.user_is_loggedin else 0
+        ps.insert(position, SubscriptionBox())
         return ps
 
 class MySubredditsPage(SubredditsPage):
