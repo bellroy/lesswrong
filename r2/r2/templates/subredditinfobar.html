@@ -59,21 +59,22 @@
         ${_("a community for %(time)s") % dict(time=timesince(c.site._date))}
       </p>
 
-      %if c.site.type in ("private", "restricted") and c.user_is_loggedin and \
-          c.site.is_contributor(c.user):
-          ${moderate_button("contributor",
-                            _("you are a contributor of this reddit. (%(leave)s)"),
-                            _("stop being a contributor?"),
-                            _("you are no longer a contributor"))}
-     %endif
-
-     %if c.user_is_loggedin and c.site.is_moderator(c.user):
-          ${moderate_button("moderator",
-                            _("you are a moderator of this reddit. (%(leave)s)"),
-                            _("stop being a moderator?"),
-                            _("you are no longer a moderator"))}
-                           
-     %endif
+      %if c.user_is_loggedin and c.site.name != c.user.draft_sr_name:
+        %if c.site.type in ("private", "restricted")and c.site.is_contributor(c.user):
+            ${moderate_button("contributor",
+                              _("you are a contributor of this reddit. (%(leave)s)"),
+                              _("stop being a contributor?"),
+                              _("you are no longer a contributor"))}
+        %endif
+     
+        %if c.site.is_moderator(c.user):
+             ${moderate_button("moderator",
+                               _("you are a moderator of this reddit. (%(leave)s)"),
+                               _("stop being a moderator?"),
+                               _("you are no longer a moderator"))}
+                        
+        %endif
+      %endif
 
     <div class="spacer">  
     %for n in thing.nav():
