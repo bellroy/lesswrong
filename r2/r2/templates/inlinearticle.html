@@ -46,7 +46,7 @@
       ${thing.title}
     </a><br />
     <small>
-      by&#32;<a href="http://${get_domain(True, True)}/user/${thing.author.name}">
+      by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
         <b>${thing.author.name}</b></a>&#32;|&#32;
       ${thing.score} ${ungettext("point", "points", thing.score)} 
     </small>
