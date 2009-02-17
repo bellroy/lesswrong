@@ -329,6 +329,7 @@ class TagController(ListingController):
         q = LinkTag._query(LinkTag.c._thing2_id == self._tag._id,
                            LinkTag.c._name == 'tag',
                            LinkTag.c._t1_deleted == False,
+                           sort = desc('_date'),
                            eager_load = True,
                            thing_data = not g.use_query_cache
                       )
