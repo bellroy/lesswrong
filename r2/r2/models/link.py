@@ -582,7 +582,6 @@ class Tag(Thing):
             tag = Tag(name = tag_name, **kw)
             tag._commit()
             clear_memo('tag._by_name', Tag, name.lower())
-            # clear_memo('subreddit.subreddits', Subreddit)
             return tag
 
     @classmethod
