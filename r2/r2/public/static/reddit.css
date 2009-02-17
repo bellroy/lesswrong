@@ -1528,12 +1528,18 @@ a.star { text-decoration: none; color: #ff8b60 }
 .stylesheet-customize-container textarea { margin: 0; padding: 0px; }
 .stylesheet-customize-container h2 { margin-top: 15px; margin-bottom: 10px;  }
 
+#images {
+    margin: 10px;
+}
 .image-upload .new-image { margin-left: 20px }
-.image-upload table { margin-left: 20px;  }
 .image-upload td,
 .image-upload th    { vertical-align: top; }
 .image-upload span  { padding-left: 5px; }
 .image-upload { display: inline; }
+.pretty-form input[type=text] {
+    width: 90%; 
+    padding: 2px;
+}
 
 
 ul#image-preview-list { 
