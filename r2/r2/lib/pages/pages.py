@@ -320,12 +320,10 @@ class TagCloud(Wrapped):
         tags = []
         for result in rows:
             tag = Tag._byID(result.thing2_id, data=True)
-            tags.append((tag.name, result.count))
+            tags.append((tag, result.count))
 
         # Order by tag name
-        tags.sort()
-        #self.max_count = max(tags, key=lambda tag:tag._link_count)
-        #self.things = tags
+        tags.sort(key=lambda x: x[0].name)
         self.things = self.makeCloud(10, tags)
         
         Wrapped.__init__(self, *args, **kwargs)
@@ -335,7 +333,6 @@ class TagCloud(Wrapped):
         # From: http://www.car-chase.net/2007/jan/16/log-based-tag-clouds-python/
         import types
         import math
-        
 
         if not type(input) == types.ListType or steps <= 0:  
             raise InvalidInputException,\
@@ -357,7 +354,7 @@ class TagCloud(Wrapped):
                 fontSet = False  
                 for threshold in newThresholds[1:int(steps)+1]:  
                     if (100 * math.log(tag[1] + 2)) <= threshold[0] and not fontSet:  
-                        results.append(dict({tag[0]:threshold[1]}))  
+                        results.append(tuple([tag[0], threshold[1]]))  
                         fontSet = True  
             return results
 

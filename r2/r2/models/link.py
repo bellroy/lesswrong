@@ -607,7 +607,11 @@ class Tag(Thing):
     @property
     def path(self):
         """Returns the path to the tag listing for this tag"""
-        return "/tag/%s/" % (urllib.quote(self.name.encode('utf8')))
+        quoted_tag_name = urllib.quote(self.name.encode('utf8'))
+        if not c.default_sr:
+            return "/r/%s/tag/%s/" % (c.site.name, quoted_tag_name)
+        else:
+            return "/tag/%s/" % (quoted_tag_name)
 
 class LinkTag(Relation(Link, Tag)):
     pass
