@@ -213,7 +213,11 @@ ${unsafe(txt)}
 </%def>
 
 <%def name="separator(separator_char)">
-  <span class="separator">${separator_char}</span>
+  %if separator_char != ' ':
+    <span class="separator">${separator_char}</span>
+  %else:
+    <span class="separator">&#32;</span>
+  %endif
 </%def>
 
 <%def name="optionalstyle(style)">
