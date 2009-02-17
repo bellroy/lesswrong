@@ -613,6 +613,65 @@ class Tag(Thing):
         else:
             return "/tag/%s/" % (quoted_tag_name)
 
+    @classmethod
+    # @memoize('tag.tag_cloud_for_subreddits') enable when it is cleared at appropiate points
+    def tag_cloud_for_subreddits(cls, sr_ids):
+        from r2.lib.db import tdb_sql as tdb
+        import sqlalchemy as sa
+
+        type = tdb.rel_types_id[LinkTag._type_id]
+        linktag_thing_table = type.rel_table[0]
+
+        link_type = tdb.types_id[Link._type_id]
+        link_data_table = link_type.data_table[0]
+
+        link_sr = sa.select([
+            link_data_table.c.thing_id,
+            sa.cast(link_data_table.c.value, sa.INT).label('sr_id')],
+            link_data_table.c.key == 'sr_id').alias('link_sr')
+
+        query = sa.select([linktag_thing_table.c.thing2_id,
+                          sa.func.count(linktag_thing_table.c.thing1_id)],
+                          sa.and_(linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
+                                  link_sr.c.sr_id.in_(*sr_ids)),
+                          group_by = [linktag_thing_table.c.thing2_id],
+                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
+
+        rows = query.execute().fetchall()
+        tags = []
+        for result in rows:
+            tag = Tag._byID(result.thing2_id, data=True)
+            tags.append((tag, result.count))
+
+        # Order by tag name
+        tags.sort(key=lambda x: x[0].name)
+        return cls.make_cloud(10, tags)
+
+    @classmethod
+    def make_cloud(cls, steps, input):
+        # From: http://www.car-chase.net/2007/jan/16/log-based-tag-clouds-python/
+        import math
+
+        if len(input) <= 0:
+          return []
+        else:
+            temp, newThresholds, results = [], [], []
+            for item in input:
+                temp.append(item[1])
+            maxWeight = float(max(temp))
+            minWeight = float(min(temp))
+            newDelta = (maxWeight - minWeight)/float(steps)
+            for i in range(steps + 1):
+               newThresholds.append((100 * math.log((minWeight + i * newDelta) + 2), i))
+            for tag in input:
+                fontSet = False
+                for threshold in newThresholds[1:int(steps)+1]:
+                    if (100 * math.log(tag[1] + 2)) <= threshold[0] and not fontSet:
+                        results.append(tuple([tag[0], threshold[1]]))
+                        fontSet = True
+            return results
+
+
 class LinkTag(Relation(Link, Tag)):
     pass
 

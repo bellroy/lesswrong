@@ -288,75 +288,15 @@ class TagCloud(Wrapped):
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        from r2.lib.db import tdb_sql as tdb
-        import sqlalchemy as sa
-
-        type = tdb.rel_types_id[LinkTag._type_id]
-        linktag_thing_table = type.rel_table[0]
-        
-        link_type = tdb.types_id[Link._type_id]
-        link_data_table = link_type.data_table[0]
-
-        link_sr = sa.select([
-            link_data_table.c.thing_id,
-            sa.cast(link_data_table.c.value, sa.INT).label('sr_id')],
-            link_data_table.c.key == 'sr_id').alias('link_sr')
-
         sr_ids = Subreddit.user_subreddits(c.user) if c.default_sr else [c.site._id]
-
-        query = sa.select([linktag_thing_table.c.thing2_id,
-                          sa.func.count(linktag_thing_table.c.thing1_id)],
-                          sa.and_(linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
-                                  link_sr.c.sr_id.in_(*sr_ids)),
-                          group_by = [linktag_thing_table.c.thing2_id],
-                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
-
-        rows = query.execute().fetchall()
-        tags = []
-        for result in rows:
-            tag = Tag._byID(result.thing2_id, data=True)
-            tags.append((tag, result.count))
-
-        # Order by tag name
-        tags.sort(key=lambda x: x[0].name)
-        cloud = self.makeCloud(10, tags)
+        cloud = Tag.tag_cloud_for_subreddits(sr_ids)
 
         buttons =[]
         for tag, weight in cloud:
             buttons.append(NavButton(tag.name, tag.name, css_class=self.numbers[weight - 1]))
 
         return NavMenu(buttons, type="flatlist", separator=' ', base_path='/tag/')
-
-    @classmethod
-    def makeCloud(cls, steps, input):
-        # From: http://www.car-chase.net/2007/jan/16/log-based-tag-clouds-python/
-        import types
-        import math
-
-        if not type(input) == types.ListType or steps <= 0:  
-            raise InvalidInputException,\
-                  "Please be sure steps > 0 and your input list is not empty."  
-        elif len(input) <= 0:
-          return []
-        else:  
-            temp, newThresholds, results = [], [], []  
-            for item in input:  
-                if not type(item) == types.TupleType:  
-                    raise InvalidInputException, "Be sure input list holds tuples."  
-                else: temp.append(item[1])  
-            maxWeight = float(max(temp))  
-            minWeight = float(min(temp))  
-            newDelta = (maxWeight - minWeight)/float(steps)  
-            for i in range(steps + 1):  
-               newThresholds.append((100 * math.log((minWeight + i * newDelta) + 2), i))  
-            for tag in input:  
-                fontSet = False  
-                for threshold in newThresholds[1:int(steps)+1]:  
-                    if (100 * math.log(tag[1] + 2)) <= threshold[0] and not fontSet:  
-                        results.append(tuple([tag[0], threshold[1]]))  
-                        fontSet = True  
-            return results
-
+        
 class SubredditInfoBar(Wrapped):
     """When not on Default, renders a sidebox which gives info about
     the current reddit, including links to the moderator and
