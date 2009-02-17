@@ -187,9 +187,6 @@
                             newwindow = c.user.pref_newwindow)}
     </li>
   %endif
-  <li id="share_li_${fullname}">
-    ${parent.simple_button("share", fullname, _("share"), "share")}
-  </li>
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>

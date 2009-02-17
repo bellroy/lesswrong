@@ -99,13 +99,8 @@ class Reddit(Wrapped):
         if not c.cname:
             self.srtopbar = SubredditTopBar()
 
-        if c.user_is_loggedin and self.show_sidebar:
-            self._content = PaneStack([ShareLink(), content])
-        else:
-            self._content = content
-        
+        self._content = content
         self.toolbars = self.build_toolbars()
-        
         self.alternate_sr = Subreddit.default()
 
     def rightbox(self):
