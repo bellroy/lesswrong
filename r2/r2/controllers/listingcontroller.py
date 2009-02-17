@@ -286,7 +286,7 @@ class ToplinksController(ListingController):
 
 class BlessedController(ListingController):
     where = 'blessed'
-    title_text = _('editor\'s picks')
+    title_text = _('promoted articles')
 
     def query(self):
         return c.site.get_links('blessed', 'all')
