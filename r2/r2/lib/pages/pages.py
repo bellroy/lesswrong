@@ -101,18 +101,25 @@ class Reddit(Wrapped):
 
         self._content = content
         self.toolbars = self.build_toolbars()
-        self.alternate_sr = Subreddit.default()
 
     def rightbox(self):
         """generates content in <div class="rightbox">"""
         
         ps = PaneStack(css_class='spacer')
 
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
-
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
+        else:
+            ps.append(self.corner_buttons())
+
+        for toolbar in self.toolbars:
+            ps.append(toolbar)
+
+        if self.nav_menu:
+            ps.append(self.nav_menu)
+
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
 
         ps.append(TagCloud())
 
@@ -331,7 +338,7 @@ class PrefsPage(Reddit):
     
     extension_handling = False
 
-    def __init__(self, show_sidebar = False, *a, **kw):
+    def __init__(self, show_sidebar = True, *a, **kw):
         Reddit.__init__(self, show_sidebar = show_sidebar,
                         title = "%s (%s)" %(_("preferences"), c.site.name.strip(' ')),
                         *a, **kw)
