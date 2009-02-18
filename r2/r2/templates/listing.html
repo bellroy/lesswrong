@@ -26,14 +26,14 @@
 <%
    _id = ("_%s" % thing.parent_name) if hasattr(thing, 'parent_name') else ''
  %>
-<div id="siteTable${_id}" class="sitetable">
-  <div id="ajaxHook${_id}" class="ajaxhook">
-  </div>
-
+##<div id="siteTable${_id}" class="sitetable">
+##  <div id="ajaxHook${_id}" class="ajaxhook">
+##  </div>
+##
   %for a in thing.things:
      ${unsafe(replace_render(thing, a))}
   %endfor
-</div>
+##</div>
 
 %if thing.nextprev and (thing.prev or thing.next):
   <p class="nextprev"> ${_("view more:")}&#32;

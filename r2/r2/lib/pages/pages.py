@@ -108,15 +108,17 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
+
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
+
+        ps.append(TagCloud())
 
         #don't show the subreddit info bar on cnames
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
-
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
 
         if self.submit_box:
             ps.append(SideBox(_('Create new article'),
@@ -134,7 +136,6 @@ class Reddit(Wrapped):
         ps.append(RecentArticles())
         ps.append(RecentComments())
         ps.append(TopContributors())
-        ps.append(TagCloud())
         
         return ps
 

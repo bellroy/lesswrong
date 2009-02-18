@@ -158,7 +158,7 @@ ${self.RenderPrintable()}
        href = unsafe('href="%s"' % add_sr("/user/%s/" % name, sr_path = False))
        if c.user_is_admin: name += " (%d)" % (author.link_karma)
     %>
-    <a id="author_${thing._fullname}" class="${author_cls}" ${href}>${name}</a>
+    <span class="${author_cls}"><a id="author_${thing._fullname}" ${href}>${name}</a></span>
  %endif
 %endif
 </%def>
@@ -192,7 +192,7 @@ ${self.RenderPrintable()}
    base_score = [base_score + x for x in range(-1, 2)];
    
  %>
-  <${tag} class="score ${_class}" ${_id}>
+  <${tag} class="votes ${_class}" ${_id}>
     ${thing.score_fmt(this.score)}
   </${tag}>
   <script type="text/javascript">

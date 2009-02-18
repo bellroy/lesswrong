@@ -27,8 +27,47 @@
  %>
 
 <%namespace file="utils.html" import="separator,plain_link"/>
-<%inherit  file="printable.html"/>
- 
+<%inherit file="printable.html"/>
+
+<%def name="RenderPrintable()">
+<%
+  css_class = "post"
+  if thing.blessed:
+    css_class += ' editors-pick'
+%>
+<div class="${css_class}">
+  <h2><a href="${thing.url}">${thing.title}</a></h2>
+  <div class="meta clear">
+    <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
+    %if thing.blessed:
+    <span class="editors-pick">Editors Pick</span>
+    %endif
+    ${unsafe(self.author(friend = thing.friend))}
+    <span class="date">11 February 2009 10:06am</span>
+  </div><!-- .meta -->
+  <div class="content clear">
+    ${unsafe(safehtml(thing._summary()))}
+    % if thing._has_more():
+      <%call expr="make_link('read_more', 'more', 'more')">
+        continue reading &raquo;
+      </%call>
+    % endif
+  </div><!-- .content -->
+  <div class="tools clear">
+    <div class="vote">
+      <a class="up" href="#">Vote up</a>
+      <a class="down" href="#">Vote down</a>
+    </div><!-- .vote -->
+    <a class="comment" href="#">Comment on this article</a>
+    <div class="boxright clear">
+      <ul class="clear">
+        ${self.buttons()}
+      </ul>
+    </div>
+  </div><!-- .tools -->
+</div><!-- .post -->
+</%def>
+
 <%def name="numcol()">
   <% num = thing.num %>
   <span class="rank" style="width:$numcolmargin;" 
