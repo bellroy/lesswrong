@@ -296,9 +296,6 @@ div.comment-meta span {
 	float: left;
 	margin-right: 30px;
 }
-div.comment-meta span span {
-	float: none;
-}
 div.comment-meta span.comment-author a {
 	color: #538d4d;
 }
@@ -445,13 +442,3 @@ div.sidebox select {
 #side-tags li {
     display: inline;
 }
-#side-tags .one   { font-size: 1.0em; }
-#side-tags .two   { font-size: 1.2em; }
-#side-tags .three { font-size: 1.4em; }
-#side-tags .four  { font-size: 1.6em; }
-#side-tags .five  { font-size: 1.8em; }
-#side-tags .six   { font-size: 2.0em; }
-#side-tags .seven { font-size: 2.2em; }
-#side-tags .eight { font-size: 2.4em; }
-#side-tags .nine  { font-size: 2.6em; }
-#side-tags .ten   { font-size: 2.8em; }
