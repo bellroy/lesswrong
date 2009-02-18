@@ -44,30 +44,6 @@ ${self.tagline(True)}
 <%def name="commentText()">
 </%def>
 
-<%def name="entry2()">
-<% fullname = thing._fullname %>
-<% collapse = thing.collapsed %>
-<div id="collapsed_${fullname}"  class="collapsed"
-     ${(not collapse and "style='display:none'" or "")}>
-  ${self.collapsed()}
-</div>
-<div  id="display_${fullname}" 
-     ${(collapse and "style='display:none'" or "")}>
-  <p id="tagline_${fullname}" class="tagline">
-    ${self.tagline()}
-  </p>
-  <div id="body_${fullname}" 
-       class="commentbody ${(c.focal_comment and c.focal_comment == thing._id36) and 'border' or ''}">${self.commentBody()}
-  </div>
-  <div style="display: none;" \
-       id="edit_body_${fullname}">${self.commentText()}\
-  </div>
-  <ul class="flat-list buttons">
-    ${self.buttons()}
-  </ul>
-</div>
-</%def>
-
 <%def name="entry()">
   <div class="comment-meta clear">
     ${self.tagline()}

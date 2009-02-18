@@ -146,30 +146,34 @@ ${parent.midcol()}
 
 <%def name="buttons()">
   %if not thing.deleted:
-    <% fullname = thing._fullname %>
-    <li class="first">
-      ${parent.comment_button("permalink", fullname, _("permalink"), 0, 
-      thing.permalink)}
-    </li>
-    %if not c.profilepage:
-      %if thing.parent_permalink:
-        <li>
-          ${bylink_button("parent", _("parent"), thing.parent_permalink)}
-        </li>
-      %endif
-      %if c.user_is_loggedin and thing.author.name == c.user.name:
-        <li>
-          ${parent.simple_button("edit", fullname, _("edit"), "editcomment")}
-        </li>
-      %endif
-    %endif
-    ${parent.delete_or_report_buttons()}
-    ${parent.buttons()}
-    %if not c.profilepage and thing.can_reply:
+    <ul class="clear">
+      <li class="first"><a class="up" href="#">Vote up</a></li>
+      <li><a class="down" href="#">Vote down</a></li>
+      <% fullname = thing._fullname %>
       <li>
-        ${parent.simple_button("reply", fullname, _("reply {verb}"), "reply")}
+        ${parent.comment_button("permalink", fullname, _("Permalink"), 0, 
+        thing.permalink)}
       </li>
-    %endif
+      %if not c.profilepage:
+        %if thing.parent_permalink:
+          <li>
+            ${bylink_button("parent", _("parent"), thing.parent_permalink)}
+          </li>
+        %endif
+        %if c.user_is_loggedin and thing.author.name == c.user.name:
+          <li>
+            ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
+          </li>
+        %endif
+      %endif
+      ${parent.delete_or_report_buttons()}
+      ${parent.buttons()}
+      %if not c.profilepage and thing.can_reply:
+        <li>
+          ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
+        </li>
+      %endif
+    </ul>
   %endif
   ${self.admintagline()}
 </%def>
