@@ -1,0 +1,264 @@
+<%!
+   import simplejson
+   import os
+ %>
+<%inherit file="base.html"/>
+<%namespace file="utils.html" import="error_field"/>
+<%namespace file="printable.html" import="yes_no_button"/>
+
+<%def name="stylesheet()">
+  <% from r2.lib.template_helpers import static, get_domain %>
+
+  %if c.lang_rtl:
+    <link rel="stylesheet" href="${static(g.stylesheet_rtl)}"
+          type="text/css" />
+    %if g.translator and request.get.get('css'):
+      <link rel="stylesheet" href="${request.get.get('css')}"
+            type="text/css" />
+    %endif
+    %if c.site.stylesheet_rtl:
+      <link rel="stylesheet" href="${static(c.site.stylesheet_rtl)}"
+            type="text/css" />
+    %endif
+  %else:
+    <link rel="stylesheet" href="${static(g.stylesheet)}"
+          type="text/css" />
+    %if c.allow_styles:
+      %if c.site.stylesheet:
+      <link rel="stylesheet" href="${static(c.site.stylesheet)}"
+            type="text/css" />
+      %endif
+      %if c.site.stylesheet_contents:
+      <link rel="stylesheet"
+            href="http://${get_domain(cname=False, subreddit=True)}/stylesheet.css?v=${c.site.stylesheet_hash}"
+            title="applied_subreddit_stylesheet"
+            type="text/css" />
+      %endif
+    %endif
+  %endif
+
+  <link rel='shortcut icon' href="${static('favicon.ico')}"
+        type="image/x-icon" />
+</%def>
+
+<%def name="javascript()">
+  <% from r2.lib.template_helpers import static %>
+  <script src="${static('json.js')}" type="text/javascript"></script>
+  %if g.uncompressedJS:
+    <script src="${static('psrs.js')}"  type="text/javascript"></script>
+    <script src="${static('utils.js')}"  type="text/javascript"></script>
+    <script src="${static('animate.js')}"  type="text/javascript"></script>
+    <script src="${static('link.js')}"  type="text/javascript"></script>
+    <script src="${static('comments.js')}"  type="text/javascript"></script>
+    <script src="${static('subreddit.js')}"  type="text/javascript"></script>
+    <script src="${static('vote_piece.js')}"  type="text/javascript"></script>
+    <script src="${static('reddit_piece.js')}"  type="text/javascript"></script>
+    <script src="${static('organic.js')}"  type="text/javascript"></script>
+  %else:
+    <script src="${static('reddit.js')}"  type="text/javascript"></script>
+  %endif
+  <script src="${static(os.path.join('tiny_mce','tiny_mce_popup.js'))}" type="text/javascript"></script>
+</%def>
+
+<%def name="javascript_run()">
+##      <%
+##         errors = simplejson.dumps(thing.errors)
+##       %>
+##      parent.completedUploadImage('${thing.status}','${thing.img_src or ""}',
+##                                  '${thing.name or ""}', ${unsafe(errors)});
+
+  var FileBrowserDialogue = {
+    init : function () {
+      // Here goes your code for setting your custom things onLoad.
+    },
+    mySubmit : function () {
+      var URL = document.my_form.my_field.value;
+      var win = tinyMCEPopup.getWindowArg("window");
+
+      // insert information now
+      win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = URL;
+
+      // are we an image browser
+      if (typeof(win.ImageDialog) != "undefined")
+      {
+        // we are, so update image dimensions and preview if necessary
+        if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+        if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(URL);
+      }
+
+      // close popup window
+      tinyMCEPopup.close();
+    }
+  }
+
+  tinyMCEPopup.onInit.add(FileBrowserDialogue.init, FileBrowserDialogue);
+</%def>
+
+<%def name="bodyHTML()">
+  <body>
+    %if thing.article:
+    <div id="images">
+      <h2><a name="images">${_("images")}</a></h2>
+
+      <form class="pretty-form image-upload" enctype="multipart/form-data"
+            target="upload-iframe" id="image-upload"
+            action="/api/upload_link_img" method="post"
+            onsubmit="return check_name(this)">
+        <input type="hidden" name="uh" value="${c.modhash}" />
+        <input type="hidden" name="article_id" value="${thing.article._id36}" />
+        <table>
+          <tr>
+            <th>
+              <label for="srfile">${_("image file:")}</label>
+            </th>
+            <td>
+              <input type="file" name="file" id="srfile"
+                     onchange="return file_changed(this)"/>
+              <button id="submit-header-img" type="submit" name="upload"
+                      onclick="return upload_image(this.form, '${_('uploading')}');"
+                      style="display: none;" >
+                ${_('Upload')}
+              </button>
+              <span style="display: none;" class="error" id="img-status"></span>
+              ${error_field("IMAGE_ERROR", "span")}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="img-name">${_("new image name:")}</label>
+            </th>
+            <td>
+              <input id="img-name" name="name" value="" type="text"/>
+              ${error_field("BAD_CSS_NAME", "span")}
+              <br/>
+              <span class="little gray">
+                ${_("(image names should consist of alphanumeric characters and '-' only)")}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </form>
+      <script type="text/javascript">
+        /* <![CDATA[ */
+          function too_big() {
+              $("IMAGE_ERROR").innerHTML = "image too big: there is a 500k cap";
+              $("img-status").innerHTML = "";
+          }
+          function get_name(source) {
+              if(source.id && source.id.split) {
+                 var name = source.id.split('_');
+                 return name[name.length - 1];
+              }
+          }
+          function paste_url(source) {
+              insertAtCursor("stylesheet_contents",
+                             "url(%%" + get_name(source) + "%%)");
+              return false;
+          }
+          function delete_img(button) {
+              var n=get_name(button);
+              var form = button.parentNode.parentNode;
+              if (n && form && form.id && typeof(form.id) != "string") {
+                form.id.value = n;
+                form.img_name.value = n;
+              }
+              return deletetoggle(button, 'delete_link_img');
+          }
+          function choose_img (img) {
+              var win = tinyMCEPopup.getWindowArg("window");
+            
+              win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = img.src;
+
+              // are we an image browser
+              if (typeof(win.ImageDialog) != "undefined")
+              {
+                  // we are, so update image dimensions and preview if necessary
+                  if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+                  if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(img.src);
+              }
+
+              // close popup window
+              tinyMCEPopup.close();
+          }
+          function file_changed(file_input) {
+              show('submit-header-img');
+              $("img-status").innerHTML = "";
+              if(file_input.value) {
+                  var f = file_input.value.replace(/.*[\/\\]/, "").split('.')[0];
+                  f = f.replace(/[ _]/g, "-");
+                  if(! $('img-name').value)
+                      $('img-name').value = f;
+              }
+          }
+          function check_name(form) {
+             var name = form.name.value;
+             var r = new RegExp(/[^a-zA-Z0-9\-]/);
+             if (name == "" || name.match(r)) {
+                $("img-status").innerHTML = "";
+                show("BAD_CSS_NAME");
+                $("BAD_CSS_NAME").innerHTML = "${_('bad image name')}";
+                return false;
+             }
+             else if($("img_name_" + name)) {
+               $("img-status").innerHTML = "";
+               show("BAD_CSS_NAME");
+               $("BAD_CSS_NAME").innerHTML = "${_('an image named ')}" + name + "${_(' already exists')}";
+               return false;
+             }
+             else if(form.srfile.value) {
+                $("BAD_CSS_NAME").innerHTML = "";
+                $("IMAGE_ERROR").innerHTML = "";
+                return true;
+             } else {
+                $("img-status").innerHTML = "";
+                show("IMAGE_ERROR");
+                $("IMAGE_ERROR").innerHTML = "${_('please select an image')}";
+                return false;
+             }
+          }
+      /* ]]> */
+      </script>
+      <ul id="image-preview-list" class="image-list">
+        <%def name="make_li(name='', img = None, prototype=False)">
+          <li ${"style='display:none'" if img is None else ""}
+              id="${'img-prototype' if prototype else ('img-li_%s' % name) }">
+            <%
+               if img is not None:
+                   img = "http:/%s%s_%d.png" % (g.s3_thumb_bucket, thing.article._fullname, img)
+               else:
+                   img = "/static/kill.png"
+               %>
+            <a href="${img}" id="img-preview-a_${name}" class="preview">
+              <img id="img-preview_${name}" src="${img}" alt="Image ${name}"
+                title="click to select"
+                onclick="return choose_img(this)"/>
+            </a>
+            <div class="description">
+              <b id="img_name_${name}">
+                ${name}
+              </b>
+              <br/>
+              ${yes_no_button("delete_link_img", name,
+                              _("delete this image"),
+                              "return delete_img(this)",
+                              "", img_name = name,
+                              article_id = thing.article._id36)}
+            </div>
+          </li>
+        </%def>
+        ${make_li(prototype=True)}
+        %for name, img_num in thing.article.get_images():
+           ${make_li(name = name, img = img_num)}
+        %endfor
+      </ul>
+
+      <iframe src="about:blank" width="600" height="200" style="display: none;"
+              name="upload-iframe" id="upload-iframe"></iframe>
+
+    </div>
+    %else:
+    <h2>Article not saved</h2>
+    <p>You must save your article before you can upload an image for it.</p>
+    %endif
+  </body>
+</%def>
