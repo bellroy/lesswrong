@@ -19,35 +19,39 @@
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
+<%namespace file="utils.html" import="optionalstyle"/>
 
-<% from r2.lib.template_helpers import replace_render, add_sr %>
-<%namespace file="utils.html" import="plain_link" />
+<%!
+   from pylons.i18n import _, ungettext
+   from r2.lib.template_helpers import get_domain
+%>
+<%inherit file="printable.htmllite" />
 
-<%
-   _id = ("_%s" % thing.parent_name) if hasattr(thing, 'parent_name') else ''
+<%def name="entry()">
+<% 
+   if thing.num_comments:
+       # generates "XX comments" as a noun
+       com_label = "%d %s" % \
+             (thing.num_comments,
+              ungettext("comment", "comments", thing.num_comments))
+   else:
+       # generates "comment" the imperative verb
+       com_label = _("comment") 
+
+   domain = get_domain(subreddit=False)
+   permalink = "http://%s%s" % (domain, thing.permalink)
  %>
-<div id="siteTable${_id}" class="sitetable">
-  <div id="ajaxHook${_id}" class="ajaxhook">
+  <div class="reddit-entry">
+    <a href="${thing.url}" class="reddit-link-title">
+      ${thing.title}
+    </a><br />
+    <small>
+      by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
+        <b>${thing.author.name}</b></a>&#32;|&#32;
+      ${thing.score} ${ungettext("point", "points", thing.score)} 
+    </small>
   </div>
-
-  %for a in thing.things:
-     ${unsafe(replace_render(thing, a))}
-  %endfor
-</div>
-
-%if thing.nextprev and (thing.prev or thing.next):
-  <p class="nextprev"> ${_("view more:")}&#32;
-  %if thing.prev:
-    ${plain_link(_("prev"), thing.prev, rel="nofollow,prev")}  
-  %endif
-  %if thing.prev and thing.next:
-    &#32;|&#32;
-  %endif
-  %if thing.next:
-    ${plain_link(_("next"), thing.next, rel="nofollow,prev")}  
-  %endif
-  </p>
-%endif
-%if not thing.things:
-  <p id="noresults" class="error">${_("there doesn't seem to be anything here")}</p>
-%endif
+  <div class="reddit-link-end">
+    <!--IE6sux-->
+  </div>
+</%def>

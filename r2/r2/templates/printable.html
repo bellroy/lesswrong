@@ -140,7 +140,7 @@ ${self.RenderPrintable()}
 </div>
 </%def>
 
-<%def name="author(friend = False, gray = False)" buffered="True">
+<%def name="author(friend = False, gray = False, css_base='author')" buffered="True">
   %if thing.deleted and not c.user_is_admin:
     [deleted]
   %else:
@@ -149,7 +149,7 @@ ${self.RenderPrintable()}
   %else:
     <%
        author = thing.author
-       author_cls = "author"
+       author_cls = css_base
        if friend:
           author_cls += " friend"
        elif gray:

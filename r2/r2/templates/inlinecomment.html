@@ -1,0 +1,14 @@
+<%!
+   from pylons.i18n import _, ungettext
+   from r2.lib.filters import safemarkdown
+   from r2.lib.template_helpers import get_domain
+%>
+ <span class='tagline'>
+    <a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
+    <b>${thing.author.name}</b></a>&#32;
+    ${thing.timesince} ago on&#32;<a href="${thing.make_permalink_slow()}">${thing.link.title}</a>&#32;|
+  &#32;<span id="score_${thing._fullname}">${thing.score}&#32;
+    ${ungettext("point", "points", thing.score)} </span>
+  <br/>
+  </span>
+  <span class="body">${unsafe(safemarkdown(thing.body))}</span>

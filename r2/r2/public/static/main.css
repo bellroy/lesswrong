@@ -296,6 +296,9 @@ div.comment-meta span {
 	float: left;
 	margin-right: 30px;
 }
+div.comment-meta span span {
+	float: none;
+}
 div.comment-meta span.comment-author a {
 	color: #538d4d;
 }

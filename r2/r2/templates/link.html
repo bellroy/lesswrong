@@ -34,9 +34,16 @@
   css_class = "post"
   if thing.blessed:
     css_class += ' editors-pick'
+
+  if thing.render_full:
+    full_article = True
+    heading_size = 1
+  else:
+    full_article = False
+    heading_size = 2
 %>
 <div class="${css_class}">
-  <h2><a href="${thing.url}">${thing.title}</a></h2>
+  <h${heading_size}><a href="${thing.url}">${thing.title}</a></h${heading_size}>
   <div class="meta clear">
     <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
     %if thing.blessed:
@@ -46,12 +53,11 @@
     <span class="date">11 February 2009 10:06am</span>
   </div><!-- .meta -->
   <div class="content clear">
-    ${unsafe(safehtml(thing._summary()))}
-    % if thing._has_more():
-      <%call expr="make_link('read_more', 'more', 'more')">
-        continue reading &raquo;
-      </%call>
-    % endif
+    %if full_article:
+      ${self.article()}
+    %else:
+      ${self.summary()}
+    %endif
   </div><!-- .content -->
   <div class="tools clear">
     <div class="vote">
@@ -66,6 +72,35 @@
     </div>
   </div><!-- .tools -->
 </div><!-- .post -->
+</%def>
+
+<%def name="article()">
+  ${unsafe(safehtml(thing.article))}
+  <% tags = thing.get_tags() %>
+  %if len(tags):
+    <div class="tags">
+      <span>Tags:</span>&#32;<ul class="flat-list">
+      %for tag in thing.get_tags():
+        <li><a href="${tag.path}">${tag.name}</a>${separator(" ")}</li>
+      %endfor
+      </ul>
+    </div>
+  %endif
+  <div class="social-sharing-button">
+  <!-- AddThis Button BEGIN -->
+  <script type="text/javascript">var addthis_pub="lesswrong";</script>
+  <a href="http://www.addthis.com/bookmark.php?v=20" onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s7.addthis.com/static/btn/lg-bookmark-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a><script type="text/javascript" src="http://s7.addthis.com/js/200/addthis_widget.js"></script>
+  <!-- AddThis Button END -->
+  </div>
+</%def>
+
+<%def name="summary()">
+  ${unsafe(safehtml(thing._summary()))}
+  % if thing._has_more():
+    <%call expr="make_link('read_more', 'more', 'more')">
+      continue reading &raquo;
+    </%call>
+  % endif
 </%def>
 
 <%def name="numcol()">

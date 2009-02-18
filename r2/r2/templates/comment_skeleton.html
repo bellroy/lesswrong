@@ -44,7 +44,7 @@ ${self.tagline(True)}
 <%def name="commentText()">
 </%def>
 
-<%def name="entry()">
+<%def name="entry2()">
 <% fullname = thing._fullname %>
 <% collapse = thing.collapsed %>
 <div id="collapsed_${fullname}"  class="collapsed"
@@ -66,5 +66,17 @@ ${self.tagline(True)}
     ${self.buttons()}
   </ul>
 </div>
+</%def>
+
+<%def name="entry()">
+  <div class="comment-meta clear">
+    ${self.tagline()}
+  </div>
+  <div class="comment-content">
+    ${self.commentBody()}
+  </div>
+  <div class="comment-links">
+    ${self.buttons()}
+  </div>
 </%def>
 
