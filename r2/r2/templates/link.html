@@ -6,22 +6,22 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
 <%!
-   from r2.models.subreddit import Default 
+   from r2.models.subreddit import Default
    from r2.lib.template_helpers import get_domain, static
    from r2.lib.filters import safemarkdown, safehtml
  %>
@@ -45,7 +45,12 @@
 <div class="${css_class}">
   <h${heading_size}><a href="${thing.url}">${thing.title}</a></h${heading_size}>
   <div class="meta clear">
-    <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
+
+    %if thing.hide_score:
+      <span class="votes">&bull;</span>
+    %else:
+      <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
+    %endif
     %if thing.blessed:
     <span class="editors-pick">Editors Pick</span>
     %endif
@@ -60,14 +65,11 @@
     %endif
   </div><!-- .content -->
   <div class="tools clear">
-    <div class="vote">
-      <a class="up" href="#">Vote up</a>
-      <a class="down" href="#">Vote down</a>
-    </div><!-- .vote -->
+    ${parent.midcol()}
     <a class="comment" href="#">Comment on this article</a>
     <div class="boxright clear">
       <ul class="clear">
-        ${self.buttons()}
+        ${self.buttons(comments = not full_article)}
       </ul>
       %if full_article:
         <% tags = thing.get_tags() %>
@@ -107,7 +109,7 @@
 
 <%def name="numcol()">
   <% num = thing.num %>
-  <span class="rank" style="width:$numcolmargin;" 
+  <span class="rank" style="width:$numcolmargin;"
        id="num_${thing._fullname}">
     %if thing.top_link:
       <a class="star" href="/toplinks">
@@ -121,9 +123,9 @@
 </%def>
 
 <%def name="make_link(name, css_class, anchor=None)">
-  <a id="${name}_${thing._fullname}" 
+  <a id="${name}_${thing._fullname}"
      onmousedown="setClick(this, '${css_class}')"
-     class="${css_class} ${ c.user_is_loggedin and 'loggedin' or ''} ${thing.clicked and 'click' or ''}" 
+     class="${css_class} ${ c.user_is_loggedin and 'loggedin' or ''} ${thing.clicked and 'click' or ''}"
      %if c.user.pref_frame:
        href="http://${get_domain(cname = c.cname, subreddit = False)}/goto?id=${thing._id36}"
      %else:
@@ -133,7 +135,7 @@
        rel="nofollow"
      %endif
      %if c.user.pref_newwindow:
-       target="_blank" 
+       target="_blank"
      %elif c.cname:
        target="_top"
      %endif
@@ -145,7 +147,7 @@
 <%def name="entry()">
   <p class="title" id="titlerow_${thing._fullname}">
     <%call expr="make_link('title', 'title')">
-      ${thing.title} 
+      ${thing.title}
     </%call>
   </p>
   <ul class="flat-list buttons">
@@ -191,7 +193,7 @@
 <%def name="subreddit()" buffered="True">
   <%
     if c.cname:
-       path = "http://" + get_domain(cname = (c.site == thing.subreddit), 
+       path = "http://" + get_domain(cname = (c.site == thing.subreddit),
                                      subreddit = (c.site != thing.subreddit))
     else:
        path = thing.subreddit.path
@@ -206,40 +208,25 @@
   </script>
 </%def>
 
-<%def name="midcol(display=True)">
-  <div id="arrows_${thing._fullname}" class="midcol" style="width:$midcolmargin;" 
-       ${not display and "style='display:none'" or ''}>
-    ${self.arrow(thing, 1, thing.likes)}
-    %if thing.hide_score:
-      <div class="score">&bull;</div> 
-    %else:
-      ${self.score(thing, thing.likes, inline=False, label = False)}
-    %endif                
-    ${self.arrow(thing, 0, thing.likes == False)}
-  </div>
- ${self.thumbnail()}
-</%def>
-
-
 <%def name="domain()">
   <span class="domain">
     (<a href="/domain/${thing.domain}">${thing.domain}</a>)
-  </span> 
+  </span>
 </%def>
 
 <%def name="tagline()">
-  <% 
+  <%
     from r2.lib.utils import timeago
     from r2.models import FakeSubreddit
- 
+
     if isinstance(c.site, FakeSubreddit) or c.site != thing.subreddit:
-      taglinetext = _("submitted %(when)s ago by %(author)s to %(reddit)s") 
+      taglinetext = _("submitted %(when)s ago by %(author)s to %(reddit)s")
     else:
-      taglinetext = _("submitted %(when)s ago by %(author)s") 
+      taglinetext = _("submitted %(when)s ago by %(author)s")
     taglinetext = taglinetext.replace(" ", "&#32;")
   %>
-  ${unsafe(taglinetext % dict(reddit = self.subreddit(), 
-                              when = thing.timesince, 
+  ${unsafe(taglinetext % dict(reddit = self.subreddit(),
+                              when = thing.timesince,
                               author= self.author(friend = thing.friend)))}
 </%def>
 
@@ -249,7 +236,7 @@
 <%def name="buttons(comments=True,delete=True,report=True,ban=True,additional='')">
   <% fullname = thing._fullname %>
   %if comments:
-    <% 
+    <%
        if not thing.num_comments:
          # generates "comment" the imperative verb
          com_label = _("comment {verb}")
@@ -310,12 +297,12 @@
   <li>
     <a id="view_embeded_media_a_${thing._fullname}" class="" \
        href="javascript:view_embeded_media('${thing._fullname}', '${thing.media_object}')">\
-      <span id="view_embeded_media_span_watch_${thing._fullname}" 
+      <span id="view_embeded_media_span_watch_${thing._fullname}"
             class="watch-play"
             style="display: inline">
         ${_("watch")}
       </span>
-      <span id="view_embeded_media_span_close_${thing._fullname}" 
+      <span id="view_embeded_media_span_close_${thing._fullname}"
             class="watch-stop"
             style="display: none">
         ${_("close")}
@@ -335,7 +322,7 @@
 
 <%def name="mediadiv()">
   %if thing.media_object:
-    <div id="embeded_media_${thing._fullname}" 
+    <div id="embeded_media_${thing._fullname}"
          class="embededmedia" style="display: none;">
       <p class="error">loading...</p>
     </div>

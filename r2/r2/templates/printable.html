@@ -167,17 +167,16 @@ ${self.RenderPrintable()}
 <%def name="arrow(this, dir, mod)">
 <% 
    _type = "up" if dir > 0 else "down"
-   _class = _type + ("mod" if mod else "")
+   _class = _type + (" mod" if mod else "")
    fullname = this._fullname
 %>
-  <a class="${_class}"
+  <a id="${_type}_${fullname}" class="${_class}"
   %if c.user_is_loggedin:
     onclick="mod('${fullname}', ${dir}, '$votehash')"
   %else:
     onclick="showcover(true, 'vote_${fullname}')"
   %endif
   >${_('Vote')} ${_(_type)}</a>
-  </a>
 </%def>
 
 <%def name="score(this, likes=None, inline=True, label = True, _id = True)">

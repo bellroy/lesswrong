@@ -172,3 +172,7 @@ h1 a, h2 a {
     color: inherit;
     text-decoration: inherit;
 }
+
+div.tools div.vote a {
+    cursor: pointer;
+}
