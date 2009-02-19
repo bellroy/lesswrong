@@ -25,7 +25,7 @@
    import random
 %>
 
-<%namespace file="utils.html" import="error_field"/>
+<%namespace file="utils.html" import="error_field, text_with_js"/>
 
 <div id="side-login" class="sidebox">
   <form method="post" 
@@ -34,7 +34,8 @@
         class="login-form-side">
     <% op = "login-main" %>
     <div class="row">
-    	<label for="username"><a href="#">Register</a> / Login</label>
+    	<label for="username">${text_with_js(_("%(register)s"),
+                        register=(_("Register"), "return showcover(false);"))} / Login</label>
       %if c.cname:
         <input type="hidden" name="${UrlParser.cname_get}" 
                value="${random.random()}" />
