@@ -416,6 +416,8 @@ def timeuntil(d, resultion = 1, bare = True):
     from pylons import g
     return timetext(d - datetime.now(g.tz))
 
+def prettytime(date, seconds = False):
+    return date.strftime('%d %B %Y %I:%M:%S%p' if seconds else '%d %B %Y %I:%M%p')
 
 def to_base(q, alphabet):
     if q < 0: raise ValueError, "must supply a positive integer"

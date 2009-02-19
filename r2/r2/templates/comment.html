@@ -22,7 +22,7 @@
 
 <%!
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown
-   from r2.lib.utils import to36
+   from r2.lib.utils import to36, prettytime
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -68,7 +68,7 @@ ${parent.collapsed()}
   %else:
     ##${thing.timesince} ${_("ago")}
     <span class="comment-date">
-      11 February 2009 10:46am
+      ${prettytime(thing._date, seconds = True)}
       %if thing.editted:
         <em>*</em>&nbsp;
       %endif
