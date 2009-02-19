@@ -183,6 +183,7 @@ def menu_style(type):
              srdrop = ('dropdown', 'srdrop'),
              flatlist =  ('flatlist', ''),
              tabmenu = ('tabmenu', ''),
+             buttons = ('userlinks', ''),
              )
     return d.get(type, default)
 

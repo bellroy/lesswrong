@@ -110,7 +110,7 @@ class Reddit(Wrapped):
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
         else:
-            ps.append(self.corner_buttons())
+            ps.append(ProfileBar(c.user, self.corner_buttons()))
 
         for toolbar in self.toolbars:
             ps.append(toolbar)
@@ -192,7 +192,7 @@ class Reddit(Wrapped):
                                     nocname=not c.authorized_cname,
                                     target = "_self")]
         
-        return NavMenu(buttons, base_path = "/", type = "flatlist")
+        return NavMenu(buttons, base_path = "/", type = "buttons")
 
     def footer_nav(self):
         """navigation buttons in the footer."""
@@ -649,8 +649,8 @@ class ProfilePage(Reddit):
 
 class ProfileBar(Wrapped): 
     """Draws a right box for info about the user (karma, etc)"""
-    def __init__(self, user):
-        Wrapped.__init__(self, user = user)
+    def __init__(self, user, buttons = None):
+        Wrapped.__init__(self, user = user, buttons = buttons)
         self.isFriend = self.user._id in c.user.friends \
             if c.user_is_loggedin else False
         self.isMe = (self.user == c.user)

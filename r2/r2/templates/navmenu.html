@@ -118,3 +118,20 @@
     </ul>
   %endif
 </%def>
+
+
+<%def name="userlinks()">
+  %if thing:
+    <ul class="userlinks"
+        ${"id='%s'" % thing._id if thing._id else ""}>
+        %for i, option in enumerate(thing):
+          <%
+             selected = (option == thing.selected)
+          %>
+          <li ${"class='selected'" if selected else ""}>
+            ${option.render(selected = selected)}
+          </li>
+        %endfor
+    </ul>
+  %endif
+</%def>
