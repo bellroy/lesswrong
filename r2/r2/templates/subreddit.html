@@ -1,0 +1,116 @@
+## The contents of this file are subject to the Common Public Attribution
+## License Version 1.0. (the "License"); you may not use this file except in
+## compliance with the License. You may obtain a copy of the License at
+## http://code.reddit.com/LICENSE. The License is based on the Mozilla Public
+## License Version 1.1, but Sections 14 and 15 have been added to cover use of
+## software over a computer network and provide for limited attribution for the
+## Original Developer. In addition, Exhibit A has been modified to be consistent
+## with Exhibit B.
+## 
+## Software distributed under the License is distributed on an "AS IS" basis,
+## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+## the specific language governing rights and limitations under the License.
+## 
+## The Original Code is Reddit.
+## 
+## The Original Developer is the Initial Developer.  The Initial Developer of
+## the Original Code is CondeNet, Inc.
+## 
+## All portions of the code written by CondeNet are Copyright (c) 2006-2008
+## CondeNet, Inc. All Rights Reserved.
+################################################################################
+
+<%!
+   from r2.lib.strings import strings
+   %>
+<%inherit  file="printable.html"/>
+
+<%namespace file="utils.html" import="plain_link"/>
+
+<%def name="numcol()">
+</%def>
+
+<%def name="entry()">
+<% fullname = thing._fullname %>
+<p class="titlerow">
+  ${plain_link(thing.title, thing.path, _class="title", _id="title_%s" % fullname)}
+  <span class="domain">(${thing.path})</span> 
+  %if c.user_is_admin:
+  ${self.admintagline()}
+  %endif
+</p>
+%if thing.description:
+  <p class="description">
+    ${thing.description}
+  </p>
+%endif
+<p class="tagline">
+  ${tagline()}
+</p>
+<ul class="flat-list buttons">
+  ${buttons()}
+</ul>
+</%def>
+
+<%def name="tagline()">
+  ${self.score(thing, thing.subscriber)}
+</%def>
+
+##this function is used by subscriptionbox.html
+<%def name="addremove_button(sr)">
+  <div class="sr-toggle-button ${'remove' if sr.subscriber else 'add'}"
+       onclick="subscribe(this, '${sr._fullname}');">
+  </div>
+</%def>
+
+##this function is used by subscriptionbox.html
+<%def name="permission_icons(sr)">
+  %if sr.moderator:
+    <img class="sr-type-img" title="${_('moderator')}" alt="${_('moderator')}" src="/static/star.png" />
+  %endif
+
+  %if sr.type in ("restricted", "private") and not sr.moderator:
+    <img class="sr-type-img"
+       %if sr.contributor:
+         alt="${_('contributor')}"
+         title="${_('contributor')}"
+         src="/static/pencil.png"
+       %else:
+         alt="${_('not contributor')}"
+         title="${_('not contributor')}"
+         src="/static/pencil-gray.png"
+       %endif
+    />
+  %endif 
+
+  %if sr.type == "private":
+    <img class="sr-type-img" title="${_('private')}" alt="${_('private')}" src="/static/eye.png" />
+  %endif
+
+  %if sr.over_18:
+    <img class="sr-type-img" title="${_('over18')}" alt="${_('over18')}" src="/static/over18_icon.png" />
+  %endif
+
+</%def>
+
+<%def name="midcol(display=True)">
+  <div class="midcol">
+    ${addremove_button(thing)}
+    ${permission_icons(thing)}
+  </div>
+</%def>
+
+<%def name="child()">
+</%def>
+
+<%def name="buttons()">
+  ${parent.delete_or_report_buttons(delete=False)}
+  ${parent.buttons()}
+</%def>
+
+
+<%def name="leave_button(name, where)">
+${self.yes_no_button("leave", name, _("leave"), 
+  "return deletetoggle(this, 'leave');", _("left"),
+  location = where)}
+</%def>
