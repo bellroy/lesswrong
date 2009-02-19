@@ -553,15 +553,8 @@ class SubredditsPage(Reddit):
         if c.user_is_admin:
             buttons.append(NamedButton("banned"))
 
-        #removing the 'my reddits' listing for now
-        #if c.user_is_loggedin:
-        #    #add the aliases to "my reddits" stays highlighted
-        #    buttons.append(NamedButton("mine", aliases=['/categories/mine/subscriber',
-        #                                                '/categories/mine/contributor',
-        #                                                '/categories/mine/moderator']))
-
         return [PageNameNav('reddits'),
-                NavMenu(buttons, base_path = '/categories', type="tabmenu")]
+                NavMenu(buttons, base_path = '/categories', type="select")]
 
     def content(self):
         return self.content_stack(self.nav_menu, self.sr_infobar, self._content)
