@@ -1,3 +1,12 @@
+@import url("/static/main.css");
+
+#content {
+/*  float: none;*/
+/*  padding: 0 35px 0 15px;*/
+    padding: 0 15px;
+    width: 920px;
+}
+
 div.comment-meta span span {
 	float: none;
 }
@@ -168,6 +177,12 @@ div.comment-meta span span {
     margin-right: 15px;
 }
 
+/* Rules to make the editor styled properly */
+.mceContentBody.md {
+    background-color: white;
+    padding: 0.5em;
+}
+
 h1 a, h2 a {
     color: inherit;
     text-decoration: inherit;
@@ -175,4 +190,9 @@ h1 a, h2 a {
 
 a.up, a.down {
     cursor: pointer;
+}
+
+.pretty-form table {
+    width: 100%;
+/*    padding: 2em;*/
 }
