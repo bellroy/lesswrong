@@ -128,3 +128,19 @@ div.comment-meta span span {
     list-style: disc;
     margin-left: 15px;
 }
+
+.commentreply {
+    clear: both;
+    width: 40em;
+    margin: 10px 10px 10px 0;
+}
+.commentreply textarea {
+    width: 100%;
+}
+.commentreply .buttons {
+    float: left;
+}
+.commentreply .help-toggle {
+    float:right;
+/*    margin-top:7px;*/
+}

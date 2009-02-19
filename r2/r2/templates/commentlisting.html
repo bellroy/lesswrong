@@ -1,0 +1,15 @@
+
+<div id="comments" class="clear">
+	<h2>Comments (${thing.num_comments})</h2>
+	<form id="comment-listing" action="#" method="get">
+		<div class="clear">
+			<label for="comment-sort">Sort By</label>
+			<select id="comment-sort" name="comment-sort">
+				<option value="1">Popular</option>
+				<option value="2">Sort Option 2</option>
+				<option value="3">Sort Option 3</option>
+			</select>
+		</div>
+	</form>
+  ${thing.content.render()}
+</div>

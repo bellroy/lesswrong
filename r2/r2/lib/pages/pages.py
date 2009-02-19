@@ -837,6 +837,11 @@ class CommentReplyBox(Wrapped):
         Wrapped.__init__(self, link_name = link_name, captcha = captcha,
                          action = action)
 
+class CommentListing(Wrapped):
+    """Comment heading and sort, limit options"""
+    def __init__(self, content, num_comments):
+        Wrapped.__init__(self, content=content, num_comments=num_comments)
+
 class PermalinkMessage(Wrapped):
     """renders the box on comment pages that state 'you are viewing a
     single comment's thread'"""
