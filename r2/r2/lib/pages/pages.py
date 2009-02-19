@@ -226,7 +226,7 @@ class Reddit(Wrapped):
         main_buttons = []
         for name in button_names:
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
-          main_buttons.append(NamedButton(name, **kw))
+          main_buttons.append(NamedButton(name, style="select_option", **kw))
 
         more_buttons = []
 
@@ -242,7 +242,7 @@ class Reddit(Wrapped):
             if c.user_is_sponsor:
                 more_buttons.append(NamedButton('promote'))
 
-        toolbar = [NavMenu(main_buttons, type='tabmenu')]
+        toolbar = [NavMenu(main_buttons, type='select')]
         if more_buttons:
             toolbar.append(NavMenu(more_buttons, title=menu.more, type='tabdrop'))
         if c.site != Default and not c.cname:

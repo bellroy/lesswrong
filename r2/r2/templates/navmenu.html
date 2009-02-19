@@ -135,3 +135,18 @@
     </ul>
   %endif
 </%def>
+
+
+<%def name="select()">
+  %if thing:
+    <select
+        ${"id='%s'" % thing._id if thing._id else ""}>
+        %for i, option in enumerate(thing):
+          <%
+             selected = (option == thing.selected)
+          %>
+          ${option.render(selected = selected)}
+        %endfor
+    </ul>
+  %endif
+</%def>
