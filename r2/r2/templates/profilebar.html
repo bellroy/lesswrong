@@ -26,7 +26,7 @@
 <div id="side-user" class="sidebox">
   <div id="side-status" class="clear">
     <div class="userinfo editor">
-      <h2>${thing.user.name}</h2>
+      <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
       <span class="label">Karma Score</span>
       <span class="score">${thing.user.safe_karma}</span>
       %if thing.user.name in g.admins:
