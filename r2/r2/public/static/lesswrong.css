@@ -1,8 +1,6 @@
 @import url("/static/main.css");
 
-#content {
-/*  float: none;*/
-/*  padding: 0 35px 0 15px;*/
+#content.clear.fullwidth {
     padding: 0 15px;
     width: 920px;
 }

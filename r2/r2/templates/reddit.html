@@ -106,7 +106,7 @@
     	<div id="main" class="clear">
   
       %if thing.content:
-        <div id="content" class="clear">
+        <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
           ${thing.content().render()}
         </div>
       %endif
