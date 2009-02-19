@@ -4,12 +4,12 @@
    from r2.lib.template_helpers import get_domain
 %>
   
-  ${unsafe(safemarkdown(thing.body))}
+  <a href="${thing.make_permalink_slow()}">${unsafe(safemarkdown(thing.body))}</a>
   <span class='tagline'>
     by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
     <strong>${thing.author.name}</strong></a>&#32;
     on&#32;
-    <a href="${thing.make_permalink_slow()}">${thing.link.title}</a>&#32;|&#32;
-    <span id="score_${thing._fullname}">${thing.score}&#32;</span>
+    ${thing.link.title}&#32;|&#32;
+    <span id="score_${thing._fullname}">${thing.score}</span>
   </span>
   
