@@ -20,6 +20,9 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
+<%!
+   from r2.lib.template_helpers import add_sr
+%>
 <%namespace file="utils.html" import="plain_link" />
 
 <%def name="plain(selected = False)">
@@ -36,5 +39,5 @@
 </%def>
 
 <%def name="select_option(selected = False)">
-  <option value="${thing.path}">${thing.selected_title() if selected else thing.title}</option>
+  <option value="${add_sr(thing.path)}">${thing.selected_title() if selected else thing.title}</option>
 </%def>
