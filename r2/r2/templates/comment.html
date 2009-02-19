@@ -26,37 +26,6 @@
 %>
 <%inherit file="comment_skeleton.html"/>
 
-<%def name="RenderPrintable()">
-  <%
-      fullname = thing._fullname
-      if hasattr(thing, 'render_class'):
-        cls = thing.render_class
-      else:
-        cls = thing.lookups[0].__class__
-      cls = cls.__name__.lower()
-
-      if thing.show_spam:
-        rowclass = thing.rowstyle + " spam"
-      elif thing.show_reports:
-        rowclass = thing.rowstyle + " reported"
-      else:
-        rowclass = thing.rowstyle
-  %>
-<div id="thingrow_${fullname}" class="${rowclass} ${cls}" $display>
-  <p id="pre_${fullname}">
-    ${self.ParentDiv()}
-  </p>
-  ${self.numcol()}
-  ${self.midcol()}
-  <div id="entry_${fullname}" class="comment">
-    ${self.entry()}
-  </div>
-  ${self.Child()}
-  <div class="clearleft"><!--IE6sux--></div>
-</div>
-<div class="clearleft"><!--IE6sux--></div>
-</%def>
-
 #####################
 ### specific fill-in functions for comment
 ##################
