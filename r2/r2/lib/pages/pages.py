@@ -101,7 +101,7 @@ class Reddit(Wrapped):
 
         self._content = content
         self.toolbars = self.build_toolbars()
-        self.css_class = None
+        self.body_class = None
 
     def rightbox(self):
         """generates content in <div class="rightbox">"""
@@ -482,8 +482,7 @@ class LinkInfoPage(Reddit):
             # Not on the main page, so include a pointer to the canonical URL for this link
             self.canonical_link = link.canonical_url
 
-        self.css_class = 'post'
-        Reddit.__init__(self, title = title, *a, **kw)
+        Reddit.__init__(self, title = title, body_class = 'post', *a, **kw)
 
     def build_toolbars(self):
         base_path = "/%s/%s/" % (self.link._id36, title_to_url(self.link.title))
