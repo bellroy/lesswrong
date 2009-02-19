@@ -41,17 +41,14 @@
    domain = get_domain(subreddit=False)
    permalink = "http://%s%s" % (domain, thing.permalink)
  %>
-  <div class="reddit-entry">
-    <a href="${thing.url}" class="reddit-link-title">
+  <div>
+    <h3>
+      <a href="${thing.url}" class="reddit-link-title">
       ${thing.title}
-    </a><br />
-    <small>
-      by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
-        <b>${thing.author.name}</b></a>&#32;|&#32;
-      ${thing.score} ${ungettext("point", "points", thing.score)} 
-    </small>
-  </div>
-  <div class="reddit-link-end">
-    <!--IE6sux-->
+      </a>
+    </h3>
+    by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
+    ${thing.author.name}</a>&#32;|&#32;
+    ${thing.score}
   </div>
 </%def>

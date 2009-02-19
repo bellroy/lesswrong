@@ -121,3 +121,10 @@ div.comment-meta span span {
 #side-comments h3 {
 	margin: 0;
 }
+
+/* Recent articles */
+#side-posts div.reddit-link div {
+    display: list-item;
+    list-style: disc;
+    margin-left: 15px;
+}
