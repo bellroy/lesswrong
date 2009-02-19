@@ -112,12 +112,14 @@ ${edit_comment_filter(thing.body)}
 ${parent.midcol()}
 </%def>
 
+<%def name="midcol()">
+</%def>
 
 <%def name="buttons()">
   %if not thing.deleted:
     <ul class="clear">
-      <li class="first"><a class="up" href="#">Vote up</a></li>
-      <li><a class="down" href="#">Vote down</a></li>
+      <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
+      <li>${self.arrow(thing, 0, thing.likes == False)}</li>
       <% fullname = thing._fullname %>
       <li>
         ${parent.comment_button("permalink", fullname, _("Permalink"), 0, 

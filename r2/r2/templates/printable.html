@@ -170,14 +170,14 @@ ${self.RenderPrintable()}
    _class = _type + ("mod" if mod else "")
    fullname = this._fullname
 %>
-  <div id="${_type}_${fullname}" class="arrow ${_class}" 
-       %if c.user_is_loggedin:
-         onclick="mod('${fullname}', ${dir}, '$votehash')"
-       %else:
-         onclick="showcover(true, 'vote_${fullname}')"
-       %endif
-       >
-  </div>
+  <a class="${_class}"
+  %if c.user_is_loggedin:
+    onclick="mod('${fullname}', ${dir}, '$votehash')"
+  %else:
+    onclick="showcover(true, 'vote_${fullname}')"
+  %endif
+  >${_('Vote')} ${_(_type)}</a>
+  </a>
 </%def>
 
 <%def name="score(this, likes=None, inline=True, label = True, _id = True)">
@@ -204,7 +204,7 @@ ${self.RenderPrintable()}
 
 
 <%def name="midcol(display=True)">
-  <div id="arrows_${thing._fullname}" class="midcol" 
+  <div id="arrows_${thing._fullname}" class="vote" 
        ${not display and "style='display:none'" or ''}>
     ${self.arrow(thing, 1, thing.likes)}
     ${self.arrow(thing, 0, thing.likes == False)}
