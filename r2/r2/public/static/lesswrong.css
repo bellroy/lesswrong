@@ -215,7 +215,16 @@ a.up, a.down {
     margin: 5px;
 }
 
+.pretty-form input[type=text],
+.pretty-form input[type=file],
+.pretty-form input[type=password],
+.pretty-form select,
+.pretty-form b,
+.pretty-form textarea,
+.pretty-form button  { margin: 3px .5em; }
+.pretty-form th { text-align: right }
+
 /*submit*/
 .pretty-form.long-text input[type=text],
 .pretty-form.long-text textarea,
-.pretty-form.long-text input[type=password] {padding: 2px; width: 40em }
+.pretty-form.long-text input[type=password] {margin: 3px; width: 40em }
