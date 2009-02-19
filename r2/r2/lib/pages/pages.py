@@ -112,11 +112,14 @@ class Reddit(Wrapped):
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
+        filters_ps = PaneStack(div=True)
         for toolbar in self.toolbars:
-            ps.append(toolbar)
+            filters_ps.append(toolbar)
 
         if self.nav_menu:
-            ps.append(self.nav_menu)
+            filters_ps.append(self.nav_menu)
+
+        ps.append(SideBox(filters_ps))
 
         if self.searchbox:
             ps.append(GoogleSearchForm())
@@ -127,19 +130,6 @@ class Reddit(Wrapped):
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
 
-        if self.submit_box:
-            ps.append(SideBox(_('Create new article'),
-                              '/submit', 'submit',
-                              sr_path = False,
-                              subtitles = [],
-                              show_cover = False))
-            
-        if self.create_reddit_box:
-           ps.append(SideBox(_('Create your own reddit'),
-                              '/categories/create', 'create',
-                              subtitles = rand_strings.get("create_reddit", 2),
-                              show_cover = True, nocname=True))
-        
         ps.append(RecentArticles())
         ps.append(RecentComments())
         ps.append(TopContributors())
@@ -242,7 +232,7 @@ class Reddit(Wrapped):
             if c.user_is_sponsor:
                 more_buttons.append(NamedButton('promote'))
 
-        toolbar = [NavMenu(main_buttons, type='select')]
+        toolbar = [NavMenu(main_buttons, type='select', title = _('Filter by'), _id='filter')]
         if more_buttons:
             toolbar.append(NavMenu(more_buttons, title=menu.more, type='tabdrop'))
         if c.site != Default and not c.cname:
@@ -325,12 +315,9 @@ class SubredditInfoBar(Wrapped):
         return [NavMenu(buttons, type = "flatlist", base_path = "/about/")]
 
 class SideBox(Wrapped):
-    """Generic sidebox used to generate the 'submit' and 'create a reddit' boxes."""
-    def __init__(self, title, link, css_class='', subtitles = [],
-                 show_cover = False, nocname=False, sr_path = False):
-        Wrapped.__init__(self, link = link, target = '_top',
-                         title = title, css_class = css_class, sr_path = sr_path,
-                         subtitles = subtitles, show_cover = show_cover, nocname=nocname)
+    """Generic sidebox"""
+    def __init__(self, content, _id = None, css_class = ''):
+        Wrapped.__init__(self, content=content, _id = _id, css_class = css_class)
 
 
 class PrefsPage(Reddit):
