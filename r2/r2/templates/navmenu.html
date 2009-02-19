@@ -139,14 +139,18 @@
 
 <%def name="select()">
   %if thing:
+    <% _id = thing._id if thing._id else None %>
+    %if thing.title:
+      <label ${"for='%s'" % _id if _id else ""}>${thing.title}</label>
+    %endif
     <select
-        ${"id='%s'" % thing._id if thing._id else ""}>
+        ${"id='%s'" % _id if _id else ""}>
         %for i, option in enumerate(thing):
           <%
              selected = (option == thing.selected)
           %>
           ${option.render(selected = selected)}
         %endfor
-    </ul>
+    </select>
   %endif
 </%def>
