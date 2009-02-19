@@ -69,6 +69,17 @@
       <ul class="clear">
         ${self.buttons()}
       </ul>
+      %if full_article:
+        <% tags = thing.get_tags() %>
+        %if len(tags):
+          <div class="tags">
+            <span>Tags:</span>&#32;
+            %for tag in thing.get_tags():
+              <a href="${tag.path}">${tag.name}</a>${separator(" ")}
+            %endfor
+          </div>
+        %endif
+      %endif
     </div>
   </div><!-- .tools -->
 </div><!-- .post -->
@@ -76,16 +87,6 @@
 
 <%def name="article()">
   ${unsafe(safehtml(thing.article))}
-  <% tags = thing.get_tags() %>
-  %if len(tags):
-    <div class="tags">
-      <span>Tags:</span>&#32;<ul class="flat-list">
-      %for tag in thing.get_tags():
-        <li><a href="${tag.path}">${tag.name}</a>${separator(" ")}</li>
-      %endfor
-      </ul>
-    </div>
-  %endif
   <div class="social-sharing-button">
   <!-- AddThis Button BEGIN -->
   <script type="text/javascript">var addthis_pub="lesswrong";</script>
