@@ -217,7 +217,7 @@ class Reddit(Wrapped):
         main_buttons = []
         for name in button_names:
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
-          main_buttons.append(NamedButton(name, style="select_option", **kw))
+          main_buttons.append(NamedButton(name, **kw))
 
         more_buttons = []
 
@@ -839,8 +839,8 @@ class CommentReplyBox(Wrapped):
 
 class CommentListing(Wrapped):
     """Comment heading and sort, limit options"""
-    def __init__(self, content, num_comments):
-        Wrapped.__init__(self, content=content, num_comments=num_comments)
+    def __init__(self, content, num_comments, nav_menus = []):
+        Wrapped.__init__(self, content=content, num_comments=num_comments, menus = nav_menus)
 
 class PermalinkMessage(Wrapped):
     """renders the box on comment pages that state 'you are viewing a

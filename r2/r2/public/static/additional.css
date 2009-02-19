@@ -144,6 +144,13 @@ div.comment-meta span span {
     float:right;
 }
 
+#comment-controls {
+    float: right;
+}
+#comment-controls label {
+	padding-right: 5px;
+}
+
 /* markdown */
 .md { font-size: small; }
 .md h1 { font-weight: normal; font-size: 100%; }

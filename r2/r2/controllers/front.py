@@ -178,11 +178,12 @@ class FrontController(RedditController):
         res = LinkInfoPage(link = article, comment = comment,
                            content = CommentListing(
                                content = displayPane,
-                               num_comments = article.num_comments
+                               num_comments = article.num_comments,
+                               nav_menus = [CommentSortMenu(default = sort, type = 'select'), 
+                                            NumCommentsMenu(article.num_comments,
+                                                            default=num_comments,
+                                                            type='select')],
                            ), 
-                           nav_menus = [CommentSortMenu(default = sort), 
-                                        NumCommentsMenu(article.num_comments,
-                                                        default=num_comments)],
                            infotext = infotext).render()
         return res
 

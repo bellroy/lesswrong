@@ -148,6 +148,7 @@
         %for i, option in enumerate(thing):
           <%
              selected = (option == thing.selected)
+             option.style = 'select_option'
           %>
           ${option.render(selected = selected)}
         %endfor
