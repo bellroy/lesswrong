@@ -142,5 +142,21 @@ div.comment-meta span span {
 }
 .commentreply .help-toggle {
     float:right;
-/*    margin-top:7px;*/
+}
+
+/* markdown */
+.md { font-size: small; }
+.md h1 { font-weight: normal; font-size: 100%; }
+.md strong { font-weight: bold; }
+.md em, .help em { font-style: italic; }
+.md strong em { font-style: italic; font-weight: bold }
+.md ol, .md ul, .help ul { margin: 10px 2em; }
+.md ul, .help ul { list-style: disc outside }
+.md ol { list-style: decimal outside }
+.md pre { margin: 10px; }
+.md blockquote, .help blockquote {
+    border-left: 2px solid #369;
+    padding-left: 4px; 
+    margin: 5px;
+    margin-right: 15px;
 }
