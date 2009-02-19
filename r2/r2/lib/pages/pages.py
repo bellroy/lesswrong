@@ -76,7 +76,7 @@ class Reddit(Wrapped):
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
-                 show_sidebar = True, **context):
+                 show_sidebar = True, body_class = None, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
@@ -84,6 +84,7 @@ class Reddit(Wrapped):
         self.loginbox       = True
         self.show_sidebar   = show_sidebar
         self.space_compress = space_compress
+        self.body_class     = body_class
 
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None
@@ -101,7 +102,6 @@ class Reddit(Wrapped):
 
         self._content = content
         self.toolbars = self.build_toolbars()
-        self.body_class = None
 
     def rightbox(self):
         """generates content in <div class="rightbox">"""
