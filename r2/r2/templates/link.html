@@ -42,8 +42,10 @@
   else:
     full_article = False
     heading_size = 2
+
+  fullname = thing._fullname
 %>
-<div class="${css_class}">
+<div id="thingrow_${fullname}" class="${css_class}">
   <h${heading_size}><a href="${thing.url}">${thing.title}</a></h${heading_size}>
   <div class="meta clear">
 
@@ -58,7 +60,7 @@
     ${unsafe(self.author(friend = thing.friend))}
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
-  <div class="content clear">
+  <div id="entry_${fullname}" class="content clear">
     %if full_article:
       ${self.article()}
     %else:
