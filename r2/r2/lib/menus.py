@@ -360,7 +360,7 @@ class SimpleGetMenu(NavMenu):
     title     = ''
     default = None
     
-    def __init__(self, type = 'lightdrop', **kw):
+    def __init__(self, type = 'select', **kw):
         kw['default'] = kw.get('default', self.default)
         kw['base_path'] = kw.get('base_path') or request.path
         buttons = [NavButton(self.make_title(n), n, opt = self.get_param)
@@ -430,7 +430,7 @@ class NewMenu(SimpleGetMenu):
     type = 'flatlist'
 
     def __init__(self, **kw):
-        kw['title'] = _("sort by")
+        kw['title'] = _("Sort by")
         SimpleGetMenu.__init__(self, **kw)
 
     @classmethod
