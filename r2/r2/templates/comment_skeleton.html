@@ -45,11 +45,20 @@ ${self.tagline(True)}
 </%def>
 
 <%def name="entry()">
+  <% fullname = thing._fullname %>
+  <% collapse = thing.collapsed %>
+  <div id="collapsed_${fullname}" class="collapsed"
+       ${(not collapse and "style='display:none'" or "")}>
+    ${self.collapsed()}
+  </div>
   <div class="comment-meta clear">
     ${self.tagline()}
   </div>
-  <div class="comment-content">
+  <div id="body_${fullname}" class="comment-content">
     ${self.commentBody()}
+  </div>
+  <div style="display: none;" \
+         id="edit_body_${fullname}">${self.commentText()}\
   </div>
   <div class="comment-links">
     ${self.buttons()}
