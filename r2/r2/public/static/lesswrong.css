@@ -211,10 +211,6 @@ a.up, a.down {
     cursor: pointer;
 }
 
-.mod {
-    background-color: red;
-}
-
 /* default form styles */
 .pretty-form {
     vertical-align: top;
