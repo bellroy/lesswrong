@@ -460,7 +460,7 @@ class TimeMenu(SimpleGetMenu):
     options   = ('hour', 'day', 'week', 'month', 'year', 'all')
 
     def __init__(self, **kw):
-        kw['title'] = _("links from")
+        kw['title'] = _("Links from")
         SimpleGetMenu.__init__(self, **kw)
 
     @classmethod
