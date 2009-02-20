@@ -220,7 +220,7 @@ a.up, a.down {
 .pretty-form textarea,
 .pretty-form input[type=password] {
     border: 1px solid gray;
-    width: 100%;
+    width: 300px;
     padding: 2px;
 }
 .pretty-form table {
@@ -291,3 +291,24 @@ ul#image-preview-list .description pre {
     display: inline;
     padding: 5px;
 }
+
+/* pref table - used for preferences and edit subreddit pages */
+.preftable th {
+    padding-top: 2px;
+    font-weight: bold;
+    vertical-align: top;
+    text-align: right;
+}
+.preftable td.prefright { padding: 0;}
+.preftable .spacer { margin-bottom: 5px; }
+.preftable .note { width: 100%; vertical-align: top; padding-top: 2px; }
+.save-button { margin-left: 5px; }
+
+.reported { background-color: #f6e69f }
+.suspicious { background-color: #f6e69f }
+.spam { background-color: #FA8072 }
+
+.usertable { margin-left: 10px;} 
+.usertable td { padding: 0 .7em }
+.usertable { white-space: nowrap }
+.usertable h1 { padding: 10px 0; margin: 0;}
