@@ -179,10 +179,9 @@ class FrontController(RedditController):
                            content = CommentListing(
                                content = displayPane,
                                num_comments = article.num_comments,
-                               nav_menus = [CommentSortMenu(default = sort, type = 'select'), 
+                               nav_menus = [CommentSortMenu(default = sort),
                                             NumCommentsMenu(article.num_comments,
-                                                            default=num_comments,
-                                                            type='select')],
+                                                            default=num_comments)],
                            ), 
                            infotext = infotext).render()
         return res

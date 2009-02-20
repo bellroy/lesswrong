@@ -233,7 +233,7 @@ class Reddit(Wrapped):
             if c.user_is_sponsor:
                 more_buttons.append(NamedButton('promote'))
 
-        toolbar = [NavMenu(main_buttons, type='select', title = _('Filter by'), _id='filter')]
+        toolbar = [NavMenu(main_buttons, title = _('Filter by'), _id='filter')]
         if more_buttons:
             toolbar.append(NavMenu(more_buttons, title=menu.more, type='tabdrop'))
         if c.site != Default and not c.cname:
@@ -337,7 +337,7 @@ class PrefsPage(Reddit):
                    NamedButton('update'),
                    NamedButton('delete')]
         return [PageNameNav('nomenu', title = _("preferences")), 
-                NavMenu(buttons, base_path = "/prefs", type="tabmenu")]
+                NavMenu(buttons, base_path = "/prefs")]
 
 class PrefOptions(Wrapped):
     """Preference form for updating language and display options"""
@@ -370,7 +370,7 @@ class MessagePage(Reddit):
                     NamedButton('inbox'),
                     NamedButton('sent')]
         return [PageNameNav('nomenu', title = _("message")), 
-                NavMenu(buttons, base_path = "/message", type="tabmenu")]
+                NavMenu(buttons, base_path = "/message")]
 
 class MessageCompose(Wrapped):
     """Compose message form."""
@@ -497,7 +497,7 @@ class LinkInfoPage(Reddit):
         if c.user_is_admin:
             buttons += [info_button('details')]
 
-        toolbar = []#[NavMenu(buttons, base_path = "", type="tabmenu")]
+        toolbar = []#[NavMenu(buttons, base_path = "")]
 
         if c.site != Default and not c.cname:
             toolbar.insert(0, PageNameNav('subreddit'))
@@ -554,7 +554,7 @@ class SubredditsPage(Reddit):
             buttons.append(NamedButton("banned"))
 
         return [PageNameNav('reddits'),
-                NavMenu(buttons, base_path = '/categories', type="select")]
+                NavMenu(buttons, base_path = '/categories')]
 
     def content(self):
         return self.content_stack(self.nav_menu, self.sr_infobar, self._content)
@@ -612,7 +612,7 @@ class ProfilePage(Reddit):
             main_buttons.append(NamedButton('drafts'))
             
         toolbar = [PageNameNav('nomenu', title = self.user.name),
-                   NavMenu(main_buttons, base_path = path, type="select")]
+                   NavMenu(main_buttons, base_path = path)]
 
         if c.user_is_admin:
             from admin_pages import AdminProfileMenu

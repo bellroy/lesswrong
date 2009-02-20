@@ -176,7 +176,7 @@ def menu_style(type):
     """Simple manager function for the styled menus.  Returns a
     (style, css_class) pair given a 'type', defaulting to style =
     'dropdown' with no css_class."""
-    default = ('dropdown', '')
+    default = ('select', '')
     d = dict(heavydrop = ('dropdown', 'heavydrop'),
              lightdrop = ('dropdown', 'lightdrop'),
              tabdrop = ('dropdown', 'tabdrop'),
