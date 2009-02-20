@@ -316,3 +316,10 @@ ul#image-preview-list .description pre {
 .usertable td { padding: 0 .7em }
 .usertable { white-space: nowrap }
 .usertable h1 { padding: 10px 0; margin: 0;}
+
+div.sidebox select {
+    width: 126px;
+}
+div.sidebox label {
+    width: 64px;
+}
