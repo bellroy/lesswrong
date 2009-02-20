@@ -612,7 +612,7 @@ class ProfilePage(Reddit):
             main_buttons.append(NamedButton('drafts'))
             
         toolbar = [PageNameNav('nomenu', title = self.user.name),
-                   NavMenu(main_buttons, base_path = path, type="tabmenu")]
+                   NavMenu(main_buttons, base_path = path, type="select")]
 
         if c.user_is_admin:
             from admin_pages import AdminProfileMenu
@@ -622,7 +622,8 @@ class ProfilePage(Reddit):
 
     def rightbox(self):
         rb = Reddit.rightbox(self)
-        rb.push(ProfileBar(self.user))
+        if self.user != c.user:
+            rb.push(ProfileBar(self.user))
         if c.user_is_admin:
             from admin_pages import AdminSidebar
             rb.append(AdminSidebar(self.user))
