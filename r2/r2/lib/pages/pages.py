@@ -31,7 +31,7 @@ from pylons.controllers.util import abort
 from r2.lib.captcha import get_iden
 from r2.lib.filters import spaceCompress, _force_unicode, _force_utf8
 from r2.lib.db.queries import db_sort
-from r2.lib.menus import NavButton, NamedButton, NavMenu, PageNameNav, JsButton
+from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
@@ -236,8 +236,6 @@ class Reddit(Wrapped):
         toolbar = [NavMenu(main_buttons, title = _('Filter by'), _id='filter')]
         if more_buttons:
             toolbar.append(NavMenu(more_buttons, title=menu.more, type='tabdrop'))
-        if c.site != Default and not c.cname:
-            toolbar.insert(0, PageNameNav('subreddit'))
 
         return toolbar
                 
@@ -336,8 +334,7 @@ class PrefsPage(Reddit):
                    NamedButton('friends'),
                    NamedButton('update'),
                    NamedButton('delete')]
-        return [PageNameNav('nomenu', title = _("preferences")), 
-                NavMenu(buttons, base_path = "/prefs")]
+        return [NavMenu(buttons, base_path = "/prefs")]
 
 class PrefOptions(Wrapped):
     """Preference form for updating language and display options"""
@@ -369,8 +366,7 @@ class MessagePage(Reddit):
         buttons =  [NamedButton('compose'),
                     NamedButton('inbox'),
                     NamedButton('sent')]
-        return [PageNameNav('nomenu', title = _("message")), 
-                NavMenu(buttons, base_path = "/message")]
+        return [NavMenu(buttons, base_path = "/message")]
 
 class MessageCompose(Wrapped):
     """Compose message form."""
@@ -393,10 +389,6 @@ class BoringPage(Reddit):
         self.pagename = pagename
         Reddit.__init__(self, title = "%s: %s" % (c.site.name, pagename),
                         **context)
-
-    def build_toolbars(self):
-        return [PageNameNav('nomenu', title = self.pagename)]
-
 
 class FormPage(BoringPage):
     """intended for rendering forms with no rightbox needed or wanted"""
@@ -484,26 +476,6 @@ class LinkInfoPage(Reddit):
 
         Reddit.__init__(self, title = title, body_class = 'post', *a, **kw)
 
-    def build_toolbars(self):
-        base_path = "/%s/%s/" % (self.link._id36, title_to_url(self.link.title))
-        base_path = _force_utf8(base_path)
-        def info_button(name):
-            return NamedButton(name, dest = '/%s%s' % (name, base_path),
-                               aliases = ['/%s/%s' % (name, self.link._id36)])
-        
-        buttons = [info_button('comment'),
-                   info_button('related')]
-
-        if c.user_is_admin:
-            buttons += [info_button('details')]
-
-        toolbar = []#[NavMenu(buttons, base_path = "")]
-
-        if c.site != Default and not c.cname:
-            toolbar.insert(0, PageNameNav('subreddit'))
-
-        return toolbar
-    
     def content(self):
         return self.content_stack(self.infobar, self.link_listing,
                                   self.nav_menu, self._content)
@@ -529,14 +501,6 @@ class EditReddit(Reddit):
                 _('about %(site)s') % dict(site=c.site.name)
 
         Reddit.__init__(self, title = title, *a, **kw)
-    
-    def build_toolbars(self):
-        if not c.cname:
-            return [PageNameNav('subreddit')]
-        else:
-            return []
-
-
 
 class SubredditsPage(Reddit):
     """container for rendering a list of reddits."""
@@ -553,8 +517,7 @@ class SubredditsPage(Reddit):
         if c.user_is_admin:
             buttons.append(NamedButton("banned"))
 
-        return [PageNameNav('reddits'),
-                NavMenu(buttons, base_path = '/categories')]
+        return [NavMenu(buttons, base_path = '/categories')]
 
     def content(self):
         return self.content_stack(self.nav_menu, self.sr_infobar, self._content)
@@ -611,8 +574,7 @@ class ProfilePage(Reddit):
             # User is looking at their own page
             main_buttons.append(NamedButton('drafts'))
             
-        toolbar = [PageNameNav('nomenu', title = self.user.name),
-                   NavMenu(main_buttons, base_path = path)]
+        toolbar = [NavMenu(main_buttons, base_path = path)]
 
         if c.user_is_admin:
             from admin_pages import AdminProfileMenu
