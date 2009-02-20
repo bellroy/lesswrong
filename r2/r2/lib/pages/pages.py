@@ -120,7 +120,8 @@ class Reddit(Wrapped):
         if self.nav_menu:
             filters_ps.append(self.nav_menu)
 
-        ps.append(SideBox(filters_ps))
+        if not filters_ps.empty:
+            ps.append(SideBox(filters_ps))
 
         if self.searchbox:
             ps.append(GoogleSearchForm())
@@ -222,20 +223,11 @@ class Reddit(Wrapped):
         more_buttons = []
 
         if c.user_is_loggedin:
-            more_buttons.append(NamedButton('saved', False))
-            more_buttons.append(NamedButton('recommended', False))
-
-            if c.user_is_admin:
-                more_buttons.append(NamedButton('admin'))
-            elif c.site.is_moderator(c.user):
-                more_buttons.append(NavButton(menu.admin, 'about/edit'))
-
-            if c.user_is_sponsor:
-                more_buttons.append(NamedButton('promote'))
+            main_buttons.append(NamedButton('saved', False))
 
         toolbar = [NavMenu(main_buttons, title = _('Filter by'), _id='filter')]
         if more_buttons:
-            toolbar.append(NavMenu(more_buttons, title=menu.more, type='tabdrop'))
+            toolbar.append(NavMenu(more_buttons, title=menu.more))
 
         return toolbar
                 
@@ -249,7 +241,7 @@ class Reddit(Wrapped):
 
     def content(self):
         """returns a Wrapped (or renderable) item for the main content div."""
-        return self.content_stack(self.infobar, self.nav_menu, self._content)
+        return self.content_stack(self.infobar, self._content)
 
 class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
@@ -359,8 +351,7 @@ class MessagePage(Reddit):
         self.replybox = CommentReplyBox()
 
     def content(self):
-        return self.content_stack(self.replybox, self.infobar,
-                                  self.nav_menu, self._content)
+        return self.content_stack(self.replybox, self.infobar, self._content)
 
     def build_toolbars(self):
         buttons =  [NamedButton('compose'),
@@ -429,8 +420,7 @@ class SearchPage(BoringPage):
         BoringPage.__init__(self, pagename, robots='noindex', *a, **kw)
 
     def content(self):
-        return self.content_stack(self.searchbar, self.infobar,
-                                  self.nav_menu, self._content)
+        return self.content_stack(self.searchbar, self.infobar, self._content)
 
 class LinkInfoPage(Reddit):
     """Renders the varied /info pages for a link.  The Link object is
@@ -477,8 +467,10 @@ class LinkInfoPage(Reddit):
         Reddit.__init__(self, title = title, body_class = 'post', *a, **kw)
 
     def content(self):
-        return self.content_stack(self.infobar, self.link_listing,
-                                  self.nav_menu, self._content)
+        return self.content_stack(self.infobar, self.link_listing, self._content)
+
+    def build_toolbars(self):
+        return []
 
 class LinkInfoBar(Wrapped):
     """Right box for providing info about a link."""
@@ -520,7 +512,7 @@ class SubredditsPage(Reddit):
         return [NavMenu(buttons, base_path = '/categories')]
 
     def content(self):
-        return self.content_stack(self.nav_menu, self.sr_infobar, self._content)
+        return self.content_stack(self.sr_infobar, self._content)
 
     def rightbox(self):
         ps = Reddit.rightbox(self)
@@ -532,7 +524,7 @@ class MySubredditsPage(SubredditsPage):
     """Same functionality as SubredditsPage, without the search box."""
     
     def content(self):
-        return self.content_stack(self.nav_menu, self.infobar, self._content)
+        return self.content_stack(self.infobar, self._content)
 
 
 def votes_visible(user):
@@ -827,6 +819,10 @@ class PaneStack(Wrapped):
         """inerface to list.insert on the current stack"""
         return self.stack.insert(*a)
 
+    @property
+    def empty(self):
+        """Return True if the stack has any items, False otherwise"""
+        return len(self.stack) == 0
 
 class SearchForm(Wrapped):
     """The simple search form in the header of the page.  prev_search
