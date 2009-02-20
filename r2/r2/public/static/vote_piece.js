@@ -5,7 +5,7 @@ var downr = "down";
 
 var upcls    = [upr,   upr,   upm  ];
 var downcls  = [downm, downr, downr];
-var scorecls = ["score dislikes", "score", "score likes"];
+var scorecls = ["votes dislikes", "votes", "votes likes"];
 
 
 //cookie setting junk
