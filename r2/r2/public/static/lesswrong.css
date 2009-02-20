@@ -147,6 +147,19 @@ div.comment-meta span span {
 .commentreply .buttons {
     float: left;
 }
+
+.commentreply table.help {
+    margin: 5px 0 0 1px;
+    width: 100%;
+    border-collapse: collapse;
+}
+.commentreply .help,
+.commentreply .help td,
+.commentreply .help tr {
+    border: 1px solid #C0C0C0;
+    padding: 4px;
+    margin: 0px;
+}
 .commentreply .help-toggle {
     float:right;
 }
