@@ -1,4 +1,4 @@
-@import url("/static/main.css");
+@import "/static/main.css";
 
 #content.clear.fullwidth {
     padding: 0 15px;
@@ -209,6 +209,10 @@ h1 a, h2 a {
 
 a.up, a.down {
     cursor: pointer;
+}
+
+.mod {
+    background-color: red;
 }
 
 /* default form styles */
