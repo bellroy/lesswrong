@@ -9,16 +9,20 @@ div.comment-meta span span {
 	float: none;
 }
 
-#side-tags .one   { font-size: 1.0em; }
-#side-tags .two   { font-size: 1.2em; }
-#side-tags .three { font-size: 1.4em; }
-#side-tags .four  { font-size: 1.6em; }
-#side-tags .five  { font-size: 1.8em; }
-#side-tags .six   { font-size: 2.0em; }
-#side-tags .seven { font-size: 2.2em; }
-#side-tags .eight { font-size: 2.4em; }
-#side-tags .nine  { font-size: 2.6em; }
-#side-tags .ten   { font-size: 2.8em; }
+#side-tags {
+    text-align: justify;
+    line-height: 1.2;
+}
+#side-tags .one   { font-size: 0.9em;   }
+#side-tags .two   { font-size: 0.95em;  }
+#side-tags .three { font-size: 1em;     }
+#side-tags .four  { font-size: 1.125em; }
+#side-tags .five  { font-size: 1.25em;  }
+#side-tags .six   { font-size: 1.375em; }
+#side-tags .seven { font-size: 1.5em;   }
+#side-tags .eight { font-size: 1.625em; }
+#side-tags .nine  { font-size: 1.75em;  }
+#side-tags .ten   { font-size: 1.75em;  }
 
 .divide { border-right: 2px solid #D3D3D3;  }
 
