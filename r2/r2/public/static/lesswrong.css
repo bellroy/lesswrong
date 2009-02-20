@@ -12,6 +12,10 @@ div.comment-meta span span {
 #side-tags {
     text-align: justify;
     line-height: 1.2;
+    display: block;
+}
+#side-tags ul {
+    margin: 0;
 }
 #side-tags .one   { font-size: 0.9em;   }
 #side-tags .two   { font-size: 0.95em;  }
