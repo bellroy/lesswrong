@@ -64,9 +64,9 @@ ${self.RenderPrintable()}
         rowclass = thing.rowstyle
   %>
 <div id="thingrow_${fullname}" class="${rowclass} ${cls}" $display>
-  <p id="pre_${fullname}">
+  <div id="pre_${fullname}">
     ${self.ParentDiv()}
-  </p>
+  </div>
   ${self.numcol()}
   ${self.midcol()}
   <div id="entry_${fullname}" class="entry">
