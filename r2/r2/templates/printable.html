@@ -106,16 +106,16 @@ ${self.RenderPrintable()}
 %if c.user_is_loggedin:
   %if (not thing.author or thing.author.name != c.user.name) and report:
     <li>
-      ${yes_no_button("report", fullname, _("report"), \
+      ${yes_no_button("report", fullname, _("Report"), \
       "return deletetoggle(this, $ListClass.report);",\
-      _("reported"), clicked=thing.report_made)}
+      _("Reported"), clicked=thing.report_made)}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and delete:
     <li>
-      ${yes_no_button("delete", fullname, _("delete"), \
+      ${yes_no_button("delete", fullname, _("Delete"), \
       "return deletetoggle(this, $ListClass.del);",\
-      _("deleted"))}
+      _("Deleted"))}
     </li>
   %endif
 %endif

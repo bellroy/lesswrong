@@ -242,7 +242,7 @@
     <%
        if not thing.num_comments:
          # generates "comment" the imperative verb
-         com_label = _("comment {verb}")
+         com_label = _("Comment")
        else:
          # generates "XX comments" as a noun
          com_label = ungettext("comment", "comments", thing.num_comments)
@@ -256,35 +256,35 @@
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>
-        ${plain_link("edit", "/edit/%s" % thing._id36)}
+        ${plain_link("Edit", "/edit/%s" % thing._id36)}
       </li>
     %endif
     %if c.user_is_admin:
       <li>
       %if thing.is_blessed():
-        ${parent.state_button("unbless", fullname, _("demote"), \
-            "return change_state(this, 'unbless');", _("demoted"))}
+        ${parent.state_button("unbless", fullname, _("Demote"), \
+            "return change_state(this, 'unbless');", _("Demoted"))}
       %else:
-        ${parent.state_button("bless", fullname, _("promote"), \
-            "return change_state(this, 'bless');", _("promoted"))}
+        ${parent.state_button("bless", fullname, _("Promote"), \
+            "return change_state(this, 'bless');", _("Promoted"))}
       %endif
       </li>
     %endif
     <li>
     %if thing.saved:
-       ${parent.state_button("unsave", fullname, _("unsave"), \
-          "return change_state(this, 'unsave');", _("unsaved"))}
+       ${parent.state_button("unsave", fullname, _("Unsave"), \
+          "return change_state(this, 'unsave');", _("Unsaved"))}
     %else:
-       ${parent.state_button("save", fullname, _("save"), \
-          "return change_state(this, 'save');", _("saved"))}
+       ${parent.state_button("save", fullname, _("Save"), \
+          "return change_state(this, 'save');", _("Saved"))}
     %endif
     </li><li>
     %if thing.hidden:
-      ${parent.state_button("unhide", fullname, _("unhide"), \
-        "return change_w_callback(this, $ListClass.unhide);", _("unhidden"))}
+      ${parent.state_button("unhide", fullname, _("Unhide"), \
+        "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"))}
     %else:
-      ${parent.state_button("hide", fullname, _("hide"), \
-        "return change_w_callback(this, $ListClass.hide);", _("hidden"))}
+      ${parent.state_button("hide", fullname, _("Hide"), \
+        "return change_w_callback(this, $ListClass.hide);", _("Hidden"))}
     %endif
     </li>
   %endif
