@@ -130,6 +130,9 @@ div.comment-meta span span {
 }
 .comment.inline .md p {
     margin: 0;
+    max-width: 175px;
+    overflow: hidden;
+    height: 1.4em;
 }
 #side-comments h3 {
 	margin: 0;
@@ -334,3 +337,4 @@ div.sidebox label {
 div#side-search {
     padding-bottom: 10px;
 }
+
