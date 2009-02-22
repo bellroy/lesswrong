@@ -310,6 +310,7 @@ ul#image-preview-list .description pre {
 .suspicious { background-color: #f6e69f }
 .spam { background-color: #FA8072 }
 
+/* For lists of users, such as friends */
 .usertable { margin-left: 10px;} 
 .usertable td { padding: 0 .7em }
 .usertable { white-space: nowrap }
@@ -320,4 +321,16 @@ div.sidebox select {
 }
 div.sidebox label {
     width: 64px;
+}
+
+/* Google search */
+#side-search input[type=text] {
+    width: 130px;
+}
+#side-search input[type=submit] {
+    width: auto;
+    margin-left: 5px;
+}
+div#side-search {
+    padding-bottom: 10px;
 }
