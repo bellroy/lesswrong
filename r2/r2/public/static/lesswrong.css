@@ -117,11 +117,11 @@ div.comment-meta span span {
 }
 
 /* Recent comments */
-.inline-comment .md {
+.inline-comment a {
     font-size: 1em;
     font-weight: bold;
 }
-.inline-comment .md p {
+.inline-comment p {
     margin: 0;
     max-width: 175px;
     overflow: hidden;
