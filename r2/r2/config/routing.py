@@ -153,9 +153,6 @@ def make_map(global_conf={}, app_conf={}):
     mc('/code', controller='redirect', action='redirect',
        dest='http://code.google.com/p/lesswrong/')
     
-    mc('/mobile', controller='redirect', action='redirect',
-       dest='http://m.reddit.com/')
-    
     # This route handles displaying the error page and 
     # graphics used in the 404/500
     # error pages. It should likely stay at the top 
