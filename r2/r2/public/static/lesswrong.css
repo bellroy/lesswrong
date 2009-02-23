@@ -117,22 +117,11 @@ div.comment-meta span span {
 }
 
 /* Recent comments */
-.inline {
-    display: list-item;
-    list-style: disc;
-    margin: 0 0 0 15px;
-    padding: 0;
-}
-.inline .comment {
-    border: none;
-    margin: 0;
-    padding: 0;
-}
-.inline .comment .md {
+.inline-comment .md {
     font-size: 1em;
     font-weight: bold;
 }
-.inline .comment .md p {
+.inline-comment .md p {
     margin: 0;
     max-width: 175px;
     overflow: hidden;
@@ -143,7 +132,7 @@ div.comment-meta span span {
 }
 
 /* Recent articles */
-#side-posts div.reddit-link div {
+#side-posts div.reddit-link div, #side-comments div.inline-comment {
     display: list-item;
     list-style: disc;
     margin-left: 15px;
