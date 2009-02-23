@@ -87,7 +87,7 @@ setup(
                       "chardet",
                       "psycopg2",
                       "py_interface",
-                      "lxml==2.2beta2"],
+                      "lxml>=2"],
     packages=find_packages(),
     include_package_data=True,
     test_suite = 'nose.collector',
