@@ -100,11 +100,11 @@
 <%def name="bodyHTML()">
   <body onclick="close_menus()" ${"class=%s" % thing.body_class if thing.body_class else ''}>
   
-    <div id="wrapper" class="clear">
+    <div id="wrapper">
     
       <%include file="redditheader.html"/>
   
-    	<div id="main">
+    	<div id="main" class="clear">
   
       %if thing.content:
         <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
