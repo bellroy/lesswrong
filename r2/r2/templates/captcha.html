@@ -52,7 +52,7 @@ ${captchagen(thing.iden, thing.error)}
      <span class="cap-reply">
   %endif
        %if label:
-         <label for="captcha">${_("human?")}</label>
+         <label for="captcha">${_("Human?")}</label>
        %endif
      %if tabular:
      </td>
@@ -62,7 +62,7 @@ ${captchagen(thing.iden, thing.error)}
         <input id="captcha" name="captcha" type="text" size="${size}" 
                class="cap-text" onfocus="clearTitle(this)"/>
         <script type="text/javascript">
-          setMessage($('captcha'), "${_('type the letters from the image above')}");
+          setMessage($('captcha'), "${_('Type the letters from the image above')}");
         </script>
      %if tabular:
      </td>

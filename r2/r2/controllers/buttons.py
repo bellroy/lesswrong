@@ -150,24 +150,24 @@ class ButtonsController(RedditController):
 
 
     def GET_button_demo_page(self):
-        return BoringPage(_("reddit buttons"),
+        return BoringPage(_("Reddit buttons"),
                           show_sidebar = False, 
                           content=ButtonDemoPanel()).render()
 
 
     def GET_widget_demo_page(self):
-        return BoringPage(_("reddit widget"),
+        return BoringPage(_("Reddit widget"),
                           show_sidebar = False, 
                           content=WidgetDemoPanel()).render()
 
     def GET_socialite_demo_page(self):
-        return BoringPage(_("socialite toolbar"),
+        return BoringPage(_("Socialite toolbar"),
                           show_sidebar = False, 
                           content=Socialite()).render()
 
     
     def GET_bookmarklets(self):
-        return BoringPage(_("bookmarklets"),
+        return BoringPage(_("Bookmarklets"),
                           show_sidebar = False, 
                           content=Bookmarklets()).render()
 

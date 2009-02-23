@@ -1,5 +1,5 @@
 function OrganicListing() {
-    this.__init__('organic');
+    this.__init__('Organic');
     this._links = organic_links;
     /* first time, init the position and figure out what is loaded */
     if(!this.listing._loaded) {

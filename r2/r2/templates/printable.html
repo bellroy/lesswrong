@@ -37,7 +37,7 @@ ${self.RenderPrintable()}
         %elif thing.moderator_banned and thing.banner:
           ${strings.banned_by % thing.banner}
         %else:
-          ${_("banned")}
+          ${_("Banned")}
         %endif
       ]</li></b>
   %elif thing.show_reports:
@@ -83,19 +83,19 @@ ${self.RenderPrintable()}
 %if thing.can_ban and ban:
   %if thing.show_spam:
     <li>
-      ${state_button("unban", fullname, _("unban"), \
-      "return change_state(this, 'unban');", _("unbanned"))}
+      ${state_button("unban", fullname, _("Unban"), \
+      "return change_state(this, 'unban');", _("Unbanned"))}
     </li>
   %else:
     <li>
-      ${state_button("ban", fullname, _("ban"), \
-      "return change_state(this, 'ban');", _("banned"))}
+      ${state_button("ban", fullname, _("Ban"), \
+      "return change_state(this, 'ban');", _("Banned"))}
     </li>
     %endif
   %if thing.show_reports:
     <li>
-    ${state_button("ignore", fullname, _("ignore"), \
-    "return change_state(this, 'ignore');", _("ignored"))}
+    ${state_button("ignore", fullname, _("Ignore"), \
+    "return change_state(this, 'ignore');", _("Ignored"))}
     </li>
   %endif
 %endif
@@ -249,7 +249,7 @@ ${self.RenderPrintable()}
 
 <%def name="yes_no_button(name, fullname, title, onclick, executed, clicked=False, **kw)">
 ${state_button(name, fullname, title, onclick, executed, 
-               yes=_('yes'), no=_('no'), question=_('are you sure?'), 
+               yes=_('Yes'), no=_('No'), question=_('Are you sure?'), 
                clicked=clicked, **kw)}
 </%def>
 

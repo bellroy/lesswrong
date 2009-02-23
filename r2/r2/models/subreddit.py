@@ -589,7 +589,7 @@ class DomainSR(FakeSubreddit):
         FakeSubreddit.__init__(self)
         self.domain = domain
         self.name = domain 
-        self.title = domain + ' ' + _('on reddit.com')
+        self.title = domain + ' ' + _('on lesswrong.com')
 
     def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries

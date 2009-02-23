@@ -297,7 +297,7 @@ def validate_css(string):
                 # whether the property is valid after we've checked
                 # the values
                 #if not (prop.valid and prop.wellformed):
-                #    report.append(ValidationError(_('invalid property'),prop))
+                #    report.append(ValidationError(Invalid property'),prop))
             
         else:
             report.append(ValidationError(msgs['unknown_rule_type']

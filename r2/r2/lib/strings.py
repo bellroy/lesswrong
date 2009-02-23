@@ -55,57 +55,57 @@ string_dict = dict(
 
     firsttext = _("LessWrong is a community for discussing human rationality."),
 
-    already_submitted = _("that link has already been submitted, but you can try to [submit it again](%s)."),
+    already_submitted = _("That link has already been submitted, but you can try to [submit it again](%s)."),
 
-    multiple_submitted = _("that link has been submitted to multiple categories. you can try to [submit it again](%s)."),
+    multiple_submitted = _("That link has been submitted to multiple categories. you can try to [submit it again](%s)."),
 
-    user_deleted = _("your account has been deleted, but we won't judge you for it."),
+    user_deleted = _("Your account has been deleted, but we won't judge you for it."),
 
-    cover_msg      = _("you'll need to login or register to do that"),
-    cover_disclaim = _("(don't worry, it only takes a few seconds)"),
+    cover_msg      = _("You'll need to login or register to do that"),
+    cover_disclaim = _("(Don't worry, it only takes a few seconds)"),
 
     legal = _("I understand and agree that registration on or use of this site constitutes agreement to its %(user_agreement)s and %(privacy_policy)s."),
     
-    friends = _('to view reddit with only submissions from your friends, use [lesswrong.com/r/friends](%s)'),
+    friends = _('To view reddit with only submissions from your friends, use [lesswrong.com/r/friends](%s)'),
 
     msg_add_friend = dict(
         friend = None,
-        moderator = _("you have been added as a moderator to [%(title)s](%(url)s)."),
-        contributor = _("you have been added as a contributor to [%(title)s](%(url)s)."),
-        banned = _("you have been banned from posting to [%(title)s](%(url)s).")
+        moderator = _("You have been added as a moderator to [%(title)s](%(url)s)."),
+        contributor = _("You have been added as a contributor to [%(title)s](%(url)s)."),
+        banned = _("You have been banned from posting to [%(title)s](%(url)s).")
         ),
 
     subj_add_friend = dict(
         friend = None,
-        moderator = _("you are a moderator"),
-        contributor = _("you are a contributor"),
-        banned = _("you've been banned")
+        moderator = _("You are a moderator"),
+        contributor = _("You are a contributor"),
+        banned = _("You've been banned")
         ),
     
     sr_messages = dict(
-        empty =  _('you have not subscribed to any categories.'),
-        subscriber =  _('below are the categories you have subscribed to'),
-        contributor =  _('below are the categories that you have contributor access to.'),
-        moderator = _('below are the categories that you have moderator access to.')
+        empty =  _('You have not subscribed to any categories.'),
+        subscriber =  _('Below are the categories you have subscribed to'),
+        contributor =  _('Below are the categories that you have contributor access to.'),
+        moderator = _('Below are the categories that you have moderator access to.')
         ),
     
-    sr_subscribe =  _('click the ![add](/static/sr-add-button.png) or ![remove](/static/sr-remove-button.png) buttons to choose which categories appear on your front page.'),
+    sr_subscribe =  _('Click the ![add](/static/sr-add-button.png) or ![remove](/static/sr-remove-button.png) buttons to choose which categories appear on your front page.'),
 
-    searching_a_reddit = _('you\'re searching within the [%(reddit_name)s](%(reddit_link)s) category. '+
+    searching_a_reddit = _('You\'re searching within the [%(reddit_name)s](%(reddit_link)s) category. '+
                            'you can also search within [all categories](%(all_reddits_link)s)'),
 
     css_validator_messages = dict(
         broken_url = _('"%(brokenurl)s" is not a valid URL'),
         invalid_property = _('"%(cssprop)s" is not a valid CSS property'),
         invalid_val_for_prop = _('"%(cssvalue)s" is not a valid value for CSS property "%(cssprop)s"'),
-        too_big = _('too big. keep it under %(max_size)dkb'),
-        syntax_error = _('syntax error: "%(syntaxerror)s"'),
+        too_big = _('Too big. keep it under %(max_size)dkb'),
+        syntax_error = _('Syntax error: "%(syntaxerror)s"'),
         no_imports = _('@imports are not allowed'),
-        invalid_property_list = _('invalid CSS property list "%(proplist)s"'),
-        unknown_rule_type = _('unknown CSS rule type "%(ruletype)s"')
+        invalid_property_list = _('Invalid CSS property list "%(proplist)s"'),
+        unknown_rule_type = _('Unknown CSS rule type "%(ruletype)s"')
     ),
     
-    submit_box_text = _('to anything interesting: news article, blog entry, video, picture...'),
+    submit_box_text = _('To anything interesting: news article, blog entry, video, picture...'),
     permalink_title = _("%(author)s comments on %(title)s"),
     link_info_title = _("%(title)s : %(site)s"),
     

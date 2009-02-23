@@ -54,13 +54,13 @@ function update_title() {
 </%def>
  
 %if thing.site:
-  <h1>${_("manage your category")}</h1>
+  <h1>${_("Manage your category")}</h1>
 %else:
   %if thing.name:
     <p class="infobar">
-      ${_("that category doesn't exist, but you can create it here.")}</p>
+      ${_("That category doesn't exist, but you can create it here.")}</p>
   %endif
-  <h1>${_("create a category")}</h1>
+  <h1>${_("Create a category")}</h1>
 %endif
 
 <form class="pretty-form" action="/post/site_admin"
@@ -72,7 +72,7 @@ function update_title() {
   <table class="preftable">
     <tr>
       <th>
-        <label for="name">${_("name")}</label>
+        <label for="name">${_("Name")}</label>
       </th>
       <td class="prefright">
         %if thing.site:
@@ -88,14 +88,14 @@ function update_title() {
           ${error_field("SUBREDDIT_EXISTS", "span")}
           ${error_field("BAD_SR_NAME", "span")}
           <span class="gray" id="example_name">
-            ${_("no spaces, e.g. slashdot")}
+            ${_("No spaces, e.g. slashdot")}
           </span>
         %endif
       </td>
     </tr>
     <tr>
       <th>
-        <label for="title">${_("title")}</label>
+        <label for="title">${_("Title")}</label>
       </th>
       <td class="prefright">
         %if thing.site:
@@ -110,7 +110,7 @@ function update_title() {
         ${error_field("TITLE_TOO_LONG", "span")}
         %if not thing.site:
           <span class="gray" id="example_title">
-            ${_("e.g. slashdot: news for nerds, stuff that matters")}
+            ${_("E.g. slashdot: news for nerds, stuff that matters")}
           </span>
         %endif
       </td>
@@ -118,7 +118,7 @@ function update_title() {
 
     <tr>
       <th>
-        <label for="description">${_("description")}</label>
+        <label for="description">${_("Description")}</label>
       </th>
       <td class="prefright">
         <textarea id="description" name="description"
@@ -134,7 +134,7 @@ function update_title() {
     </tr>
     <tr>
       <th>
-        <label for="lang">${_("language")}</label>
+        <label for="lang">${_("Language")}</label>
       </th>
       <td class="prefright">
         <%
@@ -148,39 +148,39 @@ function update_title() {
 
     <tr>
       <th>
-        <label>${_("type")}</label>
+        <label>${_("Type")}</label>
       </th>
       <td colspan="2" class="prefright">
          <table >
-         ${radio_type(_("public"), _("anyone can view and submit"))}
-         ${radio_type(_("restricted"), _("anyone can view, but only contributors can submit links"))}
-         ${radio_type(_("private"), _("only contributors can view and submit"))}
+         ${radio_type(_("public"), _("Anyone can view and submit"))}
+         ${radio_type(_("restricted"), _("Anyone can view, but only contributors can submit links"))}
+         ${radio_type(_("private"), _("Only contributors can view and submit"))}
          </table>
       </td>
     </tr>
 
     <tr>
-      <th><label>${_("age")}</label></th>
+      <th><label>${_("Age")}</label></th>
       <td colspan="2" class="prefright">
         <input class="nomargin" type="checkbox" name="over_18" id="over_18"
                ${thing.site and thing.site.over_18 and "checked='checked'" or ""}/>
-        <label for="over_18">${_("viewers must be over eighteen years old")}</label>
+        <label for="over_18">${_("Viewers must be over eighteen years old")}</label>
       </td>
     </tr>
     <tr>
-      <th><label>${_("media")}</label></th>
+      <th><label>${_("Media")}</label></th>
       <td colspan="2" class="prefright">
         <input class="nomargin" type="checkbox" 
                name="show_media" id="show_media"
                ${thing.site and thing.site.show_media and "checked='checked'" or ""}/>
         <label for="show_media">
-          ${_("show thumbnail images of content")}
+          ${_("Show thumbnail images of content")}
         </label>
       </td>
     </tr>
     <tr>
       <th>
-        <label for="domain">${_("domain")}</label>
+        <label for="domain">${_("Domain")}</label>
       </th>
       <td class="prefright">
         %if thing.site:
@@ -201,7 +201,7 @@ function update_title() {
     </tr>
     <tr>
       <th>
-        <label for="default_listing">${_("default listing")}</label>
+        <label for="default_listing">${_("Default listing")}</label>
       </th>
       <td class="prefright">
         ${select_listing(thing.site, thing.listings)}
@@ -219,25 +219,25 @@ function update_title() {
   %if thing.site and thing.site.can_change_stylesheet(c.user) and not g.css_killswitch:
   <tr>
     <th>
-      ${_("look and feel")}
+      ${_("Look and feel")}
     </th>
     <td class="prefright">
       <div class="spacer">
-        ${plain_link(_("edit the stylesheet"),
+        ${plain_link(_("Edit the stylesheet"),
                       "/about/stylesheet",
                       _sr_path = True)}
         &#32;
-        <span class="gray">(${_("leaves this page")})</span>
+        <span class="gray">(${_("Leaves this page")})</span>
       </div>
       <div class="spacer">
-        <label for="headerfile">${_("upload header image")}</label>
+        <label for="headerfile">${_("Upload header image")}</label>
         <%call expr="image_upload('/api/upload_sr_img', thing.site.header)">
           <button id="delete-img"
                   %if not thing.site.header:
                      style="display: none;"
                   %endif
                   onclick="return post_form(this.form, 'delete_sr_header');">
-            ${_('restore default header')}
+            ${_('Restore default header')}
           </button>
 
           <input type="hidden" name="uh" value="${c.modhash}" />
@@ -254,10 +254,10 @@ function update_title() {
   <%
      if thing.site:
          name = "edit"
-         text = _("save options")
+         text = _("Save options")
      else:
          name = "create"
-         text = _("create")
+         text = _("Create")
   %>
   <button name="${name}" class="btn" type="button"
           onclick="$('sr_form').onsubmit()"

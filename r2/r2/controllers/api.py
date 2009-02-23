@@ -131,7 +131,7 @@ class ApiController(RedditController):
                 emailer.ad_inq_email(email, message, name = name or '',
                                        reply_to = replyto or '')
             res._update('success',
-                        innerHTML=_("thanks for your message! you should hear back from us shortly."))
+                        innerHTML=_("Thanks for your message! you should hear back from us shortly."))
             res._update("personal", value='')
             res._update("captcha", value='')
             res._hide("wtf")
@@ -165,7 +165,7 @@ class ApiController(RedditController):
             
             m, inbox_rel = Message._new(c.user, to, subject, body, ip, spam)
             res._update('success',
-                        innerHTML=_("your message has been delivered"))
+                        innerHTML=_("Your message has been delivered"))
             res._update('to', value='')
             res._update('subject', value='')
             res._update('message', value='')
@@ -198,7 +198,7 @@ class ApiController(RedditController):
                     else:
                         infotext = strings.multiple_submitted % \
                                    listing.things[0].resubmit_link()
-                        res = BoringPage(_("seen it"),
+                        res = BoringPage(_("Seen it"),
                                          content = listing,
                                          infotext = infotext).render()
                         return res
@@ -209,7 +209,7 @@ class ApiController(RedditController):
         captcha = Captcha() if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
 
-        return FormPage(_("submit"), 
+        return FormPage(_("Submit"), 
                         content=NewLink(url=url or '',
                                         title=title or '',
                                         subreddits = srs,
@@ -504,7 +504,7 @@ class ApiController(RedditController):
             c.user.email = email
             c.user._commit()
             res._update('status', 
-                        innerHTML=_('your email has been updated'))
+                        innerHTML=_('Your email has been updated'))
             updated = True
             
         if newpass or verpass:
@@ -517,10 +517,10 @@ class ApiController(RedditController):
                 change_password(c.user, password)
                 if updated:
                     res._update('status', 
-                                innerHTML=_('your email and password have been updated'))
+                                innerHTML=_('Your email and password have been updated'))
                 else:
                     res._update('status', 
-                                innerHTML=_('your password has been updated'))
+                                innerHTML=_('Your password has been updated'))
                 self.login(c.user)
 
     @Json
@@ -535,7 +535,7 @@ class ApiController(RedditController):
             res._redirect('/?deleted=true')
         else:
             res._update('status', 
-                        innerHTML = _("see? you don't really want to leave"))
+                        innerHTML = _("See? you don't really want to leave"))
 
     @Json
     @validate(VUser(),
@@ -722,11 +722,11 @@ class ApiController(RedditController):
             c.user._commit()
 
             res._update("share_li_" + thing._fullname,
-                        innerHTML=_('shared'))
+                        innerHTML=_('Shared'))
 
             res._update("sharelink_" + thing._fullname,
                         innerHTML=("<div class='clearleft'></div><p class='error'>%s</p>" % 
-                                   _("your link has been shared.")))
+                                   _("Your link has been shared.")))
 
             emailer.share(thing, emails, from_name = share_from or "",
                           body = message or "", reply_to = reply_to or "")
@@ -791,7 +791,7 @@ class ApiController(RedditController):
             error_items = [ CssError(x).render(style='html')
                             for x in sorted(report.errors) ]
                                                
-            res._update('status', innerHTML = _('validation errors'))
+            res._update('status', innerHTML = _('Validation errors'))
             res._update('validation-errors', innerHTML = ''.join(error_items))
             res._show('error-header')
         else:
@@ -866,7 +866,7 @@ class ApiController(RedditController):
         # hide the image and it's container
         res._hide("img-li_%s" % name)
         # reset the status
-        res._update('img-status', innerHTML = _("deleted"))
+        res._update('img-status', innerHTML = _("Deleted"))
 
 
     @Json
@@ -886,7 +886,7 @@ class ApiController(RedditController):
         # hide the image and it's container
         res._hide("img-li_%s" % name)
         # reset the status
-        res._update('img-status', innerHTML = _("deleted"))
+        res._update('img-status', innerHTML = _("Deleted"))
 
 
     @Json
@@ -909,7 +909,7 @@ class ApiController(RedditController):
         # hide the preview box
         res._hide  ('img-preview-container')
         # reset the status boxes
-        res._update('img-status', innerHTML = _("deleted"))
+        res._update('img-status', innerHTML = _("Deleted"))
         res._update('status', innerHTML = "")
         
 
@@ -961,18 +961,18 @@ class ApiController(RedditController):
             elif not name:
                 # error if the name wasn't specified or didn't satisfy
                 # the validator
-                errors['BAD_CSS_NAME'] = _("bad image name")
+                errors['BAD_CSS_NAME'] = _("Bad image name")
             else:
                 num = c.site.add_image(name, max_num = g.max_sr_images)
                 c.site._commit()
 
         except cssfilter.BadImage:
             # if the image doesn't clean up nicely, abort
-            errors["IMAGE_ERROR"] = _("bad image")
+            errors["IMAGE_ERROR"] = _("Bad image")
         except ValueError:
             # the add_image method will raise only on too many images
             errors['IMAGE_ERROR'] = (
-                _("too many images (you only get %d)") % g.max_sr_images)
+                _("Too many images (you only get %d)") % g.max_sr_images)
 
         if any(errors.values()):
             return  UploadedImage("", "", "", errors = errors).render()
@@ -985,7 +985,7 @@ class ApiController(RedditController):
                 c.site.header = new_url
                 c.site._commit()
     
-            return UploadedImage(_('saved'), new_url, name, 
+            return UploadedImage(_('Saved'), new_url, name, 
                                  errors = errors).render()
     
 
@@ -1010,18 +1010,18 @@ class ApiController(RedditController):
             if not name:
                 # error if the name wasn't specified or didn't satisfy
                 # the validator
-                errors['BAD_CSS_NAME'] = _("bad image name")
+                errors['BAD_CSS_NAME'] = _("Bad image name")
             else:
                 num = link.add_image(name, max_num = g.max_sr_images)
                 link._commit()
 
         except cssfilter.BadImage:
             # if the image doesn't clean up nicely, abort
-            errors["IMAGE_ERROR"] = _("bad image")
+            errors["IMAGE_ERROR"] = _("Bad image")
         except ValueError:
             # the add_image method will raise only on too many images
             errors['IMAGE_ERROR'] = (
-                _("too many images (you only get %d)") % g.max_sr_images)
+                _("Too many images (you only get %d)") % g.max_sr_images)
 
         if any(errors.values()):
             return  UploadedImage("", "", "", errors = errors).render()
@@ -1033,7 +1033,7 @@ class ApiController(RedditController):
             # fullname, which links do.
             new_url = cssfilter.save_sr_image(link, cleaned, num = num)
 
-            return UploadedImage(_('saved'), new_url, name,
+            return UploadedImage(_('Saved'), new_url, name,
                                  errors = errors).render()
 
 
@@ -1110,7 +1110,7 @@ class ApiController(RedditController):
             # flag search indexer that something has changed
             tc.changed(sr)
 
-            res._update('status', innerHTML = _('saved'))
+            res._update('status', innerHTML = _('Saved'))
 
 
         if redir:
@@ -1490,12 +1490,12 @@ class ApiController(RedditController):
             force_thumbnail(link, file)
         except cssfilter.BadImage:
             # if the image doesn't clean up nicely, abort
-            errors["IMAGE_ERROR"] = _("bad image")
+            errors["IMAGE_ERROR"] = _("Bad image")
 
         if any(errors.values()):
             return  UploadedImage("", "", "upload", errors = errors).render()
         else:
-            return UploadedImage(_('saved'), thumbnail_url(link), "upload",
+            return UploadedImage(_('Saved'), thumbnail_url(link), "upload",
                                  errors = errors).render()
     
 

@@ -66,29 +66,29 @@
 ##this function is used by subscriptionbox.html
 <%def name="permission_icons(sr)">
   %if sr.moderator:
-    <img class="sr-type-img" title="${_('moderator')}" alt="${_('moderator')}" src="/static/star.png" />
+    <img class="sr-type-img" title="${_('Moderator')}" alt="${_('Moderator')}" src="/static/star.png" />
   %endif
 
   %if sr.type in ("restricted", "private") and not sr.moderator:
     <img class="sr-type-img"
        %if sr.contributor:
-         alt="${_('contributor')}"
-         title="${_('contributor')}"
+         alt="${_('Contributor')}"
+         title="${_('Contributor')}"
          src="/static/pencil.png"
        %else:
-         alt="${_('not contributor')}"
-         title="${_('not contributor')}"
+         alt="${_('Not contributor')}"
+         title="${_('Not contributor')}"
          src="/static/pencil-gray.png"
        %endif
     />
   %endif 
 
   %if sr.type == "private":
-    <img class="sr-type-img" title="${_('private')}" alt="${_('private')}" src="/static/eye.png" />
+    <img class="sr-type-img" title="${_('Private')}" alt="${_('Private')}" src="/static/eye.png" />
   %endif
 
   %if sr.over_18:
-    <img class="sr-type-img" title="${_('over18')}" alt="${_('over18')}" src="/static/over18_icon.png" />
+    <img class="sr-type-img" title="${_('Over18')}" alt="${_('Over18')}" src="/static/over18_icon.png" />
   %endif
 
 </%def>
@@ -110,7 +110,7 @@
 
 
 <%def name="leave_button(name, where)">
-${self.yes_no_button("leave", name, _("leave"), 
-  "return deletetoggle(this, 'leave');", _("left"),
+${self.yes_no_button("leave", name, _("Leave"), 
+  "return deletetoggle(this, 'leave');", _("Left"),
   location = where)}
 </%def>

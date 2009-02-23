@@ -39,11 +39,11 @@
          &nbsp;(<b>${thing.user.safe_karma}</b>)
       </span>&nbsp;
   %elif c.user_is_loggedin and name == "sendmessage" and c.user != thing.user:
-    ${plain_link(_("send message"), "/message/compose?to=%s" % (thing.user.name))}&nbsp;
+    ${plain_link(_("Send message"), "/message/compose?to=%s" % (thing.user.name))}&nbsp;
   %elif name == "remove" and thing.editable:
-    ${yes_no_button("remove", thing.name, _("remove"),
+    ${yes_no_button("remove", thing.name, _("Remove"),
     "return deletetoggle(this, UserTable.del('%s', '%s'));"
     % (thing.type, thing.container_name),
-    _("removed"))}
+    _("Removed"))}
   %endif
 </%def>

@@ -318,7 +318,7 @@ class PrefsPage(Reddit):
 
     def __init__(self, show_sidebar = True, *a, **kw):
         Reddit.__init__(self, show_sidebar = show_sidebar,
-                        title = "%s (%s)" %(_("preferences"), c.site.name.strip(' ')),
+                        title = "%s (%s)" %(_("Preferences"), c.site.name.strip(' ')),
                         *a, **kw)
 
     def build_toolbars(self):
@@ -394,7 +394,7 @@ class LoginPage(BoringPage):
         context['loginbox'] = False
         self.dest = context.get('dest', '')
         context['show_sidebar'] = False
-        BoringPage.__init__(self,  _("login or register"), **context)
+        BoringPage.__init__(self,  _("Login or register"), **context)
 
     def content(self):
         kw = {}
@@ -489,8 +489,8 @@ class EditReddit(Reddit):
         is_moderator = c.user_is_loggedin and \
             c.site.is_moderator(c.user) or c.user_is_admin
 
-        title = _('manage your category') if is_moderator else \
-                _('about %(site)s') % dict(site=c.site.name)
+        title = _('Manage your category') if is_moderator else \
+                _('About %(site)s') % dict(site=c.site.name)
 
         Reddit.__init__(self, title = title, *a, **kw)
 
@@ -608,7 +608,7 @@ class UnfoundPage(Wrapped):
 
 class ErrorPage(Wrapped):
     """Wrapper for an error message"""
-    def __init__(self, message = _("you aren't allowed to do that.")):
+    def __init__(self, message = _("You aren't allowed to do that.")):
         Wrapped.__init__(self, message = message)
     
 class Profiling(Wrapped):
@@ -647,7 +647,7 @@ class SubredditTopBar(Wrapped):
                                              css_class = 'bottom-option',
                                              dest = '/categories/'))
         self.sr_dropdown = SubredditMenu(drop_down_buttons,
-                                         title = _('my categories'),
+                                         title = _('My categories'),
                                          type = 'srdrop')
 
     
@@ -674,7 +674,7 @@ class SubredditBox(Wrapped):
         self.title = _('Other reddit communities')
         self.subtitle = 'Visit your subscribed categories (in bold) or explore new ones'
         self.create_link = ('/categories/', menu.more)
-        self.more_link   = ('/categories/create', _('create'))
+        self.more_link   = ('/categories/create', _('Create'))
 
         my_reddits = []
         sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
@@ -771,7 +771,7 @@ class ResetPassword(Wrapped):
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""
     def __init__(self, error=None):
-        self.error = _('try entering those letters again') if error else ""
+        self.error = _('Try entering those letters again') if error else ""
         self.iden = get_captcha()
         Wrapped.__init__(self)
 
@@ -860,7 +860,7 @@ class SearchBar(Wrapped):
     def __init__(self, num_results = 0, prev_search = '', elapsed_time = 0, **kw):
 
         # not listed explicitly in args to ensure it translates properly
-        self.header = kw.get('header', _("previous search"))
+        self.header = kw.get('header', _("Previous search"))
 
         self.prev_search  = prev_search
         self.elapsed_time = elapsed_time
@@ -1120,11 +1120,11 @@ class FriendList(UserList):
 
     @property
     def form_title(self):
-        return _('add a friend')
+        return _('Add a friend')
 
     @property
     def table_title(self):
-        return _('your friends')
+        return _('Your friends')
 
     def user_ids(self):
         return c.user.friends
@@ -1139,11 +1139,11 @@ class ContributorList(UserList):
 
     @property
     def form_title(self):
-        return _('add contributor')
+        return _('Add contributor')
 
     @property
     def table_title(self):
-        return _("contributors to %(reddit)s") % dict(reddit = c.site.name)
+        return _("Contributors to %(reddit)s") % dict(reddit = c.site.name)
 
     def user_ids(self):
         return c.site.contributors
@@ -1154,11 +1154,11 @@ class ModList(UserList):
 
     @property
     def form_title(self):
-        return _('add moderator')
+        return _('Add moderator')
 
     @property
     def table_title(self):
-        return _("moderators to %(reddit)s") % dict(reddit = c.site.name)
+        return _("Moderators to %(reddit)s") % dict(reddit = c.site.name)
 
     def user_ids(self):
         return c.site.moderators
@@ -1169,11 +1169,11 @@ class BannedList(UserList):
 
     @property
     def form_title(self):
-        return _('ban users')
+        return _('Ban users')
 
     @property
     def table_title(self):
-        return  _('banned users')
+        return  _('Banned users')
 
     def user_ids(self):
         return c.site.banned

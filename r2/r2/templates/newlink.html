@@ -56,7 +56,7 @@
       <label for="tags">${_("Tags:")}</label>
       <input id="tags" name="tags" value="${', '.join(thing.tags)}"
                  onfocus="clearTitle(this)" type="text" />
-      <span class="gray">${_('enter tags separated by commas or spaces.')}</span>
+      <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
       </td>
     </tr>
     %if thing.subreddits:
@@ -77,9 +77,9 @@
     <tr>
       <td>
         <input type="hidden" id="keep_editing" name="keep_editing" value="off" />
-        <button class="btn" type="submit">${_("submit")}</button>
+        <button class="btn" type="submit">${_("Submit")}</button>
         <button class="btn" type="submit"
-          onclick="continueEditing(true)">${_("save and continue")}</button>
+          onclick="continueEditing(true)">${_("Save and continue")}</button>
         <span id="status" class="error"></span>
         ${error_field("RATELIMIT", "span")}
       </td>
@@ -90,9 +90,9 @@
     var form = $('newlink');
     if(form) {
       setMessage(form.title,
-                 "${_('enter a title for the article.')}");
+                 "${_('Enter a title for the article.')}");
       setMessage(form.tags,
-                 "${_('enter tags separated by commas or spaces.')}");
+                 "${_('Enter tags separated by commas or spaces.')}");
     }
   </script>
 </%call>

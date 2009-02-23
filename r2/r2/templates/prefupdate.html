@@ -26,29 +26,29 @@
       onsubmit="return post_form(this, 'update')">
 <table>
 <tr>
-    <td align="right">${_("current password (required)")}:</td>
+    <td align="right">${_("Current password (required)")}:</td>
     <td><input name="curpass" type="password" /></td>
     <td>${error_field("WRONG_PASSWORD")}</td>
 </tr>
 <tr>
-    <td align="right">${_("email")}:</td>
+    <td align="right">${_("Email")}:</td>
     <td><input name="email" type="text" value="${hasattr(c.user,'email') and c.user.email or ''}"/></td>
     <td>
       ${error_field("BAD_EMAILS")}
     </td>
 </tr>
 <tr>
-    <td align="right">${_("new password")}:</td>
+    <td align="right">${_("New password")}:</td>
     <td><input name="newpass" type="password" maxlength="20"/></td>
     <td>${error_field("BAD_PASSWORD")}</td>
 </tr>
 <tr>
-    <td align="right">${_("verify password")}:</td>
+    <td align="right">${_("Verify password")}:</td>
     <td><input name="verpass" type="password" maxlength="20"/></td>
     <td> ${error_field("BAD_PASSWORD_MATCH")}
     </td>
 </tr>
 </table>
-<input type="submit" class="btn" value="${_('save')}"/>
+<input type="submit" class="btn" value="${_('Save')}"/>
 <span id='status' class='error'></span>
 </form>

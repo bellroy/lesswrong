@@ -28,15 +28,15 @@ class FeedbackController(RedditController):
 
     def _feedback(self, name = '', email = '', message='', 
                 replyto='', action=''):
-        title = _("inquire about advertising on LessWrong") if action else ''
+        title = _("Inquire about advertising on LessWrong") if action else ''
         captcha = Captcha() if not c.user_is_loggedin \
             or c.user.needs_captcha() else None
         if request.get.has_key("done"):
-            success = _("thanks for your message! you should hear back from us shortly.")
+            success = _("Thanks for your message! you should hear back from us shortly.")
         else:
             success = ''
-            return FormPage(_("advertise") if action == 'ad_inq' \
-                                else _("feedback"),
+            return FormPage(_("Advertise") if action == 'ad_inq' \
+                                else _("Feedback"),
                         content = Feedback(captcha=captcha,
                                            message=message, 
                                            replyto=replyto,

@@ -61,7 +61,7 @@ ${parent.collapsed()}
       <strong>${unsafe(self.author(friend=thing.friend, gray = collapse))}</strong>
     </span>
   %else:
-     <em>${_("comment deleted")}</em>&#32;
+     <em>${_("Comment deleted")}</em>&#32;
   %endif
   %if collapse and thing.collapsed and not thing.deleted:
     ${_("comment score below threshold")}
@@ -128,7 +128,7 @@ ${parent.midcol()}
       %if not c.profilepage:
         %if thing.parent_permalink:
           <li>
-            ${bylink_button("parent", _("parent"), thing.parent_permalink)}
+            ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
           </li>
         %endif
         %if c.user_is_loggedin and thing.author.name == c.user.name:

@@ -80,7 +80,7 @@
   <body style="background-color: white;">
   %if thing.article:
     <div id="images">
-      <h2><a name="images">${_("images")}</a></h2>
+      <h2><a name="images">${_("Images")}</a></h2>
 
       <form class="pretty-form image-upload" enctype="multipart/form-data"
             target="upload-iframe" id="image-upload"
@@ -91,13 +91,13 @@
         <table>
           <tr>
             <th>
-              <label for="srfile">${_("image file:")}</label>
+              <label for="srfile">${_("Image file:")}</label>
             </th>
             <td>
               <input type="file" name="file" id="srfile"
                      onchange="return file_changed(this)"/>
               <button id="submit-header-img" type="submit" name="upload"
-                      onclick="return upload_image(this.form, '${_('uploading')}');"
+                      onclick="return upload_image(this.form, '${_('Uploading')}');"
                       style="display: none;" >
                 ${_('Upload')}
               </button>
@@ -107,14 +107,14 @@
           </tr>
           <tr>
             <th>
-              <label for="img-name">${_("new image name:")}</label>
+              <label for="img-name">${_("New image name:")}</label>
             </th>
             <td>
               <input id="img-name" name="name" value="" type="text"/>
               ${error_field("BAD_CSS_NAME", "span")}
               <br/>
               <span class="little gray">
-                ${_("(image names should consist of alphanumeric characters and '-' only)")}
+                ${_("(Image names should consist of alphanumeric characters and '-' only)")}
               </span>
             </td>
           </tr>
@@ -178,13 +178,13 @@
              if (name == "" || name.match(r)) {
                 $("img-status").innerHTML = "";
                 show("BAD_CSS_NAME");
-                $("BAD_CSS_NAME").innerHTML = "${_('bad image name')}";
+                $("BAD_CSS_NAME").innerHTML = "${_('Bad image name')}";
                 return false;
              }
              else if($("img_name_" + name)) {
                $("img-status").innerHTML = "";
                show("BAD_CSS_NAME");
-               $("BAD_CSS_NAME").innerHTML = "${_('an image named ')}" + name + "${_(' already exists')}";
+               $("BAD_CSS_NAME").innerHTML = "${_('An image named ')}" + name + "${_(' already exists')}";
                return false;
              }
              else if(form.srfile.value) {
@@ -194,7 +194,7 @@
              } else {
                 $("img-status").innerHTML = "";
                 show("IMAGE_ERROR");
-                $("IMAGE_ERROR").innerHTML = "${_('please select an image')}";
+                $("IMAGE_ERROR").innerHTML = "${_('Please select an image')}";
                 return false;
              }
           }
@@ -221,7 +221,7 @@
               </b>
               <br/>
               ${yes_no_button("delete_link_img", name,
-                              _("delete this image"),
+                              _("Delete this image"),
                               "return delete_img(this)",
                               "", img_name = name,
                               article_id = thing.article._id36)}
