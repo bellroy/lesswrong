@@ -117,18 +117,14 @@ div.comment-meta span span {
 }
 
 /* Recent comments */
-.inline-comment a {
+#side-comments h3 {
+	margin: 0;
     font-size: 1em;
     font-weight: bold;
-}
-.inline-comment p {
     margin: 0;
     max-width: 175px;
     overflow: hidden;
     height: 1.4em;
-}
-#side-comments h3 {
-	margin: 0;
 }
 
 /* Recent articles */
