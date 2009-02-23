@@ -253,6 +253,9 @@
                             newwindow = c.user.pref_newwindow)}
     </li>
   %endif
+##  <li>
+##    ${plain_link("Feed", "%s/.rss" % thing.url)}
+##  </li>
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>

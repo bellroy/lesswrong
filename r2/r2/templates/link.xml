@@ -37,7 +37,6 @@
   <pubDate>${thing._date.isoformat()}</pubDate>
   <dc:date>${thing._date.isoformat()}</dc:date>
   <description>
-    ${thing._summary}
     <% domain = get_domain(cname = c.cname, subreddit = False) %>
     submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
     &lt;a href="${thing.url}"&gt;[link]&lt;/a&gt;
