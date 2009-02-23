@@ -344,3 +344,7 @@ div#side-search {
 .infobar p {
     margin: 0;
 }
+
+.sitetable {
+    clear: both;
+}
