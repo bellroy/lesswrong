@@ -23,11 +23,11 @@ namespace :deploy do
   end
 
   def link_shared_dir(dir)
-    shared_dir = "#{deploy_to}/shared/#{dir}"
+    shared_subdir = "#{deploy_to}/shared/#{dir}"
     public_dir = "#{release_path}/public/#{dir}"
-    run "mkdir -p #{shared_dir}"  # make sure the shared dir exists
+    run "mkdir -p #{shared_subdir}"  # make sure the shared dir exists
     run "if [ -e #{public_dir} ]; then rm -rf #{public_dir} && echo '***\n*** #{public_dir} removed (in favour of a symlink to the shared version) ***\n***'; fi"
-    run "ln -sv #{shared_dir} #{public_dir}"
+    run "ln -sv #{shared_subdir} #{public_dir}"
   end
  
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
@@ -43,8 +43,9 @@ namespace :deploy do
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    run "killall paster || true"
-    run "cd #{deploy_to}/current/r2 && paster serve --daemon #{application}.ini"
+    pid_file = "#{shared_dir}/pids/paster.pid"
+    run "cd #{deploy_to}/current/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
+    run "cd #{deploy_to}/current/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
   end
 end
 
