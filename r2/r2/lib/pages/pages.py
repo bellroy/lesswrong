@@ -489,7 +489,7 @@ class EditReddit(Reddit):
         is_moderator = c.user_is_loggedin and \
             c.site.is_moderator(c.user) or c.user_is_admin
 
-        title = _('manage your reddit') if is_moderator else \
+        title = _('manage your category') if is_moderator else \
                 _('about %(site)s') % dict(site=c.site.name)
 
         Reddit.__init__(self, title = title, *a, **kw)
@@ -672,7 +672,7 @@ class SubredditBox(Wrapped):
         Wrapped.__init__(self)
         
         self.title = _('Other reddit communities')
-        self.subtitle = 'Visit your subscribed reddits (in bold) or explore new ones'
+        self.subtitle = 'Visit your subscribed categories (in bold) or explore new ones'
         self.create_link = ('/categories/', menu.more)
         self.more_link   = ('/categories/create', _('create'))
 

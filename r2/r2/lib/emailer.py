@@ -53,7 +53,7 @@ def password_email(user):
     passlink = 'http://' + g.domain + '/resetpassword/' + key
     cache.set("reset_%s" %key, user._id, time=1800)
     simple_email(user.email, 'reddit@reddit.com',
-                 'reddit.com password reset',
+                 'lesswrong.com password reset',
                  PasswordReset(user=user, passlink=passlink).render(style='email'))
 
 

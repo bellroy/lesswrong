@@ -28,7 +28,7 @@ class FeedbackController(RedditController):
 
     def _feedback(self, name = '', email = '', message='', 
                 replyto='', action=''):
-        title = _("inquire about advertising on reddit") if action else ''
+        title = _("inquire about advertising on LessWrong") if action else ''
         captcha = Captcha() if not c.user_is_loggedin \
             or c.user.needs_captcha() else None
         if request.get.has_key("done"):

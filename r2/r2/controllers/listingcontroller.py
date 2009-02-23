@@ -553,7 +553,7 @@ class RedditsController(ListingController):
     render_cls = SubredditsPage
 
     def title(self):
-        return _('reddits')
+        return _('Categories')
 
     def query(self):
         if self.where == 'banned' and c.user_is_admin:
@@ -587,7 +587,7 @@ class MyredditsController(ListingController):
         return [NavMenu(buttons, base_path = '/categories/mine/', default = 'subscriber', type = "flatlist")]
 
     def title(self):
-        return _('reddits: ') + self.where
+        return _('Categories: ') + self.where
 
     def query(self):
         reddits = SRMember._query(SRMember.c._name == self.where,

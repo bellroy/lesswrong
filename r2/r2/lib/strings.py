@@ -57,7 +57,7 @@ string_dict = dict(
 
     already_submitted = _("that link has already been submitted, but you can try to [submit it again](%s)."),
 
-    multiple_submitted = _("that link has been submitted to multiple reddits. you can try to [submit it again](%s)."),
+    multiple_submitted = _("that link has been submitted to multiple categories. you can try to [submit it again](%s)."),
 
     user_deleted = _("your account has been deleted, but we won't judge you for it."),
 
@@ -66,7 +66,7 @@ string_dict = dict(
 
     legal = _("I understand and agree that registration on or use of this site constitutes agreement to its %(user_agreement)s and %(privacy_policy)s."),
     
-    friends = _('to view reddit with only submissions from your friends, use [reddit.com/r/friends](%s)'),
+    friends = _('to view reddit with only submissions from your friends, use [lesswrong.com/r/friends](%s)'),
 
     msg_add_friend = dict(
         friend = None,
@@ -83,16 +83,16 @@ string_dict = dict(
         ),
     
     sr_messages = dict(
-        empty =  _('you have not subscribed to any reddits.'),
-        subscriber =  _('below are the reddits you have subscribed to'),
-        contributor =  _('below are the reddits that you have contributor access to.'),
-        moderator = _('below are the reddits that you have moderator access to.')
+        empty =  _('you have not subscribed to any categories.'),
+        subscriber =  _('below are the categories you have subscribed to'),
+        contributor =  _('below are the categories that you have contributor access to.'),
+        moderator = _('below are the categories that you have moderator access to.')
         ),
     
-    sr_subscribe =  _('click the ![add](/static/sr-add-button.png) or ![remove](/static/sr-remove-button.png) buttons to choose which reddits appear on your front page.'),
+    sr_subscribe =  _('click the ![add](/static/sr-add-button.png) or ![remove](/static/sr-remove-button.png) buttons to choose which categories appear on your front page.'),
 
-    searching_a_reddit = _('you\'re searching within the [%(reddit_name)s](%(reddit_link)s) reddit. '+
-                           'you can also search within [all reddits](%(all_reddits_link)s)'),
+    searching_a_reddit = _('you\'re searching within the [%(reddit_name)s](%(reddit_link)s) category. '+
+                           'you can also search within [all categories](%(all_reddits_link)s)'),
 
     css_validator_messages = dict(
         broken_url = _('"%(brokenurl)s" is not a valid URL'),

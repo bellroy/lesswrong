@@ -54,13 +54,13 @@ function update_title() {
 </%def>
  
 %if thing.site:
-  <h1>${_("manage your reddit")}</h1>
+  <h1>${_("manage your category")}</h1>
 %else:
   %if thing.name:
     <p class="infobar">
-      ${_("that subreddit doesn't exist, but you can create it here.")}</p>
+      ${_("that category doesn't exist, but you can create it here.")}</p>
   %endif
-  <h1>${_("create a reddit")}</h1>
+  <h1>${_("create a category")}</h1>
 %endif
 
 <form class="pretty-form" action="/post/site_admin"
@@ -190,7 +190,7 @@ function update_title() {
           <input id="domain" type="text" name="domain" class="text" />
         %endif
       <div id="domainhelp" class="infobar" style="display: none">
-        ${_("Own a domain?  Enter it here and then go to your DNS provider and add a CNAME record aliasing your domain to rhs.reddit.com. You will be able to access your reddit through your domain.")}
+        ${_("Own a domain?  Enter it here and then go to your DNS provider and add a CNAME record aliasing your domain to rhs.lesswrong.com. You will be able to access your category through your domain.")}
       </div>
       </td>
       <td class="note" id="note_domain">
