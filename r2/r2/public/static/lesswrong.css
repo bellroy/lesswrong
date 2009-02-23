@@ -327,7 +327,7 @@ div.sidebox label {
     width: 130px;
 }
 #side-search input[type=submit] {
-    width: auto;
+    width: 45px;
     margin-left: 5px;
 }
 div#side-search {
