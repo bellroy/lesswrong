@@ -361,3 +361,9 @@ div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
     color: red;
     margin: 5px;
 }
+
+.comment .title {
+    font-weight: bold;
+    margin-top: 10px;
+    padding:0 5px;
+}
