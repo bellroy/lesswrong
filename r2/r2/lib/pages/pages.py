@@ -568,9 +568,6 @@ class ProfilePage(Reddit):
             
         toolbar = [NavMenu(main_buttons, base_path = path)]
 
-        if c.user_is_admin:
-            from admin_pages import AdminProfileMenu
-            toolbar.append(AdminProfileMenu(path))
         return toolbar
     
 
@@ -578,9 +575,6 @@ class ProfilePage(Reddit):
         rb = Reddit.rightbox(self)
         if self.user != c.user:
             rb.push(ProfileBar(self.user))
-        if c.user_is_admin:
-            from admin_pages import AdminSidebar
-            rb.append(AdminSidebar(self.user))
         return rb
 
 class ProfileBar(Wrapped): 
