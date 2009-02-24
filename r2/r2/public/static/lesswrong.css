@@ -356,3 +356,8 @@ div#side-search {
 div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
 	background-position: 0 -36px;
 }
+
+.error {
+    color: red;
+    margin: 5px;
+}
