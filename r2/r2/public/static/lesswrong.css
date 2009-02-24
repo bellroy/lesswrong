@@ -353,6 +353,9 @@ div#side-search {
 }
 
 /* Selected up/down votes */
-div.tools div.vote a.mod {
+div.tools div.vote a.up.mod {
+	background-position: 0 -36px;
+}
+div.tools div.vote a.down.mod {
 	background-position: 0 -36px;
 }
