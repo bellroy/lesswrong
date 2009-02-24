@@ -61,11 +61,14 @@
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
   <div id="entry_${fullname}" class="content clear">
-    %if full_article:
-      ${self.article()}
-    %else:
-      ${self.summary()}
-    %endif
+## The div below is a hack to get the space compressor to leave whitespace in articles alone
+    <div class="md">
+      %if full_article:
+        ${self.article()}
+      %else:
+        ${self.summary()}
+      %endif
+    </div>
   </div><!-- .content -->
   <div class="tools clear">
     ${parent.midcol()}
