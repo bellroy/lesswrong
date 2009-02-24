@@ -275,7 +275,7 @@ class Link(Thing, Printable):
 
     def make_permalink(self, sr, force_domain = False):
         from r2.lib.template_helpers import get_domain
-        p = "article/%s/%s/" % (self._id36, title_to_url(self.title))
+        p = "a/%s/%s/" % (self._id36, title_to_url(self.title))
         if c.default_sr:
             res = "/%s" % p
         elif not c.cname:
@@ -293,7 +293,7 @@ class Link(Thing, Printable):
     @property
     def canonical_url(self):
         from r2.lib.template_helpers import get_domain
-        p = "article/%s/%s/" % (self._id36, title_to_url(self.title))
+        p = "a/%s/%s/" % (self._id36, title_to_url(self.title))
         return "http://%s/%s" % (get_domain(subreddit = False), p)
 
     @classmethod
