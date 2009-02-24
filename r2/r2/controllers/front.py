@@ -175,14 +175,19 @@ class FrontController(RedditController):
 
         loc = None if c.focal_comment or context is not None else 'comments'
         
+        if article.comments_enabled:
+            content = CommentListing(
+                content = displayPane,
+                num_comments = article.num_comments,
+                nav_menus = [CommentSortMenu(default = sort),
+                            NumCommentsMenu(article.num_comments,
+                                            default=num_comments)],
+            )
+        else:
+            content = PaneStack()
+
         res = LinkInfoPage(link = article, comment = comment,
-                           content = CommentListing(
-                               content = displayPane,
-                               num_comments = article.num_comments,
-                               nav_menus = [CommentSortMenu(default = sort),
-                                            NumCommentsMenu(article.num_comments,
-                                                            default=num_comments)],
-                           ), 
+                           content = content, 
                            infotext = infotext).render()
         return res
 

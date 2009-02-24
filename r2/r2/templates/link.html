@@ -72,10 +72,12 @@
   </div><!-- .content -->
   <div class="tools clear">
     ${parent.midcol()}
-    <a class="comment" href="${thing.url}#comments">${_('Comment on this article')}</a>
+    %if thing.comments_enabled:
+      <a class="comment" href="${thing.url}#comments">${_('Comment on this article')}</a>
+    %endif
     <div class="boxright clear">
       <ul class="clear">
-        ${self.buttons(comments = not full_article)}
+        ${self.buttons(comments = False)}
       </ul>
       %if full_article:
         <% tags = thing.get_tags() %>

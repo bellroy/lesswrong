@@ -621,6 +621,9 @@ class ApiController(RedditController):
             if not sr.should_ratelimit(c.user, 'comment'):
                 should_ratelimit = False
 
+        if not link.comments_enabled:
+            return abort(403,'forbidden')
+
         #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)

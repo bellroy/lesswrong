@@ -59,7 +59,8 @@ class Link(Thing, Printable):
                      ip = '0.0.0.0',
                      render_full = False,
                      images = None,
-                     blessed = False)
+                     blessed = False,
+                     comments_enabled = True)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -260,7 +261,8 @@ class Link(Thing, Printable):
                               wrapped.can_ban,
                               wrapped.thumbnail,
                               wrapped.moderator_banned,
-                              wrapped.render_full))
+                              wrapped.render_full,
+                              wrapped.comments_enabled))
         # htmllite depends on other get params
         s = ''.join(s)
         if c.render_style == "htmllite":
