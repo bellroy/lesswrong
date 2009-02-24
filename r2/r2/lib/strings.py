@@ -53,7 +53,7 @@ string_dict = dict(
     # this is for Japanese which treats people counds differently
     person_label = _("%(num)d %(persons)s"),
 
-    firsttext = _("LessWrong is a community for discussing human rationality."),
+    firsttext = _("Less Wrong is a community blog devoted to refining the art of human rationality. Please visit our About page for more information."),
 
     already_submitted = _("That link has already been submitted, but you can try to [submit it again](%s)."),
 
