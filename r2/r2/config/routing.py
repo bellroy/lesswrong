@@ -113,6 +113,8 @@ def make_map(global_conf={}, app_conf={}):
     mc('/code', controller='redirect', action='redirect',
        dest='http://code.google.com/p/lesswrong/')
     
+    mc('/about-less-wrong', controller='front', action='about')
+
     # This route handles displaying the error page and 
     # graphics used in the 404/500
     # error pages. It should likely stay at the top 

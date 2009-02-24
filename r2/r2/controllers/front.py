@@ -575,3 +575,10 @@ class FrontController(RedditController):
     def GET_imagebrowser(self, article):
         return ImageBrowser(article).render()
 
+    def GET_about(self):
+        try:
+            about_post = Link._byID(int(g.about_post_id, 36), data=True)
+        except (NotFound, AttributeError):
+            return self.abort404()
+
+        return self.redirect(about_post.make_permalink(subreddit.Default))
