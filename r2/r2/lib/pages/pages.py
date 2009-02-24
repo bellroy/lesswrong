@@ -554,7 +554,7 @@ class ProfilePage(Reddit):
     def build_toolbars(self):
         path = "/user/%s/" % self.user.name
         main_buttons = [NavButton(menu.overview, '/', aliases = ['/overview']),
-                   NavButton(plurals.comments, 'comments'),
+                   NavButton(_('Comments'), 'comments'),
                    NamedButton('submitted')]
         
         if votes_visible(self.user):
@@ -566,7 +566,7 @@ class ProfilePage(Reddit):
             # User is looking at their own page
             main_buttons.append(NamedButton('drafts'))
             
-        toolbar = [NavMenu(main_buttons, base_path = path)]
+        toolbar = [NavMenu(main_buttons, base_path = path, title = _('View'))]
 
         return toolbar
     
