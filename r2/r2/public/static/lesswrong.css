@@ -367,3 +367,20 @@ div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
     margin-top: 10px;
     padding:0 5px;
 }
+
+/* Login form in sidebar */
+#remember-me input {
+    margin-left: 0;
+    width: auto;
+    border: none;
+}
+#side-login #recover {
+    float: right;
+    margin: 2px 0;
+}
+#side-login button {
+    float: left;
+}
+#side-login .error {
+    margin-left: 0;
+}
