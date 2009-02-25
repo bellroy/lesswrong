@@ -286,15 +286,18 @@
        ${parent.state_button("save", fullname, _("Save"), \
           "return change_state(this, 'save');", _("Saved"))}
     %endif
-    </li><li>
-    %if thing.hidden:
-      ${parent.state_button("unhide", fullname, _("Unhide"), \
-        "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"))}
-    %else:
-      ${parent.state_button("hide", fullname, _("Hide"), \
-        "return change_w_callback(this, $ListClass.hide);", _("Hidden"))}
-    %endif
     </li>
+    %if not thing.render_full:
+      <li>
+      %if thing.hidden:
+        ${parent.state_button("unhide", fullname, _("Unhide"), \
+          "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"))}
+      %else:
+        ${parent.state_button("hide", fullname, _("Hide"), \
+          "return change_w_callback(this, $ListClass.hide);", _("Hidden"))}
+      %endif
+      </li>
+    %endif
   %endif
   ${parent.delete_or_report_buttons(delete=delete,report=report)}
   ${parent.buttons(ban=ban)}
