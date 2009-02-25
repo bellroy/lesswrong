@@ -294,12 +294,14 @@ class ApiController(RedditController):
               queries.new_link(l)
               queries.new_vote(v)
         else:
+          old_url = l.url
           l.title = request.post.title
           l.article = new_content
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
-          
+          l.update_url_cache(old_url)
+
         #update the modified flags
         set_last_modified(c.user, 'overview')
         set_last_modified(c.user, 'submitted')
