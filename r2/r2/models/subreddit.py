@@ -259,8 +259,8 @@ class Subreddit(Thing, Printable):
     def get_comments(self, sort, time):
         """This method relies on the fact that Link and Comment can be
           queried with the same filters"""
-        from r2.models import InlineComment
-        return self.get_links(sort, time, InlineComment)
+        from r2.models import Comment
+        return self.get_links(sort, time, Comment)
 
     @classmethod
     def add_props(cls, user, wrapped):
