@@ -356,6 +356,9 @@ div#side-search {
 div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
 	background-position: 0 -36px;
 }
+div.comment-links a.mod {
+    font-weight: bold;
+}
 
 .error {
     color: red;
