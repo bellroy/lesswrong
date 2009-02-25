@@ -384,3 +384,18 @@ div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
 #side-login .error {
     margin-left: 0;
 }
+
+/* Feed link in sidebar */
+#side-feed a, div.feed-icon {
+    float: left;
+}
+#side-feed a {
+    display: block;
+    margin-left: 4px;
+}
+#side-feed div.feed-icon a {
+    margin: 0;
+}
+#side-feed div.feed-icon {
+    margin-top: 2px;
+}

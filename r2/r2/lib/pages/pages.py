@@ -136,6 +136,9 @@ class Reddit(Wrapped):
         ps.append(RecentComments())
         ps.append(TopContributors())
         
+        if self.extension_handling:
+            ps.append(FeedBar())
+
         return ps
 
     def render(self, *a, **kw):
@@ -433,7 +436,8 @@ class LinkInfoPage(Reddit):
     Link.
     """
     
-    create_reddit_box = False
+    create_reddit_box  = False
+    extension_handling = False # No feed until comment feeds are implemented
 
     def __init__(self, link = None, comment = None,
                  link_title = '', *a, **kw):
@@ -1230,3 +1234,6 @@ class PromoteLinkForm(Wrapped):
                          timedeltatext = timedeltatext,
                          listing = listing,
                          *a, **kw)
+
+class FeedBar(Wrapped):
+    pass
