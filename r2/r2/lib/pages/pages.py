@@ -858,7 +858,6 @@ class GoogleSearchResultsFrame(Wrapped):
 
 class GoogleSearchResults(BoringPage):
     """Receieves search results from Google"""
-    searchbox = False
 
     def __init__(self, pagename, *a, **kw):
         kw['content'] = GoogleSearchResultsFrame()
