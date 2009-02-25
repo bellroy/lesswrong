@@ -132,7 +132,7 @@ div.comment-meta span span {
 }
 
 /* Recent articles */
-#side-posts div.reddit-link div, #side-comments div.inline-comment {
+#side-posts div.reddit-link div, #side-comments div.inline-comment, #side-contributors div.user {
     display: list-item;
     list-style: disc;
     margin-left: 15px;
