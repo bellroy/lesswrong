@@ -384,7 +384,7 @@ div.comment-links a.mod {
 #side-login button {
     float: left;
 }
-#side-login .error {
+#side-login .error, #comments .error {
     margin-left: 0;
 }
 
