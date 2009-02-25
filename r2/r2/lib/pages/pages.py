@@ -250,19 +250,37 @@ class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
     pass
 
-class RecentComments(Wrapped):
+class RecentItems(Wrapped):
     def __init__(self, *args, **kwargs):
-      q = c.site.get_comments('new', 'all')
-      q._limit = 5
-      self.things = QueryBuilder(q)
-      Wrapped.__init__(self, *args, **kwargs)
-        
-class RecentArticles(Wrapped):
-    def __init__(self, *args, **kwargs):
-        q = c.site.get_links('new', 'all', InlineArticle)
-        q._limit = 5
-        self.things = QueryBuilder(q)
+        q = self.query()
+        self.things = QueryBuilder(q, wrap=self.wrap_thing)
         Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        raise NotImplementedError
+
+    @staticmethod
+    def wrap_thing(thing):
+        w = Wrapped(thing)
+        
+        if isinstance(thing, Link):
+            w.render_class = InlineArticle
+        elif isinstance(thing, Comment):
+            w.render_class = InlineComment
+
+        return w
+
+class RecentComments(RecentItems):
+    def query(self):
+        q = c.site.get_comments('new', 'all')
+        q._limit = 5
+        return q
+        
+class RecentArticles(RecentItems):
+    def query(self):
+        q = c.site.get_links('new', 'all')
+        q._limit = 5
+        return q
 
 class TopContributors(Wrapped):
     def __init__(self, *args, **kwargs):
