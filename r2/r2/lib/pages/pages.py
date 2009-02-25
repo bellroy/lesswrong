@@ -108,6 +108,9 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
+        if not c.user_is_loggedin:
+            ps.append(AboutBox())
+
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
         else:
@@ -1252,5 +1255,6 @@ class PromoteLinkForm(Wrapped):
                          listing = listing,
                          *a, **kw)
 
-class FeedBar(Wrapped):
-    pass
+class FeedBar(Wrapped): pass
+
+class AboutBox(Wrapped): pass

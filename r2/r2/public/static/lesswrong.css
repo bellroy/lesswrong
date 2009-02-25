@@ -402,3 +402,9 @@ div.comment-links a.mod {
 #side-feed div.feed-icon {
     margin-top: 2px;
 }
+
+/* About box */
+#side-about a {
+    font-size: larger;
+    text-decoration: underline;
+}
