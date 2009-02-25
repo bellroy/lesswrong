@@ -4,7 +4,7 @@
    from r2.lib.template_helpers import get_domain
 %>
   
-  <h3><a href="${thing.make_permalink_slow()}">${thing.body}</a></h3>
+  <h3><a href="${thing.make_permalink_slow()}#comments">${thing.body}</a></h3>
   <span class='tagline'>
     by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
     <strong>${thing.author.name}</strong></a>&#32;
