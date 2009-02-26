@@ -408,7 +408,7 @@ div.comment-links a.mod {
 
 /* Footer */
 #reddit-logo {
-    float: left;
+    float: right;
 }
 .footer {
     border-top: 2px solid #d6d5d6;
@@ -416,6 +416,6 @@ div.comment-links a.mod {
 }
 .footer div.link {
     float: left;
-    margin-left: 10px;
+    margin-left: 15px;
     margin-top: 5px;
 }
