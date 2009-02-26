@@ -218,13 +218,6 @@ a.up, a.down {
 .pretty-form input[type=checkbox],
 .pretty-form input[type=radio] {margin: 2px .5em 0px .5em; }
 .pretty-form img { margin: 3px .5em}
-.pretty-form input[type=text],
-.pretty-form textarea,
-.pretty-form input[type=password] {
-    border: 1px solid gray;
-    width: 300px;
-    padding: 2px;
-}
 .pretty-form table {
     width: 100%;
 }
