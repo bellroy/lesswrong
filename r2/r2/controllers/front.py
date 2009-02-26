@@ -503,7 +503,7 @@ class FrontController(RedditController):
         except NotFound:
             sr = None
 
-        return FormPage(_("Submit"), 
+        return FormPage(_("Submit article"), 
                         content=NewLink(title=title or '',
                                         subreddits = srs,
                                         tags=tags,
@@ -519,7 +519,7 @@ class FrontController(RedditController):
         if c.user_is_admin:
           # Add this admin subreddits to the list
           subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
-        return FormPage(_("Submit"), 
+        return FormPage(_("Edit article"), 
                       content=EditLink(article, subreddits=subreddits, tags=article.tag_names(), captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):

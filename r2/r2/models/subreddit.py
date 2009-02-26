@@ -465,7 +465,7 @@ class FakeSubreddit(Subreddit):
 
 class FriendsSR(FakeSubreddit):
     name = 'friends'
-    title = 'friends'
+    title = 'Friends'
 
     def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
@@ -486,7 +486,7 @@ class FriendsSR(FakeSubreddit):
             
 class AllSR(FakeSubreddit):
     name = 'all'
-    title = 'all'
+    title = 'All'
 
     def get_links(self, sort, time, link_cls = None):
         from r2.models import Link

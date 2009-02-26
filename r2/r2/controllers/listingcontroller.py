@@ -158,7 +158,7 @@ class ListingController(RedditController):
 
     def title(self):
         """Page <title>"""
-        return _(self.title_text) + " : " + c.site.name
+        return c.site.title + ": " + _(self.title_text)
 
     def rightbox(self):
         """Contents of the right box when rendering"""
@@ -211,6 +211,7 @@ class FixListing(object):
 
 class HotController(FixListing, ListingController):
     where = 'hot'
+    title_text = _('Popular articles')
 
     def organic(self):
         o_links, pos, calculation_key = organic.organic_links(c.user)
@@ -255,9 +256,6 @@ class HotController(FixListing, ListingController):
     def content(self):
         return self.listing_obj
 
-    def title(self):
-        return c.site.title
-
     def GET_listing(self, **env):
         self.infotext = request.get.get('deleted') and strings.user_deleted
         return ListingController.GET_listing(self, **env)
@@ -286,11 +284,13 @@ class ToplinksController(ListingController):
 
 class BlessedController(ListingController):
     where = 'blessed'
-    title_text = _('Promoted articles')
 
     def query(self):
         return c.site.get_links('blessed', 'all')
-      
+
+    def title(self):
+        return c.site.title
+
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
@@ -358,9 +358,9 @@ class BrowseController(ListingController):
     def GET_listing(self, sort, time, **env):
         self.sort = sort
         if sort == 'top':
-            self.title_text = _('Top scoring links')
+            self.title_text = _('Top scoring articles')
         elif sort == 'controversial':
-            self.title_text = _('Most controversial links')
+            self.title_text = _('Most controversial articles')
         self.time = time
         return ListingController.GET_listing(self, **env)
 

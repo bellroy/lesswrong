@@ -107,7 +107,7 @@ string_dict = dict(
     
     submit_box_text = _('To anything interesting: news article, blog entry, video, picture...'),
     permalink_title = _("%(author)s comments on %(title)s"),
-    link_info_title = _("%(title)s : %(site)s"),
+    link_info_title = _("%(site)s: %(title)s"),
     
 )
 

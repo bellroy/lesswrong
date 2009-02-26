@@ -337,7 +337,7 @@ class PrefsPage(Reddit):
 
     def __init__(self, show_sidebar = True, *a, **kw):
         Reddit.__init__(self, show_sidebar = show_sidebar,
-                        title = "%s (%s)" %(_("Preferences"), c.site.name.strip(' ')),
+                        title = "%s: %s" %(c.site.title, _("Preferences")),
                         *a, **kw)
 
     def header_nav(self):
@@ -397,7 +397,7 @@ class BoringPage(Reddit):
     
     def __init__(self, pagename, **context):
         self.pagename = pagename
-        Reddit.__init__(self, title = "%s: %s" % (c.site.name, pagename),
+        Reddit.__init__(self, title = "%s: %s" % (c.site.title, pagename),
                         **context)
 
 class FormPage(BoringPage):
@@ -477,7 +477,7 @@ class LinkInfoPage(Reddit):
             params = {'author' : author, 'title' : _force_unicode(link_title)}
             title = strings.permalink_title % params
         else:
-            params = {'title':_force_unicode(link_title), 'site' : c.site.name}
+            params = {'title':_force_unicode(link_title), 'site' : c.site.title}
             title = strings.link_info_title % params
 
         if not c.default_sr:
