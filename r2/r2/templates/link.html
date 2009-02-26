@@ -54,9 +54,6 @@
     %else:
       <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
     %endif
-    %if thing.blessed:
-    <span class="editors-pick">${_('Promoted')}</span>
-    %endif
     ${unsafe(self.author(friend = thing.friend))}
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
