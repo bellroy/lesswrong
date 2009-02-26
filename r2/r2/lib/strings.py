@@ -66,7 +66,7 @@ string_dict = dict(
 
     legal = _("I understand and agree that registration on or use of this site constitutes agreement to its %(user_agreement)s and %(privacy_policy)s."),
     
-    friends = _('To view reddit with only submissions from your friends, use [lesswrong.com/r/friends](%s)'),
+    friends = _('To view Less Wrong with only submissions from your friends, use [lesswrong.com/r/friends](%s)'),
 
     msg_add_friend = dict(
         friend = None,
