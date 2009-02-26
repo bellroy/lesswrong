@@ -19,6 +19,10 @@ div.comment-meta span span {
 #side-tags ul {
     margin: 0;
 }
+#side-tags li.selected {
+    color: #414143;
+    font-weight: bold;
+}
 #side-tags .one   { font-size: 0.9em;   }
 #side-tags .two   { font-size: 0.95em;  }
 #side-tags .three { font-size: 1em;     }
