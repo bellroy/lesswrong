@@ -184,8 +184,8 @@ def menu_style(type):
              flatlist =  ('flatlist', ''),
              tabmenu = ('tabmenu', ''),
              buttons = ('userlinks', ''),
-             select  = ('select', '')
-             )
+             select  = ('select', ''),
+             navlist  = ('navlist', ''))
     return d.get(type, default)
 
          

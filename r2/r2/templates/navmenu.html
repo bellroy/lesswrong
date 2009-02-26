@@ -155,3 +155,23 @@
     </select>
   %endif
 </%def>
+
+<%def name="navlist()">
+  %if thing:
+    <ul class="clear"
+        ${"id='%s'" % thing._id if thing._id else ""}>
+      %for i, option in enumerate(thing):
+        <%
+           ##option.title isn't the title, option.render() is the entire link
+           if option == thing.selected:
+             class_name = "class='active'"
+             content = option.render(selected=True)
+           else:
+             class_name = ""
+             content = option.render()
+        %>
+        <li ${class_name}>${content}</li>
+      %endfor
+    </ul>
+  %endif
+</%def>

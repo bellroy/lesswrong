@@ -21,7 +21,10 @@
 ################################################################################
 
 <% from r2.lib.template_helpers import static %>
-
+<%page args="menu" />
 <div id="header">
   <a href="/"><img src="${static('header.png')}" alt="Lesswrong Header" /></a>
+  %if menu:
+    ${menu.render()}
+  %endif
 </div><!-- #header -->

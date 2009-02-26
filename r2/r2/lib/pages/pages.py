@@ -210,11 +210,8 @@ class Reddit(Wrapped):
 
         return NavMenu(buttons, base_path = "/", type = "flatlist")
 
-    def build_toolbars(self):
-        """Sets the layout of the navigation topbar on a Reddit.  The result
-        is a list of menus which will be rendered in order and
-        displayed at the top of the Reddit."""
-        
+    def header_nav(self):
+        """Navigation menu for the header"""
         # Ensure the default button is the first tab
         default_button_name = c.site.default_listing
         button_names = ['blessed', 'hot', 'new', 'controversial', 'top']
@@ -226,16 +223,14 @@ class Reddit(Wrapped):
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
           main_buttons.append(NamedButton(name, **kw))
 
-        more_buttons = []
-
         if c.user_is_loggedin:
             main_buttons.append(NamedButton('saved', False))
 
-        toolbar = [NavMenu(main_buttons, title = _('Filter by'), _id='filter')]
-        if more_buttons:
-            toolbar.append(NavMenu(more_buttons, title=menu.more))
+        return NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist')
 
-        return toolbar
+    def build_toolbars(self):
+        """Additional toolbars/menus"""
+        return []
                 
     def __repr__(self):
         return "<Reddit>"
@@ -345,12 +340,12 @@ class PrefsPage(Reddit):
                         title = "%s (%s)" %(_("Preferences"), c.site.name.strip(' ')),
                         *a, **kw)
 
-    def build_toolbars(self):
+    def header_nav(self):
         buttons = [NavButton(menu.options, ''),
                    NamedButton('friends'),
                    NamedButton('update'),
                    NamedButton('delete')]
-        return [NavMenu(buttons, base_path = "/prefs")]
+        return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
     """Preference form for updating language and display options"""
@@ -370,18 +365,18 @@ class MessagePage(Reddit):
     """Defines the content for /message/*"""
     def __init__(self, *a, **kw):
         if not kw.has_key('show_sidebar'):
-            kw['show_sidebar'] = False
+            kw['show_sidebar'] = True
         Reddit.__init__(self, *a, **kw)
         self.replybox = CommentReplyBox()
 
     def content(self):
         return self.content_stack(self.replybox, self.infobar, self._content)
 
-    def build_toolbars(self):
+    def header_nav(self):
         buttons =  [NamedButton('compose'),
                     NamedButton('inbox'),
                     NamedButton('sent')]
-        return [NavMenu(buttons, base_path = "/message")]
+        return NavMenu(buttons, base_path = "/message", _id='nav', type='navlist')
 
 class MessageCompose(Wrapped):
     """Compose message form."""
@@ -528,13 +523,13 @@ class SubredditsPage(Reddit):
                         *a, **kw)
         self.sr_infobar = InfoBar(message = strings.sr_subscribe)
 
-    def build_toolbars(self):
+    def header_nav(self):
         buttons =  [NavButton(menu.popular, ""),
                     NamedButton("new")]
         if c.user_is_admin:
             buttons.append(NamedButton("banned"))
 
-        return [NavMenu(buttons, base_path = '/categories')]
+        return NavMenu(buttons, base_path = '/categories')
 
     def content(self):
         return self.content_stack(self.sr_infobar, self._content)
@@ -576,7 +571,7 @@ class ProfilePage(Reddit):
         self.user     = user
         Reddit.__init__(self, *a, **kw)
 
-    def build_toolbars(self):
+    def header_nav(self):
         path = "/user/%s/" % self.user.name
         main_buttons = [NavButton(menu.overview, '/', aliases = ['/overview']),
                    NavButton(_('Comments'), 'comments'),
@@ -591,9 +586,7 @@ class ProfilePage(Reddit):
             # User is looking at their own page
             main_buttons.append(NamedButton('drafts'))
             
-        toolbar = [NavMenu(main_buttons, base_path = path, title = _('View'))]
-
-        return toolbar
+        return NavMenu(main_buttons, base_path = path, title = _('View'), _id='nav', type='navlist')
     
 
     def rightbox(self):
