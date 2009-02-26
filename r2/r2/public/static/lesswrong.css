@@ -1,5 +1,8 @@
 #header {
-    height: 115px;
+    height: 160px;
+}
+#wrapper {
+    padding: 20px;
 }
 
 #content.clear.fullwidth {
