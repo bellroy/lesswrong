@@ -29,11 +29,14 @@
 <%namespace file="login.html" import="login_panel"/>
 <%namespace file="utils.html" import="text_with_links, plain_link"/>
 
-<div class="footer">
-##  <p class="bottommenu">
-##    <a href="http://code.reddit.com" title="Powered by Reddit">Powered by<br /> <img alt="Reddit" src="${static('littlehead.png')}"/></a>
-##  </p>
-
+<div class="footer clear">
+  <a id="reddit-logo" href="http://code.reddit.com" title="Powered by Reddit"><img alt="Powered by Reddit" src="${static('reddit_logo.png')}" width="75" height="25" /></a>
+  <div class="link">
+    ${plain_link(_('About Less Wrong'), '/about-less-wrong', _sr_path=False)}
+  </div>
+##  <div class="link">
+##    ${plain_link(_('Report Issues'), '/issues', _sr_path=False)}
+##  </div>
  %if g.tracker_url:
   <img alt="" src="${tracking.UserInfo.gen_url()}"/>
  %endif

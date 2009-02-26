@@ -1,5 +1,5 @@
 #wrapper {
-    padding: 20px;
+    padding: 20px 20px 0 20px;
 }
 
 #content.clear.fullwidth {
@@ -404,4 +404,18 @@ div.comment-links a.mod {
 #side-about a {
     font-size: larger;
     text-decoration: underline;
+}
+
+/* Footer */
+#reddit-logo {
+    float: left;
+}
+.footer {
+    border-top: 2px solid #d6d5d6;
+    padding: 5px 0;
+}
+.footer div.link {
+    float: left;
+    margin-left: 10px;
+    margin-top: 5px;
 }
