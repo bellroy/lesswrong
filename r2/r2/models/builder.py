@@ -322,6 +322,22 @@ class QueryBuilder(Builder):
                 before_count,
                 after_count)
 
+class UnbannedCommentBuilder(QueryBuilder):
+
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
+        QueryBuilder.__init__(self, query, **kw)
+
+    def keep_item(self, item):
+        link = Link._byID(item.link_id)
+        if link._spam:
+            return False
+
+        if item.sr_id not in self.sr_ids:
+            return False
+
+        return True
+
 class IDBuilder(QueryBuilder):
     def init_query(self):
         names = self.names = list(tup(self.query))

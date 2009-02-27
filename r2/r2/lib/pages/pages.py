@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, QueryBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag
+from r2.models import IDBuilder, QueryBuilder, UnbannedCommentBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -250,12 +250,14 @@ class LoginFormWide(Wrapped):
 
 class RecentItems(Wrapped):
     def __init__(self, *args, **kwargs):
-        q = self.query()
-        self.things = QueryBuilder(q, wrap=self.wrap_thing)
+        self.things = self.init_builder()
         Wrapped.__init__(self, *args, **kwargs)
 
     def query(self):
         raise NotImplementedError
+
+    def init_builder(self):
+        return QueryBuilder(self.query(), wrap=self.wrap_thing)
 
     @staticmethod
     def wrap_thing(thing):
@@ -270,9 +272,18 @@ class RecentItems(Wrapped):
 
 class RecentComments(RecentItems):
     def query(self):
-        q = c.site.get_comments('new', 'all')
-        q._limit = 5
-        return q
+        return c.site.get_comments('new', 'all')
+
+    def init_builder(self):
+        user = c.user if c.user_is_loggedin else None
+        sr_ids = Subreddit.user_subreddits(user)
+        return UnbannedCommentBuilder(
+            self.query(),
+            sr_ids,
+            num = 5,
+            wrap = RecentItems.wrap_thing,
+            skip = True
+        )
         
 class RecentArticles(RecentItems):
     def query(self):
