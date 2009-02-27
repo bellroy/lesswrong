@@ -287,7 +287,10 @@ class TopContributors(Wrapped):
         # Returns a hash keyed in the uid
         users = Account._byID(uids, data=True)
         # Retrieve the Account objects in this way to preseve the sort order
-        self.things = (users[u] for u in uids)
+        all_users = (users[u] for u in uids)
+
+        # Filter out banned and spammy accounts
+        self.things = filter(lambda user: not c.site.is_banned(user) and user.spammer < 1, all_users)
 
         Wrapped.__init__(self, *args, **kwargs)
 
