@@ -69,7 +69,7 @@ def make_map(global_conf={}, app_conf={}):
     
     mc('/related/:article/:title', controller='front',
        action = 'related', title=None)
-    mc('/a/:article/:title/:comment', controller='front',
+    mc('/lw/:article/:title/:comment', controller='front',
        action= 'comments', title=None, comment = None)
     mc('/edit/:article', controller='front', action="editarticle")
     
