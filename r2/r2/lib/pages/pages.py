@@ -280,7 +280,7 @@ class RecentComments(RecentItems):
         return UnbannedCommentBuilder(
             self.query(),
             sr_ids,
-            num = 5,
+            num = 10,
             wrap = RecentItems.wrap_thing,
             skip = True
         )
