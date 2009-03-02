@@ -12,7 +12,7 @@ set :deploy_via, :remote_cache
 set :repository_cache, 'cached-copy'
 
 # Be sure to change these in your application-specific files
-set :branch, 'newskin'
+set :branch, 'master'
 
 set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
