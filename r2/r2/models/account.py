@@ -298,6 +298,8 @@ def register(name, password):
                     password = passhash(name, password, True))
 
         a._commit()
+        # Clear memoization of both with and without deleted
+        clear_memo('account._by_name', Account, name.lower(), True)
         clear_memo('account._by_name', Account, name.lower(), False)
         return a
 
