@@ -36,7 +36,7 @@ error_list = dict((
         ('NOT_AUTHOR', _("Only the author can do that")),
         ('BAD_COMMENT', _('Please enter a comment')),
         ('BAD_PASSWORD', _('Invalid password')),
-        ('WRONG_PASSWORD', _('Invalid password')),
+        ('WRONG_PASSWORD', _('Incorrect password')),
         ('BAD_PASSWORD_MATCH', _('Passwords do not match')),
         ('NO_NAME', _('Please enter a name')),
         ('NO_EMAIL', _('Please enter an email address')),
