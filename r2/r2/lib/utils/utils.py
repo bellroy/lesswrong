@@ -419,6 +419,9 @@ def timeuntil(d, resultion = 1, bare = True):
 def prettytime(date, seconds = False):
     return date.strftime('%d %B %Y %I:%M:%S%p' if seconds else '%d %B %Y %I:%M%p')
 
+def rfc822format(date):
+    return date.strftime('%a, %d %b %Y %H:%M:%S %z')
+
 def to_base(q, alphabet):
     if q < 0: raise ValueError, "must supply a positive integer"
     l = len(alphabet)
