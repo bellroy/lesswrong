@@ -25,6 +25,7 @@
    from r2.lib.template_helpers import get_domain, static
    from r2.lib.filters import safemarkdown, safehtml
    from r2.lib.utils import prettytime
+   from r2.lib.strings import strings
  %>
 
 <%namespace file="utils.html" import="separator,plain_link"/>
@@ -70,7 +71,16 @@
   <div class="tools clear">
     ${parent.midcol()}
     %if thing.comments_enabled:
-      <a class="comment" href="${thing.url}#comments">${_('Comment on this article')}</a>
+      <%
+        if not thing.num_comments:
+          # generates "comment" the imperative verb
+          link_text = _("Comment on this article")
+        else:
+          # generates "XX comments" as a noun
+          com_label = ungettext("comment on this article", "comments on this article", thing.num_comments)
+          link_text = strings.number_label % (thing.num_comments, com_label)
+      %>
+      <a class="comment" href="${thing.url}#comments">${link_text}</a>
     %endif
     <div class="boxright clear">
       <ul class="clear">
