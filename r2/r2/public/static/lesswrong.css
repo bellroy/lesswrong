@@ -1,0 +1,421 @@
+#wrapper {
+    padding: 20px 20px 0 20px;
+}
+
+#content.clear.fullwidth {
+    padding: 0 15px;
+    width: 920px;
+}
+
+div.comment-meta span span {
+    float: none;
+}
+
+#side-tags {
+    text-align: justify;
+    line-height: 1.2;
+    display: block;
+}
+#side-tags ul {
+    margin: 0;
+}
+#side-tags li.selected {
+    color: #414143;
+    font-weight: bold;
+}
+#side-tags .one   { font-size: 0.9em;   }
+#side-tags .two   { font-size: 0.95em;  }
+#side-tags .three { font-size: 1em;     }
+#side-tags .four  { font-size: 1.125em; }
+#side-tags .five  { font-size: 1.25em;  }
+#side-tags .six   { font-size: 1.375em; }
+#side-tags .seven { font-size: 1.5em;   }
+#side-tags .eight { font-size: 1.625em; }
+#side-tags .nine  { font-size: 1.75em;  }
+#side-tags .ten   { font-size: 1.75em;  }
+
+.divide { border-right: 2px solid #D3D3D3;  }
+
+.loginform {
+    float: left;
+    width: 45%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.loginform h3 {
+    margin-bottom: 0;
+    margin-top: 10px;
+    font-size: large;
+    font-weight: bold;
+    font-variant: small-caps;
+    color: #404040;
+}
+.loginform p {
+    text-align: left;
+    margin-bottom: 10px;
+    color: #606060;
+    margin-bottom: 20px;
+}
+.loginform label {
+    display: block;
+    font-weight: bold;
+    color: #606060;
+}
+
+.loginform .remember { display:inline; margin-left: 5px;  }
+.loginform ul { margin: 5px; list-style: none; }
+.loginform li { margin-top: 5px; }
+.loginform p .btn { margin-top: 5px }
+.loginform input.logtxt { width: 125px; }
+
+.loginform input[type=text],
+.loginform input[type=password] {
+    width: 125px;
+    border: 1px solid #A0A0A0;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding: 1px;
+}
+
+.loginform #captcha {
+    width: 250px;
+ }
+
+/* cover */
+.cover {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: gray;
+    opacity: .7;
+    filter:alpha(opacity=70); /* IE patch */
+    z-index: 1000;
+}
+
+.popup {
+    position: absolute;
+    left: 10%;
+    background-color: white;
+    top: 100px;
+    width: 80%;
+    text-align: left;
+    z-index: 1001;
+    padding: 10px;
+    border-color: #B2B2B2 black black #B2B2B2;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.popup h1 {
+    text-align: center;
+    font-size: large;
+    font-weight: normal;
+    color: orangered;
+}
+
+.popup h2 {
+    text-align: center;
+    font-size: small;
+    margin-top: 0px;
+    color: black;
+    font-weight: normal;
+}
+
+/* Recent comments */
+#side-comments h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0;
+    max-width: 175px;
+    overflow: hidden;
+    height: 1.4em;
+}
+
+/* Recent articles */
+#side-posts div.reddit-link div, #side-comments div.inline-comment, #side-contributors div.user {
+    display: list-item;
+    list-style: disc;
+    margin-left: 15px;
+}
+
+.commentreply {
+    clear: both;
+    width: 40em;
+    margin: 10px 10px 10px 0;
+}
+.commentreply textarea {
+    width: 100%;
+}
+.commentreply .buttons {
+    float: left;
+}
+
+.commentreply table.help {
+    margin: 5px 0 0 1px;
+    width: 100%;
+    border-collapse: collapse;
+}
+.commentreply .help,
+.commentreply .help td,
+.commentreply .help tr {
+    border: 1px solid #C0C0C0;
+    padding: 4px;
+    margin: 0px;
+}
+.commentreply .help-toggle {
+    float:right;
+}
+
+#comment-controls {
+    float: right;
+}
+#comment-controls label {
+    padding-right: 5px;
+}
+
+/* markdown */
+.md { font-size: small; }
+.md h1 { font-weight: normal; font-size: 100%; }
+.md strong { font-weight: bold; }
+.md em, .help em { font-style: italic; }
+.md strong em { font-style: italic; font-weight: bold }
+.md ol, .md ul, .help ul { margin: 10px 2em; }
+.md ul, .help ul { list-style: disc outside }
+.md ol { list-style: decimal outside }
+.md pre { margin: 10px; }
+.md blockquote, .help blockquote {
+    border-left: 2px solid #369;
+    padding-left: 4px;
+    margin: 5px;
+    margin-right: 15px;
+}
+
+/* Rules to make the editor styled properly */
+.mceContentBody.md {
+    background-color: white;
+    padding: 0.5em;
+}
+
+h1 a, h2 a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+a.up, a.down {
+    cursor: pointer;
+}
+
+/* default form styles */
+.pretty-form {
+    vertical-align: top;
+}
+
+.pretty-form p {margin: 3px ;}
+.pretty-form input[type=checkbox],
+.pretty-form input[type=radio] {margin: 2px .5em 0px .5em; }
+.pretty-form img { margin: 3px .5em}
+.pretty-form table {
+    width: 100%;
+}
+
+.pretty-form .infobar {
+    width: 285px;
+    margin: 5px;
+}
+
+.pretty-form input[type=text],
+.pretty-form input[type=file],
+.pretty-form input[type=password],
+.pretty-form select,
+.pretty-form b,
+.pretty-form textarea,
+.pretty-form button  { margin: 3px .5em; }
+.pretty-form th { text-align: right }
+
+/*submit*/
+.pretty-form.long-text input[type=text],
+.pretty-form.long-text textarea,
+.pretty-form.long-text input[type=password] {margin: 3px; width: 40em }
+
+/* Image browser */
+#images {
+    padding: 10px;
+    width: 100%;
+}
+.image-upload .new-image { margin-left: 20px }
+.image-upload td,
+.image-upload th    { vertical-align: top; }
+.image-upload span  { padding-left: 5px; }
+.image-upload { display: inline; }
+
+ul#image-preview-list {
+    margin: 20px 20px 20px 20px;
+}
+ul#image-preview-list li {
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    vertical-align: top;
+    width: 45%;
+    height: 100px;
+    float: left;
+    position: relative;
+    display: inline;
+}
+
+ul#image-preview-list .preview {
+    width: 100px;
+    float: left;
+    display: block;
+    text-align: center;
+    max-height: 100px;
+    overflow: hidden;
+}
+ul#image-preview-list .preview img {
+    max-width: 100px;
+    padding: auto;
+}
+ul#image-preview-list .description {
+    vertical-align: top;
+    margin-left: 105px;
+}
+ul#image-preview-list .description pre {
+    display: inline;
+    padding: 5px;
+}
+
+/* pref table - used for preferences and edit subreddit pages */
+.preftable th {
+    padding-top: 2px;
+    font-weight: bold;
+    vertical-align: top;
+    text-align: right;
+}
+.preftable td.prefright { padding: 0;}
+.preftable .spacer { margin-bottom: 5px; }
+.preftable .note { width: 100%; vertical-align: top; padding-top: 2px; }
+.save-button { margin-left: 5px; }
+
+.reported { background-color: #f6e69f }
+.suspicious { background-color: #f6e69f }
+.spam { background-color: #FA8072 }
+
+/* For lists of users, such as friends */
+.usertable { margin-left: 10px;} 
+.usertable td { padding: 0 .7em }
+.usertable { white-space: nowrap }
+.usertable h1 { padding: 10px 0; margin: 0;}
+
+div.sidebox select {
+    width: 126px;
+}
+div.sidebox label {
+    width: 64px;
+}
+
+/* Google search */
+#side-search input {
+    width: auto; /* needed for IE6 */
+}
+#side-search input[type=text] {
+    width: 130px;
+}
+#side-search input[type=submit] {
+    width: 45px;
+    margin-left: 5px;
+}
+div#side-search {
+    padding-bottom: 10px;
+}
+
+/* Message bar at the top of the page */
+.infobar {
+    background-color: #f7f7f8;
+    padding: 5px;
+    margin: 0;
+    margin-bottom: 10px;
+    border: 1px solid rgb(83, 141, 77);
+    font-size: small;
+}
+
+.infobar p {
+    margin: 0;
+}
+
+.sitetable {
+    clear: both;
+}
+
+/* Selected up/down votes */
+div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
+    background-position: 0 -36px;
+}
+div.comment-links a.mod {
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+    margin: 5px;
+}
+
+.comment .title {
+    font-weight: bold;
+    margin-top: 10px;
+    padding:0 5px;
+}
+
+/* Login form in sidebar */
+#remember-me input {
+    margin-left: 0;
+    width: auto;
+    border: none;
+}
+#side-login #recover {
+    float: right;
+    margin: 2px 0;
+}
+#side-login button {
+    float: left;
+}
+#side-login .error, #comments .error {
+    margin-left: 0;
+}
+
+/* Feed link in sidebar */
+#side-feed a, div.feed-icon {
+    float: left;
+}
+#side-feed a {
+    display: block;
+    margin-left: 4px;
+}
+#side-feed div.feed-icon a {
+    margin: 0;
+}
+#side-feed div.feed-icon {
+    margin-top: 2px;
+}
+
+/* About box */
+#side-about a {
+    font-size: larger;
+    text-decoration: underline;
+}
+
+/* Footer */
+#reddit-logo {
+    float: right;
+}
+.footer {
+    border-top: 2px solid #d6d5d6;
+    padding: 5px 0;
+}
+.footer div.link {
+    float: left;
+    margin-left: 15px;
+    margin-top: 5px;
+}

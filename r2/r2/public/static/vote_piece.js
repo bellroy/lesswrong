@@ -1,11 +1,11 @@
-var upm = "arrow upmod";
-var upr = "arrow up";
-var downm = "arrow downmod";
-var downr = "arrow down";
+var upm = "up mod";
+var upr = "up";
+var downm = "down mod";
+var downr = "down";
 
 var upcls    = [upr,   upr,   upm  ];
 var downcls  = [downm, downr, downr];
-var scorecls = ["score dislikes", "score", "score likes"];
+var scorecls = ["votes dislikes", "votes", "votes likes"];
 
 
 //cookie setting junk

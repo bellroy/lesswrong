@@ -9,33 +9,14 @@
 <%def name="stylesheet()">
   <% from r2.lib.template_helpers import static, get_domain %>
 
-  %if c.lang_rtl:
-    <link rel="stylesheet" href="${static(g.stylesheet_rtl)}"
-          type="text/css" />
-    %if g.translator and request.get.get('css'):
-      <link rel="stylesheet" href="${request.get.get('css')}"
-            type="text/css" />
-    %endif
-    %if c.site.stylesheet_rtl:
-      <link rel="stylesheet" href="${static(c.site.stylesheet_rtl)}"
-            type="text/css" />
-    %endif
-  %else:
-    <link rel="stylesheet" href="${static(g.stylesheet)}"
-          type="text/css" />
-    %if c.allow_styles:
-      %if c.site.stylesheet:
-      <link rel="stylesheet" href="${static(c.site.stylesheet)}"
-            type="text/css" />
-      %endif
-      %if c.site.stylesheet_contents:
-      <link rel="stylesheet"
-            href="http://${get_domain(cname=False, subreddit=True)}/stylesheet.css?v=${c.site.stylesheet_hash}"
-            title="applied_subreddit_stylesheet"
-            type="text/css" />
-      %endif
-    %endif
-  %endif
+  <link rel="stylesheet" href="${static('main.css')}" type="text/css" />
+  <link rel="stylesheet" href="${static(g.stylesheet)}" type="text/css" />
+  <!--[if IE 7]>
+  <link rel="stylesheet" type="text/css" href="static('ie7.css')" />
+  <![endif]-->
+  <!--[if lte IE 6]>
+  <link rel="stylesheet" type="text/css" href="static('ie6.css')" />
+  <![endif]-->
 
   <link rel='shortcut icon' href="${static('favicon.ico')}"
         type="image/x-icon" />
@@ -57,7 +38,9 @@
   %else:
     <script src="${static('reddit.js')}"  type="text/javascript"></script>
   %endif
+  <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
   <script src="${static(os.path.join('tiny_mce','tiny_mce_popup.js'))}" type="text/javascript"></script>
+  <script src="${static('tinymce.js')}" type="text/javascript"></script>
 </%def>
 
 <%def name="javascript_run()">
@@ -95,10 +78,10 @@
 </%def>
 
 <%def name="bodyHTML()">
-  <body>
-    %if thing.article:
+  <body style="background-color: white;">
+  %if thing.article:
     <div id="images">
-      <h2><a name="images">${_("images")}</a></h2>
+      <h2><a name="images">${_("Images")}</a></h2>
 
       <form class="pretty-form image-upload" enctype="multipart/form-data"
             target="upload-iframe" id="image-upload"
@@ -109,13 +92,13 @@
         <table>
           <tr>
             <th>
-              <label for="srfile">${_("image file:")}</label>
+              <label for="srfile">${_("Image file:")}</label>
             </th>
             <td>
               <input type="file" name="file" id="srfile"
                      onchange="return file_changed(this)"/>
               <button id="submit-header-img" type="submit" name="upload"
-                      onclick="return upload_image(this.form, '${_('uploading')}');"
+                      onclick="return upload_image(this.form, '${_('Uploading')}');"
                       style="display: none;" >
                 ${_('Upload')}
               </button>
@@ -125,14 +108,14 @@
           </tr>
           <tr>
             <th>
-              <label for="img-name">${_("new image name:")}</label>
+              <label for="img-name">${_("New image name:")}</label>
             </th>
             <td>
               <input id="img-name" name="name" value="" type="text"/>
               ${error_field("BAD_CSS_NAME", "span")}
               <br/>
               <span class="little gray">
-                ${_("(image names should consist of alphanumeric characters and '-' only)")}
+                ${_("(Image names should consist of alphanumeric characters and '-' only)")}
               </span>
             </td>
           </tr>
@@ -166,7 +149,7 @@
           }
           function choose_img (img) {
               var win = tinyMCEPopup.getWindowArg("window");
-            
+        
               win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = img.src;
 
               // are we an image browser
@@ -196,13 +179,13 @@
              if (name == "" || name.match(r)) {
                 $("img-status").innerHTML = "";
                 show("BAD_CSS_NAME");
-                $("BAD_CSS_NAME").innerHTML = "${_('bad image name')}";
+                $("BAD_CSS_NAME").innerHTML = "${_('Bad image name')}";
                 return false;
              }
              else if($("img_name_" + name)) {
                $("img-status").innerHTML = "";
                show("BAD_CSS_NAME");
-               $("BAD_CSS_NAME").innerHTML = "${_('an image named ')}" + name + "${_(' already exists')}";
+               $("BAD_CSS_NAME").innerHTML = "${_('An image named ')}" + name + "${_(' already exists')}";
                return false;
              }
              else if(form.srfile.value) {
@@ -212,7 +195,7 @@
              } else {
                 $("img-status").innerHTML = "";
                 show("IMAGE_ERROR");
-                $("IMAGE_ERROR").innerHTML = "${_('please select an image')}";
+                $("IMAGE_ERROR").innerHTML = "${_('Please select an image')}";
                 return false;
              }
           }
@@ -239,7 +222,7 @@
               </b>
               <br/>
               ${yes_no_button("delete_link_img", name,
-                              _("delete this image"),
+                              _("Delete this image"),
                               "return delete_img(this)",
                               "", img_name = name,
                               article_id = thing.article._id36)}
@@ -254,11 +237,11 @@
 
       <iframe src="about:blank" width="600" height="200" style="display: none;"
               name="upload-iframe" id="upload-iframe"></iframe>
-
+      <div class="clear"></div>
     </div>
-    %else:
+  %else:
     <h2>Article not saved</h2>
     <p>You must save your article before you can upload an image for it.</p>
-    %endif
+  %endif
   </body>
 </%def>

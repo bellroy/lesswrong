@@ -23,8 +23,8 @@
 <%namespace file="utils.html" import="error_field"/>
 <% import random %>
 <%def name="areyousure(name)">
-  <tr><td>${_("are you sure?")}</td>
-      <% yes, no = random.choice(((_("yes"), _("no")), (_("no"), _("yes")))) %>
+  <tr><td>${_("Are you sure?")}</td>
+      <% yes, no = random.choice(((_("Yes"), _("No")), (_("No"), _("Yes")))) %>
       <td><input name="${name}" id="${name}yes" type="radio" value="${yes}"/>
         <label for="${name}yes">${yes}</label>
       </td>
@@ -34,15 +34,15 @@
   </tr>
 </%def>
 
-<h1>${_("delete your reddit account? hope you have a good reason.")}</h1>
+<h1>${_("Complete the form to delete your LessWrong account.")}</h1>
 
 <form action="/post/delete" method="post" class="pretty-form"
-      onsubmit="${"return post_form(this, 'delete_user', function(x) {return '%s'})" % _("deleting...")}">
+      onsubmit="${"return post_form(this, 'delete_user', function(x) {return '%s'})" % _("Deleting...")}">
 <table>
 ${areyousure("areyousure1")}
 ${areyousure("areyousure2")}
 ${areyousure("areyousure3")}
 </table>
-<input type="submit" class="btn" value="${_('delete')}"/>
+<input type="submit" class="btn" value="${_('Delete')}"/>
 <span id="status" class="error"></span>
 </form>

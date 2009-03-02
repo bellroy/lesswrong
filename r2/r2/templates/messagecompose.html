@@ -22,9 +22,9 @@
 
 <%namespace file="utils.html" import="error_field, submit_form, success_field"/>
 
-<h1>${_("send a message")}</h1>
+<h1>${_("Send a message")}</h1>
 
-${success_field(_("your message has been delivered"), 
+${success_field(_("Your message has been delivered"), 
                 successful=thing.success)}
 
 <%call expr="submit_form(onsubmit='return post_form(this, \'compose\', null, null, true)',
@@ -33,7 +33,7 @@ ${success_field(_("your message has been delivered"),
   <table>
     <tr>
       <th>
-        <label for="to">${_("to (username)")}</label></th>
+        <label for="to">${_("To (username)")}</label></th>
       <td><input type="text" name="to" value="${thing.to or ''}" 
                  id="to" size="40"/></td>
       <td>${error_field("NO_USER", "span")}
@@ -41,7 +41,7 @@ ${success_field(_("your message has been delivered"),
     </tr>
     <tr>
       <th>
-        <label for="subject">${_("subject")}</label>
+        <label for="subject">${_("Subject")}</label>
       </th>
       <td>
         <input type="text" name="subject" size="40" id="subject"\
@@ -51,7 +51,7 @@ ${success_field(_("your message has been delivered"),
     </tr>
     <tr>
       <th>
-        <label for="message">${_("message")}</label>
+        <label for="message">${_("Message")}</label>
       </th>
       <td>
         <textarea id="message" name="message" rows="10" cols="40">
@@ -68,7 +68,7 @@ ${success_field(_("your message has been delivered"),
         <label for="send"></label>
       </th>
       <td>
-        <button id="send" name="send" type="submit">${_("send")}</button>
+        <button id="send" name="send" type="submit">${_("Send")}</button>
         <span id='status' class='error'></span>
       </td>
       <td id="note_send"></td></tr>

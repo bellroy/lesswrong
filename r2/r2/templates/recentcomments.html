@@ -1,10 +1,12 @@
-<h3>Recent Comments</h3>
-<% 
-   t = thing.things
-   comment_generator = t.item_iter(t.get_items())
-%>
-%for a in comment_generator:
-  <div class="comment inline">
-   ${a.render()}
-  </div>
-%endfor:
+<div id="side-comments" class="sidebox">
+  <h2>Recent Comments:</h2>
+  <% 
+     t = thing.things
+     comment_generator = t.item_iter(t.get_items())
+  %>
+  %for a in comment_generator:
+    <div class="inline-comment">
+      ${a.render()}
+    </div>
+  %endfor:
+</div>

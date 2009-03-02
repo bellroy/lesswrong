@@ -158,7 +158,7 @@ class ListingController(RedditController):
 
     def title(self):
         """Page <title>"""
-        return _(self.title_text) + " : " + c.site.name
+        return c.site.title + ": " + _(self.title_text)
 
     def rightbox(self):
         """Contents of the right box when rendering"""
@@ -211,6 +211,7 @@ class FixListing(object):
 
 class HotController(FixListing, ListingController):
     where = 'hot'
+    title_text = _('Popular articles')
 
     def organic(self):
         o_links, pos, calculation_key = organic.organic_links(c.user)
@@ -255,9 +256,6 @@ class HotController(FixListing, ListingController):
     def content(self):
         return self.listing_obj
 
-    def title(self):
-        return c.site.title
-
     def GET_listing(self, **env):
         self.infotext = request.get.get('deleted') and strings.user_deleted
         return ListingController.GET_listing(self, **env)
@@ -265,7 +263,7 @@ class HotController(FixListing, ListingController):
 class SavedController(ListingController):
     where = 'saved'
     skip = False
-    title_text = _('saved')
+    title_text = _('Saved')
 
     def query(self):
         return queries.get_saved(c.user)
@@ -276,7 +274,7 @@ class SavedController(ListingController):
 
 class ToplinksController(ListingController):
     where = 'toplinks'
-    title_text = _('top scoring links')
+    title_text = _('Top scoring links')
 
     def query(self):
         return c.site.get_links('toplinks', 'all')
@@ -286,11 +284,13 @@ class ToplinksController(ListingController):
 
 class BlessedController(ListingController):
     where = 'blessed'
-    title_text = _('promoted articles')
 
     def query(self):
         return c.site.get_links('blessed', 'all')
-      
+
+    def title(self):
+        return c.site.title
+
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
@@ -304,7 +304,7 @@ class RootController(ListingController):
 
 class NewController(ListingController):
     where = 'new'
-    title_text = _('newest submissions')
+    title_text = _('Newest submissions')
 
     @property
     def menus(self):
@@ -323,7 +323,7 @@ class NewController(ListingController):
 
 class TagController(ListingController):
     where = 'tag'
-    title_text = _('articles tagged')
+    title_text = _('Articles tagged')
 
     def query(self):
         q = LinkTag._query(LinkTag.c._thing2_id == self._tag._id,
@@ -339,7 +339,7 @@ class TagController(ListingController):
     @validate(tag = VTagByName('tag'))
     def GET_listing(self, tag, **env):
         self._tag = tag
-        TagController.title_text = _('articles tagged ' + tag.name)
+        TagController.title_text = _('Articles tagged ' + tag.name)
         return ListingController.GET_listing(self, **env)
 
 class BrowseController(ListingController):
@@ -358,16 +358,16 @@ class BrowseController(ListingController):
     def GET_listing(self, sort, time, **env):
         self.sort = sort
         if sort == 'top':
-            self.title_text = _('top scoring links')
+            self.title_text = _('Top scoring articles')
         elif sort == 'controversial':
-            self.title_text = _('most controversial links')
+            self.title_text = _('Most controversial articles')
         self.time = time
         return ListingController.GET_listing(self, **env)
 
 
 class RandomrisingController(ListingController):
     where = 'randomrising'
-    title_text = _('you\'re really bored now, eh?')
+    title_text = _('You\'re really bored now, eh?')
 
     def query(self):
         links = get_rising(c.site)
@@ -400,7 +400,7 @@ class ByIDController(ListingController):
 
 class RecommendedController(ListingController):
     where = 'recommended'
-    title_text = _('recommended for you')
+    title_text = _('Recommended for you')
     
     @property
     def menus(self):
@@ -421,14 +421,14 @@ class UserController(ListingController):
     show_nums = False
 
     def title(self):
-        titles = {'overview': _("overview for %(user)s"),
-                  'comments': _("comments by %(user)s"),
-                  'submitted': _("submitted by %(user)s"),
-                  'liked': _("liked by %(user)s"),
-                  'disliked': _("disliked by %(user)s"),
-                  'hidden': _("hidden by %(user)s"),
-                  'drafts': _("drafts for %(user)s")}
-        title = titles.get(self.where, _('profile for %(user)s')) \
+        titles = {'overview': _("Overview for %(user)s"),
+                  'comments': _("Comments by %(user)s"),
+                  'submitted': _("Submitted by %(user)s"),
+                  'liked': _("Liked by %(user)s"),
+                  'disliked': _("Disliked by %(user)s"),
+                  'hidden': _("Hidden by %(user)s"),
+                  'drafts': _("Drafts for %(user)s")}
+        title = titles.get(self.where, _('Profile for %(user)s')) \
             % dict(user = self.vuser.name, site = c.site.name)
         return title
 
@@ -499,7 +499,7 @@ class MessageController(ListingController):
     render_cls = MessagePage
 
     def title(self):
-        return _('messages') + ': ' + _(self.where)
+        return _('Messages') + ': ' + _(self.where)
 
     @staticmethod
     def builder_wrapper(thing):
@@ -553,7 +553,7 @@ class RedditsController(ListingController):
     render_cls = SubredditsPage
 
     def title(self):
-        return _('reddits')
+        return _('Categories')
 
     def query(self):
         if self.where == 'banned' and c.user_is_admin:
@@ -587,7 +587,7 @@ class MyredditsController(ListingController):
         return [NavMenu(buttons, base_path = '/categories/mine/', default = 'subscriber', type = "flatlist")]
 
     def title(self):
-        return _('reddits: ') + self.where
+        return _('Categories: ') + self.where
 
     def query(self):
         reddits = SRMember._query(SRMember.c._name == self.where,
@@ -623,7 +623,7 @@ class MyredditsController(ListingController):
         return ListingController.GET_listing(self, **env)
 
 class CommentsController(ListingController):
-    title_text = _('comments')
+    title_text = _('Comments')
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),

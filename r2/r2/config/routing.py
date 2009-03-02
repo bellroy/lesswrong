@@ -45,7 +45,6 @@ def make_map(global_conf={}, app_conf={}):
 
     mc('/over18',   controller='post', action='over18')
 
-    mc('/search', controller='front', action='search')
     mc('/search/results', controller='front', action='search_results')
 
     mc('/about/:location', controller='front', 
@@ -60,27 +59,7 @@ def make_map(global_conf={}, app_conf={}):
        where='subscriber',
        requirements=dict(where='subscriber|contributor|moderator'))
 
-    mc('/buttons', controller='buttons', action='button_demo_page')
-    #the frame
-    mc('/button_content', controller='buttons', action='button_content')
-    #/button.js and buttonlite.js - the embeds
-    mc('/button', controller='buttons', action='button_embed')
-    mc('/buttonlite', controller='buttons', action='button_lite')
-    
-    mc('/widget', controller='buttons', action='widget_demo_page')
-    mc('/socialite', controller='buttons', action='socialite_demo_page')
-    mc('/bookmarklets', controller='buttons', action='bookmarklets')
-    
-    mc('/stats', controller='front', action='stats')
-    
-    mc('/feedback', controller='feedback', action='feedback')
-    mc('/ad_inq',   controller='feedback', action='ad_inq')
-    
-    mc('/admin/:action', controller='admin')
-
-    mc('/admin/i18n', controller='i18n', action='list')
-    mc('/admin/i18n/:action', controller='i18n')
-    mc('/admin/i18n/:action/:lang', controller='i18n')
+    #mc('/stats', controller='front', action='stats')
     
     mc('/user/:username/:where', controller='user', action='listing',
        where='overview')
@@ -88,27 +67,12 @@ def make_map(global_conf={}, app_conf={}):
     mc('/prefs/:location', controller='front',
        action='prefs', location='options')
     
-    mc('/info/0:article/*rest', controller = 'front', 
-       action='oldinfo', dest='comments', type='ancient')
-    mc('/info/:article/:dest/:comment', controller='front',
-       action='oldinfo', type='old', dest='comments', comment=None)
-
     mc('/related/:article/:title', controller='front',
        action = 'related', title=None)
-    mc('/details/:article/:title', controller='front',
-       action = 'details', title=None)
-    mc('/comments/:article/:title/:comment', controller='front', 
+    mc('/lw/:article/:title/:comment', controller='front',
        action= 'comments', title=None, comment = None)
     mc('/edit/:article', controller='front', action="editarticle")
     
-    mc('/mail/optout', controller='front', action = 'optout')
-    mc('/mail/optin',  controller='front', action = 'optin')
-    mc('/stylesheet', controller = 'front', action = 'stylesheet')
-    mc('/frame', controller='front', action = 'frame')
-
-    mc('/promote/edit_promo/:link', controller='promote', action = 'edit_promo')
-    mc('/promote/:action', controller='promote')
-
     mc('/', controller='root', action='listing')
     
     listing_controllers = "hot|saved|toplinks|new|recommended|randomrising|comments|blessed"
@@ -130,7 +94,6 @@ def make_map(global_conf={}, app_conf={}):
        requirements=dict(action="password|random|framebuster"))
     mc('/:action', controller='embed',
        requirements=dict(action="help|blog"))
-    mc('/help/:anything', controller='embed', action='help')
     
     mc('/:action', controller='toolbar',
        requirements=dict(action="goto|toolbar"))
@@ -144,7 +107,6 @@ def make_map(global_conf={}, app_conf={}):
        requirements=dict(action="options|over18|unlogged_options|optout|optin|login|reg"))
     
     mc('/api/:action', controller='api')
-    mc('/d/:what', controller='api', action='bookmarklet')
     
     mc('/captcha/:iden', controller='captcha', action='captchaimg')
 
@@ -153,9 +115,8 @@ def make_map(global_conf={}, app_conf={}):
     mc('/code', controller='redirect', action='redirect',
        dest='http://code.google.com/p/lesswrong/')
     
-    mc('/mobile', controller='redirect', action='redirect',
-       dest='http://m.reddit.com/')
-    
+    mc('/about-less-wrong', controller='front', action='about')
+
     # This route handles displaying the error page and 
     # graphics used in the 404/500
     # error pages. It should likely stay at the top 

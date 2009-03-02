@@ -25,36 +25,46 @@
    import random
 %>
 
-<%namespace file="utils.html" import="error_field"/>
+<%namespace file="utils.html" import="error_field, text_with_js"/>
 
-<form method="post" 
-      action="${add_sr('/post/login', nocname = True)}" 
-      onsubmit="return chklogin(this);" 
-      class="login-form-side">
-  <% op = "login-main" %>
-  %if c.cname:
-    <input type="hidden" name="${UrlParser.cname_get}" 
-           value="${random.random()}" />
-  %endif
-  <input type="hidden" name="op" value="${op}" />
-  <input name="user_login" 
-         id="user-${op}" 
-         type="text" maxlength="20" tabindex="1"/>
-  <input id="passwd-${op}" 
-         name="passwd_login" 
-         type="password" maxlength="20" tabindex="2"/>
-
-  ${error_field("WRONG_PASSWORD_" + op, "div")}
-  <div id="status_${op}" class="error"></div>
-
-  <div id="remember-me">
-    <button class="btn" type="submit" tabindex="4">${_("login")}</button>
-    <input type="checkbox" name="rem" tabindex="3"
-           id="rem-${op}" />
-    <label for="rem-${op}">
-      ${_("remember me")}</label>
-    <a href="/password">${_("recover password")}</a>
-    <div class="clear"></div>
-  </div>
-</form>
-
+<div id="side-login" class="sidebox">
+  <form method="post" 
+        action="${add_sr('/post/login', nocname = True)}" 
+        onsubmit="return chklogin(this);" 
+        class="login-form-side">
+    <% op = "login-main" %>
+    <div class="row">
+    	<label for="username">${text_with_js(_("%(register)s"),
+                        register=(_("Register"), "return showcover(false);"))} / Login</label>
+      %if c.cname:
+        <input type="hidden" name="${UrlParser.cname_get}" 
+               value="${random.random()}" />
+      %endif
+      <input type="hidden" name="op" value="${op}" />
+      <input name="user_login" 
+             id="username" 
+             type="text" maxlength="20" tabindex="1"/>
+    </div>
+    <div class="row">
+  		<label for="password">Password</label>
+      <input id="password" 
+             name="passwd_login" 
+             type="password" maxlength="20" tabindex="2"/>
+    </div>
+    <div class="row">
+      <div id="remember-me">
+        <label for="rem-${op}">${_("Remember me")}</label>
+        <input type="checkbox" name="rem" tabindex="3"
+               id="rem-${op}" />
+      </div>
+    </div>
+    <div>
+      ${error_field("WRONG_PASSWORD_" + op, "div")}
+      <div id="status_${op}" class="error"></div>
+    </div>
+    <div class="row">
+      <a href="/password" id="recover">${_("Recover password")}</a>
+      <button class="btn" type="submit" tabindex="4">${_("Login")}</button>
+    </div>
+  </form>
+</div>

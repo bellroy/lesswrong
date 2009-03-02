@@ -105,7 +105,7 @@ class PostController(ApiController):
         return self.redirect(u.unparse())
             
     def GET_over18(self):
-        return BoringPage(_("over 18?"),
+        return BoringPage(_("Over 18?"),
                           content = Over18()).render()
 
     @validate(over18 = nop('over18'),
@@ -131,7 +131,7 @@ class PostController(ApiController):
         email, sent = opt_out(msg_hash)
         if not email:
             return self.abort404()
-        return BoringPage(_("opt out"),
+        return BoringPage(_("Opt out"),
                           content = OptOut(email = email, leave = True,
                                            sent = True,
                                            msg_hash = msg_hash)).render()
@@ -141,7 +141,7 @@ class PostController(ApiController):
         email, sent = opt_in(msg_hash)
         if not email:
             return self.abort404()
-        return BoringPage(_("welcome back"),
+        return BoringPage(_("Welcome back"),
                           content = OptOut(email = email, leave = False,
                                            sent = True,
                                            msg_hash = msg_hash)).render()

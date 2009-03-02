@@ -42,110 +42,110 @@ class MenuHandler(StringHandler):
             return getattr(plurals, attr)
 
 # selected menu styles, primarily used on the main nav bar
-menu_selected=StringHandler(hot          = _("popular"),
-                            new          = _("what's new"),
-                            top          = _("top scoring"),
-                            controversial= _("most controversial"),
-                            saved        = _("saved"),
-                            recommended  = _("recommended"),
-                            promote      = _('promote'),
+menu_selected=StringHandler(hot          = _("Popular"),
+                            new          = _("What's new"),
+                            top          = _("Top scoring"),
+                            controversial= _("Most controversial"),
+                            saved        = _("Saved"),
+                            recommended  = _("Recommended"),
+                            promote      = _('Promote'),
                             )
 
 # translation strings for every menu on the site
-menu =   MenuHandler(hot          = _('popular'),
-                     new          = _('new'),
-                     old          = _('old'),
-                     ups          = _('ups'),
-                     downs        = _('downs'),
-                     top          = _('top'),
-                     more         = _('more'),
-                     relevance    = _('relevance'),
-                     controversial  = _('controversial'),
-                     saved        = _('saved {toolbar}'),
-                     recommended  = _('recommended'),
-                     rising       = _('rising'), 
-                     admin        = _('admin'),
-                     drafts       = _('drafts'),
-                     blessed      = _('promoted'),
+menu =   MenuHandler(hot          = _('Popular'),
+                     new          = _('New'),
+                     old          = _('Old'),
+                     ups          = _('Ups'),
+                     downs        = _('Downs'),
+                     top          = _('Top'),
+                     more         = _('More'),
+                     relevance    = _('Relevance'),
+                     controversial  = _('Controversial'),
+                     saved        = _('Saved'),
+                     recommended  = _('Recommended'),
+                     rising       = _('Rising'), 
+                     admin        = _('Admin'),
+                     drafts       = _('Drafts'),
+                     blessed      = _('Promoted'),
                                  
                      # time sort words
-                     hour         = _('this hour'),
-                     day          = _('today'),
-                     week         = _('this week'),
-                     month        = _('this month'),
-                     year         = _('this year'),
-                     all          = _('all time'),
+                     hour         = _('This hour'),
+                     day          = _('Today'),
+                     week         = _('This week'),
+                     month        = _('This month'),
+                     year         = _('This year'),
+                     all          = _('All time'),
                                   
                      # "kind" words
-                     spam         = _("spam"),
-                     autobanned   = _("autobanned"),
+                     spam         = _("Spam"),
+                     autobanned   = _("Autobanned"),
 
                      # reddit header strings
-                     adminon      = _("turn admin on"),
-                     adminoff     = _("turn admin off"), 
-                     prefs        = _("preferences"), 
-                     stats        = _("stats"), 
-                     submit       = _("create new article"),
-                     help         = _("help"),
-                     blog         = _("blog"),
-                     logout       = _("logout"),
+                     adminon      = _("Turn admin on"),
+                     adminoff     = _("Turn admin off"), 
+                     prefs        = _("Preferences"), 
+                     stats        = _("Stats"), 
+                     submit       = _("Create new article"),
+                     help         = _("Help"),
+                     blog         = _("Blog"),
+                     logout       = _("Log out"),
                      
                      #reddit footer strings
-                     feedback     = _("feedback"),
-                     bookmarklets = _("bookmarklets"),
-                     socialite    = _("socialite"),
-                     buttons      = _("buttons"),
-                     widget       = _("widget"), 
-                     code         = _("code"), 
-                     mobile       = _("mobile"), 
-                     store        = _("store"),  
-                     ad_inq       = _("advertise"),
+                     feedback     = _("Feedback"),
+                     bookmarklets = _("Bookmarklets"),
+                     socialite    = _("Socialite"),
+                     buttons      = _("Buttons"),
+                     widget       = _("Widget"), 
+                     code         = _("Code"), 
+                     mobile       = _("Mobile"), 
+                     store        = _("Store"),  
+                     ad_inq       = _("Advertise"),
                      
                      #preferences
-                     options      = _('options'),
-                     friends      = _("friends"),
-                     update       = _("password/email"),
-                     delete       = _("delete"),
+                     options      = _('Options'),
+                     friends      = _("Friends"),
+                     update       = _("Password/email"),
+                     delete       = _("Delete"),
 
                      # messages
-                     compose      = _("compose"),
-                     inbox        = _("inbox"),
-                     sent         = _("sent"),
+                     compose      = _("Compose"),
+                     inbox        = _("Inbox"),
+                     sent         = _("Sent"),
 
                      # comments
-                     related      = _("related"),
-                     details      = _("details"),
+                     related      = _("Related"),
+                     details      = _("Details"),
 
                      # reddits
-                     home         = _("home"),
-                     about        = _("about"),
-                     edit         = _("edit"),
-                     banned       = _("banned"),
-                     banusers     = _("ban users"),
+                     home         = _("Home"),
+                     about        = _("About"),
+                     edit         = _("Edit"),
+                     banned       = _("Banned"),
+                     banusers     = _("Ban users"),
 
-                     popular      = _("popular"),
-                     create       = _("create"),
-                     mine         = _("my reddits"),
+                     popular      = _("Popular"),
+                     create       = _("Create"),
+                     mine         = _("My reddits"),
 
-                     i18n         = _("translate site"),
-                     promoted     = _("promoted"),
-                     reporters    = _("reporters"),
-                     reports      = _("reports"),
-                     reportedauth = _("reported authors"),
-                     info         = _("info"),
-                     share        = _("share"),
+                     i18n         = _("Translate site"),
+                     promoted     = _("Promoted"),
+                     reporters    = _("Reporters"),
+                     reports      = _("Reports"),
+                     reportedauth = _("Reported authors"),
+                     info         = _("Info"),
+                     share        = _("Share"),
 
-                     overview     = _("overview"),
-                     submitted    = _("submitted"),
-                     liked        = _("liked"),
-                     disliked     = _("disliked"),
-                     hidden       = _("hidden {toolbar}"),
-                     deleted      = _("deleted"),
-                     reported     = _("reported"),
+                     overview     = _("Overview"),
+                     submitted    = _("Submitted"),
+                     liked        = _("Liked"),
+                     disliked     = _("Disliked"),
+                     hidden       = _("Hidden"),
+                     deleted      = _("Deleted"),
+                     reported     = _("Reported"),
 
-                     promote      = _('promote'),
-                     new_promo    = _('new promoted link'),
-                     current_promos = _('promoted links'),
+                     promote      = _('Promote'),
+                     new_promo    = _('New promoted link'),
+                     current_promos = _('Promoted links'),
                      )
 
 class Styled(Wrapped):
@@ -176,14 +176,16 @@ def menu_style(type):
     """Simple manager function for the styled menus.  Returns a
     (style, css_class) pair given a 'type', defaulting to style =
     'dropdown' with no css_class."""
-    default = ('dropdown', '')
+    default = ('select', '')
     d = dict(heavydrop = ('dropdown', 'heavydrop'),
              lightdrop = ('dropdown', 'lightdrop'),
              tabdrop = ('dropdown', 'tabdrop'),
              srdrop = ('dropdown', 'srdrop'),
              flatlist =  ('flatlist', ''),
              tabmenu = ('tabmenu', ''),
-             )
+             buttons = ('userlinks', ''),
+             select  = ('select', ''),
+             navlist  = ('navlist', ''))
     return d.get(type, default)
 
          
@@ -357,14 +359,13 @@ class SimpleGetMenu(NavMenu):
     get_param = ''
     title     = ''
     default = None
-    type = 'lightdrop'
     
-    def __init__(self, **kw):
+    def __init__(self, type = 'select', **kw):
         kw['default'] = kw.get('default', self.default)
         kw['base_path'] = kw.get('base_path') or request.path
         buttons = [NavButton(self.make_title(n), n, opt = self.get_param)
                    for n in self.options]
-        NavMenu.__init__(self, buttons, type = self.type, **kw)
+        NavMenu.__init__(self, buttons, type = type, **kw)
         #if kw.get('default'):
         #    self.selected = kw['default']
     
@@ -383,7 +384,7 @@ class SortMenu(SimpleGetMenu):
     options   = ('hot', 'new', 'top', 'old', 'controversial')
 
     def __init__(self, **kw):
-        kw['title'] = _("sort by")
+        kw['title'] = _("Sort By")
         SimpleGetMenu.__init__(self, **kw)
     
     @classmethod
@@ -429,7 +430,7 @@ class NewMenu(SimpleGetMenu):
     type = 'flatlist'
 
     def __init__(self, **kw):
-        kw['title'] = _("sort by")
+        kw['title'] = _("Sort by")
         SimpleGetMenu.__init__(self, **kw)
 
     @classmethod
@@ -444,12 +445,12 @@ class KindMenu(SimpleGetMenu):
     options = ('links', 'comments', 'messages', 'all')
 
     def __init__(self, **kw):
-        kw['title'] = _("kind")
+        kw['title'] = _("Kind")
         SimpleGetMenu.__init__(self, **kw)
 
     def make_title(self, attr):
         if attr == "all":
-            return _("all")
+            return _("All")
         return menu[attr]
 
 class TimeMenu(SimpleGetMenu):
@@ -459,7 +460,7 @@ class TimeMenu(SimpleGetMenu):
     options   = ('hour', 'day', 'week', 'month', 'year', 'all')
 
     def __init__(self, **kw):
-        kw['title'] = _("links from")
+        kw['title'] = _("Links from")
         SimpleGetMenu.__init__(self, **kw)
 
     @classmethod
@@ -498,7 +499,7 @@ class NumCommentsMenu(SimpleGetMenu):
         else:
             # if the number is less than the global max, display "all"
             # instead for the upper bound.
-            return dict(true=_("all"),
+            return dict(true=_("All"),
                         false=str(user_num))[attr]
         
 

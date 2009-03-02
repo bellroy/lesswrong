@@ -20,76 +20,47 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%! 
-   from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown
-   from r2.lib.utils import timesince
- %>
 <%namespace file="utils.html" import="submit_form, plain_link"/>
 <% user = thing.user %>
 %if thing.user:
-<div class="raisedbox">
-  <h3> ${thing.user.name} </h3>
-
-  <ul>
-    %if c.user_is_admin:
-      %if thing.user._spam:
-        <li><b>(banned)</b></li>
+<div id="side-user" class="sidebox">
+  <div id="side-status" class="clear">
+    <div class="userinfo editor">
+      <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
+      <span class="label">Karma Score</span>
+      <span class="score">${thing.user.safe_karma}</span>
+      %if thing.user.name in g.admins:
+        <span class="role">Editor</span>
       %endif
-        <li>
-          <table>
-        <%
-           karmas = thing.user.all_karmas()
-           ##karmas.sort(lambda x,y: x[2] - y[2])
-         %>
-        %for label, lc, cc in karmas:
-          <tr style="text-align:right">
-            <th>${label}:</th>
-            <td><b>${lc}</b></td>
-            <td>/</td>
-            <td><b>${cc}</b></td>
-          </tr>
-        %endfor
-          </table>
-        </li>
-    %else:
-      <li>
-        ${_("karma:")} &#32;<b>${thing.user.safe_karma}</b>
-      </li>
-      <li>
-        ${_("comment karma:")} &#32;<b>${thing.user.comment_karma}</b>
-      </li>
-    %endif 
-    <li>
-      ${_("user for %(time)s") % dict(time=timesince(thing.user._date))}
-    </li>
-
+    </div>
+    %if thing.buttons:
+      ${thing.buttons.render()}
+    %endif
     %if c.user_is_loggedin and not thing.isMe:
-    <li>
-      ${plain_link(_("send message"), "/message/compose/?to=%s" % thing.user.name)}
-    </li>
-    <li>
-      <form action="/post/friend" method="post">
-        <input type="hidden" name="type" value="friend"/>
-        <input type="hidden" name="name" value="${thing.user.name}"/>
-        <input type="hidden" name="container" value="${c.user._fullname}" />
-        %if thing.isFriend:
-          <input type="hidden" name="action" value="remove"/>
-          <input type="hidden" name="toggled_action" value="add"/>
-          <input type="hidden" name="toggled_label" value="${_('add to friends')}"/>
-          <a onclick="return toggle(this, 'friend');" href="#">${_("remove from friends")}</a>
-        %else:
-          <input type="hidden" name="toggled_action" value="remove"/>
-          <input type="hidden" name="action" value="add"/>
-          <input type="hidden" name="toggled_label"  value="${_('remove from friends')}"/>
-          <a onclick="return toggle(this, 'friend')" href="#">${_("add to friends")}</a>
-        %endif
-      </form>
-    </li>
-  %endif
-  </ul>
-
-  <div class="clear"></div>
-
-</div>
-
+      <ul class="userlinks">
+        <li>
+          ${plain_link(_("Send message"), "/message/compose/?to=%s" % thing.user.name)}
+        </li>
+        <li>
+          <form action="/post/friend" method="post">
+            <input type="hidden" name="type" value="friend"/>
+            <input type="hidden" name="name" value="${thing.user.name}"/>
+            <input type="hidden" name="container" value="${c.user._fullname}" />
+            %if thing.isFriend:
+              <input type="hidden" name="action" value="remove"/>
+              <input type="hidden" name="toggled_action" value="add"/>
+              <input type="hidden" name="toggled_label" value="${_('Add to friends')}"/>
+              <a onclick="return toggle(this, 'friend');" href="#">${_("Remove from friends")}</a>
+            %else:
+              <input type="hidden" name="toggled_action" value="remove"/>
+              <input type="hidden" name="action" value="add"/>
+              <input type="hidden" name="toggled_label"  value="${_('Remove from friends')}"/>
+              <a onclick="return toggle(this, 'friend')" href="#">${_("Add to friends")}</a>
+            %endif
+          </form>
+        </li>
+      </ul>
+    %endif
+  </div>
+</div><!-- #side-user -->
 %endif

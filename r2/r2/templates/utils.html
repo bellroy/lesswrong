@@ -181,11 +181,11 @@ ${unsafe(txt)}
 %>
 <input type="radio" name="all-langs" id="all-langs" value="all"
        onclick="clear_all(this)" ${all_checked}/>
-<label for="all-langs">${_("all languages")}</label>
+<label for="all-langs">${_("All languages")}</label>
 <br/>
 <input type="radio" name="all-langs" id="some-langs" value="some"
        ${some_checked}/>
-<label for="some-langs">${_("some languages")}</label>
+<label for="some-langs">${_("Some languages")}</label>
 <hr/>
 <table>
 <%
@@ -242,9 +242,9 @@ ${unsafe(txt)}
      <input type="file" name="file" id="file"
       onchange="show('submit-img')"/>
      <button id="submit-img" type="submit" name="upload" 
-            onclick="return upload_image(this.form, '${_('uploading')}');"
+            onclick="return upload_image(this.form, '${_('Uploading')}');"
             style="display: none;" >
-       ${_('upload')}
+       ${_('Upload')}
      </button>
 
      <span style="display: none;" class="error" id="img-status"></span>

@@ -91,7 +91,7 @@ class FrontController(RedditController):
 
     def GET_password(self):
         """The 'what is my password' page"""
-        return BoringPage(_("password"), content=Password()).render()
+        return BoringPage(_("Password"), content=Password()).render()
 
     @validate(user = VCacheKey('reset', ('key', 'name')),
               key = nop('key'))
@@ -105,7 +105,7 @@ class FrontController(RedditController):
             done = referer_path.startswith(request.fullpath)
         elif not user:
             return self.abort404()
-        return BoringPage(_("reset password"),
+        return BoringPage(_("Reset password"),
                           content=ResetPassword(key=key, done=done)).render()
 
     @validate(VAdmin(),
@@ -175,11 +175,19 @@ class FrontController(RedditController):
 
         loc = None if c.focal_comment or context is not None else 'comments'
         
+        if article.comments_enabled:
+            content = CommentListing(
+                content = displayPane,
+                num_comments = article.num_comments,
+                nav_menus = [CommentSortMenu(default = sort),
+                            NumCommentsMenu(article.num_comments,
+                                            default=num_comments)],
+            )
+        else:
+            content = PaneStack()
+
         res = LinkInfoPage(link = article, comment = comment,
-                           content = displayPane, 
-                           nav_menus = [CommentSortMenu(default = sort), 
-                                        NumCommentsMenu(article.num_comments,
-                                                        default=num_comments)],
+                           content = content, 
                            infotext = infotext).render()
         return res
 
@@ -206,9 +214,9 @@ class FrontController(RedditController):
               name = nop('name'))
     def GET_newreddit(self, name):
         """Create a reddit form"""
-        title = _('create a reddit')
+        title = _('Create a category')
         content=CreateSubreddit(name = name or '', listings = ListingController.listing_names())
-        res = FormPage(_("create a reddit"), 
+        res = FormPage(_("Create a category"), 
                        content = content,
                        ).render()
         return res
@@ -287,7 +295,7 @@ class FrontController(RedditController):
                               
     def GET_stats(self):
         """The stats page."""
-        return BoringPage(_("stats"), content = UserStats()).render()
+        return BoringPage(_("Stats"), content = UserStats()).render()
 
     # filter for removing punctuation which could be interpreted as lucene syntax
     related_replace_regex = re.compile('[?\\&|!{}+~^()":*-]+')
@@ -328,7 +336,7 @@ class FrontController(RedditController):
                              prev_search = query,
                              elapsed_time = t,
                              num_results = num,
-                             title = _("search results")).render()
+                             title = _("Search results")).render()
         return res
 
     verify_langs_regex = re.compile(r"^[a-z][a-z](,[a-z][a-z])*$")
@@ -375,7 +383,7 @@ class FrontController(RedditController):
         else:
             infotext = None
 
-        res = SearchPage(_('search results'), query, t, num, content=spane,
+        res = SearchPage(_('Search results'), query, t, num, content=spane,
                          nav_menus = [TimeMenu(default = time),
                                       SearchSortMenu(default=sort)],
                          infotext = infotext).render()
@@ -400,7 +408,7 @@ class FrontController(RedditController):
         return builder.total_num, timing, res
 
     def GET_search_results(self):
-          return GoogleSearchResults(_('search results')).render()
+          return GoogleSearchResults(_('Search results')).render()
 
     def GET_login(self):
         """The /login form.  No link to this page exists any more on
@@ -477,7 +485,7 @@ class FrontController(RedditController):
                     else:
                         infotext = strings.multiple_submitted % \
                                    listing.things[0].resubmit_link()
-                        res = BoringPage(_("seen it"),
+                        res = BoringPage(_("Seen it"),
                                          content = listing,
                                          infotext = infotext).render()
                         return res
@@ -495,7 +503,7 @@ class FrontController(RedditController):
         except NotFound:
             sr = None
 
-        return FormPage(_("submit"), 
+        return FormPage(_("Submit article"), 
                         content=NewLink(title=title or '',
                                         subreddits = srs,
                                         tags=tags,
@@ -511,7 +519,7 @@ class FrontController(RedditController):
         if c.user_is_admin:
           # Add this admin subreddits to the list
           subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
-        return FormPage(_("submit"), 
+        return FormPage(_("Edit article"), 
                       content=EditLink(article, subreddits=subreddits, tags=article.tag_names(), captcha=None)).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
@@ -520,7 +528,7 @@ class FrontController(RedditController):
         if not email:
             return self.abort404()
         sent = (has_opted_out(email) == leave)
-        return BoringPage(_("opt out") if leave else _("welcome back"),
+        return BoringPage(_("Opt out") if leave else _("Welcome back"),
                           content = OptOut(email = email, leave = leave, 
                                            sent = sent, 
                                            msg_hash = msg_hash)).render()
@@ -567,3 +575,10 @@ class FrontController(RedditController):
     def GET_imagebrowser(self, article):
         return ImageBrowser(article).render()
 
+    def GET_about(self):
+        try:
+            about_post = Link._byID(int(g.about_post_id, 36), data=True)
+        except (NotFound, AttributeError):
+            return self.abort404()
+
+        return self.redirect(about_post.make_permalink(subreddit.Default))

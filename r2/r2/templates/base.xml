@@ -46,6 +46,6 @@
 </rss>  
 
 <%def name="Title()">
-  ${c.site.name}: ${_("what's new online")}
+  ${c.site.name}: ${_("What's new")}
 </%def>
 

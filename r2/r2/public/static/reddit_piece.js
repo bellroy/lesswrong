@@ -43,6 +43,14 @@ function hover_open_menu(menu) {
     }
 }
 
+/* Loads the page specified by a 'select' type NavMenu */
+function open_choice(menu) {
+    var choice = menu.options[menu.selectedIndex];
+    if(window.location.toString() != choice.value) {
+        window.location = choice.value;
+    }
+}
+
 var global_cookies_allowed = true;
 
 function init() {

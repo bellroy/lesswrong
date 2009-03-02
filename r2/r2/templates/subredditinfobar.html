@@ -37,17 +37,17 @@
               <input type="hidden" name="toggled_action" value="sub"/>
               <input type="hidden" name="action" value="unsub"/>
               <input type="hidden" name="toggled_label"  
-                     value="${_('subscribe')}"/>
+                     value="${_('Subscribe')}"/>
               <a onclick="return toggle(this, 'subscribe');" href="#">
-                ${_("unsubscribe")}
+                ${_("Unsubscribe")}
               </a>
             %else:
               <input type="hidden" name="toggled_action" value="unsub"/>
               <input type="hidden" name="action" value="sub"/>
               <input type="hidden" name="toggled_label"  
-                     value="${_('unsubscribe')}"/>
+                     value="${_('Unsubscribe')}"/>
               <a onclick="return toggle(this, 'subscribe')" href="#">
-                ${_("subscribe")}</a>
+                ${_("Subscribe")}</a>
             %endif
           </form>
         %endif
@@ -56,22 +56,22 @@
           persons = ungettext('subscriber', 'subscribers', c.site._ups))})
         </span>
       <p>
-        ${_("a community for %(time)s") % dict(time=timesince(c.site._date))}
+        ${_("A community for %(time)s") % dict(time=timesince(c.site._date))}
       </p>
 
       %if c.user_is_loggedin and c.site.name != c.user.draft_sr_name:
         %if c.site.type in ("private", "restricted")and c.site.is_contributor(c.user):
             ${moderate_button("contributor",
-                              _("you are a contributor of this reddit. (%(leave)s)"),
-                              _("stop being a contributor?"),
-                              _("you are no longer a contributor"))}
+                              _("You are a contributor to this category. (%(leave)s)"),
+                              _("Stop being a contributor?"),
+                              _("You are no longer a contributor"))}
         %endif
      
         %if c.site.is_moderator(c.user):
              ${moderate_button("moderator",
-                               _("you are a moderator of this reddit. (%(leave)s)"),
-                               _("stop being a moderator?"),
-                               _("you are no longer a moderator"))}
+                               _("You are a moderator to this category. (%(leave)s)"),
+                               _("Stop being a moderator?"),
+                               _("You are no longer a moderator"))}
                         
         %endif
       %endif
@@ -89,7 +89,7 @@
   ${state_button("leave" + location, c.site._fullname, "leave",
                  "return deletetoggle(this, 'leave');", 
                  left, location = location,
-                 yes = _("yes"), no = _("no"),
+                 yes = _("Yes"), no = _("No"),
                  question = question,
                  fmt = fmt, fmt_param = "leave",
                  a_class="moderate")}

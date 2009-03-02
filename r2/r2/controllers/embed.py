@@ -36,7 +36,7 @@ class EmbedController(RedditController):
 
     def rendercontent(self, content):
         if content.startswith("<!--TEMPLATE-->"):
-            return BoringPage(_("help"),
+            return BoringPage(_("Help"),
                               content = Embed(content=content),
                               show_sidebar = None,
                               space_compress = False).render()

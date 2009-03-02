@@ -6,77 +6,25 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%!
-   from r2.lib.template_helpers import static
-   from r2.models import Sub, FakeSubreddit, Subreddit
-   from r2.models.subreddit import DefaultSR
-   from r2.lib.pages import SearchForm
-%>
-<%namespace file="utils.html" import="plain_link, text_with_js, img_link, separator"/>
-
+<% from r2.lib.template_helpers import static %>
+<%page args="menu" />
 <div id="header">
-  %if thing.srtopbar:
-    ${thing.srtopbar.render()}
+  <a href="/"><img src="${static('header.png')}" alt="Lesswrong Header" /></a>
+  %if menu:
+    ${menu.render()}
   %endif
-  <a id="alternate" href="/">Home</a>
-  <div id="header-bottom-${'right' if c.lang_rtl else 'left'}">
-    <h1>
-      ${plain_link(c.site.title if c.site.title else g.front_page_title, '')}
-    </h1>
-
-    ##keeps the height of the header from varying when there isnt any content
-    &nbsp;
-
-    %for toolbar in thing.toolbars:
-      ${toolbar.render()}
-    %endfor
-  </div>
-
-  <div id="header-bottom-${'left' if c.lang_rtl else 'right'}">
-  ##  %if thing.searchbox:
-  ##    ${SearchForm().render()}
-  ##  %endif
-    %if not c.user_is_loggedin:
-      <span class="user">
-        ${text_with_js(_("%(register)s"),
-                          register=(_("register | login"), "return showcover(false);"))}
-      </span>
-    %else:
-      <span class="user">
-         ${plain_link(c.user.name, "/user/%s/" % c.user.name, _sr_path=False)}
-         &nbsp;(<b>${c.user.safe_karma}</b>)
-      </span>
-
-      ${separator("|")}
-
-      <%
-         mail_img ="mail"
-         if c.have_messages:
-           mail_img += ".png"
-         else:
-           mail_img += "gray.png"
-         mail_img = static(mail_img)
-       %>
-      ${img_link(_("messages"), mail_img, path="/message/inbox/",
-                 _id = "mail" )}               
-      ${separator("|")}
-      ${thing.corner_buttons().render()}
-    %endif
-    
-
-  </div>
-</div>
+</div><!-- #header -->

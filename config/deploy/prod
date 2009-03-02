@@ -1,6 +1,7 @@
 set :application, "lesswrong.org"
 set :domains, %w[ lesswrong.org ]
 set :deploy_to, "/srv/www/#{application}"
+set :shared_dir, "#{deploy_to}/shared"
 set :engine, "paster"
 set :rails_env, "NA"
 

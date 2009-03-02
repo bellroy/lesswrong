@@ -48,13 +48,13 @@ except Exception, e:
 redditbroke =  \
 '''<html>
   <head>
-    <title>Reddit broke!</title>
+    <title>LessWrong broke!</title>
   </head>
   <body>
     <div style="margin: auto; text-align: center">
       <p>
         <a href="/">
-          <img border="0" src="/static/youbrokeit.png" alt="you broke reddit" />
+          <img border="0" src="/static/youbrokeit.png" alt="Error encountered" />
         </a>
       </p>
       <p>
@@ -106,7 +106,7 @@ class ErrorController(RedditController):
     def send403(self):
         c.response.status_code = 403
         c.site = Default
-        title = _("forbidden (%(domain)s)") % dict(domain=g.domain)
+        title = _("Forbidden (%(domain)s)") % dict(domain=g.domain)
         return pages.BoringPage(title,  loginbox=False,
                                 show_sidebar = False, 
                                 content=pages.ErrorPage()).render()
@@ -114,14 +114,14 @@ class ErrorController(RedditController):
     def send404(self):
         c.response.status_code = 404
         if c.site._spam and not c.user_is_admin:
-            msg = _("this reddit has been banned.")
+            msg = _("This category has been banned.")
             res =  pages.BoringPage(msg, loginbox = False,
                                     show_sidebar = False, 
                                     content = pages.ErrorPage(message = msg))
             return res.render()
         else:
             ch=rand.choice(['a','b','c','d','e'])
-            res = pages.BoringPage(_("page not found"),
+            res = pages.BoringPage(_("Page not found"),
                                    loginbox=False,
                                    show_sidebar = False, 
                                    content=pages.UnfoundPage(choice=ch))

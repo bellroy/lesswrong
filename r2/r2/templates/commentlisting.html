@@ -1,0 +1,11 @@
+<div id="comments" class="clear">
+  <h2>Comments (${thing.num_comments})</h2>
+  <div id="comment-controls">
+    %for menu in thing.menus:
+      <span>
+        ${menu.render()}
+      </span>
+    %endfor
+  </div>
+  ${thing.content.render()}
+</div>

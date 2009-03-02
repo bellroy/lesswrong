@@ -114,7 +114,7 @@ a_re    = re.compile('>([^<]+)</a>')
 
 #TODO markdown should be looked up in batch?
 #@memoize('markdown')
-def safemarkdown(text):
+def safemarkdown(text, div=True):
     from contrib.markdown import markdown
     if text:
         # increase escaping of &, < and > once
@@ -144,7 +144,7 @@ def safemarkdown(text):
         text = href_re.sub(href_handler, text)
         text = code_re.sub(code_handler, text)
         text = a_re.sub(inner_a_handler, text)
-        return MD_START + text + MD_END
+        return MD_START + text + MD_END if div else text
 
 
 def keep_space(text):

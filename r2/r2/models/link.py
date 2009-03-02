@@ -31,6 +31,7 @@ from r2.lib import utils
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
+from r2.lib.filters import _force_unicode
 
 from pylons import c, g, request
 from pylons.i18n import ungettext
@@ -59,7 +60,8 @@ class Link(Thing, Printable):
                      ip = '0.0.0.0',
                      render_full = False,
                      images = None,
-                     blessed = False)
+                     blessed = False,
+                     comments_enabled = True)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -260,7 +262,8 @@ class Link(Thing, Printable):
                               wrapped.can_ban,
                               wrapped.thumbnail,
                               wrapped.moderator_banned,
-                              wrapped.render_full))
+                              wrapped.render_full,
+                              wrapped.comments_enabled))
         # htmllite depends on other get params
         s = ''.join(s)
         if c.render_style == "htmllite":
@@ -273,7 +276,7 @@ class Link(Thing, Printable):
 
     def make_permalink(self, sr, force_domain = False):
         from r2.lib.template_helpers import get_domain
-        p = "comments/%s/%s/" % (self._id36, title_to_url(self.title))
+        p = "lw/%s/%s/" % (self._id36, title_to_url(self.title))
         if c.default_sr:
             res = "/%s" % p
         elif not c.cname:
@@ -291,7 +294,7 @@ class Link(Thing, Printable):
     @property
     def canonical_url(self):
         from r2.lib.template_helpers import get_domain
-        p = "comments/%s/%s/" % (self._id36, title_to_url(self.title))
+        p = "lw/%s/%s/" % (self._id36, title_to_url(self.title))
         return "http://%s/%s" % (get_domain(subreddit = False), p)
 
     @classmethod
@@ -623,6 +626,7 @@ class Tag(Thing):
 
         link_type = tdb.types_id[Link._type_id]
         link_data_table = link_type.data_table[0]
+        link_thing_table = link_type.thing_table
 
         link_sr = sa.select([
             link_data_table.c.thing_id,
@@ -632,9 +636,13 @@ class Tag(Thing):
         query = sa.select([linktag_thing_table.c.thing2_id,
                           sa.func.count(linktag_thing_table.c.thing1_id)],
                           sa.and_(linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
+                                  linktag_thing_table.c.thing1_id == link_thing_table.c.thing_id,
+                                  link_thing_table.c.spam == False,
                                   link_sr.c.sr_id.in_(*sr_ids)),
                           group_by = [linktag_thing_table.c.thing2_id],
-                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0)
+                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0,
+                          order_by = sa.desc(sa.func.count(linktag_thing_table.c.thing1_id)),
+                          limit = 100)
 
         rows = query.execute().fetchall()
         tags = []
@@ -643,7 +651,7 @@ class Tag(Thing):
             tags.append((tag, result.count))
 
         # Order by tag name
-        tags.sort(key=lambda x: x[0].name)
+        tags.sort(key=lambda x: _force_unicode(x[0].name))
         return cls.make_cloud(10, tags)
 
     @classmethod

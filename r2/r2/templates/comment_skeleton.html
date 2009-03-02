@@ -45,26 +45,26 @@ ${self.tagline(True)}
 </%def>
 
 <%def name="entry()">
-<% fullname = thing._fullname %>
-<% collapse = thing.collapsed %>
-<div id="collapsed_${fullname}"  class="collapsed"
-     ${(not collapse and "style='display:none'" or "")}>
-  ${self.collapsed()}
-</div>
-<div  id="display_${fullname}" 
-     ${(collapse and "style='display:none'" or "")}>
-  <p id="tagline_${fullname}" class="tagline">
-    ${self.tagline()}
-  </p>
-  <div id="body_${fullname}" 
-       class="commentbody ${(c.focal_comment and c.focal_comment == thing._id36) and 'border' or ''}">${self.commentBody()}
+  <% fullname = thing._fullname %>
+  <% collapse = thing.collapsed %>
+  <div id="collapsed_${fullname}" class="comment-meta collapsed clear"
+       ${(not collapse and "style='display:none'" or "")}>
+    ${self.collapsed()}
   </div>
-  <div style="display: none;" \
-       id="edit_body_${fullname}">${self.commentText()}\
+  <div id="display_${fullname}"
+       ${(collapse and "style='display:none'" or "")}>
+    <div class="comment-meta clear">
+      ${self.tagline()}
+    </div>
+    <div id="body_${fullname}" class="comment-content">
+      ${self.commentBody()}
+    </div>
+    <div style="display: none;" \
+           id="edit_body_${fullname}">${self.commentText()}\
+    </div>
+    <div class="comment-links">
+      ${self.buttons()}
+    </div>
   </div>
-  <ul class="flat-list buttons">
-    ${self.buttons()}
-  </ul>
-</div>
 </%def>
 

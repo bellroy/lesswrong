@@ -22,7 +22,7 @@
 
 <%!
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown
-   from r2.lib.utils import to36
+   from r2.lib.utils import to36, prettytime
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -57,19 +57,24 @@ ${parent.collapsed()}
 <%def name="tagline(collapse=False)">
 <% fullname = thing._fullname %>
   %if not thing.deleted:
-     ${unsafe(self.author(friend=thing.friend, gray = collapse))}&#32;
+    <span class="comment-author">Posted by:&#32;
+      <strong>${unsafe(self.author(friend=thing.friend, gray = collapse))}</strong>
+    </span>
   %else:
-     <em>${_("comment deleted")}</em>&#32;
+     <em>${_("Comment deleted")}</em>&#32;
   %endif
   %if collapse and thing.collapsed and not thing.deleted:
     ${_("comment score below threshold")}
   %else:
+    ##${thing.timesince} ${_("ago")}
+    <span class="comment-date">
+      ${prettytime(thing._date, seconds = True)}
+      %if thing.editted:
+        <em>*</em>&nbsp;
+      %endif
+    </span>
     %if not thing.deleted:
        ${unsafe(self.score(thing, likes = thing.likes, _id = not collapse))}&#32;
-    %endif
-    ${thing.timesince} ${_("ago")}
-    %if thing.editted:
-      <em>*</em>&nbsp;
     %endif
   %endif
   <a href="#" class="expand"
@@ -107,33 +112,39 @@ ${edit_comment_filter(thing.body)}
 ${parent.midcol()}
 </%def>
 
+<%def name="midcol()">
+</%def>
 
 <%def name="buttons()">
   %if not thing.deleted:
-    <% fullname = thing._fullname %>
-    <li class="first">
-      ${parent.comment_button("permalink", fullname, _("permalink"), 0, 
-      thing.permalink)}
-    </li>
-    %if not c.profilepage:
-      %if thing.parent_permalink:
-        <li>
-          ${bylink_button("parent", _("parent"), thing.parent_permalink)}
-        </li>
-      %endif
-      %if c.user_is_loggedin and thing.author.name == c.user.name:
-        <li>
-          ${parent.simple_button("edit", fullname, _("edit"), "editcomment")}
-        </li>
-      %endif
-    %endif
-    ${parent.delete_or_report_buttons()}
-    ${parent.buttons()}
-    %if not c.profilepage and thing.can_reply:
+    <ul class="clear">
+      <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
+      <li>${self.arrow(thing, 0, thing.likes == False)}</li>
+      <% fullname = thing._fullname %>
       <li>
-        ${parent.simple_button("reply", fullname, _("reply {verb}"), "reply")}
+        ${parent.comment_button("permalink", fullname, _("Permalink"), 0, 
+        thing.permalink)}
       </li>
-    %endif
+      %if not c.profilepage:
+        %if thing.parent_permalink:
+          <li>
+            ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
+          </li>
+        %endif
+        %if c.user_is_loggedin and thing.author.name == c.user.name:
+          <li>
+            ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
+          </li>
+        %endif
+      %endif
+      ${parent.delete_or_report_buttons()}
+      ${parent.buttons()}
+      %if not c.profilepage and thing.can_reply:
+        <li>
+          ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
+        </li>
+      %endif
+    </ul>
   %endif
   ${self.admintagline()}
 </%def>

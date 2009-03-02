@@ -1,0 +1,11 @@
+set :application, "moreor.lesswrong.org"
+set :domains, %w[ lesswrong.org ]
+set :deploy_to, "/srv/www/#{application}"
+set :shared_dir, "#{deploy_to}/shared"
+set :engine, "paster"
+set :rails_env, "NA"
+
+role :app, "serpent.trike.com.au"
+role :web, "serpent.trike.com.au"
+role :db,  "serpent.trike.com.au", :primary => true
+

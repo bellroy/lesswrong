@@ -37,7 +37,7 @@ ${self.RenderPrintable()}
         %elif thing.moderator_banned and thing.banner:
           ${strings.banned_by % thing.banner}
         %else:
-          ${_("banned")}
+          ${_("Banned")}
         %endif
       ]</li></b>
   %elif thing.show_reports:
@@ -63,10 +63,10 @@ ${self.RenderPrintable()}
       else:
         rowclass = thing.rowstyle
   %>
-<div id="thingrow_${fullname}" class="${rowclass} ${cls}" $display>
-  <p id="pre_${fullname}">
+<div id="thingrow_${fullname}" class="${cls}" $display>
+  <div id="pre_${fullname}">
     ${self.ParentDiv()}
-  </p>
+  </div>
   ${self.numcol()}
   ${self.midcol()}
   <div id="entry_${fullname}" class="entry">
@@ -83,19 +83,19 @@ ${self.RenderPrintable()}
 %if thing.can_ban and ban:
   %if thing.show_spam:
     <li>
-      ${state_button("unban", fullname, _("unban"), \
-      "return change_state(this, 'unban');", _("unbanned"))}
+      ${state_button("unban", fullname, _("Unban"), \
+      "return change_state(this, 'unban');", _("Unbanned"))}
     </li>
   %else:
     <li>
-      ${state_button("ban", fullname, _("ban"), \
-      "return change_state(this, 'ban');", _("banned"))}
+      ${state_button("ban", fullname, _("Ban"), \
+      "return change_state(this, 'ban');", _("Banned"))}
     </li>
     %endif
   %if thing.show_reports:
     <li>
-    ${state_button("ignore", fullname, _("ignore"), \
-    "return change_state(this, 'ignore');", _("ignored"))}
+    ${state_button("ignore", fullname, _("Ignore"), \
+    "return change_state(this, 'ignore');", _("Ignored"))}
     </li>
   %endif
 %endif
@@ -106,16 +106,16 @@ ${self.RenderPrintable()}
 %if c.user_is_loggedin:
   %if (not thing.author or thing.author.name != c.user.name) and report:
     <li>
-      ${yes_no_button("report", fullname, _("report"), \
+      ${yes_no_button("report", fullname, _("Report"), \
       "return deletetoggle(this, $ListClass.report);",\
-      _("reported"), clicked=thing.report_made)}
+      _("Reported"), clicked=thing.report_made)}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and delete:
     <li>
-      ${yes_no_button("delete", fullname, _("delete"), \
+      ${yes_no_button("delete", fullname, _("Delete"), \
       "return deletetoggle(this, $ListClass.del);",\
-      _("deleted"))}
+      _("Deleted"))}
     </li>
   %endif
 %endif
@@ -140,7 +140,7 @@ ${self.RenderPrintable()}
 </div>
 </%def>
 
-<%def name="author(friend = False, gray = False)" buffered="True">
+<%def name="author(friend = False, gray = False, css_base='author')" buffered="True">
   %if thing.deleted and not c.user_is_admin:
     [deleted]
   %else:
@@ -149,7 +149,7 @@ ${self.RenderPrintable()}
   %else:
     <%
        author = thing.author
-       author_cls = "author"
+       author_cls = css_base
        if friend:
           author_cls += " friend"
        elif gray:
@@ -158,7 +158,7 @@ ${self.RenderPrintable()}
        href = unsafe('href="%s"' % add_sr("/user/%s/" % name, sr_path = False))
        if c.user_is_admin: name += " (%d)" % (author.link_karma)
     %>
-    <a id="author_${thing._fullname}" class="${author_cls}" ${href}>${name}</a>
+    <span class="${author_cls}"><a id="author_${thing._fullname}" ${href}>${name}</a></span>
  %endif
 %endif
 </%def>
@@ -167,17 +167,16 @@ ${self.RenderPrintable()}
 <%def name="arrow(this, dir, mod)">
 <% 
    _type = "up" if dir > 0 else "down"
-   _class = _type + ("mod" if mod else "")
+   _class = _type + (" mod" if mod else "")
    fullname = this._fullname
 %>
-  <div id="${_type}_${fullname}" class="arrow ${_class}" 
-       %if c.user_is_loggedin:
-         onclick="mod('${fullname}', ${dir}, '$votehash')"
-       %else:
-         onclick="showcover(true, 'vote_${fullname}')"
-       %endif
-       >
-  </div>
+  <a id="${_type}_${fullname}" class="${_class}"
+  %if c.user_is_loggedin:
+    onclick="mod('${fullname}', ${dir}, '$votehash')"
+  %else:
+    onclick="showcover(true, 'vote_${fullname}')"
+  %endif
+  >${_('Vote')} ${_(_type)}</a>
 </%def>
 
 <%def name="score(this, likes=None, inline=True, label = True, _id = True)">
@@ -192,7 +191,7 @@ ${self.RenderPrintable()}
    base_score = [base_score + x for x in range(-1, 2)];
    
  %>
-  <${tag} class="score ${_class}" ${_id}>
+  <${tag} class="votes ${_class}" ${_id}>
     ${thing.score_fmt(this.score)}
   </${tag}>
   <script type="text/javascript">
@@ -204,7 +203,7 @@ ${self.RenderPrintable()}
 
 
 <%def name="midcol(display=True)">
-  <div id="arrows_${thing._fullname}" class="midcol" 
+  <div id="arrows_${thing._fullname}" class="vote" 
        ${not display and "style='display:none'" or ''}>
     ${self.arrow(thing, 1, thing.likes)}
     ${self.arrow(thing, 0, thing.likes == False)}
@@ -250,7 +249,7 @@ ${self.RenderPrintable()}
 
 <%def name="yes_no_button(name, fullname, title, onclick, executed, clicked=False, **kw)">
 ${state_button(name, fullname, title, onclick, executed, 
-               yes=_('yes'), no=_('no'), question=_('are you sure?'), 
+               yes=_('Yes'), no=_('No'), question=_('Are you sure?'), 
                clicked=clicked, **kw)}
 </%def>
 

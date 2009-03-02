@@ -52,23 +52,23 @@
       %if not thing.link_name:
       <button id="cancel_" class="btn" 
               onclick="cancelReply(this);return false">
-        ${_("cancel")}</button>
+        ${_("Cancel")}</button>
       %endif
       <span id='status_${thing.link_name}' class='error'></span>
     </div>
     <div id="marktoggle_${thing.link_name}" 
          class="help-toggle">
       <a id="marklink_${thing.link_name}" href='#' 
-         onclick='return helpon(this, "markhelp_", "${_('hide help')}");'>
-        ${_("help")}
+         onclick='return helpon(this, "markhelp_", "${_('Hide help')}");'>
+        ${_("Help")}
       </a>
     </div>
-    <div class="clearleft"></div>
+    <div class="clear"></div>
     <script type="text/javascript">
       var form = $("commentform_${thing.link_name}");
       if(form) {
         setMessage(form.comment_reply_${thing.link_name},
-                     "${_('enter a comment here')}")
+                     "${_('Enter a comment here')}")
       }
     </script>
 
@@ -81,8 +81,8 @@
           <td><em>${_( "italics")}</em></td></tr>
         <tr><td>**${_( "bold")}**</td>
           <td><b>${_( "bold")}</b></td></tr>
-        <tr><td>[reddit!](http://reddit.com)</td>
-          <td><a href="http://reddit.com">reddit!</a></td></tr>
+        <tr><td>[LessWrong](http://www.lesswrong.com)</td>
+          <td><a href="http://lesswrong.com">LessWrong</a></td></tr>
         <tr><td>* ${_( "item")} 1<br/>
             * ${_( "item")} 2<br/>
             *  ${_( "item")} 3</td>

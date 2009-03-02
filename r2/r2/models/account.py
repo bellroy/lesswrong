@@ -278,6 +278,9 @@ def passhash(username, password, salt = ''):
     if salt is True:
         salt = randstr(3)
     tohash = '%s%s %s' % (salt, username, password)
+    if isinstance(tohash, unicode):
+        # Force tohash to be a byte string so it can be hashed
+        tohash = tohash.encode('utf8')
     return salt + sha.new(tohash).hexdigest()
 
 def change_password(user, newpassword):

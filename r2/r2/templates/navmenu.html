@@ -118,3 +118,60 @@
     </ul>
   %endif
 </%def>
+
+
+<%def name="userlinks()">
+  %if thing:
+    <ul class="userlinks"
+        ${"id='%s'" % thing._id if thing._id else ""}>
+        %for i, option in enumerate(thing):
+          <%
+             selected = (option == thing.selected)
+          %>
+          <li ${"class='selected'" if selected else ""}>
+            ${option.render(selected = selected)}
+          </li>
+        %endfor
+    </ul>
+  %endif
+</%def>
+
+
+<%def name="select()">
+  %if thing:
+    <% _id = thing._id if thing._id else None %>
+    %if thing.title:
+      <label ${"for='%s'" % _id if _id else ""}>${thing.title}</label>
+    %endif
+    <select
+        ${"id='%s'" % _id if _id else ""} onchange="open_choice(this)">
+        %for i, option in enumerate(thing):
+          <%
+             selected = (option == thing.selected)
+             option.style = 'select_option'
+          %>
+          ${option.render(selected = selected)}
+        %endfor
+    </select>
+  %endif
+</%def>
+
+<%def name="navlist()">
+  %if thing:
+    <ul class="clear"
+        ${"id='%s'" % thing._id if thing._id else ""}>
+      %for i, option in enumerate(thing):
+        <%
+           ##option.title isn't the title, option.render() is the entire link
+           if option == thing.selected:
+             class_name = "class='active'"
+             content = option.render(selected=True)
+           else:
+             class_name = ""
+             content = option.render()
+        %>
+        <li ${class_name}>${content}</li>
+      %endfor
+    </ul>
+  %endif
+</%def>

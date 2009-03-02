@@ -259,8 +259,8 @@ class Subreddit(Thing, Printable):
     def get_comments(self, sort, time):
         """This method relies on the fact that Link and Comment can be
           queried with the same filters"""
-        from r2.models import InlineComment
-        return self.get_links(sort, time, InlineComment)
+        from r2.models import Comment
+        return self.get_links(sort, time, Comment)
 
     @classmethod
     def add_props(cls, user, wrapped):
@@ -465,7 +465,7 @@ class FakeSubreddit(Subreddit):
 
 class FriendsSR(FakeSubreddit):
     name = 'friends'
-    title = 'friends'
+    title = 'Friends'
 
     def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
@@ -486,7 +486,7 @@ class FriendsSR(FakeSubreddit):
             
 class AllSR(FakeSubreddit):
     name = 'all'
-    title = 'all'
+    title = 'All'
 
     def get_links(self, sort, time, link_cls = None):
         from r2.models import Link
@@ -589,7 +589,7 @@ class DomainSR(FakeSubreddit):
         FakeSubreddit.__init__(self)
         self.domain = domain
         self.name = domain 
-        self.title = domain + ' ' + _('on reddit.com')
+        self.title = domain + ' ' + _('on lesswrong.com')
 
     def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
