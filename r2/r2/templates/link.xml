@@ -24,6 +24,7 @@
    from pylons.i18n import _, ungettext
    from r2.lib.template_helpers import add_sr, get_domain
    from r2.models import FakeSubreddit
+   from r2.lib.filters import safehtml
 %>
 <% 
    com_label = ungettext("comment", "comments", thing.num_comments)
@@ -38,9 +39,11 @@
   <dc:date>${thing._date.isoformat()}</dc:date>
   <description>
     <% domain = get_domain(cname = c.cname, subreddit = False) %>
-    submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
-    &lt;a href="${thing.url}"&gt;[link]&lt;/a&gt;
-    &lt;a href="${url}"&gt;[${thing.num_comments} ${com_label}]&lt;/a&gt;
+    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
+    %if hasattr(thing, 'article'):
+      ${safehtml(thing.article)}
+    %endif
   </description>
   %if use_thumbs:
     <media:title>${thing.title}</media:title>
