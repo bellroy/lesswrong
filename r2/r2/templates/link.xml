@@ -37,7 +37,6 @@
   <link>${url}</link>
   <guid isPermaLink="true">${url}</guid>
   <pubDate>${rfc822format(thing._date)}</pubDate>
-  <dc:date>${rfc822format(thing._date)}</dc:date>
   <description>
     <% domain = get_domain(cname = c.cname, subreddit = False) %>
     Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
