@@ -23,8 +23,14 @@
 <% from r2.lib.template_helpers import static %>
 <%page args="menu" />
 <div id="header">
-  <a href="/"><img src="${static('header.png')}" alt="Lesswrong Header" /></a>
+  <img id="gradient" src="${static('black_trans.png')}" alt="Translucent gradient" />
+  <a id="logo" href="/"><img src="${static('logo_trans.png')}" alt="Lesswrong Logo" /></a>
+  <a id="fhi" href="http://www.fhi.ox.ac.uk/">
+    <img src="${static('FHI_diamond.png')}" alt="Future of Humanity Institute Logo" />
+  </a>
+</div><!-- #header -->
+<div>
   %if menu:
     ${menu.render()}
   %endif
-</div><!-- #header -->
+</div>

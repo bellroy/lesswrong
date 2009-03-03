@@ -4,6 +4,11 @@
 	behavior: url("/static/iepngfix.htc");
 }
 
+/* Header
+-------------------------------------------------------------------------------------- */
+#gradient, a#logo img, a#fhi img {
+	behavior: url(/iepngfix/iepngfix.htc);
+}
 
 /* Post
 -------------------------------------------------------------------------------------- */
@@ -35,3 +40,4 @@ div.sidebox select {
 #side-status ul.userlinks li a {
 	width: 90px;
 }
+
