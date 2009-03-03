@@ -21,7 +21,7 @@
 ################################################################################
 
 <%! 
-   from r2.lib.template_helpers import add_sr, static, join_urls, class_dict, path_info
+   from r2.lib.template_helpers import add_sr, static, join_urls, class_dict, path_info, get_domain
    from r2.lib.pages import SearchForm
    from pylons import request
    import os
@@ -37,8 +37,6 @@
 </%def>
 
 <%def name="stylesheet()">
-  <% from r2.lib.template_helpers import static, get_domain %>
-
   <link rel="stylesheet" href="${static('main.css')}" type="text/css" />
   <link rel="stylesheet" href="${static(g.stylesheet)}" type="text/css" />
   <!--[if IE 7]>
@@ -60,7 +58,6 @@
 </%def>
 
 <%def name="javascript()">
-  <% from r2.lib.template_helpers import static %>
   <script src="${static('json.js')}" type="text/javascript"></script>
   %if g.uncompressedJS:
     <script src="${static('psrs.js')}"  type="text/javascript"></script>
@@ -94,7 +91,7 @@
   var _global_fetching_tag = "${_('Fetching title...')}";
   var _global_submitting_tag = "${_('Submitting...')}";
   var _global_loading_tag = "${_('Loading...')}";
-  init_tinymce();
+  init_tinymce("http://${get_domain(subreddit=False)}/");
 </%def>
 
 <%def name="bodyHTML()">

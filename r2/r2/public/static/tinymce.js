@@ -1,4 +1,4 @@
-function init_tinymce() {
+function init_tinymce(base_url) {
   tinyMCE.init({
     mode : "exact",
     elements : "article",
@@ -11,7 +11,10 @@ function init_tinymce() {
     theme_advanced_buttons2 : "",
     theme_advanced_buttons3 : "",
     plugins : "summarybreak,inlinepopups,xhtmlxtras",
-    file_browser_callback : 'showImageBrowser'
+    file_browser_callback : 'showImageBrowser',
+    relative_urls : false,
+    convert_urls : false,
+    document_base_url : base_url
   }); 
 };
 
