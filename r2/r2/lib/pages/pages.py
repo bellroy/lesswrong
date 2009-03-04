@@ -140,7 +140,7 @@ class Reddit(Wrapped):
         ps.append(TopContributors())
         
         if self.extension_handling:
-            ps.append(FeedBar())
+            ps.append(FeedLinkBar())
 
         return ps
 
@@ -1262,6 +1262,6 @@ class PromoteLinkForm(Wrapped):
                          listing = listing,
                          *a, **kw)
 
-class FeedBar(Wrapped): pass
+class FeedLinkBar(Wrapped): pass
 
 class AboutBox(Wrapped): pass
