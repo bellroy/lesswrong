@@ -632,3 +632,7 @@ class CommentsController(ListingController):
             q._filter(Comment.c._spam == False)
 
         return q
+
+    def GET_listing(self, **env):
+        c.show_in_reply_to = True
+        return ListingController.GET_listing(self, **env)

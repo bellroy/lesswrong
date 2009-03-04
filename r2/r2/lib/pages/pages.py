@@ -214,7 +214,7 @@ class Reddit(Wrapped):
         """Navigation menu for the header"""
         # Ensure the default button is the first tab
         default_button_name = c.site.default_listing
-        button_names = ['blessed', 'hot', 'new', 'controversial', 'top']
+        button_names = ['blessed', 'hot', 'new', 'controversial', 'top', 'comments']
         button_names.remove(default_button_name)
         button_names.insert(0, default_button_name)
         
@@ -1265,3 +1265,4 @@ class PromoteLinkForm(Wrapped):
 class FeedBar(Wrapped): pass
 
 class AboutBox(Wrapped): pass
+
