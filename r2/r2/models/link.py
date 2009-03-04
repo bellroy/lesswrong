@@ -800,13 +800,16 @@ class Comment(Thing, Printable):
             if not hasattr(item, 'subreddit'):
                 item.subreddit = item.subreddit_slow
             if hasattr(item, 'parent_id'):
+                parent = Comment._byID(item.parent_id)
+                parent_author = Account._byID(parent.author_id)
+                item.parent_author = parent_author
                 if cids.has_key(item.parent_id):
                     item.parent_permalink = '#' + utils.to36(item.parent_id)
                 else:
-                    parent = Comment._byID(item.parent_id)
                     item.parent_permalink = parent.make_permalink(item.link, item.subreddit)
             else:
                 item.parent_permalink = None
+                item.parent_author = None
 
             item.can_reply = (item.sr_id in can_reply_srs)
 
