@@ -129,18 +129,17 @@ class Reddit(Wrapped):
         if self.searchbox:
             ps.append(GoogleSearchForm())
 
-        ps.append(TagCloud())
-
         #don't show the subreddit info bar on cnames
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
 
-        ps.append(RecentArticles())
         ps.append(RecentComments())
+        ps.append(RecentArticles())
 
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
+        ps.append(TagCloud())
         ps.append(TopContributors())
 
         if self.extension_handling:
