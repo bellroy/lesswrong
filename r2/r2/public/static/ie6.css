@@ -4,6 +4,11 @@
 	behavior: url("/static/iepngfix.htc");
 }
 
+/* Header
+-------------------------------------------------------------------------------------- */
+#gradient, a#logo img, a#fhi img {
+	behavior: url(/iepngfix/iepngfix.htc);
+}
 
 /* Post
 -------------------------------------------------------------------------------------- */
@@ -25,13 +30,18 @@ form#comment-listing select {
 	width: 150px;
 }
 
-
 /* Sidebar
 -------------------------------------------------------------------------------------- */
-div.sidebox input,
 div.sidebox select {
 	float: left;
+}
+#side-search input {
+    width: auto;
 }
 #side-status ul.userlinks li a {
 	width: 90px;
 }
+#side-comments h3 {
+	width: 175px;
+}
+

@@ -1,7 +1,20 @@
 #wrapper {
     padding: 20px 20px 0 20px;
 }
-
+#header {
+	position: relative;
+	height: 160px;
+}
+#gradient {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#fhi {
+	position: absolute;
+	bottom: 0;
+	right: 2px;
+}
 #content.clear.fullwidth {
     padding: 0 15px;
     width: 920px;
@@ -317,9 +330,6 @@ div.sidebox label {
 }
 
 /* Google search */
-#side-search input {
-    width: auto; /* needed for IE6 */
-}
 #side-search input[type=text] {
     width: 130px;
 }
