@@ -1270,3 +1270,7 @@ class FeedLinkBar(Wrapped): pass
 
 class AboutBox(Wrapped): pass
 
+class FeedBox(Wrapped):
+    def __init__(self, feed_url, *a, **kw):
+        self.feed_url = feed_url
+        Wrapped.__init__(self, *a, **kw)
