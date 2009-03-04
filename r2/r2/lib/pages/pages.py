@@ -137,10 +137,11 @@ class Reddit(Wrapped):
 
         ps.append(RecentArticles())
         ps.append(RecentComments())
-        ps.append(TopContributors())
 
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
+
+        ps.append(TopContributors())
 
         if self.extension_handling:
             ps.append(FeedLinkBar())
