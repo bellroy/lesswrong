@@ -330,9 +330,6 @@ div.sidebox label {
 }
 
 /* Google search */
-#side-search input {
-    width: auto; /* needed for IE6 */
-}
 #side-search input[type=text] {
     width: 130px;
 }
