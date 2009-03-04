@@ -361,11 +361,8 @@ div.comment-links a.mod {
     color: red;
     margin: 5px;
 }
-
-.comment .title {
-    font-weight: bold;
-    margin-top: 10px;
-    padding:0 5px;
+div.comment div.parent {
+	padding-left: 5px;
 }
 
 /* Login form in sidebar */

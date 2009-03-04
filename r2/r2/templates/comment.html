@@ -37,9 +37,15 @@ ${parent.midcol(not thing.collapsed)}
 <%def name="ParentDiv()">
   ${parent.ParentDiv()}
   <a name="${thing._id36}" ></a>
-  %if c.profilepage:
+  %if c.profilepage or c.show_in_reply_to:
     %if thing.link: 
       %if thing.link.title:
+        ${_('In response to')}&#32;
+        %if thing.parent_permalink and thing.parent_author:
+          ${bylink_button("parent", _("comment"), thing.parent_permalink)}&#32;
+          by&#32;${unsafe(self.author(friend = thing.friend, gray = collapse, parent = True))}&#32;
+          on&#32;
+        %endif
         <a href="${thing.link.url}" class="title">
           ${thing.link.title}
         </a>
@@ -57,7 +63,7 @@ ${parent.collapsed()}
 <%def name="tagline(collapse=False)">
 <% fullname = thing._fullname %>
   %if not thing.deleted:
-    <span class="comment-author">Posted by:&#32;
+    <span class="comment-author">
       <strong>${unsafe(self.author(friend=thing.friend, gray = collapse))}</strong>
     </span>
   %else:

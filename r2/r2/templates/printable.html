@@ -64,7 +64,7 @@ ${self.RenderPrintable()}
         rowclass = thing.rowstyle
   %>
 <div id="thingrow_${fullname}" class="${cls}" $display>
-  <div id="pre_${fullname}">
+  <div id="pre_${fullname}" class="parent">
     ${self.ParentDiv()}
   </div>
   ${self.numcol()}
@@ -140,15 +140,15 @@ ${self.RenderPrintable()}
 </div>
 </%def>
 
-<%def name="author(friend = False, gray = False, css_base='author')" buffered="True">
+<%def name="author(author = None, friend = False, gray = False, css_base='author', parent=False)" buffered="True">
+  <% author = thing.parent_author if parent else thing.author %>
   %if thing.deleted and not c.user_is_admin:
     [deleted]
   %else:
-  %if thing.author._deleted:
+  %if author._deleted:
     <span>[deleted]</span>
   %else:
     <%
-       author = thing.author
        author_cls = css_base
        if friend:
           author_cls += " friend"
