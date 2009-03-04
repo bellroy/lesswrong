@@ -640,7 +640,7 @@ class Tag(Thing):
                                   link_thing_table.c.spam == False,
                                   link_sr.c.sr_id.in_(*sr_ids)),
                           group_by = [linktag_thing_table.c.thing2_id],
-                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 0,
+                          having = sa.func.count(linktag_thing_table.c.thing1_id) > 1,
                           order_by = sa.desc(sa.func.count(linktag_thing_table.c.thing1_id)),
                           limit = 100)
 
