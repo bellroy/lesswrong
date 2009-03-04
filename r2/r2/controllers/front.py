@@ -575,10 +575,22 @@ class FrontController(RedditController):
     def GET_imagebrowser(self, article):
         return ImageBrowser(article).render()
 
+    #XXX These 'redirect pages' should be generalised
+    def _redirect_to_link(self, link_id):
+        try:
+            link = Link._byID(int(link_id, 36), data=True)
+        except NotFound:
+            return self.abort404()
+        return self.redirect(link.make_permalink(subreddit.Default))
+
     def GET_about(self):
         try:
-            about_post = Link._byID(int(g.about_post_id, 36), data=True)
-        except (NotFound, AttributeError):
+            return self._redirect_to_link(g.about_post_id)
+        except AttributeError:
             return self.abort404()
 
-        return self.redirect(about_post.make_permalink(subreddit.Default))
+    def GET_issues(self):
+        try:
+            return self._redirect_to_link(g.issues_post_id)
+        except AttributeError:
+            return self.abort404()

@@ -116,6 +116,7 @@ def make_map(global_conf={}, app_conf={}):
        dest='http://code.google.com/p/lesswrong/')
     
     mc('/about-less-wrong', controller='front', action='about')
+    mc('/issues', controller='front', action='issues')
 
     # This route handles displaying the error page and 
     # graphics used in the 404/500
