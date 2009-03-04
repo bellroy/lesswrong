@@ -63,7 +63,8 @@ class Globals(object):
                    'monitored_servers',
                    'default_srs',
                    'agents',
-                   'allowed_css_linked_domains']
+                   'allowed_css_linked_domains',
+                   'feedbox_urls']
 
     def __init__(self, global_conf, app_conf, paths, **extra):
         """
