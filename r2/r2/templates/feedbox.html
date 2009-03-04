@@ -14,7 +14,7 @@
         if (!result.error) {
           var title = document.getElementById("${title_id}");
           if(title) {
-            title.innerHTML = result.feed.title;
+            title.innerHTML = "${_('New on')} " + result.feed.title + "<br />${_('(Sister Site)')}";
           }
           var container = document.getElementById("${container_id}");
           for (var i = 0; i < result.feed.entries.length; i++) {
