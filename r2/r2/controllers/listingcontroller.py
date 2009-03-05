@@ -635,4 +635,6 @@ class CommentsController(ListingController):
 
     def GET_listing(self, **env):
         c.show_in_reply_to = True
+        if not env.has_key('limit'):
+            env['limit'] = 2 * c.user.pref_numsites
         return ListingController.GET_listing(self, **env)
