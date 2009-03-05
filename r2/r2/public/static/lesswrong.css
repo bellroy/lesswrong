@@ -147,6 +147,9 @@ div.comment-meta span span {
     overflow: hidden;
     height: 1.4em;
 }
+#side-comments h2 a {
+	color: rgb(65, 65, 67); /* For IE[67] */
+}
 #side-comments h2 a:hover {
 	text-decoration: underline;
 }
