@@ -432,3 +432,13 @@ div.comment div.parent {
     margin-left: 15px;
     margin-top: 5px;
 }
+
+/* Categories page */
+.sr-toggle-button {
+    width: 54px;
+    height: 18px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+.sr-toggle-button.add { background-image: url(/static/sr-add-button.png) }
+.sr-toggle-button.remove { background-image: url(/static/sr-remove-button.png)}

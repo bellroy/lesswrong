@@ -176,6 +176,8 @@ class Subreddit(Thing, Printable):
         elif self.is_moderator(user) or self.is_contributor(user):
             #restricted/private require contributorship
             return True
+        elif self == Subreddit._by_name(g.default_sr) and user.safe_karma >= g.karma_to_post:
+            return True
         else:
             return False
 

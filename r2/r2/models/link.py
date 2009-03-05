@@ -99,7 +99,10 @@ class Link(Thing, Printable):
         if c.user_is_admin:
             return True
         elif self.author_id == c.user._id:
-            return True
+            # They can submit if they are the author and still have access
+            # to the subreddit of the article
+            sr = Subreddit._byID(self.sr_id, data=True)
+            return sr.can_submit(user)
         else:
             return False
             
