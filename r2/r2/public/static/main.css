@@ -112,15 +112,15 @@ ul#nav {
 	padding: 5px 0;
 }
 ul#nav li {
-	border-right: 1px solid #c1c2c4;
+	border-left: 1px solid #c1c2c4;
 	float: left;
 	line-height: 1.2;
 	margin: 1px 0;
 	padding: 0 15px;
 	text-transform: uppercase;
 }
-ul#nav li:last-child {
-	border-right: none;
+ul#nav li:first-child {
+	border-left: none;
 }
 ul#nav li a {
 	color: #bbbbbe;
@@ -133,7 +133,10 @@ ul#nav li.active a {
 ul#nav li a:hover {
 	color: #414143;
 }
-
+ul#nav li.right {
+	float: right;
+	border: none;
+}
 
 /* Post
 -------------------------------------------------------------------------------------- */

@@ -108,9 +108,6 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
-        if not c.user_is_loggedin:
-            ps.append(AboutBox())
-
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
         else:

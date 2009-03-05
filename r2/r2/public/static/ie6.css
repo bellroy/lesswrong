@@ -45,3 +45,8 @@ div.sidebox select {
 	width: 175px;
 }
 
+/* Nav Bar
+-------------------------------------------------------------------------------------- */
+ul#nav {
+	behavior: expression(this.firstChild.style.borderLeft = "none");
+}
