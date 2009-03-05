@@ -1,5 +1,8 @@
+<%namespace file="utils.html" import="plain_link"/>
 <div id="side-comments" class="sidebox">
-  <h2>Recent Comments:</h2>
+  <h2>
+    ${plain_link(_('Recent Comments'), '/comments')}:
+  </h2>
   <% 
      t = thing.things
      comment_generator = t.item_iter(t.get_items())

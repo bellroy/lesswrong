@@ -147,6 +147,9 @@ div.comment-meta span span {
     overflow: hidden;
     height: 1.4em;
 }
+#side-comments h2 a:hover {
+	text-decoration: underline;
+}
 
 /* Recent articles */
 #side-posts div.reddit-link div, #side-comments div.inline-comment, #side-contributors div.user {
