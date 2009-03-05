@@ -102,7 +102,7 @@ class Account(Thing):
 
     @property
     def safe_karma(self):
-        karma = self.link_karma
+        karma = self.link_karma + self.comment_karma
         return max(karma, 1) if karma > -1000 else karma
 
     def all_karmas(self):
