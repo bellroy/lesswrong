@@ -37,7 +37,7 @@ def top_users():
                   sa.and_(tt.c.spam == False,
                           tt.c.deleted == False,
                           karma.c.thing_id == tt.c.thing_id,
-                          karma.c.key.like('%link_karma')),
+                          karma.c.key.like('%_karma')),
                   group_by = [tt.c.thing_id],
                   order_by = sa.desc(sa.func.sum(sa.cast(karma.c.value, sa.Integer))),
                   limit = 10)
