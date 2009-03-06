@@ -288,7 +288,7 @@ class RecentComments(RecentItems):
 class RecentArticles(RecentItems):
     def query(self):
         q = c.site.get_links('new', 'all')
-        q._limit = 5
+        q._limit = 10
         return q
 
 class TopContributors(Wrapped):
