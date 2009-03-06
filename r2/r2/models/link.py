@@ -809,7 +809,7 @@ class Comment(Thing, Printable):
                 if cids.has_key(item.parent_id):
                     item.parent_permalink = '#' + utils.to36(item.parent_id)
                 else:
-                    item.parent_permalink = parent.make_permalink(item.link, item.subreddit)
+                    item.parent_permalink = parent.make_permalink(item.link, item.subreddit) + '#comments'
             else:
                 item.parent_permalink = None
                 item.parent_author = None
