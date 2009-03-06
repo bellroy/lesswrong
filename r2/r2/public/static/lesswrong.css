@@ -196,9 +196,18 @@ div.comment-meta span span {
     padding-right: 5px;
 }
 
-/* markdown */
+/* Markdown */
 .md { font-size: small; }
-.md h1 { font-weight: normal; font-size: 100%; }
+.md h1,
+.md h2,
+.md h3,
+.md h4,
+.md h5,
+.md h6 { color: black; float: none; }
+#comments .md h2 { color: black; float: none; }
+.md h2 { font-size: 16px; }
+.md h3 { font-size: 15px; }
+.md h4 { font-size: 14px; }
 .md strong { font-weight: bold; }
 .md em, .help em { font-style: italic; }
 .md strong em { font-style: italic; font-weight: bold }
