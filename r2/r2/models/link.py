@@ -803,7 +803,7 @@ class Comment(Thing, Printable):
             if not hasattr(item, 'subreddit'):
                 item.subreddit = item.subreddit_slow
             if hasattr(item, 'parent_id'):
-                parent = Comment._byID(item.parent_id)
+                parent = Comment._byID(item.parent_id, True)
                 parent_author = Account._byID(parent.author_id)
                 item.parent_author = parent_author
 
