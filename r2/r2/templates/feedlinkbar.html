@@ -3,9 +3,9 @@
 %>
 <div id="side-feed" class="sidebox">
   <div class="feed-icon">
-    <a href=".rss">
+    <a href="${add_sr(join_urls(request.path,'.rss'))}">
       <img src="${static('feed.png')}" alt="Feed icon" />
     </a>
   </div>
-  <a href="${add_sr(join_urls(request.path,'.rss'))}">Feed for this page</a>
+  <a href="${add_sr(join_urls(request.path,'.rss'))}">RSS feed for this page</a>&nbsp;
 </div>

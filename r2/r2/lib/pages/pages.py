@@ -130,6 +130,9 @@ class Reddit(Wrapped):
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
 
+        if self.extension_handling:
+            ps.append(FeedLinkBar())
+
         ps.append(RecentComments())
         ps.append(RecentArticles())
 
@@ -138,9 +141,6 @@ class Reddit(Wrapped):
 
         ps.append(TagCloud())
         ps.append(TopContributors())
-
-        if self.extension_handling:
-            ps.append(FeedLinkBar())
 
         return ps
 
