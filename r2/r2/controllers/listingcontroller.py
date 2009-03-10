@@ -321,6 +321,31 @@ class NewController(ListingController):
         self.sort = sort
         return ListingController.GET_listing(self, **env)
 
+class RecentpostsController(NewController):
+    where = 'recentposts'
+
+    def __init__(self, *a, **kw):
+        self.render_params['extension_handling'] = False
+        NewController.__init__(self, a, **kw)
+
+    @staticmethod
+    def builder_wrapper(thing):
+        w = Wrapped(thing)
+
+        if isinstance(thing, Link):
+            w.render_class = InlineArticle
+
+        return w
+
+    def content(self):
+        return RecentArticlesPage(content=self.listing_obj)
+
+    def GET_listing(self, **env):
+        if not env.has_key('limit'):
+            env['limit'] = 250
+        return NewController.GET_listing(self, **env)
+
+
 class TagController(ListingController):
     where = 'tag'
     title_text = _('Articles tagged')

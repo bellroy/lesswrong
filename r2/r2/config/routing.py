@@ -75,7 +75,7 @@ def make_map(global_conf={}, app_conf={}):
     
     mc('/', controller='root', action='listing')
     
-    listing_controllers = "hot|saved|toplinks|new|recommended|randomrising|comments|blessed"
+    listing_controllers = "hot|saved|toplinks|new|recommended|randomrising|comments|blessed|recentposts"
 
     mc('/:controller', action='listing',
        requirements=dict(controller=listing_controllers))
@@ -129,6 +129,6 @@ def make_map(global_conf={}, app_conf={}):
     mc('/error/document/:id', controller='error', action="document")
 
     mc("/*url", controller='front', action='catchall')
-   
+
     return map
 

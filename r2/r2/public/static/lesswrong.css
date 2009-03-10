@@ -147,18 +147,47 @@ div.comment-meta span span {
     overflow: hidden;
     height: 1.4em;
 }
-#side-comments h2 a {
+#side-comments h2 a, #side-posts h2 a {
 	color: rgb(65, 65, 67); /* For IE[67] */
 }
-#side-comments h2 a:hover {
+#side-comments h2 a:hover, #side-posts h2 a:hover {
 	text-decoration: underline;
 }
 
 /* Recent articles */
-#side-posts div.reddit-link div, #side-comments div.inline-comment, #side-contributors div.user {
+#side-posts div.reddit-link div,
+#side-comments div.inline-comment,
+#side-contributors div.user {
     display: list-item;
     list-style: disc;
     margin-left: 15px;
+}
+
+/* Recent articles listing */
+div.inline-listing h3 {
+	display: inline;
+	font-size: 1em;
+	margin: 0;
+}
+div.inline-listing span {
+	margin-left: 0.5em;
+}
+div.inline-listing div.sitetable {
+	margin-bottom: 1em;
+}
+div.inline-listing div.sitetable div {
+    display: list-item;
+    list-style: disc;
+    margin-left: 15px;
+}
+div.inline-listing div.sitetable div.ajaxhook {
+    display: none;
+}
+div.inline-listing a {
+	text-decoration: none;
+}
+div.inline-listing a:hover {
+	text-decoration: underline;
 }
 
 .commentreply {

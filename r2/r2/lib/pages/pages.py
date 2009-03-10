@@ -291,6 +291,11 @@ class RecentArticles(RecentItems):
         q._limit = 10
         return q
 
+class RecentArticlesPage(Wrapped):
+    """Compact recent article listing page"""
+    def __init__(self, content, *a, **kw):
+        Wrapped.__init__(self, content=content, *a, **kw)
+
 class TopContributors(Wrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users

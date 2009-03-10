@@ -47,8 +47,8 @@
       ${thing.title}
       </a>
     </h3>
-    by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
+    <span>by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
     ${thing.author.name}</a>&#32;|&#32;
-    ${thing.score}
+    ${thing.score}</span>
   </div>
 </%def>

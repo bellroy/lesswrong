@@ -1,5 +1,8 @@
+<%namespace file="utils.html" import="plain_link"/>
 <div id="side-posts" class="sidebox">
-  <h2>Recent Posts:</h2>
+  <h2>
+    ${plain_link(_('Recent Posts'), '/recentposts')}:
+  </h2>
   <% 
      t = thing.things
      article_generator = t.item_iter(t.get_items())

@@ -35,6 +35,7 @@ from listingcontroller import CommentsController
 from listingcontroller import RootController
 from listingcontroller import BlessedController
 from listingcontroller import TagController
+from listingcontroller import RecentpostsController
 
 from listingcontroller import MyredditsController
 
