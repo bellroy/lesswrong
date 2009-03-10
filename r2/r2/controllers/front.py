@@ -594,3 +594,6 @@ class FrontController(RedditController):
             return self._redirect_to_link(g.issues_post_id)
         except AttributeError:
             return self.abort404()
+
+    def GET_blank(self):
+        return ''
