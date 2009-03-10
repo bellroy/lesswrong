@@ -324,10 +324,6 @@ class NewController(ListingController):
 class RecentpostsController(NewController):
     where = 'recentposts'
 
-    def __init__(self, *a, **kw):
-        self.render_params['extension_handling'] = False
-        NewController.__init__(self, a, **kw)
-
     @staticmethod
     def builder_wrapper(thing):
         w = Wrapped(thing)
