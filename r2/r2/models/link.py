@@ -753,6 +753,7 @@ class Comment(Thing, Printable):
             return False
 
         s = (str(i) for i in (c.profilepage,
+                              c.full_comment_listing,
                               wrapped._fullname,
                               bool(c.user_is_loggedin),
                               c.focal_comment == wrapped._id36,

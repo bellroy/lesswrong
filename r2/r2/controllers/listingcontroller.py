@@ -633,6 +633,12 @@ class CommentsController(ListingController):
 
         return q
 
+    def content(self):
+        ps = PaneStack()
+        ps.append(CommentReplyBox())
+        ps.append(self.listing_obj)
+        return ps
+
     def GET_listing(self, **env):
         c.full_comment_listing = True
         if not env.has_key('limit'):
