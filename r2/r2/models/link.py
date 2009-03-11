@@ -21,7 +21,7 @@
 ################################################################################
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, \
      CreationError
-from r2.lib.utils import base_url, tup, domain, worker, title_to_url
+from r2.lib.utils import base_url, tup, domain, worker, title_to_url, UrlParser
 from account import Account
 from subreddit import Subreddit
 from printable import Printable
@@ -776,6 +776,12 @@ class Comment(Thing, Printable):
 
     def make_permalink(self, link, sr=None):
         return link.make_permalink(sr) + self._id36
+
+    def make_anchored_permalink(self):
+        permalink = UrlParser(self.make_permalink_slow())
+        permalink.update_query(context=1)
+        permalink.fragment = self._id36
+        return permalink.unparse()
 
     def make_permalink_slow(self):
         l = Link._byID(self.link_id, data=True)
