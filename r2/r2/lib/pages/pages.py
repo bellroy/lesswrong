@@ -823,8 +823,10 @@ class CommentListing(Wrapped):
 class PermalinkMessage(Wrapped):
     """renders the box on comment pages that state 'you are viewing a
     single comment's thread'"""
-    def __init__(self, comments_url):
+    def __init__(self, comments_url, has_more_comments=False):
         self.comments_url = comments_url
+        self.has_more_comments = has_more_comments
+        Wrapped.__init__(self)
 
 
 class PaneStack(Wrapped):

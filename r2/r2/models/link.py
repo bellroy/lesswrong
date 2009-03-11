@@ -774,13 +774,13 @@ class Comment(Thing, Printable):
         s = ''.join(s)
         return s
 
-    def make_permalink(self, link, sr=None):
+    def make_permalink(self, link, sr=None, context=1):
         return link.make_permalink(sr) + self._id36
 
-    def make_anchored_permalink(self):
+    def make_anchored_permalink(self, context=1, anchor=None):
         permalink = UrlParser(self.make_permalink_slow())
-        permalink.update_query(context=1)
-        permalink.fragment = self._id36
+        permalink.update_query(context=context)
+        permalink.fragment = anchor if anchor else self._id36
         return permalink.unparse()
 
     def make_permalink_slow(self):

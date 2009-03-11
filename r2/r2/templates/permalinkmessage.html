@@ -20,11 +20,11 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<div class="autosize">
 <div class="permamessage">
-  <p style="margin:0">
-  ${_("You are viewing a single comment's thread")}
+  <p>
+    ${_("You are viewing a single comment's thread")}.&#32;
+    %if thing.has_more_comments:
+      <a href="${thing.comments_url}">${_("Show more comments above")}</a>.
+    %endif
   </p>
-  <p style="margin: 4px 0 0 0"><a href="${thing.comments_url}">${_("See the above comments")}</a></p>
-</div>
 </div>

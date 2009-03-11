@@ -161,7 +161,14 @@ class FrontController(RedditController):
 
         # if permalink page, add that message first to the content
         if comment:
-            displayPane.append(PermalinkMessage(article.make_permalink_slow()))
+            permamessage = PermalinkMessage(
+                comment.make_anchored_permalink(
+                    context = context + 1 if context else 1,
+                    anchor  = 'comments'
+                ),
+                has_more_comments = hasattr(comment, 'parent_id')
+            )
+            displayPane.append(permamessage)
 
         # insert reply box only for logged in user
         if c.user_is_loggedin and article.subreddit_slow.can_comment(c.user):
