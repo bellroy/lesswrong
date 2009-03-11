@@ -774,11 +774,14 @@ class Comment(Thing, Printable):
         s = ''.join(s)
         return s
 
-    def make_permalink(self, link, sr=None, context=1):
+    def make_permalink(self, link, sr=None):
         return link.make_permalink(sr) + self._id36
 
-    def make_anchored_permalink(self, context=1, anchor=None):
-        permalink = UrlParser(self.make_permalink_slow())
+    def make_anchored_permalink(self, link=None, sr=None, context=1, anchor=None):
+        if link:
+            permalink = UrlParser(self.make_permalink(link, sr))
+        else:
+            permalink = UrlParser(self.make_permalink_slow())
         permalink.update_query(context=context)
         permalink.fragment = anchor if anchor else self._id36
         return permalink.unparse()
@@ -818,7 +821,7 @@ class Comment(Thing, Printable):
                 if not c.full_comment_listing and cids.has_key(item.parent_id):
                     item.parent_permalink = '#' + utils.to36(item.parent_id)
                 else:
-                    item.parent_permalink = parent.make_permalink(item.link, item.subreddit) + '#comments'
+                    item.parent_permalink = parent.make_anchored_permalink(item.link, item.subreddit)
             else:
                 item.parent_permalink = None
                 item.parent_author = None
@@ -845,7 +848,7 @@ class Comment(Thing, Printable):
             #will get updated in builder
             item.num_children = 0
             item.score_fmt = Score.points
-            item.permalink = item.make_permalink(item.link, item.subreddit)
+            item.permalink = item.make_anchored_permalink(item.link, item.subreddit, context=None, anchor='comments')
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""
