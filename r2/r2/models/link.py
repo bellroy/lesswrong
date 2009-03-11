@@ -244,7 +244,8 @@ class Link(Thing, Printable):
         if c.user_is_admin:
             return False
 
-        s = (str(i) for i in (wrapped._fullname,
+        s = (str(i) for i in (wrapped.render_class.__name__,
+                              wrapped._fullname,
                               bool(c.user_is_sponsor),
                               bool(c.user_is_loggedin),
                               wrapped.subreddit == c.site,
