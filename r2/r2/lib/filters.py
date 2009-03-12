@@ -105,12 +105,38 @@ def edit_comment_filter(text = ''):
     return url_escape(text)
 
 #TODO is this fast?
-r_url = re.compile('(?<![\(\[])(http://[^\s\'\"\]\)]+)')
+url_re = re.compile(r"""
+    (\[[^\]]*\]:?)?         # optional leading pair of square brackets
+    \s*                     # optional whitespace
+    (\()?                   # optional open bracket
+    (?<![<])                # No angle around link already
+    (http://[^\s\'\"\]\)]+) # a http uri
+    (?![>])                 # No angle around link already
+    (\))?                   # optional close bracket
+    """, re.VERBOSE)
 jscript_url = re.compile('<a href="(?!http|ftp|mailto|/).*</a>', re.I | re.S)
 href_re = re.compile('<a href="([^"]+)"', re.I | re.S)
 code_re = re.compile('<code>([^<]+)</code>')
 a_re    = re.compile('>([^<]+)</a>')
 
+def wrap_urls(text):
+    #wrap urls in "<>" so that markdown will handle them as urls
+    matches = url_re.finditer(text)
+    def check(match):
+        square_brackets, open_bracket, link, close_bracket = match.groups()
+        return match if link and not square_brackets else None
+
+    matched = filter(None, [check(match) for match in matches])
+    segments = []
+    start = 0
+    for match in matched:
+        segments.extend([text[start:match.start(3)], '<', match.group(3), '>'])
+        start = match.end(3)
+
+    # Tack on any trailing bits
+    segments.append(text[start:])
+
+    return ''.join(segments)
 
 #TODO markdown should be looked up in batch?
 #@memoize('markdown')
@@ -119,8 +145,8 @@ def safemarkdown(text, div=True):
     if text:
         # increase escaping of &, < and > once
         text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") 
-        #wrap urls in "<>" so that markdown will handle them as urls        
-        text = r_url.sub(r'<\1>', text)
+        text = wrap_urls(text)
+
         try:
             text = markdown(text)
         except RuntimeError:
