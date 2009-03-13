@@ -49,6 +49,7 @@ from r2.templates import tmpl_dirs
 import os
 import pylons
 from pylons.i18n.translation import NullTranslations
+from pylons.util import ContextObj
 
 test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
@@ -77,6 +78,10 @@ class ModelTest(object):
         self.globals = Globals(config.global_conf, config.local_conf, paths)
         self.registry.register(pylons.g, self.globals)
         self.registry.register(pylons.translator, NullTranslations())
+        self.context_obj=ContextObj()
+        self.registry.register(pylons.c, self.context_obj)
+
+        self.models = __import__('r2.models', fromlist=['r2']) # XXX Horrible hack
 
 
 __all__ = ['url_for', 'TestController']
