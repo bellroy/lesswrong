@@ -31,8 +31,8 @@ class TestLink(object):
         self.registry.register(pylons.translator, NullTranslations())
 
         # Create a link here
-        self.link = { 'name': 'Link Name' }
-        from r2.models import Link  
+        from r2.models import Link
+        self.link = Link(name = 'Link Name')
     
     def teardown(self):
         # drop Link here
@@ -40,5 +40,5 @@ class TestLink(object):
     
     def test_name(self):
         print self.link
-        assert self.link['name'] == 'Link Name'
+        assert self.link.name == 'Link Name'
 
