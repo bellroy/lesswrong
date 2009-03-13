@@ -50,6 +50,7 @@ class TestController(TestCase):
     def __init__(self, *args):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
+        self.app.extra_environ['REMOTE_ADDR'] = '127.0.0.1'
         TestCase.__init__(self, *args)
 
 __all__ = ['url_for', 'TestController']
