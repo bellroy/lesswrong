@@ -127,14 +127,26 @@ class TestAtomImporter(object):
 
     def test_rewrite_urls_in_post_body(self):
 
-        def url_rewriter(url):
-            return url
+        def url_rewriter(match):
+            # This replacement will deliberately match again if the importer
+            # processes the same url twice 
+            return match.group().replace('overcomingbias', 'overcomingbias-rewritten')
 
-        feed = AtomFeedFixture()
-        post_without_url = feed.add_post(content='Some text')
-        post_with_url    = feed.add_post(content='Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html"')
-        importer = AtomImporter(str(feed), url_handler=url_rewriter)
-        assert importer.get_post(post_without_url).content.text == 'Some text'
+        content = (
+            ('Some text', 'Some text'),
+            ('Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html">Link</a> more',
+                'Blah <a href="http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html">Link</a> more')
+        )
+
+        for input_content, expected_content in content:
+            feed = AtomFeedFixture()
+            post = feed.add_post(content=input_content)
+            importer = AtomImporter(str(feed), url_handler=url_rewriter)
+            yield self.check_text, importer.get_post(post).content.text, expected_content
+
+    @staticmethod
+    def check_text(text, expected_text):
+        assert text == expected_text
     
     def test_rewrite_urls_in_comments(self):
         pass
