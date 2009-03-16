@@ -35,57 +35,47 @@ class AtomImporter(object):
 
         # Read the incoming document as a GData Atom feed.
         self.feed = atom.FeedFromString(self.doc)
-
-    def show_posts_by(self, authors):
-        """Print the titles of the posts by the list of supplied authors"""
         
+        # Generate a list of all the posts and their comments
+        self.posts = []
+        self.comments = {}
+        self._scan_feed()
+
+    def _scan_feed(self):
         for entry in self.feed.entry:
             # Grab the information about the entry kind
             entry_kind = ""
             for category in entry.category:
-              if category.scheme == KIND_SCHEME:
-                entry_kind = category.term
+                if category.scheme == KIND_SCHEME:
+                    entry_kind = category.term
 
-            if entry_kind.endswith("#comment"):
-              # # This entry will be a comment, grab the post that it goes to
-              # in_reply_to = entry.FindExtensions('in-reply-to')
-              # post_item = None
-              # # Check to see that the comment has a corresponding post entry
-              # if in_reply_to:
-              #   post_id = self._ParsePostId(in_reply_to[0].attributes['ref'])
-              #   post_item = posts_map.get(post_id, None)
-              # 
-              # # Found the post for the comment, add the commment to it
-              # if post_item:
-              #   # The author email may not be included in the file
-              #   author_email = ''
-              #   if entry.author[0].email:
-              #     author_email = entry.author[0].email.text
-              # 
-              #   # Same for the the author's url
-              #   author_url = ''
-              #   if entry.author[0].uri:
-              #     author_url = entry.author[0].uri.text
-              # 
-              #   post_item.comments.append(wordpress.Comment(
-              #       comment_id = self._GetNextId(),
-              #       author = entry.author[0].name.text,
-              #       author_email = author_email,
-              #       author_url = author_url,
-              #       date = self._ConvertDate(entry.published.text),
-              #       content = self._ConvertContent(entry.content.text)))
-              # 
-              pass
-            elif entry_kind.endswith("#post"):
-              # This entry will be a post
-              for author in entry.author:
-                  if author.name.text in authors:
-                      print '%s by %s' % (entry.title.text, author.name.text)
-                      break
-            
-              # post_item = self._ConvertPostEntry(entry)
-              # posts_map[self._ParsePostId(entry.id.text)] = post_item
-              # wxr.channel.items.append(post_item)
+                    if entry_kind.endswith("#comment"):
+                        # This entry will be a comment, grab the post that it goes to
+                        in_reply_to = entry.FindExtensions('in-reply-to')
+                        post_id = in_reply_to[0].attributes['ref'] if in_reply_to else None
+                        comments = self.comments.setdefault(post_id, [])
+                        comments.append(entry)
+
+                    elif entry_kind.endswith("#post"):
+                        # This entry will be a post
+                        # posts_map[self._ParsePostId(entry.id.text)] = post_item
+                        self.posts.append(entry)
+
+    def posts_by(self, authors):
+        for entry in self.posts:
+            for author in entry.author:
+                if author.name.text in authors:
+                    yield entry
+                    break
+
+    def comments_on_post(self, post_id):
+        return self.comments.get(post_id)
+
+    def show_posts_by(self, authors):
+        """Print the titles of the posts by the list of supplied authors"""
+        for entry in self.posts_by(authors):
+            # print '%s by %s' % (entry.title.text, author.name.text)
+            print entry.title.text
 
 if __name__ == '__main__':
   if len(sys.argv) <= 1:
