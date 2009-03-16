@@ -23,7 +23,7 @@ KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
 class AtomImporter(object):
 
     def __init__(self, doc):
-        """Constructs an importer for an Atom (Blogger export) file.
+        """Constructs an importer for an Atom (aka Blogger export) file.
 
         Args:
         doc: The Atom file as a string
@@ -96,6 +96,7 @@ if __name__ == '__main__':
 
   xml_file = open(sys.argv[1])
   xml_doc = xml_file.read()
-  importer = AtomImporter(xml_doc)
-  print importer.show_posts_by('Eliezer Yudkowsky')
   xml_file.close()
+  importer = AtomImporter(xml_doc)
+  xml_doc = None
+  print importer.show_posts_by('Eliezer Yudkowsky')
