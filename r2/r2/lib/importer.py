@@ -22,11 +22,13 @@ KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
 
 class AtomImporter(object):
 
-    def __init__(self, doc):
+    def __init__(self, doc, url_handler=None):
         """Constructs an importer for an Atom (aka Blogger export) file.
 
         Args:
         doc: The Atom file as a string
+        url_handler: A optional URL transformation function that will be 
+        called with urls detected in post and comment bodies.
         """
 
         # Ensure UTF8 chars get through correctly by ensuring we have a
@@ -37,9 +39,16 @@ class AtomImporter(object):
         self.feed = atom.FeedFromString(self.doc)
         
         # Generate a list of all the posts and their comments
-        self.posts = []
+        self.posts = {}
+        # Stores the id of posts in the order they appear in the feed.
+        self.post_order = []
         self.comments = {}
+        self.url_handler = url_handler if url_handler else self._default_url_handler
         self._scan_feed()
+
+    @staticmethod
+    def _default_url_handler(url):
+        return url
 
     def _scan_feed(self):
         for entry in self.feed.entry:
@@ -59,10 +68,17 @@ class AtomImporter(object):
                     elif entry_kind.endswith("#post"):
                         # This entry will be a post
                         # posts_map[self._ParsePostId(entry.id.text)] = post_item
-                        self.posts.append(entry)
+                        post_id = entry.id.text
+                        self.post_order.append(post_id) # Assumes a post has a unique id
+                        self.posts[post_id] = entry
+
+    def get_post(self, post_id):
+        """Retrieve a post by its unique id"""
+        return self.posts[post_id]
 
     def posts_by(self, authors):
-        for entry in self.posts:
+        for post_id in self.post_order:
+            entry = self.posts[post_id]
             for author in entry.author:
                 if author.name.text in authors:
                     yield entry
