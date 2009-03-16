@@ -87,7 +87,8 @@ setup(
                       "chardet",
                       "psycopg2",
                       "py_interface",
-                      "lxml>=2"],
+                      "lxml>=2",
+                      "gdata.py>=1.2.4",], # For Atom parsing
     packages=find_packages(),
     include_package_data=True,
     test_suite = 'nose.collector',
