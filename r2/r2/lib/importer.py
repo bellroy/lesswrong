@@ -2,6 +2,7 @@ from gdata import atom
 
 import sys
 import os
+import re
 
 # from r2.models import Link,Comment,Account,Subreddit
 
@@ -47,8 +48,8 @@ class AtomImporter(object):
         self._scan_feed()
 
     @staticmethod
-    def _default_url_handler(url):
-        return url
+    def _default_url_handler(match):
+        return match.group()
 
     def _scan_feed(self):
         for entry in self.feed.entry:
@@ -62,6 +63,7 @@ class AtomImporter(object):
                         # This entry will be a comment, grab the post that it goes to
                         in_reply_to = entry.FindExtensions('in-reply-to')
                         post_id = in_reply_to[0].attributes['ref'] if in_reply_to else None
+                        self._rewrite_urls(entry)
                         comments = self.comments.setdefault(post_id, [])
                         comments.append(entry)
 
@@ -69,8 +71,29 @@ class AtomImporter(object):
                         # This entry will be a post
                         # posts_map[self._ParsePostId(entry.id.text)] = post_item
                         post_id = entry.id.text
+                        self._rewrite_urls(entry)
                         self.post_order.append(post_id) # Assumes a post has a unique id
                         self.posts[post_id] = entry
+
+
+    # Borrowed from http://bytes.com/groups/python/592479-regex-url-extracting
+    urlfinders = (
+        re.compile("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+)(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\),\\\"]"),
+        #re.compile("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+)(:[0-9]*)?"),
+        #re.compile("(~/|/|\\./)([-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]|\\\\)+"),
+        #re.compile("'\\<((mailto:)|)[-A-Za-z0-9\\.]+@[-A-Za-z0-9\\.]+"),
+    )
+    def _rewrite_urls(self, entry):
+        if not entry.content.text:
+            return
+
+        #XXX This is bound to get double hits with two regexs
+        text = entry.content.text
+        print text
+        for urlfinder in self.urlfinders:
+            text = urlfinder.sub(self.url_handler, text)
+
+        entry.content.text = text
 
     def get_post(self, post_id):
         """Retrieve a post by its unique id"""
