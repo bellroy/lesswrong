@@ -47,7 +47,7 @@ class AtomFeedFixture(object):
         self.ids  = {}
 
     #TODO Need an author generator: name, email
-    def _add_entry(self, entry_id, kind, author=None, **kw):
+    def _add_entry(self, entry_id, kind, author='Anonymous', content='', **kw):
         entry = gdata.GDataEntry()
         entry.link.append(
             atom.Link(href=DUMMY_URI, rel='self', link_type=ATOM_TYPE))
@@ -56,9 +56,12 @@ class AtomFeedFixture(object):
 
         # Add the author
         #author_name = self._Encode(value)
-        if not author:
-          author = 'Anonymous'
         entry.author = atom.Author(atom.Name(text=author))
+
+        # Add the content
+        entry.content = atom.Content(
+            content_type='html', text=content)
+            # content_type='html', text=self._TranslateContents(tag_contents))
 
         # Add the kind
         entry.category.append(
@@ -123,7 +126,15 @@ class TestAtomImporter(object):
         assert comment_ids == [comment1, comment3]
 
     def test_rewrite_urls_in_post_body(self):
-        pass
+
+        def url_rewriter(url):
+            return url
+
+        feed = AtomFeedFixture()
+        post_without_url = feed.add_post(content='Some text')
+        post_with_url    = feed.add_post(content='Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html"')
+        importer = AtomImporter(str(feed), url_handler=url_rewriter)
+        assert importer.get_post(post_without_url).content.text == 'Some text'
     
     def test_rewrite_urls_in_comments(self):
         pass
