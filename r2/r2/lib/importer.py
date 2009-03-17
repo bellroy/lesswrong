@@ -39,7 +39,7 @@ def generate_password():
 
 class AtomImporter(object):
 
-    def __init__(self, doc, url_handler=None, post_class=None, comment_class=None, author_class=None):
+    def __init__(self, doc, url_handler=None, post_class=None, comment_class=None, author_class=None, not_found_exception=None):
         """Constructs an importer for an Atom (aka Blogger export) file.
 
         Args:
@@ -55,11 +55,12 @@ class AtomImporter(object):
         # Read the incoming document as a GData Atom feed.
         self.feed = atom.FeedFromString(self.doc)
         
-        # Store the model classes
+        # Store the model and exception classes
         self.post_class    = post_class
         self.comment_class = comment_class
         self.author_class  = author_class
-        
+        self.not_found_exception = not_found_exception
+
         # Generate a list of all the posts and their comments
         self.posts = {}
         # Stores the id of posts in the order they appear in the feed.
@@ -123,12 +124,13 @@ class AtomImporter(object):
         for post_id in self.post_order:
             post = self.posts[post_id]
     
-    def _get_or_create_account(name, email):
+    def _get_or_create_account(self, name, email):
         try:
             account = self.author_class._by_email(email)
-        except NotFound:
+        except self.not_found_exception:
             # Create the account
             account = self.author_class.register(name, generate_password(), email)
+        return account
 
     def show_posts_by(self, authors):
         """Print the titles of the posts by the list of supplied authors"""
