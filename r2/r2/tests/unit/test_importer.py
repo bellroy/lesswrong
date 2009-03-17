@@ -125,39 +125,41 @@ class TestAtomImporter(object):
         comment_ids = [comment.id.text for comment in importer.comments_on_post(post1)]
         assert comment_ids == [comment1, comment3]
 
+
+    url_content = (
+        ('Some text', 'Some text'),
+        ('Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html">Link</a> more',
+            'Blah <a href="http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html">Link</a> more'),
+        ('Multiple urls: http://www.overcomingbias.com/ and http://overcomingbias.com and http://google.com/?q=test',
+            'Multiple urls: http://www.overcomingbias-rewritten.com/ and http://overcomingbias-rewritten.com and http://google.com/?q=test'),
+        ('Query string: http://www.google.com/search?rls=en-us&q=overcomingbias&ie=UTF-8&oe=UTF-8',
+            'Query string: http://www.google.com/search?rls=en-us&q=overcomingbias-rewritten&ie=UTF-8&oe=UTF-8'),
+        ('IP Address: http://72.14.235.104/?q=overcomingbias',
+            'IP Address: http://72.14.235.104/?q=overcomingbias-rewritten'),
+        ('Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8',
+            'Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8'),
+        ("""Overcoming Bias links: http://www.overcomingbias.com
+            http://www.overcomingbias.com/
+            http://www.overcomingbias.com/2006/11/beware_heritabl.html
+            http://www.overcomingbias.com/2006/11/beware_heritabl.html#comment-25685746""",
+        """Overcoming Bias links: http://www.overcomingbias-rewritten.com
+            http://www.overcomingbias-rewritten.com/
+            http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html
+            http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html#comment-25685746"""),
+        ('Unicode: (http://www.overcomingbias.com/ÜnîCöde¡っ)', 'Unicode: (http://www.overcomingbias-rewritten.com/ÜnîCöde¡っ)'),
+    )
+    
+    @staticmethod
+    def url_rewriter(match):
+        # This replacement will deliberately match again if the importer
+        # processes the same url twice 
+        return match.group().replace('overcomingbias', 'overcomingbias-rewritten')
+
     def test_rewrite_urls_in_post_body(self):
-
-        def url_rewriter(match):
-            # This replacement will deliberately match again if the importer
-            # processes the same url twice 
-            return match.group().replace('overcomingbias', 'overcomingbias-rewritten')
-
-        content = (
-            ('Some text', 'Some text'),
-            ('Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html">Link</a> more',
-                'Blah <a href="http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html">Link</a> more'),
-            ('Multiple urls: http://www.overcomingbias.com/ and http://overcomingbias.com and http://google.com/?q=test',
-                'Multiple urls: http://www.overcomingbias-rewritten.com/ and http://overcomingbias-rewritten.com and http://google.com/?q=test'),
-            ('Query string: http://www.google.com/search?rls=en-us&q=overcomingbias&ie=UTF-8&oe=UTF-8',
-                'Query string: http://www.google.com/search?rls=en-us&q=overcomingbias-rewritten&ie=UTF-8&oe=UTF-8'),
-            ('IP Address: http://72.14.235.104/?q=overcomingbias',
-                'IP Address: http://72.14.235.104/?q=overcomingbias-rewritten'),
-            ('Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8',
-                'Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8'),
-            ("""Overcoming Bias links: http://www.overcomingbias.com
-                http://www.overcomingbias.com/
-                http://www.overcomingbias.com/2006/11/beware_heritabl.html
-                http://www.overcomingbias.com/2006/11/beware_heritabl.html#comment-25685746""",
-            """Overcoming Bias links: http://www.overcomingbias-rewritten.com
-                http://www.overcomingbias-rewritten.com/
-                http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html
-                http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html#comment-25685746""")
-        )
-
-        for input_content, expected_content in content:
+        for input_content, expected_content in self.url_content:
             feed = AtomFeedFixture()
             post = feed.add_post(content=input_content)
-            importer = AtomImporter(str(feed), url_handler=url_rewriter)
+            importer = AtomImporter(str(feed), url_handler=self.url_rewriter)
             yield self.check_text, importer.get_post(post).content.text, expected_content
 
     @staticmethod
@@ -165,7 +167,13 @@ class TestAtomImporter(object):
         assert text == expected_text
     
     def test_rewrite_urls_in_comments(self):
-        pass
+        for input_content, expected_content in self.url_content:
+            feed = AtomFeedFixture()
+            post = feed.add_post()
+            feed.add_comment(post_id=post, content=input_content)
+            importer = AtomImporter(str(feed), url_handler=self.url_rewriter)
+            for comment in importer.comments_on_post(post):
+                yield self.check_text, comment.content.text, expected_content
 
     def test_set_sort_order(self):
         pass
@@ -178,3 +186,5 @@ class TestAtomImporter(object):
     
     def test_auto_account_creation(self):
         pass
+
+#TODO write test for overcomig bias to lesswrong url rewriter
