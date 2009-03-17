@@ -135,7 +135,23 @@ class TestAtomImporter(object):
         content = (
             ('Some text', 'Some text'),
             ('Blah <a href="http://www.overcomingbias.com/2007/11/passionately-wr.html">Link</a> more',
-                'Blah <a href="http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html">Link</a> more')
+                'Blah <a href="http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html">Link</a> more'),
+            ('Multiple urls: http://www.overcomingbias.com/ and http://overcomingbias.com and http://google.com/?q=test',
+                'Multiple urls: http://www.overcomingbias-rewritten.com/ and http://overcomingbias-rewritten.com and http://google.com/?q=test'),
+            ('Query string: http://www.google.com/search?rls=en-us&q=overcomingbias&ie=UTF-8&oe=UTF-8',
+                'Query string: http://www.google.com/search?rls=en-us&q=overcomingbias-rewritten&ie=UTF-8&oe=UTF-8'),
+            ('IP Address: http://72.14.235.104/?q=overcomingbias',
+                'IP Address: http://72.14.235.104/?q=overcomingbias-rewritten'),
+            ('Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8',
+                'Google cache: http://72.14.235.132/search?client=safari&rls=en-us&q=cache:http://www.overcomingbias-rewritten.com/2007/11/passionately-wr.html&ie=UTF-8&oe=UTF-8'),
+            ("""Overcoming Bias links: http://www.overcomingbias.com
+                http://www.overcomingbias.com/
+                http://www.overcomingbias.com/2006/11/beware_heritabl.html
+                http://www.overcomingbias.com/2006/11/beware_heritabl.html#comment-25685746""",
+            """Overcoming Bias links: http://www.overcomingbias-rewritten.com
+                http://www.overcomingbias-rewritten.com/
+                http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html
+                http://www.overcomingbias-rewritten.com/2006/11/beware_heritabl.html#comment-25685746""")
         )
 
         for input_content, expected_content in content:

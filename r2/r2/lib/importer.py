@@ -76,24 +76,12 @@ class AtomImporter(object):
                         self.posts[post_id] = entry
 
 
-    # Borrowed from http://bytes.com/groups/python/592479-regex-url-extracting
-    urlfinders = (
-        re.compile("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+)(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\),\\\"]"),
-        #re.compile("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+)(:[0-9]*)?"),
-        #re.compile("(~/|/|\\./)([-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]|\\\\)+"),
-        #re.compile("'\\<((mailto:)|)[-A-Za-z0-9\\.]+@[-A-Za-z0-9\\.]+"),
-    )
+    # Borrowed from http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url/163684#163684
+    url_re = re.compile(r"""(?:https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]""", re.IGNORECASE)
     def _rewrite_urls(self, entry):
         if not entry.content.text:
             return
-
-        #XXX This is bound to get double hits with two regexs
-        text = entry.content.text
-        print text
-        for urlfinder in self.urlfinders:
-            text = urlfinder.sub(self.url_handler, text)
-
-        entry.content.text = text
+        entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
     def get_post(self, post_id):
         """Retrieve a post by its unique id"""
