@@ -21,9 +21,25 @@ KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
 #DAILYMOTION_RE = re.compile('http://www.dailymotion.com/swf/(.*)')
 #DAILYMOTION_FMT = r'[dailymotion id=\1]'
 
+from random import Random
+rng = Random()
+
+# Constants for the characters to compose a password from.
+# Easilty confused characters like I and l, 0 and O are omitted
+PASSWORD_NUMBERS='123456789'
+PASSWORD_LOWER_CHARS='abcdefghjkmnpqrstuwxz'
+PASSWORD_UPPER_CHARS='ABCDEFGHJKMNPQRSTUWXZ'
+PASSWORD_OTHER_CHARS='@#$%^&*'
+ALL_PASSWORD_CHARS = ''.join([PASSWORD_NUMBERS,PASSWORD_LOWER_CHARS,PASSWORD_UPPER_CHARS,PASSWORD_OTHER_CHARS])
+def generate_password():
+    password = []
+    for i in range(8):
+        password.append(rng.choice(ALL_PASSWORD_CHARS))
+    return ''.join(password)
+
 class AtomImporter(object):
 
-    def __init__(self, doc, url_handler=None):
+    def __init__(self, doc, url_handler=None, post_class=None, comment_class=None, author_class=None):
         """Constructs an importer for an Atom (aka Blogger export) file.
 
         Args:
@@ -38,6 +54,11 @@ class AtomImporter(object):
 
         # Read the incoming document as a GData Atom feed.
         self.feed = atom.FeedFromString(self.doc)
+        
+        # Store the model classes
+        self.post_class    = post_class
+        self.comment_class = comment_class
+        self.author_class  = author_class
         
         # Generate a list of all the posts and their comments
         self.posts = {}
@@ -97,6 +118,17 @@ class AtomImporter(object):
 
     def comments_on_post(self, post_id):
         return self.comments.get(post_id)
+
+    def import_into_subreddit(self, sr):
+        for post_id in self.post_order:
+            post = self.posts[post_id]
+    
+    def _get_or_create_account(name, email):
+        try:
+            account = self.author_class._by_email(email)
+        except NotFound:
+            # Create the account
+            account = self.author_class.register(name, generate_password(), email)
 
     def show_posts_by(self, authors):
         """Print the titles of the posts by the list of supplied authors"""

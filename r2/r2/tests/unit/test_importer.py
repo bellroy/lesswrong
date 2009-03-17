@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import nose
+import mox
 
+import r2.lib.importer
 from r2.lib.importer import AtomImporter
 
+import re
 import gdata
 from gdata import atom
 
@@ -174,6 +177,30 @@ class TestAtomImporter(object):
             importer = AtomImporter(str(feed), url_handler=self.url_rewriter)
             for comment in importer.comments_on_post(post):
                 yield self.check_text, comment.content.text, expected_content
+
+    def test_import_into_subreddit(self):
+        m = mox.Mox()
+        sr = m.CreateMockAnything()
+        post_class = m.CreateMockAnything()
+        comment_class = m.CreateMockAnything()
+        author_class = m.CreateMockAnything()
+
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        importer = AtomImporter(str(feed), post_class, comment_class, author_class)
+        importer.import_into_subreddit(sr)
+
+    def test_generate_password(self):
+        pw_re = re.compile(r'[1-9a-hjkmnp-uwxzA-HJKMNP-UWXZ@#$%^&*]{8}')
+        
+        # This test is a bit questionable given the random generation
+        # but its better then no test
+        for i in range(10):
+            password = r2.lib.importer.generate_password()
+            # print password
+            assert pw_re.match(password)
 
     def test_set_sort_order(self):
         pass
