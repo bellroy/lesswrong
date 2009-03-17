@@ -19,6 +19,8 @@ POST_KIND = 'http://schemas.google.com/blogger/2008/kind#post'
 COMMENT_KIND = 'http://schemas.google.com/blogger/2008/kind#comment'
 ATOM_THREADING_NS = 'http://purl.org/syndication/thread/1.0'
 
+class NotFound(Exception): pass
+
 class InReplyTo(atom.ExtensionElement):
   """Supplies the in-reply-to element from the Atom threading protocol."""
 
@@ -192,15 +194,52 @@ class TestAtomImporter(object):
         importer = AtomImporter(str(feed), post_class, comment_class, author_class)
         importer.import_into_subreddit(sr)
 
+    pw_re = re.compile(r'[1-9a-hjkmnp-uwxzA-HJKMNP-UWXZ@#$%^&*]{8}')
     def test_generate_password(self):
-        pw_re = re.compile(r'[1-9a-hjkmnp-uwxzA-HJKMNP-UWXZ@#$%^&*]{8}')
         
         # This test is a bit questionable given the random generation
-        # but its better then no test
+        # but its better than no test
         for i in range(10):
             password = r2.lib.importer.generate_password()
             # print password
-            assert pw_re.match(password)
+            assert self.pw_re.match(password)
+
+    def test_get_or_create_account_exists(self):
+        # Test non-creation of account when it already exists
+        m = mox.Mox()
+        post_class = m.CreateMockAnything()
+        comment_class = m.CreateMockAnything()
+        account_class = m.CreateMockAnything()
+        account = m.CreateMockAnything()
+        account_class._by_email('user@host.com').AndReturn(account)
+        m.ReplayAll()
+        
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
+        assert importer._get_or_create_account('Test User', 'user@host.com') == account
+        m.VerifyAll()
+    
+    def test_get_or_create_account_not_exists(self):
+        # Test creation of account when it does not exist
+        m = mox.Mox()
+        post_class = m.CreateMockAnything()
+        comment_class = m.CreateMockAnything()
+        account_class = m.CreateMockAnything()
+        account = m.CreateMockAnything()
+        account_class._by_email('user@host.com').AndRaise(NotFound)
+        account_class.register('Test User', mox.Regex(self.pw_re), 'user@host.com').AndReturn(account)
+        m.ReplayAll()
+        
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
+        assert importer._get_or_create_account('Test User', 'user@host.com') == account
+        m.VerifyAll()
 
     def test_set_sort_order(self):
         pass
