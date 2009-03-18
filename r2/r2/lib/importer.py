@@ -4,6 +4,7 @@ import sys
 import os
 import re
 
+from random import Random
 # from r2.models import Link,Comment,Account,Subreddit
 
 ###########################
@@ -14,6 +15,7 @@ import re
 #BLOGGER_NS = 'http://www.blogger.com/atom/ns#'
 KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
 
+
 #YOUTUBE_RE = re.compile('http://www.youtube.com/v/([^&]+)&?.*')
 #YOUTUBE_FMT = r'[youtube=http://www.youtube.com/watch?v=\1]'
 #GOOGLEVIDEO_RE = re.compile('(http://video.google.com/googleplayer.swf.*)')
@@ -21,8 +23,7 @@ KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
 #DAILYMOTION_RE = re.compile('http://www.dailymotion.com/swf/(.*)')
 #DAILYMOTION_FMT = r'[dailymotion id=\1]'
 
-from random import Random
-rng = Random()
+MAX_RETRIES = 10
 
 # Constants for the characters to compose a password from.
 # Easilty confused characters like I and l, 0 and O are omitted
@@ -31,6 +32,9 @@ PASSWORD_LOWER_CHARS='abcdefghjkmnpqrstuwxz'
 PASSWORD_UPPER_CHARS='ABCDEFGHJKMNPQRSTUWXZ'
 PASSWORD_OTHER_CHARS='@#$%^&*'
 ALL_PASSWORD_CHARS = ''.join([PASSWORD_NUMBERS,PASSWORD_LOWER_CHARS,PASSWORD_UPPER_CHARS,PASSWORD_OTHER_CHARS])
+
+
+rng = Random()
 def generate_password():
     password = []
     for i in range(8):
@@ -67,6 +71,8 @@ class AtomImporter(object):
         self.post_order = []
         self.comments = {}
         self.url_handler = url_handler if url_handler else self._default_url_handler
+        self.username_mapping = {}
+        
         self._scan_feed()
 
     @staticmethod
@@ -123,14 +129,70 @@ class AtomImporter(object):
     def import_into_subreddit(self, sr):
         for post_id in self.post_order:
             post = self.posts[post_id]
-    
+            
+            # Get the account for this post
+            author = post.author[0]
+
+    def _find_account_for(self, name, email):
+        """Try to find an existing account using derivations of the name"""
+        
+        try:
+            account = self.username_mapping[(name, email)]
+        except KeyError:
+            candidates = (
+                name,
+                name.replace(' ', ''),
+                name.replace(' ', '_'),
+            )
+        
+            account = None
+            for candidate in candidates:
+                q = self.author_class._query(
+                    self.author_class.c.name == candidate,
+                    self.author_class.c.email == email
+                )
+                accounts = list(q)
+                if accounts:
+                    account = accounts[0]
+                    account._safe_load()
+                    break
+
+            # Cache the result for next time
+            self.username_mapping[(name, email)] = account
+
+        if not account:
+            raise self.not_found_exception
+
+        return account
+
+    # def _username_from_name(self, name):
+    #     """Convert a name into a username"""
+    #     return name.replace(' ', '_')
+
     def _get_or_create_account(self, name, email):
         try:
-            account = self.author_class._by_email(email)
+            account = self._find_account_for(name, email)
         except self.not_found_exception:
-            # Create the account
-            account = self.author_class.register(name, generate_password(), email)
+            retry = 1 # First retry will by name2
+            while True:
+                # Create a new account
+                retry += 1
+                username = "%s%d" % (name, retry)
+                try:
+                    account = self.author_class.register(username, generate_password(), email)
+                except self.account_exists_exception:
+                    # This username is taken, generate another, but first limit the retries
+                    if retry > MAX_RETRIES:
+                        raise Exception('Unable to generate account after %d retries' % retry)
+                else:
+                    # update cache with the successful account
+                    self.username_mapping[(name, email)] = account
+                    break
+                
+                
         return account
+
+########## Mostly ad hoc, investigative stuff from here on
 
     def show_posts_by(self, authors):
         """Print the titles of the posts by the list of supplied authors"""
@@ -138,16 +200,24 @@ class AtomImporter(object):
             # print '%s by %s' % (entry.title.text, author.name.text)
             print entry.title.text
 
-if __name__ == '__main__':
-  if len(sys.argv) <= 1:
-    print 'Usage: %s <blogger_export_file>' % os.path.basename(sys.argv[0])
-    print
-    print ' Imports the blogger export file.'
-    sys.exit(-1)
+    def show_users_with_email(self):
+        for comments in self.comments.itervalues():
+            for comment in comments:
+                author = comment.author[0]
+                if author.email:
+                    print "%s|%s" % (author.name.text, author.email.text)
 
-  xml_file = open(sys.argv[1])
-  xml_doc = xml_file.read()
-  xml_file.close()
-  importer = AtomImporter(xml_doc)
-  xml_doc = None
-  print importer.show_posts_by('Eliezer Yudkowsky')
+if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        print 'Usage: %s <blogger_export_file>' % os.path.basename(sys.argv[0])
+        print
+        print ' Imports the blogger export file.'
+        sys.exit(-1)
+
+    xml_file = open(sys.argv[1])
+    xml_doc = xml_file.read()
+    xml_file.close()
+    importer = AtomImporter(xml_doc)
+    xml_doc = None
+    #print importer.show_posts_by('Eliezer Yudkowsky')
+    importer.show_users_with_email()

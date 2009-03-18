@@ -204,43 +204,62 @@ class TestAtomImporter(object):
             # print password
             assert self.pw_re.match(password)
 
-    def test_get_or_create_account_exists(self):
-        # Test non-creation of account when it already exists
-        m = mox.Mox()
-        post_class = m.CreateMockAnything()
-        comment_class = m.CreateMockAnything()
-        account_class = m.CreateMockAnything()
-        account = m.CreateMockAnything()
-        account_class._by_email('user@host.com').AndReturn(account)
-        m.ReplayAll()
+
+    # def test_username_from_name(self):
+    #     feed = AtomFeedFixture()
+    #     post = feed.add_post()
+    #     importer = AtomImporter(str(feed))
+    #     
+    #     names = (
+    #         ('First Last', 'First_Last'), # Spaces
+    #         ('~O~','~O~'),
+    #         ('Øyvind','Øyvind'),
+    #         ('x-ray fluorescence','x-ray_fluorescence'),
+    #         ('"Q" the Enchanter', 'Q_the_Enchanter'),
+    #         ('(Hope)Fully Rational', 'HopeFully_Rational'),
+    #         ('-', '-'),
+    #         ('-ck-', '-ck-'),
+    #         ('-dan', '-dan'),
+    #         ('...', '...'),
+    #         ('.5%', '.5%'),
+    #         ('/ehj2', '/ehj2'),
+    #         ('01', '01'),
+    #         ('3.14159', '3.14159'),
+    #         ('4σ', '4σ'),
+    #         ('51a1fc26f78b0296a69f53c615ab5a2f64ab1d1e', '51a1fc26f78b0296a69f53c615ab5a2f64ab1d1e'),
+    #         ('?', '?'),
+    #         ('????a', '????a'),
+    #         ('A woman\'s POV', 'A woman\'s POV'),
+    #         ('A. Coward', 'A. Coward'),
+    #         ('A.B.', 'A.B.'),
+    #         ('A.S. (a hikikomori from Russia)', 'A.S. (a hikikomori from Russia)'),
+    #         ('AW', 'AW'),
+    #         ('Abdullah Khalid Siddiqi', 'Abdullah Khalid Siddiqi'),
+    #         ('Agent00yak', 'Agent00yak'),
+    #         ('Alexander Fiske-Harrison', 'Alexander Fiske-Harrison'),
+    #         ('Anon of /co/ and /tg/', 'Anon of /co/ and /tg/'),
+    #         ('Another somewhat sceptical statistician', 'Another somewhat sceptical statistician'),
+    #         ('Anónima', 'Anónima'),
+    #         ('Awww, a girlfriend > Singularity', 'Awww, a girlfriend > Singularity'),
+    #         ('Faré', 'Faré'),
+    #         ('Firozali A Mulla MBA PhD', 'Firozali A Mulla MBA PhD'),
+    #         ('Firozali A.Mulla  MBA PhD', 'Firozali A.Mulla  MBA PhD'),
+    #         ('Franklin D. Fields, Jr.', 'Franklin D. Fields, Jr.'),
+    #         ('Geebu$', 'Geebu$'),
+    #         ('Hmm...', 'Hmm...'),
+    #         ('Hoàng Đức Hiếu', 'Hoàng Đức Hiếu'),
+    #         ('Håkan Andersson', 'Håkan Andersson'),
+    #         ('MyMindOnMyMoney & MyMoneyOnMyMind', 'MyMindOnMyMoney & MyMoneyOnMyMind'),
+    #         ('Santa Claus (is my legal name)', 'Santa Claus (is my legal name)'),
+    #         ('Z Z z z z e x ...', 'Z Z z z z e x ...'),
+    #         ('_Felix', '_Felix'),
+    #         ('____', '____'),
+    #         ('jaltcoh.blogspot.com', 'jaltcoh.blogspot.com'),
+    #         ('spindizzy@eml.cc', 'spindizzy@eml.cc'),
+    #     )
+    #     for name, username in names:
+    #         yield self.check_text, importer._username_from_name(name), username
         
-        feed = AtomFeedFixture()
-        post = feed.add_post()
-        feed.add_comment(post_id=post)
-
-        importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
-        assert importer._get_or_create_account('Test User', 'user@host.com') == account
-        m.VerifyAll()
-    
-    def test_get_or_create_account_not_exists(self):
-        # Test creation of account when it does not exist
-        m = mox.Mox()
-        post_class = m.CreateMockAnything()
-        comment_class = m.CreateMockAnything()
-        account_class = m.CreateMockAnything()
-        account = m.CreateMockAnything()
-        account_class._by_email('user@host.com').AndRaise(NotFound)
-        account_class.register('Test User', mox.Regex(self.pw_re), 'user@host.com').AndReturn(account)
-        m.ReplayAll()
-        
-        feed = AtomFeedFixture()
-        post = feed.add_post()
-        feed.add_comment(post_id=post)
-
-        importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
-        assert importer._get_or_create_account('Test User', 'user@host.com') == account
-        m.VerifyAll()
-
     def test_set_sort_order(self):
         pass
     
@@ -252,5 +271,7 @@ class TestAtomImporter(object):
     
     def test_auto_account_creation(self):
         pass
+
+    
 
 #TODO write test for overcomig bias to lesswrong url rewriter
