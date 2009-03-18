@@ -4,6 +4,7 @@ import mox
 
 from r2.tests import ModelTest
 
+from r2.lib.db.thing import NotFound
 
 import r2.lib.importer
 from r2.lib.importer import AtomImporter
@@ -21,8 +22,6 @@ CATEGORY_KIND = 'http://schemas.google.com/g/2005#kind'
 POST_KIND = 'http://schemas.google.com/blogger/2008/kind#post'
 COMMENT_KIND = 'http://schemas.google.com/blogger/2008/kind#comment'
 ATOM_THREADING_NS = 'http://purl.org/syndication/thread/1.0'
-
-class NotFound(Exception): pass
 
 class InReplyTo(atom.ExtensionElement):
   """Supplies the in-reply-to element from the Atom threading protocol."""
@@ -275,19 +274,26 @@ class TestAtomImporter(object):
     def test_auto_account_creation(self):
         pass
 
-import mocktest
-
-class TestAtomImporterAccountCreation(ModelTest, mocktest.TestCase):
+from mocktest import *
+from r2.models import Account
+class TestAtomImporterAccountCreation(TestCase):
     
-    def setUp(self):
-        # self.post_class = m.CreateMockAnything()
-        # self.comment_class = m.CreateMockAnything()
-        self.account_class = mock_wrapper()
+    @property
+    def importer(self):
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        return AtomImporter(
+            str(feed),
+        )
+
+    def test_get_or_create_account_exists(self):
+        anchor = mock_on(Account)
+        account = mock_wrapper().with_methods(_safe_load=None)
+        anchor._query.returning([account.mock]).is_expected
+        self.importer._get_or_create_account('Test User', 'user@host.com')
         
-        
-        self.account = m.CreateMockAnything()
-        self.column_proxy = m.CreateMockAnything()
-        self.query_results = m.CreateMockAnything()
     
 class DisabledTestAtomImporterAccountCreation(object):
     def setup(self):
@@ -301,19 +307,6 @@ class DisabledTestAtomImporterAccountCreation(object):
         self.query_results = m.CreateMockAnything()
         self.m = m
     
-    @property
-    def importer(self):
-        feed = AtomFeedFixture()
-        post = feed.add_post()
-        feed.add_comment(post_id=post)
-
-        return AtomImporter(
-            str(feed),
-            post_class=self.post_class,
-            comment_class=self.comment_class,
-            author_class=self.account_class,
-            not_found_exception=NotFound
-        )
     
     def test_get_or_create_account_exists(self):
         # Test non-creation of account when it already exists

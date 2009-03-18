@@ -6,6 +6,7 @@ import re
 
 from random import Random
 from r2.models import Link,Comment,Account,Subreddit
+from r2.lib.db.thing import NotFound
 
 ###########################
 # Constants
@@ -147,9 +148,9 @@ class AtomImporter(object):
         
             account = None
             for candidate in candidates:
-                q = self.author_class._query(
-                    self.author_class.c.name == candidate,
-                    self.author_class.c.email == email
+                q = Account._query(
+                    Account.c.name == candidate,
+                    Account.c.email == email
                 )
                 accounts = list(q)
                 if accounts:
@@ -161,7 +162,7 @@ class AtomImporter(object):
             self.username_mapping[(name, email)] = account
 
         if not account:
-            raise self.not_found_exception
+            raise account.NotFound
 
         return account
 
