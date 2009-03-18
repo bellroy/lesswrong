@@ -5,7 +5,7 @@ import os
 import re
 
 from random import Random
-# from r2.models import Link,Comment,Account,Subreddit
+from r2.models import Link,Comment,Account,Subreddit
 
 ###########################
 # Constants

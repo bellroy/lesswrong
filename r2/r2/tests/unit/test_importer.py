@@ -2,6 +2,9 @@
 import nose
 import mox
 
+from r2.tests import ModelTest
+
+
 import r2.lib.importer
 from r2.lib.importer import AtomImporter
 
@@ -272,6 +275,74 @@ class TestAtomImporter(object):
     def test_auto_account_creation(self):
         pass
 
+import mocktest
+
+class TestAtomImporterAccountCreation(ModelTest, mocktest.TestCase):
+    
+    def setUp(self):
+        # self.post_class = m.CreateMockAnything()
+        # self.comment_class = m.CreateMockAnything()
+        self.account_class = mock_wrapper()
+        
+        
+        self.account = m.CreateMockAnything()
+        self.column_proxy = m.CreateMockAnything()
+        self.query_results = m.CreateMockAnything()
+    
+class DisabledTestAtomImporterAccountCreation(object):
+    def setup(self):
+        print "****** SETUP *******"
+        m = mox.Mox()
+        self.post_class = m.CreateMockAnything()
+        self.comment_class = m.CreateMockAnything()
+        self.account_class = m.CreateMockAnything()
+        self.account = m.CreateMockAnything()
+        self.column_proxy = m.CreateMockAnything()
+        self.query_results = m.CreateMockAnything()
+        self.m = m
+    
+    @property
+    def importer(self):
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        return AtomImporter(
+            str(feed),
+            post_class=self.post_class,
+            comment_class=self.comment_class,
+            author_class=self.account_class,
+            not_found_exception=NotFound
+        )
+    
+    def test_get_or_create_account_exists(self):
+        # Test non-creation of account when it already exists
+        self.account_class.c.AndReturn(column_proxy)
+        column_proxy.name.AndReturn('Test User')
+        self.account_class.c.AndReturn(column_proxy)
+        column_proxy.email.AndReturn('user@host.com')
+        self.account_class._query(True, True).AndReturn(self.query_results)
+        self.query_results.list().AndReturn([self.account])
+        
+        self.m.ReplayAll()
+        
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account
+        self.m.VerifyAll()
+    
+    # def test_get_or_create_account_not_exists(self):
+    #     # Test creation of account when it does not exist
+    #     m = mox.Mox()
+    #     account_class._by_email('user@host.com').AndRaise(NotFound)
+    #     account_class.register('Test User', mox.Regex(self.pw_re), 'user@host.com').AndReturn(account)
+    #     m.ReplayAll()
+    #     
+    #     feed = AtomFeedFixture()
+    #     post = feed.add_post()
+    #     feed.add_comment(post_id=post)
+    # 
+    #     importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
+    #     assert importer._get_or_create_account('Test User', 'user@host.com') == account
+    #     m.VerifyAll()
     
 
 #TODO write test for overcomig bias to lesswrong url rewriter
