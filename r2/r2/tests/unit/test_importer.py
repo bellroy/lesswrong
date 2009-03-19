@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import nose
-import mox
 
 from r2.tests import ModelTest
 
@@ -182,20 +181,6 @@ class TestAtomImporter(object):
             for comment in importer.comments_on_post(post):
                 yield self.check_text, comment.content.text, expected_content
 
-    def test_import_into_subreddit(self):
-        m = mox.Mox()
-        sr = m.CreateMockAnything()
-        post_class = m.CreateMockAnything()
-        comment_class = m.CreateMockAnything()
-        author_class = m.CreateMockAnything()
-
-        feed = AtomFeedFixture()
-        post = feed.add_post()
-        feed.add_comment(post_id=post)
-
-        importer = AtomImporter(str(feed), post_class, comment_class, author_class)
-        importer.import_into_subreddit(sr)
-
     pw_re = re.compile(r'[1-9a-hjkmnp-uwxzA-HJKMNP-UWXZ@#$%^&*]{8}')
     def test_generate_password(self):
         
@@ -280,7 +265,7 @@ class TestAtomImporter(object):
 
 from mocktest import *
 from r2.models import Account
-class TestAtomImporterAccountCreation(TestCase):
+class TestAtomImporterMocktest(TestCase):
     
     @property
     def importer(self):
@@ -330,6 +315,17 @@ class TestAtomImporterAccountCreation(TestCase):
         anchor = mock_on(Account)
         anchor._query.returning([]).is_expected.thrice()
         self.assertRaises(NotFound, self.importer._get_or_create_account, 'Test User', 'user@host.com')
+
+    @pending
+    def test_import_into_subreddit(self):
+        sr = mock_wrapper()
+
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        importer = AtomImporter(str(feed))
+        importer.import_into_subreddit(sr)
 
 class DisabledTestAtomImporterAccountCreation(object):
     def setup(self):
