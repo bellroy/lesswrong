@@ -336,6 +336,15 @@ class TestAtomImporterMocktest(TestCase):
         created_account = self.importer._get_or_create_account('Test User', 'user@host.com')
         assert str(created_account) == 'Test_User5'
 
+    def test_get_or_create_account_max_retries(self):
+        """Should raise an error after 10 tries"""
+        anchor = mock_on(Account)
+        query = anchor._query.returning([]).is_expected.thrice()
+        account_module = mock_on(r2.lib.importer)
+        register = account_module.register.raising(AccountExists).is_expected.exactly(10).times
+
+        self.assertRaises(StandardError, self.importer._get_or_create_account, 'Test User', 'user@host.com', message='Unable to generate account after 10 retries')
+
     @pending
     def test_import_into_subreddit(self):
         sr = mock_wrapper()

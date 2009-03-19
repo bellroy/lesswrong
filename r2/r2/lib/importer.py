@@ -181,7 +181,7 @@ class AtomImporter(object):
                 except AccountExists:
                     # This username is taken, generate another, but first limit the retries
                     if retry > MAX_RETRIES:
-                        raise StandardError('Unable to generate account after %d retries' % retry)
+                        raise StandardError('Unable to generate account after %d retries' % (retry - 1))
                 else:
                     # update cache with the successful account
                     self.username_mapping[(name, email)] = account
