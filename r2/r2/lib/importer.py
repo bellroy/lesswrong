@@ -162,7 +162,7 @@ class AtomImporter(object):
             self.username_mapping[(name, email)] = account
 
         if not account:
-            raise account.NotFound
+            raise NotFound
 
         return account
 
@@ -173,7 +173,7 @@ class AtomImporter(object):
     def _get_or_create_account(self, name, email):
         try:
             account = self._find_account_for(name, email)
-        except self.not_found_exception:
+        except NotFound:
             retry = 1 # First retry will by name2
             while True:
                 # Create a new account

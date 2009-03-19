@@ -273,6 +273,10 @@ class TestAtomImporter(object):
     
     def test_auto_account_creation(self):
         pass
+    
+    def test_cleaning_of_content(self):
+        # There are a lot of ^M's in the comments
+        pass
 
 from mocktest import *
 from r2.models import Account
@@ -292,9 +296,41 @@ class TestAtomImporterAccountCreation(TestCase):
         anchor = mock_on(Account)
         account = mock_wrapper().with_methods(_safe_load=None)
         anchor._query.returning([account.mock]).is_expected
-        self.importer._get_or_create_account('Test User', 'user@host.com')
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    def test_get_or_create_account_exists2(self):
+        account = mock_wrapper().with_methods(_safe_load=None)
+        def query_action(name_match, email_match):
+            return [account.mock] if name_match and email_match else []
         
-    
+        anchor = mock_on(Account)
+        query = anchor._query
+        query.action = query_action
+        query.is_expected.twice() # Second attempt should succeed
+        anchor.c.with_children(name='TestUser', email='user@host.com')
+
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    def test_get_or_create_account_exists3(self):
+        account = mock_wrapper().with_methods(_safe_load=None)
+        def query_action(name_match, email_match):
+            return [account.mock] if name_match and email_match else []
+        
+        anchor = mock_on(Account)
+        query = anchor._query
+        query.action = query_action
+        query.is_expected.thrice() # Third attempt should succeed
+        anchor.c.with_children(name='Test_User', email='user@host.com')
+
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    @pending
+    def test_get_or_create_account_not_exists(self):
+        """Should create the account as it doesn't exist"""
+        anchor = mock_on(Account)
+        anchor._query.returning([]).is_expected.thrice()
+        self.assertRaises(NotFound, self.importer._get_or_create_account, 'Test User', 'user@host.com')
+
 class DisabledTestAtomImporterAccountCreation(object):
     def setup(self):
         print "****** SETUP *******"
