@@ -289,15 +289,18 @@ def change_password(user, newpassword):
     return True
 
 #TODO reset the cache
-def register(name, password):
+def register(name, password, email=None):
     try:
         a = Account._by_name(name)
         raise AccountExists
     except NotFound:
         a = Account(name = name,
                     password = passhash(name, password, True))
+        if email:
+            a.email = email
 
         a._commit()
+            
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
         clear_memo('account._by_name', Account, name.lower(), False)

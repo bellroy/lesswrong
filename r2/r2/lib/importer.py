@@ -6,6 +6,7 @@ import re
 
 from random import Random
 from r2.models import Link,Comment,Account,Subreddit
+from r2.models.account import AccountExists, register
 from r2.lib.db.thing import NotFound
 
 ###########################
@@ -138,7 +139,7 @@ class AtomImporter(object):
             candidates = (
                 name,
                 name.replace(' ', ''),
-                name.replace(' ', '_'),
+                self._username_from_name(name),
             )
         
             account = None
@@ -161,31 +162,31 @@ class AtomImporter(object):
 
         return account
 
-    # def _username_from_name(self, name):
-    #     """Convert a name into a username"""
-    #     return name.replace(' ', '_')
+    def _username_from_name(self, name):
+        """Convert a name into a username"""
+        return name.replace(' ', '_')
 
     def _get_or_create_account(self, name, email):
         try:
             account = self._find_account_for(name, email)
         except NotFound:
             retry = 1 # First retry will by name2
+            name = self._username_from_name(name)
             while True:
                 # Create a new account
                 retry += 1
                 username = "%s%d" % (name, retry)
                 try:
-                    account = self.author_class.register(username, generate_password(), email)
-                except self.account_exists_exception:
+                    account = register(username, generate_password(), email)
+                except AccountExists:
                     # This username is taken, generate another, but first limit the retries
                     if retry > MAX_RETRIES:
-                        raise Exception('Unable to generate account after %d retries' % retry)
+                        raise StandardError('Unable to generate account after %d retries' % retry)
                 else:
                     # update cache with the successful account
                     self.username_mapping[(name, email)] = account
                     break
-                
-                
+
         return account
 
 ########## Mostly ad hoc, investigative stuff from here on

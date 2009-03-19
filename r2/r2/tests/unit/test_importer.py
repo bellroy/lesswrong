@@ -265,6 +265,7 @@ class TestAtomImporter(object):
 
 from mocktest import *
 from r2.models import Account
+from r2.models.account import AccountExists
 class TestAtomImporterMocktest(TestCase):
     
     @property
@@ -309,12 +310,31 @@ class TestAtomImporterMocktest(TestCase):
 
         assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
 
-    @pending
     def test_get_or_create_account_not_exists(self):
-        """Should create the account as it doesn't exist"""
+        """Should create the account if it doesn't exist"""
+        account = mock_wrapper().with_methods(_safe_load=None)
         anchor = mock_on(Account)
-        anchor._query.returning([]).is_expected.thrice()
-        self.assertRaises(NotFound, self.importer._get_or_create_account, 'Test User', 'user@host.com')
+        query = anchor._query
+        query.return_value = []
+        query.is_expected.thrice()
+
+        test_user5 = mock_wrapper().with_methods(_safe_load=None)
+        test_user5.name = 'Test_User5'
+        
+        def register_action(name, pw, email):
+            if name != test_user5.name:
+                raise AccountExists
+            else:
+                return test_user5.mock
+
+        # Mocking on importer because it imported register
+        account_module = mock_on(r2.lib.importer)
+        register = account_module.register
+        register.is_expected.exactly(4).times
+        register.action = register_action
+
+        created_account = self.importer._get_or_create_account('Test User', 'user@host.com')
+        assert str(created_account) == 'Test_User5'
 
     @pending
     def test_import_into_subreddit(self):
@@ -353,21 +373,6 @@ class DisabledTestAtomImporterAccountCreation(object):
         
         assert self.importer._get_or_create_account('Test User', 'user@host.com') == account
         self.m.VerifyAll()
-    
-    # def test_get_or_create_account_not_exists(self):
-    #     # Test creation of account when it does not exist
-    #     m = mox.Mox()
-    #     account_class._by_email('user@host.com').AndRaise(NotFound)
-    #     account_class.register('Test User', mox.Regex(self.pw_re), 'user@host.com').AndReturn(account)
-    #     m.ReplayAll()
-    #     
-    #     feed = AtomFeedFixture()
-    #     post = feed.add_post()
-    #     feed.add_comment(post_id=post)
-    # 
-    #     importer = AtomImporter(str(feed), post_class=post_class, comment_class=comment_class, author_class=account_class, not_found_exception=NotFound)
-    #     assert importer._get_or_create_account('Test User', 'user@host.com') == account
-    #     m.VerifyAll()
     
 
 #TODO write test for overcomig bias to lesswrong url rewriter
