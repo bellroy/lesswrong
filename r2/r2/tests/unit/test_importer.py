@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import nose
-import mox
+
+from r2.tests import ModelTest
+
+from r2.lib.db.thing import NotFound
 
 import r2.lib.importer
 from r2.lib.importer import AtomImporter
@@ -18,8 +21,6 @@ CATEGORY_KIND = 'http://schemas.google.com/g/2005#kind'
 POST_KIND = 'http://schemas.google.com/blogger/2008/kind#post'
 COMMENT_KIND = 'http://schemas.google.com/blogger/2008/kind#comment'
 ATOM_THREADING_NS = 'http://purl.org/syndication/thread/1.0'
-
-class NotFound(Exception): pass
 
 class InReplyTo(atom.ExtensionElement):
   """Supplies the in-reply-to element from the Atom threading protocol."""
@@ -180,20 +181,6 @@ class TestAtomImporter(object):
             for comment in importer.comments_on_post(post):
                 yield self.check_text, comment.content.text, expected_content
 
-    def test_import_into_subreddit(self):
-        m = mox.Mox()
-        sr = m.CreateMockAnything()
-        post_class = m.CreateMockAnything()
-        comment_class = m.CreateMockAnything()
-        author_class = m.CreateMockAnything()
-
-        feed = AtomFeedFixture()
-        post = feed.add_post()
-        feed.add_comment(post_id=post)
-
-        importer = AtomImporter(str(feed), post_class, comment_class, author_class)
-        importer.import_into_subreddit(sr)
-
     pw_re = re.compile(r'[1-9a-hjkmnp-uwxzA-HJKMNP-UWXZ@#$%^&*]{8}')
     def test_generate_password(self):
         
@@ -271,7 +258,106 @@ class TestAtomImporter(object):
     
     def test_auto_account_creation(self):
         pass
-
     
+    def test_cleaning_of_content(self):
+        # There are a lot of ^M's in the comments
+        pass
 
-#TODO write test for overcomig bias to lesswrong url rewriter
+from mocktest import *
+from r2.models import Account
+from r2.models.account import AccountExists
+class TestAtomImporterMocktest(TestCase):
+    
+    @property
+    def importer(self):
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        return AtomImporter(
+            str(feed),
+        )
+
+    def test_get_or_create_account_exists(self):
+        anchor = mock_on(Account)
+        account = mock_wrapper().with_methods(_safe_load=None)
+        anchor._query.returning([account.mock]).is_expected
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    def test_get_or_create_account_exists2(self):
+        account = mock_wrapper().with_methods(_safe_load=None)
+        def query_action(name_match, email_match):
+            return [account.mock] if name_match and email_match else []
+        
+        anchor = mock_on(Account)
+        query = anchor._query
+        query.action = query_action
+        query.is_expected.twice() # Second attempt should succeed
+        anchor.c.with_children(name='TestUser', email='user@host.com')
+
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    def test_get_or_create_account_exists3(self):
+        account = mock_wrapper().with_methods(_safe_load=None)
+        def query_action(name_match, email_match):
+            return [account.mock] if name_match and email_match else []
+        
+        anchor = mock_on(Account)
+        query = anchor._query
+        query.action = query_action
+        query.is_expected.thrice() # Third attempt should succeed
+        anchor.c.with_children(name='Test_User', email='user@host.com')
+
+        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account.mock
+
+    def test_get_or_create_account_not_exists(self):
+        """Should create the account if it doesn't exist"""
+        account = mock_wrapper().with_methods(_safe_load=None)
+        anchor = mock_on(Account)
+        query = anchor._query
+        query.return_value = []
+        query.is_expected.thrice()
+
+        test_user5 = mock_wrapper().with_methods(_safe_load=None)
+        test_user5.name = 'Test_User5'
+        
+        def register_action(name, pw, email):
+            if name != test_user5.name:
+                raise AccountExists
+            else:
+                return test_user5.mock
+
+        # Mocking on importer because it imported register
+        account_module = mock_on(r2.lib.importer)
+        register = account_module.register
+        register.is_expected.exactly(4).times
+        register.action = register_action
+
+        created_account = self.importer._get_or_create_account('Test User', 'user@host.com')
+        assert str(created_account) == 'Test_User5'
+
+    def test_get_or_create_account_max_retries(self):
+        """Should raise an error after 10 tries"""
+        anchor = mock_on(Account)
+        query = anchor._query.returning([]).is_expected.thrice()
+        account_module = mock_on(r2.lib.importer)
+        register = account_module.register.raising(AccountExists).is_expected.exactly(10).times
+
+        self.assertRaises(
+            StandardError, lambda: self.importer._get_or_create_account('Test User', 'user@host.com'),
+            message='Unable to generate account after 10 retries')
+
+    @pending
+    def test_import_into_subreddit(self):
+        sr = mock_wrapper()
+
+        feed = AtomFeedFixture()
+        post = feed.add_post()
+        feed.add_comment(post_id=post)
+
+        importer = AtomImporter(str(feed))
+        importer.import_into_subreddit(sr)
+
+# class TestRewitingOvercomngBiasUrls(TestCase):
+#     def test_x(self):
+#         

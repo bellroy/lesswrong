@@ -5,7 +5,9 @@ import os
 import re
 
 from random import Random
-# from r2.models import Link,Comment,Account,Subreddit
+from r2.models import Link,Comment,Account,Subreddit
+from r2.models.account import AccountExists, register
+from r2.lib.db.thing import NotFound
 
 ###########################
 # Constants
@@ -43,7 +45,7 @@ def generate_password():
 
 class AtomImporter(object):
 
-    def __init__(self, doc, url_handler=None, post_class=None, comment_class=None, author_class=None, not_found_exception=None):
+    def __init__(self, doc, url_handler=None):
         """Constructs an importer for an Atom (aka Blogger export) file.
 
         Args:
@@ -59,12 +61,6 @@ class AtomImporter(object):
         # Read the incoming document as a GData Atom feed.
         self.feed = atom.FeedFromString(self.doc)
         
-        # Store the model and exception classes
-        self.post_class    = post_class
-        self.comment_class = comment_class
-        self.author_class  = author_class
-        self.not_found_exception = not_found_exception
-
         # Generate a list of all the posts and their comments
         self.posts = {}
         # Stores the id of posts in the order they appear in the feed.
@@ -111,6 +107,10 @@ class AtomImporter(object):
             return
         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
+    def overcomingbias_rewiter(self, match):
+        """Rewrite overcoming bias URLs to LessWrong ones"""
+        return
+
     def get_post(self, post_id):
         """Retrieve a post by its unique id"""
         return self.posts[post_id]
@@ -132,6 +132,7 @@ class AtomImporter(object):
             
             # Get the account for this post
             author = post.author[0]
+            raise NotImplementedError
 
     def _find_account_for(self, name, email):
         """Try to find an existing account using derivations of the name"""
@@ -142,14 +143,14 @@ class AtomImporter(object):
             candidates = (
                 name,
                 name.replace(' ', ''),
-                name.replace(' ', '_'),
+                self._username_from_name(name),
             )
         
             account = None
             for candidate in candidates:
-                q = self.author_class._query(
-                    self.author_class.c.name == candidate,
-                    self.author_class.c.email == email
+                q = Account._query(
+                    Account.c.name == candidate,
+                    Account.c.email == email
                 )
                 accounts = list(q)
                 if accounts:
@@ -161,35 +162,35 @@ class AtomImporter(object):
             self.username_mapping[(name, email)] = account
 
         if not account:
-            raise self.not_found_exception
+            raise NotFound
 
         return account
 
-    # def _username_from_name(self, name):
-    #     """Convert a name into a username"""
-    #     return name.replace(' ', '_')
+    def _username_from_name(self, name):
+        """Convert a name into a username"""
+        return name.replace(' ', '_')
 
     def _get_or_create_account(self, name, email):
         try:
             account = self._find_account_for(name, email)
-        except self.not_found_exception:
+        except NotFound:
             retry = 1 # First retry will by name2
+            name = self._username_from_name(name)
             while True:
                 # Create a new account
                 retry += 1
                 username = "%s%d" % (name, retry)
                 try:
-                    account = self.author_class.register(username, generate_password(), email)
-                except self.account_exists_exception:
+                    account = register(username, generate_password(), email)
+                except AccountExists:
                     # This username is taken, generate another, but first limit the retries
                     if retry > MAX_RETRIES:
-                        raise Exception('Unable to generate account after %d retries' % retry)
+                        raise StandardError('Unable to generate account after %d retries' % (retry - 1))
                 else:
                     # update cache with the successful account
                     self.username_mapping[(name, email)] = account
                     break
-                
-                
+
         return account
 
 ########## Mostly ad hoc, investigative stuff from here on
