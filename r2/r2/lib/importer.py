@@ -107,6 +107,10 @@ class AtomImporter(object):
             return
         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
+    def overcomingbias_rewiter(self, match):
+        """Rewrite overcoming bias URLs to LessWrong ones"""
+        return
+
     def get_post(self, post_id):
         """Retrieve a post by its unique id"""
         return self.posts[post_id]

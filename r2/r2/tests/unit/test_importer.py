@@ -343,7 +343,9 @@ class TestAtomImporterMocktest(TestCase):
         account_module = mock_on(r2.lib.importer)
         register = account_module.register.raising(AccountExists).is_expected.exactly(10).times
 
-        self.assertRaises(StandardError, self.importer._get_or_create_account, 'Test User', 'user@host.com', message='Unable to generate account after 10 retries')
+        self.assertRaises(
+            StandardError, lambda: self.importer._get_or_create_account('Test User', 'user@host.com'),
+            message='Unable to generate account after 10 retries')
 
     @pending
     def test_import_into_subreddit(self):
@@ -356,32 +358,6 @@ class TestAtomImporterMocktest(TestCase):
         importer = AtomImporter(str(feed))
         importer.import_into_subreddit(sr)
 
-class DisabledTestAtomImporterAccountCreation(object):
-    def setup(self):
-        print "****** SETUP *******"
-        m = mox.Mox()
-        self.post_class = m.CreateMockAnything()
-        self.comment_class = m.CreateMockAnything()
-        self.account_class = m.CreateMockAnything()
-        self.account = m.CreateMockAnything()
-        self.column_proxy = m.CreateMockAnything()
-        self.query_results = m.CreateMockAnything()
-        self.m = m
-    
-    
-    def test_get_or_create_account_exists(self):
-        # Test non-creation of account when it already exists
-        self.account_class.c.AndReturn(column_proxy)
-        column_proxy.name.AndReturn('Test User')
-        self.account_class.c.AndReturn(column_proxy)
-        column_proxy.email.AndReturn('user@host.com')
-        self.account_class._query(True, True).AndReturn(self.query_results)
-        self.query_results.list().AndReturn([self.account])
-        
-        self.m.ReplayAll()
-        
-        assert self.importer._get_or_create_account('Test User', 'user@host.com') == account
-        self.m.VerifyAll()
-    
-
-#TODO write test for overcomig bias to lesswrong url rewriter
+# class TestRewitingOvercomngBiasUrls(TestCase):
+#     def test_x(self):
+#         
