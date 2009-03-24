@@ -1,34 +1,23 @@
-from gdata import atom
+import os
 import sys
 import yaml
-import datetime
+import re
 
-ZERO = datetime.timedelta(0)
-KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
-
-
-class UTC(datetime.tzinfo):
-    """UTC"""
-
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
-        
+kill_whitespace_re = re.compile('\s')
+def kill_whitespace(body):
+    return kill_whitespace_re.sub('', body)
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 2:
-        print 'Usage: %s <export_file> <api_file>' % os.path.basename(sys.argv[0])
+    if len(sys.argv) <= 3:
+        print 'Usage: %s <export_file> <api_file> <outputfile>' % os.path.basename(sys.argv[0])
         print
         print ' Uses the api_file to supplement the export_file with permalinks.'
+        print ' Writes the result to outputfile.'
         sys.exit(-1)
 
     export_file = open(sys.argv[1])
     api_file = open(sys.argv[2])
+    output_file = open(sys.argv[3], 'w')
     mappings = yaml.load(api_file)
     export   = yaml.load(export_file)
 
@@ -37,24 +26,40 @@ if __name__ == '__main__':
     title_mapping = {}
     for post in mappings:
         print post['title']
-        # 2006-11-20 11:00:00
-        date = post['dateCreated']
-        body = post['description'].strip() + post['mt_text_more'].strip()
-        post_mapping[(body, post['title'])] = post['permaLink']
-        title_mapping[post['title']] = body
+        
+        title = post['title']
+        body = post['description'] + post['mt_text_more']
+        if not isinstance(body, unicode):
+            body = unicode(body, 'utf-8')
+        if not isinstance(title, unicode):
+            title = unicode(title, 'utf-8')
+
+        key = (kill_whitespace(body), kill_whitespace(title))
+        post_mapping[key] = post
+        title_mapping[title] = key
 
     # Scan the export file
     for entry in export:
         # Get the date and title and do a lookup on the permalink
-        body = post['description'].strip() + post['mt_text_more'].strip()
+        body = entry['description'] + entry['mt_text_more']
+        body = body.decode('utf-8')
+        title = entry['title']
+        title = title.decode('utf-8')
+
+        key = (kill_whitespace(body), kill_whitespace(title))
         try:
-            permalink = post_mapping[(body, entry['title'])]
+            api_post = post_mapping[key]
         except KeyError:
             print title_mapping[entry['title']]
             print 
-            print body
+            print key
             print
             raise
             
-        print permalink
+        entry['permalink'] = api_post['permaLink']
+        entry['description'] = api_post['description']
+        entry['mt_text_more'] = api_post['mt_text_more']
+    
+    # Print out the result
+    yaml.dump(export, output_file)
         
