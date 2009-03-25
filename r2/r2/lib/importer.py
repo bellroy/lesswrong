@@ -54,16 +54,17 @@ class Importer(object):
 #             return
 #         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
-    def process_post(self, post):
+    def process_post(self, post, sr):
         account = self._get_or_create_account(post['author'], post['authorEmail'])
-        # TODO: do more...
+        l = Link._submit(post['title'], post['description'], account, sr, '127.0.0.1', [post['category']])
 
     def import_into_subreddit(self, sr, data):
         for post in data:
             try:
-                self.process_post(post)
+                self.process_post(post, sr)
             except Exception, e:
                 # TODO: do more...
+                #raise
                 pass
 
     def _username_from_name(self, name):

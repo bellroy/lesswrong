@@ -137,7 +137,7 @@ class TestImporter(object):
         pass
 
 from mocktest import *
-from r2.models import Account
+from r2.models import Account, Link
 from r2.models.account import AccountExists
 class TestImporterMocktest(TestCase):
 
@@ -145,9 +145,16 @@ class TestImporterMocktest(TestCase):
     def importer(self):
         return Importer()
 
+    @property
+    def post(self):
+        post_anchor = mock_on(Link)
+        post = mock_wrapper().named('post')
+        post_anchor._submit.returning(post.mock)
+        return post
+
     def test_get_or_create_account_exists(self):
         fixture = ImporterFixture()
-        post = fixture.add_post(author='Test User', author_email='user@host.com')
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         sr = mock_wrapper()
         account_anchor = mock_on(Account)
@@ -156,11 +163,13 @@ class TestImporterMocktest(TestCase):
 
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
+        post = self.post
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_exists2(self):
         fixture = ImporterFixture()
-        post = fixture.add_post(author='Test User', author_email='user@host.com')
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         def query_action(name_match, email_match):
             return [account.mock] if name_match and email_match else []
@@ -175,11 +184,13 @@ class TestImporterMocktest(TestCase):
 
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
+        post = self.post
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_exists3(self):
         fixture = ImporterFixture()
-        post = fixture.add_post(author='Test User', author_email='user@host.com')
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         def query_action(name_match, email_match):
             return [account.mock] if name_match and email_match else []
@@ -194,12 +205,14 @@ class TestImporterMocktest(TestCase):
 
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
+        post = self.post
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_not_exists(self):
         """Should create the account if it doesn't exist"""
         fixture = ImporterFixture()
-        post = fixture.add_post(author='Test User', author_email='user@host.com')
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         sr = mock_wrapper()
         account_anchor = mock_on(Account)
@@ -222,12 +235,14 @@ class TestImporterMocktest(TestCase):
         register.is_expected.exactly(4).times
         register.action = register_action
 
+        post = self.post
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_max_retries(self):
         """Should raise an error after 10 tries"""
         fixture = ImporterFixture()
-        post = fixture.add_post(author='Test User', author_email='user@host.com')
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         sr = mock_wrapper()
         account_anchor = mock_on(Account)
@@ -235,7 +250,41 @@ class TestImporterMocktest(TestCase):
         account_module_anchor = mock_on(r2.lib.importer)
         register = account_module_anchor.register.raising(AccountExists).is_expected.exactly(10).times
 
+        post = self.post
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+
+
+    def test_create_post(self):
+        author = 'Test User'
+        author_email = 'user@host.com'
+        category = 'Test Category'
+        title = 'Test Title'
+        description = 'A short test description'
+        ip = '127.0.0.1'
+
+        fixture = ImporterFixture()
+        post_id = fixture.add_post(author=author,
+                                author_email=author_email,
+                                category=category,
+                                title=title,
+                                description=description)
+
+        sr = mock_wrapper()
+        sr.name = 'subreddit'
+
+        account_anchor = mock_on(Account)
+        account = mock_wrapper().with_methods(_safe_load=None)
+        account.name = 'account'
+        account_anchor._query.returning([account.mock])
+
+        post_anchor = mock_on(Link)
+        post = mock_wrapper().named('post')
+        submit = post_anchor._submit.returning(post.mock)
+
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+
+        assert submit.called.once().get_args() == (title, description, account.mock, sr.mock, ip, [category])
 
     @ignore
     def test_failing_post(self):
@@ -248,16 +297,16 @@ class TestImporterMocktest(TestCase):
         sr = mock_wrapper()
 
         fixture = ImporterFixture()
-        post = fixture.add_post()
+        post_id = fixture.add_post()
         fixture.add_comment(post_id=post)
 
         importer = Importer()
         importer.import_into_subreddit(sr, fixture.get_data())
 
-    @pending
+    @ignore
     def test_set_sort_order(self):
         fixture = ImporterFixture()
-        post = fixture.add_post()
+        post_id = fixture.add_post()
         fixture.add_comment(post)
         importer = Importer()
         sr = mock_wrapper()

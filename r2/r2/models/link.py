@@ -139,6 +139,7 @@ class Link(Thing, Printable):
 
     @classmethod
     def _submit(cls, title, article, author, sr, ip, tags, spam = False):
+        # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
                 _spam = spam,
@@ -149,10 +150,18 @@ class Link(Thing, Printable):
                 article = article
                 )
         l._commit()
+
+        # Now that the post id is known update the Post with the correct permalink.
+        l.url = l.make_permalink_slow()
+        l.is_self = True
+        l._commit()
+
         l.set_url_cache()
+
         # Add tags
         for tag in tags:
             l.add_tag(tag)
+
         return l
         
     def _summary(self):
