@@ -131,25 +131,26 @@ class Importer(object):
 
         return account
 
-    def _get_or_create_account(self, name, email):
+    def _get_or_create_account(self, full_name, email):
         try:
-            account = self._find_account_for(name, email)
+            account = self._find_account_for(full_name, email)
         except NotFound:
-            retry = 1 # First retry will by name2
-            name = self._username_from_name(name)
+            retry = 2 # First retry will by name2
+            name = self._username_from_name(full_name)
+            username = name
             while True:
                 # Create a new account
-                retry += 1
-                username = "%s%d" % (name, retry)
                 try:
                     account = register(username, generate_password(), email)
                 except AccountExists:
                     # This username is taken, generate another, but first limit the retries
                     if retry > MAX_RETRIES:
-                        raise StandardError('Unable to generate account after %d retries' % (retry - 1))
+                        raise StandardError("Unable to create account for '%s' after %d attempts" % (full_name, retry - 1))
                 else:
                     # update cache with the successful account
                     self.username_mapping[(name, email)] = account
                     break
+                username = "%s%d" % (name, retry)
+                retry += 1
 
         return account

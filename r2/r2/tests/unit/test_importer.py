@@ -220,6 +220,39 @@ class TestImporterMocktest(TestCase):
         query.return_value = []
         query.is_expected.thrice()
 
+        test_user = mock_wrapper().with_methods(_safe_load=None)
+        test_user.name = 'Test_User'
+
+        def register_action(name, password, email):
+            if name != test_user.name:
+                raise AccountExists
+            else:
+                return test_user.mock
+
+        def check_register_args(name, password, email):
+            return name == test_user.name and email == 'user@host.com'
+
+        # Mocking on importer because it imported register
+        account_module_anchor = mock_on(r2.lib.importer)
+        register = account_module_anchor.register
+        register.action = register_action
+        register.is_expected.where_args(check_register_args)
+
+        post = self.post
+
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        
+    def test_create_account_multiple_attempts(self):
+        """Make multiple attempts to create a new account"""
+        fixture = ImporterFixture()
+        post_id = fixture.add_post(author='Test User', author_email='user@host.com')
+
+        sr = mock_wrapper()
+        account_anchor = mock_on(Account)
+        query = account_anchor._query
+        query.return_value = []
+        query.is_expected.thrice()
+
         test_user5 = mock_wrapper().with_methods(_safe_load=None)
         test_user5.name = 'Test_User5'
 
@@ -232,7 +265,7 @@ class TestImporterMocktest(TestCase):
         # Mocking on importer because it imported register
         account_module_anchor = mock_on(r2.lib.importer)
         register = account_module_anchor.register
-        register.is_expected.exactly(4).times
+        register.is_expected.exactly(5).times
         register.action = register_action
 
         post = self.post
