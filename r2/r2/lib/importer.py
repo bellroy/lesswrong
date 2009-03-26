@@ -148,7 +148,7 @@ class Importer(object):
                         raise StandardError("Unable to create account for '%s' after %d attempts" % (full_name, retry - 1))
                 else:
                     # update cache with the successful account
-                    self.username_mapping[(name, email)] = account
+                    self.username_mapping[(full_name, email)] = account
                     break
                 username = "%s%d" % (name, retry)
                 retry += 1

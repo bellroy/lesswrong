@@ -287,6 +287,37 @@ class TestImporterMocktest(TestCase):
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
+    def test_get_or_create_account_cached(self):
+        """Test name to account lookup is cached"""
+        fixture = ImporterFixture()
+        fixture.add_post(author='Test User', author_email='user@host.com', description='Post 1')
+        fixture.add_post(author='Test User', author_email='user@host.com', description='Post 2')
+
+        sr = mock_wrapper()
+        account_anchor = mock_on(Account)
+        query = account_anchor._query
+        query.return_value = []
+        query.is_expected.thrice()
+
+        test_user5 = mock_wrapper().with_methods(_safe_load=None)
+        test_user5.name = 'Test_User5'
+
+        def register_action(name, password, email):
+            if name != test_user5.name:
+                raise AccountExists
+            else:
+                return test_user5.mock
+
+        # Mocking on importer because it imported register
+        account_module_anchor = mock_on(r2.lib.importer)
+        register = account_module_anchor.register
+        register.is_expected.exactly(5).times
+        register.action = register_action
+
+        post = self.post
+
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+
     def test_create_post(self):
         author = 'Test User'
         author_email = 'user@host.com'
