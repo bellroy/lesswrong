@@ -93,8 +93,7 @@ class Importer(object):
             try:
                 self.process_post(post_data, sr)
             except Exception, e:
-#                 raise
-                pass
+                print 'Unable to create post:\n%s\n%s' % (e, post_data)
 
     def _username_from_name(self, name):
         """Convert a name into a username"""
