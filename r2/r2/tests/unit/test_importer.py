@@ -21,7 +21,7 @@ class ImporterFixture(object):
     def add_post(self,
                  author='Anonymous',
                  author_email='anon@nowhere.org',
-                 category='Category',
+                 category=['Category'],
                  title='Title',
                  description='',
                  mt_text_more='',
@@ -254,21 +254,24 @@ class TestImporterMocktest(TestCase):
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
-
     def test_create_post(self):
         author = 'Test User'
         author_email = 'user@host.com'
-        category = 'Test Category'
-        title = 'Test Title'
+        category = ['Self-Deception', 'Prediction Markets']
+        expected_category = ['self_deception', 'prediction_markets']
+        title = 'Test Title with some special <i>italic text</i> and <u>underline text</u> and <b>bold text</b>.'
+        expected_title = 'Test Title with some special italic text and underline text and bold text.'
         description = 'A short test description'
         ip = '127.0.0.1'
+        date_created = datetime.datetime.now(r2.lib.importer.UTC()).replace(microsecond=0)
 
         fixture = ImporterFixture()
         post_id = fixture.add_post(author=author,
-                                author_email=author_email,
-                                category=category,
-                                title=title,
-                                description=description)
+                                   author_email=author_email,
+                                   category=category,
+                                   title=title,
+                                   description=description,
+                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
         sr = mock_wrapper()
         sr.name = 'subreddit'
@@ -280,11 +283,59 @@ class TestImporterMocktest(TestCase):
 
         post_anchor = mock_on(Link)
         post = mock_wrapper().named('post')
+        post.expects('_commit')
+        post.with_children(blessed=False, comments_enabled=True)
+
         submit = post_anchor._submit.returning(post.mock)
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
-        assert submit.called.once().get_args() == (title, description, account.mock, sr.mock, ip, [category])
+        args = submit.called.once().get_args()
+        assert args == ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': date_created})
+        self.assertTrue(post.mock.blessed, 'The post should be promoted')
+        self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
+
+    def test_create_post_with_more(self):
+        author = 'Test User'
+        author_email = 'user@host.com'
+        category = ['Prediction Markets']
+        expected_category = ['prediction_markets']
+        title = 'Test Title'
+        description = 'A short test description'
+        mt_text_more = u'This is more text \u2019 after the fold.'
+        ip = '127.0.0.1'
+        article = description + Link._more_marker + mt_text_more
+        date_created = datetime.datetime.now(r2.lib.importer.UTC()).replace(microsecond=0)
+
+        fixture = ImporterFixture()
+        post_id = fixture.add_post(author=author,
+                                   author_email=author_email,
+                                   category=category,
+                                   title=title,
+                                   description=description,
+                                   mt_text_more=mt_text_more,
+                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
+
+        sr = mock_wrapper()
+        sr.name = 'subreddit'
+
+        account_anchor = mock_on(Account)
+        account = mock_wrapper().with_methods(_safe_load=None)
+        account.name = 'account'
+        account_anchor._query.returning([account.mock])
+
+        post_anchor = mock_on(Link)
+        post = mock_wrapper().named('post')
+        post.expects('_commit')
+        post.with_children(blessed=False, comments_enabled=True)
+        submit = post_anchor._submit.returning(post.mock)
+
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+
+        args = submit.called.once().get_args()
+        assert args == ((title, article, account.mock, sr.mock, ip, expected_category), {'date': date_created})
+        self.assertTrue(post.mock.blessed, 'The post should be promoted')
+        self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
 
     @ignore
     def test_failing_post(self):

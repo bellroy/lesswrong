@@ -138,7 +138,7 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
         # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
@@ -147,7 +147,8 @@ class Link(Thing, Printable):
                 sr_id = sr._id, 
                 lang = sr.lang,
                 ip = ip,
-                article = article
+                article = article,
+                date = date
                 )
         l._commit()
 
