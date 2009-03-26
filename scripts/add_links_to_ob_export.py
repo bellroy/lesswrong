@@ -77,6 +77,7 @@ if __name__ == '__main__':
         new_entry['permalink'] = api_post['permaLink']
         new_entry['description'] = api_post['description']
         new_entry['mt_text_more'] = api_post['mt_text_more']
+        new_entry['authorEmail'] = '\x73\x65\x6e\x74\x69\x65\x6e\x63\x65\x40\x70\x6f\x62\x6f\x78\x2e\x63\x6f\x6d'
         new_export.append(new_entry)
     
     # Print out the result
