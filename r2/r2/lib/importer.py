@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import datetime
+import pytz
 
 from random import Random
 from r2.models import Link,Comment,Account,Subreddit
@@ -30,18 +31,6 @@ def generate_password():
         password.append(rng.choice(ALL_PASSWORD_CHARS))
     return ''.join(password)
 
-class UTC(datetime.tzinfo):
-    """UTC"""
-
-    def utcoffset(self, dt):
-        return datetime.timedelta(0)
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return datetime.timedelta(0)
-
 class Importer(object):
 
     def __init__(self, url_handler=None):
@@ -67,6 +56,17 @@ class Importer(object):
 #             return
 #         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
+    def process_comment(self, comment_data, post):
+        account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
+
+        date = datetime.datetime.strptime(comment_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
+
+        comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], '127.0.0.1', date=date)
+
+        comment.is_html = True
+        comment._commit()
+
+
     kill_tags_re = re.compile(r'</?[iub]>')
     transform_categories_re = re.compile(r'[- ]')
 
@@ -80,20 +80,23 @@ class Importer(object):
 
         tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data['category']]
 
-        date = datetime.datetime.strptime(post_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=UTC())
+        date = datetime.datetime.strptime(post_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
 
         post = Link._submit(title, article, account, sr, '127.0.0.1', tags, date=date)
 
         post.comments_enabled = False
         post.blessed = True
+        post.comment_sort_order = 'old'
         post._commit()
+
+        [self.process_comment(comment_data, post) for comment_data in post_data.get('comments', [])]
 
     def import_into_subreddit(self, sr, data):
         for post_data in data:
             try:
                 self.process_post(post_data, sr)
             except Exception, e:
-                print 'Unable to create post:\n%s\n%s' % (e, post_data)
+                print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
 
     def _username_from_name(self, name):
         """Convert a name into a username"""

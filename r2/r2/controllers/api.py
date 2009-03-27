@@ -652,16 +652,6 @@ class ApiController(RedditController):
                         innerHTML='', value='')
             res._send_things(item)
             res._hide('noresults')
-            # flag search indexer that something has changed
-            tc.changed(item)
-
-            #update last modified
-            set_last_modified(c.user, 'overview')
-            set_last_modified(c.user, 'commented')
-            set_last_modified(link, 'comments')
-
-            #update the comment cache
-            add_comment(item)
 
         #update the queries
         if g.write_query_queue:
