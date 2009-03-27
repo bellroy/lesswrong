@@ -144,7 +144,7 @@
       <label ${"for='%s'" % _id if _id else ""}>${thing.title}</label>
     %endif
     <select
-        ${"id='%s'" % _id if _id else ""} onchange="open_choice(this)">
+        ${"id='%s'" % _id if _id else ""} onchange="open_choice(this)" ${'' if thing.enabled else 'disabled="disabled"'}>
         %for i, option in enumerate(thing):
           <%
              selected = (option == thing.selected)
