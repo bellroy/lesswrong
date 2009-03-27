@@ -42,40 +42,44 @@ def add_comment_nolock(comment):
 
     cids, comment_tree, depth, num_children = link_comments(link_id)
 
-    #add to comment list
-    cids.append(comment._id)
+    # Only add this comment if it is not already present.  In
+    # link_comments a cache miss will rebuild all comments including
+    # the one we are adding now.
+    if comment._id not in cids:
+        #add to comment list
+        cids.append(comment._id)
 
-    #add to tree
-    comment_tree.setdefault(p_id, []).append(cm_id)
+        #add to tree
+        comment_tree.setdefault(p_id, []).append(cm_id)
 
-    #add to depth
-    depth[cm_id] = depth[p_id] + 1 if p_id else 0
+        #add to depth
+        depth[cm_id] = depth[p_id] + 1 if p_id else 0
 
-    #update children
-    num_children[cm_id] = 0
+        #update children
+        num_children[cm_id] = 0
 
-    #dfs to find the list of parents for the new comment
-    def find_parents():
-        stack = [cid for cid in comment_tree[None]]
-        parents = []
-        while stack:
-            cur_cm = stack.pop()
-            if cur_cm == cm_id:
-                return parents
-            elif comment_tree.has_key(cur_cm):
-                #make cur_cm the end of the parents list
-                parents = parents[:depth[cur_cm]] + [cur_cm]
-                for child in comment_tree[cur_cm]:
-                    stack.append(child)
+        #dfs to find the list of parents for the new comment
+        def find_parents():
+            stack = [cid for cid in comment_tree[None]]
+            parents = []
+            while stack:
+                cur_cm = stack.pop()
+                if cur_cm == cm_id:
+                    return parents
+                elif comment_tree.has_key(cur_cm):
+                    #make cur_cm the end of the parents list
+                    parents = parents[:depth[cur_cm]] + [cur_cm]
+                    for child in comment_tree[cur_cm]:
+                        stack.append(child)
 
 
-    #if this comment had a parent, find the parent's parents
-    if p_id:
-        for p_id in find_parents():
-            num_children[p_id] += 1
+        #if this comment had a parent, find the parent's parents
+        if p_id:
+            for p_id in find_parents():
+                num_children[p_id] += 1
 
-    g.permacache.set(comments_key(link_id),
-                     (cids, comment_tree, depth, num_children))
+        g.permacache.set(comments_key(link_id),
+                         (cids, comment_tree, depth, num_children))
 
 def delete_comment(comment):
     #nothing really to do here, atm
