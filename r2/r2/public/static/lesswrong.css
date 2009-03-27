@@ -226,6 +226,7 @@ div.inline-listing a:hover {
 }
 #comment-controls label {
     padding-right: 5px;
+    margin-left: 1em;
 }
 div.comment .focal {
 	background-color: #ffc;
