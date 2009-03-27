@@ -10,6 +10,7 @@ from r2.lib.importer import Importer
 
 import re
 import datetime
+import pytz
 
 class ImporterFixture(object):
 
@@ -59,15 +60,15 @@ class ImporterFixture(object):
       if not date_created:
           date_created = datetime.datetime.now().strftime('%m/%d/%Y %r')
 
-          comment = { 'author': author,
-                      'authorEmail': author_email,
-                      'authorUrl': author_url,
-                      'body': body,
-                      'dateCreated': date_created }
+      comment = { 'author': author,
+                  'authorEmail': author_email,
+                  'authorUrl': author_url,
+                  'body': body,
+                  'dateCreated': date_created }
 
-          self.posts_by_id[post_id].setdefault('comments', []).append(comment)
+      self.posts_by_id[post_id].setdefault('comments', []).append(comment)
 
-          return comment
+      return comment
 
     def __getattr__(self, attr):
         if attr.endswith('_id'):
@@ -137,7 +138,7 @@ class TestImporter(object):
         pass
 
 from mocktest import *
-from r2.models import Account, Link
+from r2.models import Account, Link, Comment
 from r2.models.account import AccountExists
 class TestImporterMocktest(TestCase):
 
@@ -327,7 +328,7 @@ class TestImporterMocktest(TestCase):
         expected_title = 'Test Title with some special italic text and underline text and bold text.'
         description = 'A short test description'
         ip = '127.0.0.1'
-        date_created = datetime.datetime.now(r2.lib.importer.UTC()).replace(microsecond=0)
+        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
 
         fixture = ImporterFixture()
         post_id = fixture.add_post(author=author,
@@ -348,7 +349,7 @@ class TestImporterMocktest(TestCase):
         post_anchor = mock_on(Link)
         post = mock_wrapper().named('post')
         post.expects('_commit')
-        post.with_children(blessed=False, comments_enabled=True)
+        post.with_children(blessed=False, comments_enabled=True, comment_sort_order='new')
 
         submit = post_anchor._submit.returning(post.mock)
 
@@ -358,6 +359,7 @@ class TestImporterMocktest(TestCase):
         assert args == ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': date_created})
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
         self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
+        assert post.mock.comment_sort_order == 'old'
 
     def test_create_post_with_more(self):
         author = 'Test User'
@@ -369,7 +371,11 @@ class TestImporterMocktest(TestCase):
         mt_text_more = u'This is more text \u2019 after the fold.'
         ip = '127.0.0.1'
         article = description + Link._more_marker + mt_text_more
-        date_created = datetime.datetime.now(r2.lib.importer.UTC()).replace(microsecond=0)
+        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        comment_author = 'Comment Author'
+        comment_author_email = 'comment_author@nowhere.org'
+        comment_body = 'A short test comment'
+        comment_date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
 
         fixture = ImporterFixture()
         post_id = fixture.add_post(author=author,
@@ -379,27 +385,44 @@ class TestImporterMocktest(TestCase):
                                    description=description,
                                    mt_text_more=mt_text_more,
                                    date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
+        fixture.add_comment(post_id=post_id,
+                            author=comment_author,
+                            author_email=comment_author_email,
+                            body=comment_body,
+                            date_created=comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
-        sr = mock_wrapper()
-        sr.name = 'subreddit'
+        sr = mock_wrapper().named('subreddit')
 
+        account_for_post = mock_wrapper().named('account for post').with_methods(_safe_load=None)
+        account_for_comment = mock_wrapper().named('account for comment').with_methods(_safe_load=None)
+        account_generator = ([account.mock] for account in (account_for_post, account_for_comment))
         account_anchor = mock_on(Account)
-        account = mock_wrapper().with_methods(_safe_load=None)
-        account.name = 'account'
-        account_anchor._query.returning([account.mock])
+        account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
 
-        post_anchor = mock_on(Link)
         post = mock_wrapper().named('post')
         post.expects('_commit')
-        post.with_children(blessed=False, comments_enabled=True)
-        submit = post_anchor._submit.returning(post.mock)
+        post.with_children(blessed=False, comments_enabled=True, comment_sort_order='new')
+        post_anchor = mock_on(Link)
+        submit = post_anchor._submit.named('Link._submit').returning(post.mock)
+
+        comment = mock_wrapper().named('comment')
+        comment.expects('_commit')
+        comment.with_children(is_html=False)
+        inbox_rel = None
+        comment_anchor = mock_on(Comment)
+        new = comment_anchor._new.named('Comment._new').returning((comment.mock, inbox_rel))
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
-        args = submit.called.once().get_args()
-        assert args == ((title, article, account.mock, sr.mock, ip, expected_category), {'date': date_created})
+        submit_args = submit.called.once().get_args()
+        assert submit_args == ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': date_created})
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
         self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
+        assert post.mock.comment_sort_order == 'old'
+
+        new_args = new.called.once().get_args()
+        assert new_args == ((account_for_comment.mock, post.mock, None, comment_body, ip), {'date': comment_date_created})
+        self.assertTrue(comment.mock.is_html, 'The comment should be marked as HTML')
 
     @ignore
     def test_failing_post(self):
