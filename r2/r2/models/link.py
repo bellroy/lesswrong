@@ -701,7 +701,8 @@ class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
     _defaults = dict(reported = 0, 
                      moderator_banned = False,
-                     banned_before_moderator = False)
+                     banned_before_moderator = False,
+                     is_html = False)
 
     def _markdown(self):
         pass
@@ -780,7 +781,8 @@ class Comment(Thing, Printable):
                               wrapped.can_ban,
                               wrapped.moderator_banned,
                               wrapped.can_reply,
-                              wrapped.deleted))
+                              wrapped.deleted,
+                              wrapped.is_html))
         s = ''.join(s)
         return s
 

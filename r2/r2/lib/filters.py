@@ -86,6 +86,9 @@ def _force_utf8(text):
 def unsafe(text=''):
     return _Unsafe(_force_unicode(text))
 
+def unsafe_wrap_md(html=''):
+    return unsafe(MD_START + html + MD_END)
+
 def websafe_json(text=""):
     return c_websafe_json(_force_unicode(text))
 
@@ -172,18 +175,23 @@ def safemarkdown(text, div=True):
         text = a_re.sub(inner_a_handler, text)
         return MD_START + text + MD_END if div else text
 
-
 def keep_space(text):
     text = websafe(text)
     for i in " \n\r\t":
         text=text.replace(i,'&#%02d;' % ord(i))
     return unsafe(text)
 
-
 def unkeep_space(text):
     return text.replace('&#32;', ' ').replace('&#10;', '\n').replace('&#09;', '\t')
 
-def safehtml(html):
+whitespace_re = re.compile('^\s*$')
+def killhtml(html):
+    html_doc = soupparser.fromstring(html)
+    text = filter(lambda text: not whitespace_re.match(text), html_doc.itertext())
+    cleaned_html = ' '.join([fragment.strip() for fragment in text])
+    return cleaned_html
+
+def cleanhtml(html):
     html_doc = soupparser.fromstring(html)
     cleaned_html = sanitizer.clean_html(html_doc)
     return lxml.html.tostring(cleaned_html)

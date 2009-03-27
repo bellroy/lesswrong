@@ -24,7 +24,7 @@
    from pylons.i18n import _, ungettext
    from r2.lib.template_helpers import add_sr, get_domain
    from r2.models import FakeSubreddit
-   from r2.lib.filters import safehtml
+   from r2.lib.filters import cleanhtml
    from r2.lib.utils import rfc822format
 %>
 <% 
@@ -42,7 +42,7 @@
     Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
     &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
     %if hasattr(thing, 'article'):
-      ${safehtml(thing.article)}
+      ${cleanhtml(thing.article)}
     %endif
   </description>
   %if use_thumbs:
