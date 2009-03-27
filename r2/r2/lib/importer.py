@@ -84,7 +84,6 @@ class Importer(object):
 
         post = Link._submit(title, article, account, sr, '127.0.0.1', tags, date=date)
 
-        post.comments_enabled = False
         post.blessed = True
         post.comment_sort_order = 'old'
         post._commit()

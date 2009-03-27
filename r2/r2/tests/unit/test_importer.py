@@ -349,7 +349,7 @@ class TestImporterMocktest(TestCase):
         post_anchor = mock_on(Link)
         post = mock_wrapper().named('post')
         post.expects('_commit')
-        post.with_children(blessed=False, comments_enabled=True, comment_sort_order='new')
+        post.with_children(blessed=False, comment_sort_order='new')
 
         submit = post_anchor._submit.returning(post.mock)
 
@@ -358,7 +358,6 @@ class TestImporterMocktest(TestCase):
         args = submit.called.once().get_args()
         assert args == ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': date_created})
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
         assert post.mock.comment_sort_order == 'old'
 
     def test_create_post_with_more(self):
@@ -401,7 +400,7 @@ class TestImporterMocktest(TestCase):
 
         post = mock_wrapper().named('post')
         post.expects('_commit')
-        post.with_children(blessed=False, comments_enabled=True, comment_sort_order='new')
+        post.with_children(blessed=False, comment_sort_order='new')
         post_anchor = mock_on(Link)
         submit = post_anchor._submit.named('Link._submit').returning(post.mock)
 
@@ -417,7 +416,6 @@ class TestImporterMocktest(TestCase):
         submit_args = submit.called.once().get_args()
         assert submit_args == ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': date_created})
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        self.assertFalse(post.mock.comments_enabled, 'The post should not allow new comments')
         assert post.mock.comment_sort_order == 'old'
 
         new_args = new.called.once().get_args()
