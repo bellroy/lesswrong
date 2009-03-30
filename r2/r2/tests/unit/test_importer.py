@@ -187,6 +187,9 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_exists2(self):
@@ -208,6 +211,9 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
     def test_get_or_create_account_exists3(self):
@@ -228,6 +234,9 @@ class TestImporterMocktest(TestCase):
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
         post = self.post
+
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
@@ -262,6 +271,9 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
+
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
         assert test_user.mock.ob_account_name == 'Test User'
@@ -291,6 +303,9 @@ class TestImporterMocktest(TestCase):
         register = account_module_anchor.register
         register.is_expected.exactly(5).times
         register.action = register_action
+
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
 
         post = self.post
 
@@ -340,6 +355,9 @@ class TestImporterMocktest(TestCase):
         register.is_expected.exactly(5).times
         register.action = register_action
 
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([])
+
         post = self.post
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
@@ -373,11 +391,11 @@ class TestImporterMocktest(TestCase):
         account = mock_wrapper().named('account')
         account_anchor._query.returning([account.mock])
 
-        post_anchor = mock_on(Link)
         post = mock_wrapper().named('post')
         post.expects('_commit')
-        post.with_children(blessed=False, comment_sort_order='new', ob_permalink='bogus')
-
+        post.with_children(_id='post id', blessed=False, comment_sort_order='new', ob_permalink='bogus')
+        post_anchor = mock_on(Link)
+        post_anchor._query.returning([]).is_expected
         submit = post_anchor._submit.returning(post.mock)
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
@@ -429,9 +447,10 @@ class TestImporterMocktest(TestCase):
         account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
 
         post = mock_wrapper().named('post')
+        post.with_children(_id='post id', blessed=False, comment_sort_order='new', ob_permalink='bogus').unfrozen()
         post.expects('_commit')
-        post.with_children(blessed=False, comment_sort_order='new', ob_permalink='bogus')
         post_anchor = mock_on(Link)
+        post_anchor._query.returning([])
         submit = post_anchor._submit.named('Link._submit').returning(post.mock)
 
         comment = mock_wrapper().named('comment')
@@ -453,6 +472,75 @@ class TestImporterMocktest(TestCase):
         assert new_args == ((account_for_comment.mock, post.mock, None, comment_body, ip), {'date': comment_date_created})
         self.assertTrue(comment.mock.is_html, 'The comment should be marked as HTML')
         self.assertTrue(comment.mock.ob_imported, 'The comment should be marked as imported from OB')
+
+    def test_create_post_prev_imported_exists(self):
+        author = 'Test User'
+        author_email = 'user@host.com'
+        category = ['Self-Deception', 'Prediction Markets']
+        expected_category = ['self_deception', 'prediction_markets']
+        title = 'Test Title with some special <i>italic text</i> and <u>underline text</u> and <b>bold text</b>.'
+        expected_title = 'Test Title with some special italic text and underline text and bold text.'
+        description = 'A short test description'
+        ip = '127.0.0.1'
+        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        permalink = 'http://www.overcomingbias.com/2009/03/test.html'
+        comment_author = 'Comment Author'
+        comment_author_email = 'comment_author@nowhere.org'
+        comment_body = 'A short test comment'
+        comment_date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+
+        fixture = ImporterFixture()
+        post_id = fixture.add_post(author=author,
+                                   author_email=author_email,
+                                   category=category,
+                                   title=title,
+                                   description=description,
+                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
+                                   permalink=permalink)
+        fixture.add_comment(post_id=post_id,
+                            author=comment_author,
+                            author_email=comment_author_email,
+                            body=comment_body,
+                            date_created=comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
+
+        sr = mock_wrapper().named('subreddit').with_children(_id='subreddit id')
+
+        account_for_post = mock_wrapper().named('account for post').with_children(_id='account for post id')
+        account_for_comment = mock_wrapper().named('account for comment').with_children(_id='account for comment id')
+        account_generator = ([account.mock] for account in (account_for_post, account_for_comment))
+        account_anchor = mock_on(Account)
+        account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
+
+        post = mock_wrapper().named('post')
+        post.with_children(_id='post id', title=None, article=None, author_id=None, sr_id=None, ip=None, date=None).unfrozen()
+        post.with_methods(set_tags=None).unfrozen()
+        post.expects('_commit')
+        post.expects('set_tags')
+        post_anchor = mock_on(Link)
+        post_anchor._query.returning([post.mock])
+
+        comment = mock_wrapper().named('comment')
+        comment.with_children(author_id=None, body=None, ip=None, date=None, is_html=False, ob_imported=False).unfrozen()
+        comment.expects('_commit')
+        comment_anchor = mock_on(Comment)
+        comment_anchor._query.named('Comment._query').returning([comment.mock])
+
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+
+        self.assertEqual(post.mock.title, expected_title)
+        self.assertEqual(post.mock.article, description)
+        self.assertEqual(post.mock.author_id, account_for_post.mock._id)
+        self.assertEqual(post.mock.sr_id, sr.mock._id)
+        self.assertEqual(post.mock.ip, ip)
+        self.assertEqual(post.mock.date, date_created)
+
+        self.assertEqual(comment.mock.date, date_created)
+        self.assertEqual(comment.mock.author_id, account_for_comment.mock._id)
+        self.assertEqual(comment.mock.body, comment_body)
+        self.assertEqual(comment.mock.ip, ip)
+        self.assertEqual(comment.mock.date, comment_date_created)
+        self.assertTrue(comment.mock.is_html)
+        self.assertTrue(comment.mock.ob_imported)
 
     @ignore
     def test_failing_post(self):

@@ -56,41 +56,75 @@ class Importer(object):
 #             return
 #         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
 
-    def process_comment(self, comment_data, post):
-        account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
-
+    def process_comment(self, comment_data, comment, post):
+        # Prepare data for import
+        ip = '127.0.0.1'
         date = datetime.datetime.strptime(comment_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
 
-        comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], '127.0.0.1', date=date)
+        # Determine account to use for this comment
+        account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
 
-        comment.is_html = True
-        comment.ob_imported = True
-        comment._commit()
-
+        if comment_data and not comment:
+            # Create new comment
+            comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], ip, date=date)
+            comment.is_html = True
+            comment.ob_imported = True
+            comment._commit()
+        elif comment_data and comment:
+            # Overwrite existing comment
+            comment.author_id = account._id
+            comment.body = comment_data['body']
+            comment.ip = ip
+            comment.date = date
+            comment.is_html = True
+            comment.ob_imported = True
+            comment._commit()
+        elif not comment_data and comment:
+            # Not enough comment data being imported to overwrite all comments
+            print 'WARNING: More comments in lesswrong than we are importing, ignoring additional comment in lesswrong'
 
     kill_tags_re = re.compile(r'</?[iub]>')
     transform_categories_re = re.compile(r'[- ]')
 
     def process_post(self, post_data, sr):
-        account = self._get_or_create_account(post_data['author'], post_data['authorEmail'])
-
+        # Prepare data for import
         title = self.kill_tags_re.sub('', post_data['title'])
-
         article = u'%s%s' % (post_data['description'],
                              Link._more_marker + post_data['mt_text_more'] if post_data['mt_text_more'] else u'')
-
+        ip = '127.0.0.1'
         tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data['category']]
-
         date = datetime.datetime.strptime(post_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
 
-        post = Link._submit(title, article, account, sr, '127.0.0.1', tags, date=date)
+        # Determine account to use for this post
+        account = self._get_or_create_account(post_data['author'], post_data['authorEmail'])
 
-        post.blessed = True
-        post.comment_sort_order = 'old'
-        post.ob_permalink = post_data['permalink']
-        post._commit()
+        # Look for an existing post created due to a previous import
+        post = self._query_post(Link.c.ob_permalink == post_data['permalink'])
 
-        [self.process_comment(comment_data, post) for comment_data in post_data.get('comments', [])]
+        if not post:
+            # Create new post
+            post = Link._submit(title, article, account, sr, ip, tags, date=date)
+            post.blessed = True
+            post.comment_sort_order = 'old'
+            post.ob_permalink = post_data['permalink']
+            post._commit()
+        else:
+            # Update existing post
+            post.title = title
+            post.article = article
+            post.author_id = account._id
+            post.sr_id = sr._id
+            post.ip = ip
+            post.set_tags(tags)
+            post.date = date
+            post.blessed = True
+            post.comment_sort_order = 'old'
+            post._commit()
+
+        # Process each comment for this post
+        comments = self._query_comments(Comment.c.link_id == post._id, Comment.c.ob_imported == True)
+        [self.process_comment(comment_data, comment, post)
+         for comment_data, comment in map(None, post_data.get('comments', []), comments)]
 
     def import_into_subreddit(self, sr, data):
         for post_data in data:
@@ -98,10 +132,6 @@ class Importer(object):
                 self.process_post(post_data, sr)
             except Exception, e:
                 print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
-
-    def _username_from_name(self, name):
-        """Convert a name into a username"""
-        return name.replace(' ', '_')
 
     def _query_account(self, *args):
         account = None
@@ -111,7 +141,26 @@ class Importer(object):
         if accounts:
             account = accounts[0]
         return account
-        
+
+    def _query_post(self, *args):
+        post = None
+        kwargs = {'data': True}
+        q = Link._query(*args, **kwargs)
+        posts = list(q)
+        if posts:
+            post = posts[0]
+        return post
+
+    def _query_comments(self, *args):
+        kwargs = {'data': True}
+        q = Comment._query(*args, **kwargs)
+        comments = list(q)
+        return comments
+
+    def _username_from_name(self, name):
+        """Convert a name into a username"""
+        return name.replace(' ', '_')
+
     def _find_account_for(self, name, email):
         """Try to find an existing account using derivations of the name"""
 
