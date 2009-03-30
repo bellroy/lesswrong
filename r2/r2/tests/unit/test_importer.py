@@ -11,6 +11,8 @@ from r2.lib.importer import Importer
 import re
 import datetime
 import pytz
+import StringIO
+import yaml
 
 class ImporterFixture(object):
 
@@ -570,3 +572,92 @@ class TestImporterMocktest(TestCase):
         mock_link = mock_on(Link)
         mock_link.create.returning(link.mock).with_args().is_expected
         importer.import_into_subreddit(sr.mock, fixture.get_data())
+
+    def test_rewrite_ob_urls(self):
+        post_no_urls = mock_wrapper().named('post with no urls').with_children(
+            _id=1,
+            article='This is the post body',
+            url='http://lesswrong.com/lw/2d/missing-alliances/',
+            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html')
+        post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
+            _id=2,
+            article='Google: http://google.com/',
+            url='new2',
+            ob_permalink='old2')
+        post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
+            _id=3,
+            article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
+            url='new3',
+            ob_permalink='old3')
+
+        post_anchor = mock_on(Link)
+        post_anchor.c.with_children(ob_permalink='not None')
+        post_query = post_anchor._query.returning([post.mock for post in [post_no_urls, post_no_ob_urls, post_ob_urls]])
+
+        comment_no_urls = mock_wrapper().named('comment with no urls').with_children(body='Comment *body*, no links.')
+        comment_no_ob_urls = mock_wrapper().named('comment with no ob urls').with_children(body='Google:\nhttp://google.com/ is good')
+        comment_ob_urls = mock_wrapper().named('comment with ob urls').with_children(body='Blah http://www.overcomingbias.com/2009/03/missing-alliances.html blah')
+
+        comment_generator = ([comment.mock] for comment in (comment_no_urls, comment_no_ob_urls, comment_ob_urls))
+        comment_anchor = mock_on(Comment)
+        comment_query = comment_anchor._query.with_action(lambda *args, **kwargs: comment_generator.next())
+
+        sr = mock_wrapper().named('subreddit')
+
+        self.importer.import_into_subreddit(sr, [])
+
+        args = post_query.called.once().get_args()
+        assert args == ((True,), {'data': True})
+
+        self.assertEqual(post_no_urls.mock.article, 'This is the post body')
+        self.assertEqual(post_no_ob_urls.mock.article, 'Google: http://google.com/')
+        self.assertEqual(post_ob_urls.mock.article, 'Blah\nblerg http://lesswrong.com/lw/2d/missing-alliances/ blah')
+
+        comment_query.called.thrice()
+
+        self.assertEqual(comment_no_urls.mock.body, 'Comment *body*, no links.')
+        self.assertEqual(comment_no_ob_urls.mock.body, 'Google:\nhttp://google.com/ is good')
+        self.assertEqual(comment_ob_urls.mock.body, 'Blah http://lesswrong.com/lw/2d/missing-alliances/ blah')
+
+    def test_generate_mapping_file(self):
+        post_no_urls = mock_wrapper().named('post with no urls').with_children(
+            _id=1,
+            article='This is the post body',
+            url='http://lesswrong.com/lw/2d/missing-alliances/',
+            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html')
+        post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
+            _id=2,
+            article='Google: http://google.com/',
+            url='new2',
+            ob_permalink='old2')
+        post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
+            _id=3,
+            article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
+            url='new3',
+            ob_permalink='old3')
+
+        post_anchor = mock_on(Link)
+        post_anchor.c.with_children(ob_permalink='not None')
+        post_query = post_anchor._query.returning([post.mock for post in [post_no_urls, post_no_ob_urls, post_ob_urls]])
+
+        comment_anchor = mock_on(Comment)
+        comment_query = comment_anchor._query.returning([])
+
+        sr = mock_wrapper().named('subreddit')
+
+        builtin_anchor = mock_on(r2.lib.importer)
+        import_mapping_file = StringIO.StringIO()
+        builtin_anchor.open.with_args('import_mapping.yml', 'w').returning(import_mapping_file).is_expected
+
+        post_mapping = {
+            'http://www.overcomingbias.com/2009/03/missing-alliances.html': 'http://lesswrong.com/lw/2d/missing-alliances/',
+            'old2': 'new2',
+            'old3': 'new3',
+        }
+        yaml_anchor = mock_on(yaml)
+        dump = yaml_anchor.dump
+
+        self.importer.import_into_subreddit(sr, [])
+
+        args = dump.called.once().get_args()
+        assert args == ((post_mapping, import_mapping_file), {'Dumper': yaml.CDumper})
