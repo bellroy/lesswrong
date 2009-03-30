@@ -3,6 +3,7 @@ import os
 import re
 import datetime
 import pytz
+import yaml
 
 from random import Random
 from r2.models import Link,Comment,Account,Subreddit
@@ -49,13 +50,6 @@ class Importer(object):
     def _default_url_handler(match):
         return match.group()
 
-    # Borrowed from http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url/163684#163684
-#     url_re = re.compile(r"""(?:https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]""", re.IGNORECASE)
-#     def _rewrite_urls(self, entry):
-#         if not entry.content.text:
-#             return
-#         entry.content.text = self.url_re.sub(self.url_handler, entry.content.text)
-
     def process_comment(self, comment_data, post):
         account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
 
@@ -92,12 +86,51 @@ class Importer(object):
 
         [self.process_comment(comment_data, post) for comment_data in post_data.get('comments', [])]
 
+    def substitute_ob_url(self, url):
+        try:
+            url = self.post_mapping[url]
+        except KeyError:
+            pass
+        return url
+
+    # Borrowed from http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url/163684#163684
+    url_re = re.compile(r"""(?:https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]""", re.IGNORECASE)
+    def rewrite_ob_urls(self, text):
+        if text:
+            text = self.url_re.sub(lambda match: self.substitute_ob_url(match.group()), text)
+
+        return text
+
+    def post_process_post(self, post):
+        """Perform post processsing to rewrite URLs and generate mapping
+           between old and new permalinks"""
+        post.article = self.rewrite_ob_urls(post.article)
+        comments = Comment._query(Comment.c.link_id == post._id, data = True)
+        for comment in comments:
+            comment.body = self.rewrite_ob_urls(comment.body)
+
     def import_into_subreddit(self, sr, data):
+        mapping_file = open('import_mapping.yml', 'w')
+
         for post_data in data:
             try:
                 self.process_post(post_data, sr)
             except Exception, e:
                 print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
+
+        posts = list(Link._query(Link.c.ob_permalink != None, data = True))
+
+        # Generate a mapping between old and new posts
+        self.post_mapping = {}
+        for post in posts:
+            self.post_mapping[post.ob_permalink] = post.url
+
+        # Write out the permalink mapping
+        yaml.dump(self.post_mapping, mapping_file, Dumper=yaml.CDumper)
+
+        # Update URLs in the posts and comments
+        for post in posts:
+            self.post_process_post(post)
 
     def _username_from_name(self, name):
         """Convert a name into a username"""
@@ -111,7 +144,7 @@ class Importer(object):
         if accounts:
             account = accounts[0]
         return account
-        
+
     def _find_account_for(self, name, email):
         """Try to find an existing account using derivations of the name"""
 
