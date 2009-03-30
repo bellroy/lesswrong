@@ -64,6 +64,7 @@ class Importer(object):
         comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], '127.0.0.1', date=date)
 
         comment.is_html = True
+        comment.ob_imported = True
         comment._commit()
 
 
@@ -86,6 +87,7 @@ class Importer(object):
 
         post.blessed = True
         post.comment_sort_order = 'old'
+        post.ob_permalink = post_data['permalink']
         post._commit()
 
         [self.process_comment(comment_data, post) for comment_data in post_data.get('comments', [])]
@@ -101,29 +103,41 @@ class Importer(object):
         """Convert a name into a username"""
         return name.replace(' ', '_')
 
+    def _query_account(self, *args):
+        account = None
+        kwargs = {'data': True}
+        q = Account._query(*args, **kwargs)
+        accounts = list(q)
+        if accounts:
+            account = accounts[0]
+        return account
+        
     def _find_account_for(self, name, email):
         """Try to find an existing account using derivations of the name"""
 
         try:
+            # Look for an account we have cached
             account = self.username_mapping[(name, email)]
         except KeyError:
-            candidates = (
-                name,
-                name.replace(' ', ''),
-                self._username_from_name(name),
-            )
-
-            account = None
-            for candidate in candidates:
-                q = Account._query(
-                    Account.c.name == candidate,
-                    Account.c.email == email
+            # Look for an existing account that was created due to a previous import
+            account = self._query_account(Account.c.ob_account_name == name,
+                                          Account.c.email == email)
+            if not account:
+                # Look for an existing account based on derivations of the name
+                candidates = (
+                    name,
+                    name.replace(' ', ''),
+                    self._username_from_name(name)
                 )
-                accounts = list(q)
-                if accounts:
-                    account = accounts[0]
-                    account._safe_load()
-                    break
+
+                account = None
+                for candidate in candidates:
+                    account = self._query_account(Account.c.name == candidate,
+                                                  Account.c.email == email)
+                    if account:
+                        account.ob_account_name = name
+                        account._commit()
+                        break
 
             # Cache the result for next time
             self.username_mapping[(name, email)] = account
@@ -144,6 +158,8 @@ class Importer(object):
                 # Create a new account
                 try:
                     account = register(username, generate_password(), email)
+                    account.ob_account_name = full_name
+                    account._commit()
                 except AccountExists:
                     # This username is taken, generate another, but first limit the retries
                     if retry > MAX_RETRIES:
