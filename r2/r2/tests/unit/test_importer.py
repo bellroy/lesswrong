@@ -316,7 +316,7 @@ class TestImporterMocktest(TestCase):
         assert test_user5.mock.ob_account_name == 'Test User'
 
     def test_get_or_create_account_max_retries(self):
-        """Should raise an error after 10 tries"""
+        """Should raise an error after 100 tries"""
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
@@ -324,7 +324,7 @@ class TestImporterMocktest(TestCase):
         account_anchor = mock_on(Account)
         query = account_anchor._query.returning([]).is_expected.exactly(4).times
         account_module_anchor = mock_on(r2.lib.importer)
-        register = account_module_anchor.register.raising(AccountExists).is_expected.exactly(10).times
+        register = account_module_anchor.register.raising(AccountExists).is_expected.exactly(100).times
 
         post = self.post
 
@@ -578,25 +578,43 @@ class TestImporterMocktest(TestCase):
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
-            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html')
+            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html').unfrozen()
+        post_no_urls.expects('_commit')
+        post_no_urls.frozen()
+
         post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
             _id=2,
             article='Google: http://google.com/',
             url='new2',
-            ob_permalink='old2')
+            ob_permalink='old2').unfrozen()
+        post_no_ob_urls.expects('_commit')
+        post_no_ob_urls.frozen()
+
         post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
             _id=3,
-            article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
+            article=u'Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
-            ob_permalink='old3')
+            ob_permalink='old3').unfrozen()
+        post_ob_urls.expects('_commit')
+        post_ob_urls.frozen()
+
+        posts = [post_no_urls, post_no_ob_urls, post_ob_urls]
 
         post_anchor = mock_on(Link)
         post_anchor.c.with_children(ob_permalink='not None')
-        post_query = post_anchor._query.returning([post.mock for post in [post_no_urls, post_no_ob_urls, post_ob_urls]])
+        post_query = post_anchor._query.returning([post.mock for post in posts])
 
         comment_no_urls = mock_wrapper().named('comment with no urls').with_children(body='Comment *body*, no links.')
+        comment_no_urls.unfrozen().expects('_commit')
+        comment_no_urls.frozen()
+        
         comment_no_ob_urls = mock_wrapper().named('comment with no ob urls').with_children(body='Google:\nhttp://google.com/ is good')
+        comment_no_ob_urls.unfrozen().expects('_commit')
+        comment_no_ob_urls.frozen()
+        
         comment_ob_urls = mock_wrapper().named('comment with ob urls').with_children(body='Blah http://www.overcomingbias.com/2009/03/missing-alliances.html blah')
+        comment_ob_urls.unfrozen().expects('_commit')
+        comment_ob_urls.frozen()
 
         comment_generator = ([comment.mock] for comment in (comment_no_urls, comment_no_ob_urls, comment_ob_urls))
         comment_anchor = mock_on(Comment)
@@ -624,17 +642,22 @@ class TestImporterMocktest(TestCase):
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
-            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html')
+            ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html').unfrozen()
+        post_no_urls.with_methods(_commit=None)
+
         post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
             _id=2,
             article='Google: http://google.com/',
             url='new2',
-            ob_permalink='old2')
+            ob_permalink='old2').unfrozen()
+        post_no_ob_urls.with_methods(_commit=None)
+
         post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
             _id=3,
             article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
-            ob_permalink='old3')
+            ob_permalink='old3').unfrozen()
+        post_ob_urls.with_methods(_commit=None)
 
         post_anchor = mock_on(Link)
         post_anchor.c.with_children(ob_permalink='not None')
