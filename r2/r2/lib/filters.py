@@ -27,7 +27,7 @@ import re
 
 import lxml.html
 from lxml.html import soupparser
-from lxml.html.clean import Cleaner
+from lxml.html.clean import Cleaner, autolink_html
 
 MD_START = '<div class="md">'
 MD_END = '</div>'
@@ -194,5 +194,4 @@ def killhtml(html):
 def cleanhtml(html):
     html_doc = soupparser.fromstring(html)
     cleaned_html = sanitizer.clean_html(html_doc)
-    return lxml.html.tostring(cleaned_html)
-
+    return lxml.html.tostring(autolink_html(cleaned_html))
