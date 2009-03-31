@@ -60,13 +60,15 @@ if __name__ == '__main__':
         if 'Eliezer Yudkowsky' not in entry['author']:
             continue
 
+        if entry['status'] != 'Publish':
+            continue
+
         # Get the title and do a lookup on the permalink
         body = entry['description'] + entry['mt_text_more']
         body = body.decode('utf-8')
         title = entry['title']
         title = title.decode('utf-8')
         print title
-        # flush(sys.stdout)
 
         key = (kill_whitespace(body), kill_whitespace(title))
         try:
@@ -88,13 +90,15 @@ if __name__ == '__main__':
         new_entry['permalink'] = api_post['permaLink']
         new_entry['description'] = api_post['description']
         new_entry['mt_text_more'] = api_post['mt_text_more']
-        new_entry['authorEmail'] = user_map.get(new_entry['author'], '')
+        new_entry['authorEmail'] = user_map.get(new_entry['author'], '').lower()
         
         # Process comments
         comments = new_entry.get('comments', [])
         for comment in comments:
             if not comment['authorEmail']:
-                comment['authorEmail'] = user_map.get(comment['author'], '')
+                comment['authorEmail'] = user_map.get(comment['author'], '').lower()
+            else:
+                comment['authorEmail'] = comment['authorEmail'].lower()
 
         new_export.append(new_entry)
     
