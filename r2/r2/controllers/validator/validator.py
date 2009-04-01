@@ -185,7 +185,7 @@ class VLimit(Validator):
     def run(self, limit):
         if limit is None:
             return c.user.pref_numsites 
-        return min(max(int(limit), 1), 100)
+        return min(max(int(limit), 1), 250)
 
 class VCssMeasure(Validator):
     measure = re.compile(r"^\s*[\d\.]+\w{0,3}\s*$")

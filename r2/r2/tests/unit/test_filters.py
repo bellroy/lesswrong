@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from r2.lib.filters import wrap_urls, killhtml
+from r2.lib.filters import wrap_urls, killhtml, format_linebreaks
 import nose
 
 def is_equal(output, expected_output):
@@ -52,6 +52,19 @@ def test_killhtml():
     )
     for input_text, expected_output in test_cases:
         yield is_equal, killhtml(input_text), expected_output
+
+def test_format_linebreaks():
+    """Test replacing of line breaks with br tags"""
+    test_cases = (
+        ('Simple:\nLine two', '<p>Simple:</p><p>Line two</p>'),
+        ('Single DOS:\r\nLine breaks', '<p>Single DOS:</p><p>Line breaks</p>'),
+        ('Classic Mac:\rLine breaks', '<p>Classic Mac:</p><p>Line breaks</p>'),
+        ('Consecutive:\n\n\n\n\n\nLine breaks', '<p>Consecutive:</p><p>Line breaks</p>'),
+        ('Multiple:\nLine\nbreaks', '<p>Multiple:</p><p>Line</p><p>breaks</p>'),
+        ('\nLeading and trailing\n', '<p>Leading and trailing</p>'),
+    )
+    for input_text, expected_output in test_cases:
+        yield is_equal, format_linebreaks(input_text), expected_output
 
 if __name__ == '__main__':
     nose.main()

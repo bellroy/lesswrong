@@ -14,7 +14,7 @@ from r2.lib.db.thing import NotFound
 # Constants
 ###########################
 
-MAX_RETRIES = 10
+MAX_RETRIES = 100
 
 # Constants for the characters to compose a password from.
 # Easilty confused characters like I and l, 0 and O are omitted
@@ -90,7 +90,7 @@ class Importer(object):
         article = u'%s%s' % (post_data['description'],
                              Link._more_marker + post_data['mt_text_more'] if post_data['mt_text_more'] else u'')
         ip = '127.0.0.1'
-        tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data['category']]
+        tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data.get('category', [])]
         naive_date = datetime.datetime.strptime(post_data['dateCreated'], DATE_FORMAT)
         local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
         utc_date = local_date.astimezone(pytz.utc)
@@ -137,6 +137,9 @@ class Importer(object):
     url_re = re.compile(r"""(?:https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]""", re.IGNORECASE)
     def rewrite_ob_urls(self, text):
         if text:
+            if isinstance(text, str):
+                text = text.decode('utf-8')
+
             text = self.url_re.sub(lambda match: self.substitute_ob_url(match.group()), text)
 
         return text
@@ -145,15 +148,19 @@ class Importer(object):
         """Perform post processsing to rewrite URLs and generate mapping
            between old and new permalinks"""
         post.article = self.rewrite_ob_urls(post.article)
+        post._commit()
+        
         comments = Comment._query(Comment.c.link_id == post._id, data = True)
         for comment in comments:
             comment.body = self.rewrite_ob_urls(comment.body)
+            comment._commit()
 
     def import_into_subreddit(self, sr, data):
         mapping_file = open('import_mapping.yml', 'w')
 
         for post_data in data:
             try:
+                print post_data['title']
                 self.process_post(post_data, sr)
             except Exception, e:
                 print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
@@ -169,6 +176,7 @@ class Importer(object):
         yaml.dump(self.post_mapping, mapping_file, Dumper=yaml.CDumper)
 
         # Update URLs in the posts and comments
+        print 'Post processing imported content'
         for post in posts:
             self.post_process_post(post)
 
