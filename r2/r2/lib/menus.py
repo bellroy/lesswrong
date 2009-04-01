@@ -216,6 +216,7 @@ class NavMenu(Styled):
         # (possibly None)
         self.default = default
         self.selected = self.find_selected()
+        self.enabled = True
 
         Styled.__init__(self, title = title, **kw)
 
@@ -385,7 +386,7 @@ class SortMenu(SimpleGetMenu):
     options   = ('hot', 'new', 'top', 'old', 'controversial')
 
     def __init__(self, **kw):
-        kw['title'] = _("Sort By")
+        kw['title'] = _("Sort By") + ':'
         SimpleGetMenu.__init__(self, **kw)
     
     @classmethod
@@ -483,6 +484,7 @@ class NumCommentsMenu(SimpleGetMenu):
     options   = ('true', 'false')
 
     def __init__(self, num_comments, **context):
+        context['title'] = _("Show") + ':'
         self.num_comments = num_comments
         SimpleGetMenu.__init__(self, **context)
 

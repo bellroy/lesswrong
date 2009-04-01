@@ -23,7 +23,7 @@
 <%!
    from r2.models.subreddit import Default
    from r2.lib.template_helpers import get_domain, static
-   from r2.lib.filters import safemarkdown, safehtml
+   from r2.lib.filters import safemarkdown, cleanhtml
    from r2.lib.utils import prettytime
    from r2.lib.strings import strings
  %>
@@ -98,7 +98,7 @@
 </%def>
 
 <%def name="article()">
-  ${unsafe(safehtml(thing.article))}
+  ${unsafe(cleanhtml(thing.article))}
   <div class="social-sharing-button">
   <!-- AddThis Button BEGIN -->
   <script type="text/javascript">var addthis_pub="lesswrong";</script>
@@ -108,7 +108,7 @@
 </%def>
 
 <%def name="summary()">
-  ${unsafe(safehtml(thing._summary()))}
+  ${unsafe(cleanhtml(thing._summary()))}
   % if thing._has_more():
     <%call expr="make_link('read_more', 'more', 'more')">
       continue reading &raquo;
@@ -166,7 +166,7 @@
   </ul>
   % if thing.render_full:
     <div class="md">
-      ${unsafe(safehtml(thing.article))}
+      ${unsafe(cleanhtml(thing.article))}
     </div>
     <% tags = thing.get_tags() %>
     %if len(tags):
@@ -187,7 +187,7 @@
   %else:
     % if hasattr(thing, '_summary'):
       <div class="md">
-        ${unsafe(safehtml(thing._summary()))}
+        ${unsafe(cleanhtml(thing._summary()))}
       </div>
       % if thing._has_more():
         <%call expr="make_link('read_more', 'md', 'more')">

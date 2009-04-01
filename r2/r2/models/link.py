@@ -21,10 +21,12 @@
 ################################################################################
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, \
      CreationError
-from r2.lib.utils import base_url, tup, domain, worker, title_to_url, UrlParser
+from r2.lib.utils import base_url, tup, domain, worker, title_to_url, \
+     UrlParser, set_last_modified
 from account import Account
 from subreddit import Subreddit
 from printable import Printable
+import thing_changes as tc
 from r2.config import cache
 from r2.lib.memoize import memoize, clear_memo
 from r2.lib import utils
@@ -138,7 +140,8 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
+        # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
                 _spam = spam,
@@ -146,13 +149,22 @@ class Link(Thing, Printable):
                 sr_id = sr._id, 
                 lang = sr.lang,
                 ip = ip,
-                article = article
+                article = article,
+                date = date
                 )
         l._commit()
+
+        # Now that the post id is known update the Post with the correct permalink.
+        l.url = l.make_permalink_slow()
+        l.is_self = True
+        l._commit()
+
         l.set_url_cache()
+
         # Add tags
         for tag in tags:
             l.add_tag(tag)
+
         return l
         
     def _summary(self):
@@ -691,7 +703,8 @@ class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
     _defaults = dict(reported = 0, 
                      moderator_banned = False,
-                     banned_before_moderator = False)
+                     banned_before_moderator = False,
+                     is_html = False)
 
     def _markdown(self):
         pass
@@ -701,20 +714,21 @@ class Comment(Thing, Printable):
         link._incr('num_comments', -1)
     
     @classmethod
-    def _new(cls, author, link, parent, body, ip, spam = False):
-        c = Comment(body = body,
-                    link_id = link._id,
-                    sr_id = link.sr_id,
-                    author_id = author._id,
-                    ip = ip)
+    def _new(cls, author, link, parent, body, ip, spam = False, date = None):
+        comment = Comment(body = body,
+                          link_id = link._id,
+                          sr_id = link.sr_id,
+                          author_id = author._id,
+                          ip = ip,
+                          date = date)
 
-        c._spam = spam
+        comment._spam = spam
 
         #these props aren't relations
         if parent:
-            c.parent_id = parent._id
+            comment.parent_id = parent._id
 
-        c._commit()
+        comment._commit()
 
         link._incr('num_comments', 1)
 
@@ -722,13 +736,25 @@ class Comment(Thing, Printable):
         if parent:
             to = Account._byID(parent.author_id)
             # only global admins can be message spammed.
-            if not c._spam or to.name in g.admins:
-                inbox_rel = Inbox._add(to, c, 'inbox')
+            if not comment._spam or to.name in g.admins:
+                inbox_rel = Inbox._add(to, comment, 'inbox')
 
         #clear that chache
         clear_memo('builder.link_comments2', link._id)
 
-        return (c, inbox_rel)
+        # flag search indexer that something has changed
+        tc.changed(comment)
+
+        #update last modified
+        set_last_modified(author, 'overview')
+        set_last_modified(author, 'commented')
+        set_last_modified(link, 'comments')
+
+        #update the comment cache
+        from r2.lib.comment_tree import add_comment
+        add_comment(comment)
+
+        return (comment, inbox_rel)
 
     @property
     def subreddit_slow(self):
@@ -770,7 +796,8 @@ class Comment(Thing, Printable):
                               wrapped.can_ban,
                               wrapped.moderator_banned,
                               wrapped.can_reply,
-                              wrapped.deleted))
+                              wrapped.deleted,
+                              wrapped.is_html))
         s = ''.join(s)
         return s
 

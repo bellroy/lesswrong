@@ -226,6 +226,7 @@ div.inline-listing a:hover {
 }
 #comment-controls label {
     padding-right: 5px;
+    margin-left: 1em;
 }
 div.comment .focal {
 	background-color: #ffc;
@@ -244,6 +245,7 @@ div.comment .focal {
 .md h3 { font-size: 15px; }
 .md h4 { font-size: 14px; }
 .md strong { font-weight: bold; }
+.md div { margin-bottom: 1em; }
 .md em, .help em { font-style: italic; }
 .md strong em { font-style: italic; font-weight: bold }
 .md ol, .md ul, .help ul { margin: 10px 2em; }

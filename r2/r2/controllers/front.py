@@ -152,6 +152,10 @@ class FrontController(RedditController):
         user_num = c.user.pref_num_comments or g.num_comments
         num = g.max_comments if num_comments == 'true' else user_num
 
+        # Override sort if the link has a default set
+        if hasattr(article, 'comment_sort_order'):
+            sort = article.comment_sort_order
+
         builder = CommentBuilder(article, CommentSortMenu.operator(sort), 
                                  comment, context)
         listing = NestedListing(builder, num = num,
@@ -181,14 +185,19 @@ class FrontController(RedditController):
         displayPane.append(listing.listing())
 
         loc = None if c.focal_comment or context is not None else 'comments'
-        
+
         if article.comments_enabled:
+            sort_menu = CommentSortMenu(default = sort)
+            if hasattr(article, 'comment_sort_order'):
+                sort_menu.enabled = False
+            nav_menus = [sort_menu,
+                         NumCommentsMenu(article.num_comments,
+                                         default=num_comments)]
+
             content = CommentListing(
                 content = displayPane,
                 num_comments = article.num_comments,
-                nav_menus = [CommentSortMenu(default = sort),
-                            NumCommentsMenu(article.num_comments,
-                                            default=num_comments)],
+                nav_menus = nav_menus,
             )
         else:
             content = PaneStack()

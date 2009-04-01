@@ -1,101 +1,270 @@
-from gdata import atom
-
 import sys
 import os
+import re
+import datetime
+import pytz
+import yaml
 
-# from r2.models import Link,Comment,Account,Subreddit
+from random import Random
+from r2.models import Link,Comment,Account,Subreddit
+from r2.models.account import AccountExists, register
+from r2.lib.db.thing import NotFound
 
 ###########################
 # Constants
 ###########################
 
-#BLOGGER_URL = 'http://www.blogger.com/'
-#BLOGGER_NS = 'http://www.blogger.com/atom/ns#'
-KIND_SCHEME = 'http://schemas.google.com/g/2005#kind'
+MAX_RETRIES = 100
 
-#YOUTUBE_RE = re.compile('http://www.youtube.com/v/([^&]+)&?.*')
-#YOUTUBE_FMT = r'[youtube=http://www.youtube.com/watch?v=\1]'
-#GOOGLEVIDEO_RE = re.compile('(http://video.google.com/googleplayer.swf.*)')
-#GOOGLEVIDEO_FMT = r'[googlevideo=\1]'
-#DAILYMOTION_RE = re.compile('http://www.dailymotion.com/swf/(.*)')
-#DAILYMOTION_FMT = r'[dailymotion id=\1]'
+# Constants for the characters to compose a password from.
+# Easilty confused characters like I and l, 0 and O are omitted
+PASSWORD_NUMBERS='123456789'
+PASSWORD_LOWER_CHARS='abcdefghjkmnpqrstuwxz'
+PASSWORD_UPPER_CHARS='ABCDEFGHJKMNPQRSTUWXZ'
+PASSWORD_OTHER_CHARS='@#$%^&*'
+ALL_PASSWORD_CHARS = ''.join([PASSWORD_NUMBERS,PASSWORD_LOWER_CHARS,PASSWORD_UPPER_CHARS,PASSWORD_OTHER_CHARS])
 
-class AtomImporter(object):
+DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+INPUT_TIMEZONE = pytz.timezone('America/New_York')
 
-    def __init__(self, doc):
-        """Constructs an importer for an Atom (Blogger export) file.
+rng = Random()
+def generate_password():
+    password = []
+    for i in range(8):
+        password.append(rng.choice(ALL_PASSWORD_CHARS))
+    return ''.join(password)
+
+class Importer(object):
+
+    def __init__(self, url_handler=None):
+        """Constructs an importer that takes a data structure based on a yaml file.
 
         Args:
-        doc: The Atom file as a string
+        url_handler: A optional URL transformation function that will be
+        called with urls detected in post and comment bodies.
         """
 
-        # Ensure UTF8 chars get through correctly by ensuring we have a
-        # compliant UTF8 input doc.
-        self.doc = doc.decode('utf-8', 'replace').encode('utf-8')
+        self.url_handler = url_handler if url_handler else self._default_url_handler
 
-        # Read the incoming document as a GData Atom feed.
-        self.feed = atom.FeedFromString(self.doc)
+        self.username_mapping = {}
 
-    def show_posts_by(self, authors):
-        """Print the titles of the posts by the list of supplied authors"""
+    @staticmethod
+    def _default_url_handler(match):
+        return match.group()
+
+    def process_comment(self, comment_data, comment, post):
+        # Prepare data for import
+        ip = '127.0.0.1'
+        naive_date = datetime.datetime.strptime(comment_data['dateCreated'], DATE_FORMAT)
+        local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
+        utc_date = local_date.astimezone(pytz.utc)
+
+        # Determine account to use for this comment
+        account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
+
+        if comment_data and not comment:
+            # Create new comment
+            comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], ip, date=utc_date)
+            comment.is_html = True
+            comment.ob_imported = True
+            comment._commit()
+        elif comment_data and comment:
+            # Overwrite existing comment
+            comment.author_id = account._id
+            comment.body = comment_data['body']
+            comment.ip = ip
+            comment._date = utc_date
+            comment.is_html = True
+            comment.ob_imported = True
+            comment._commit()
+        elif not comment_data and comment:
+            # Not enough comment data being imported to overwrite all comments
+            print 'WARNING: More comments in lesswrong than we are importing, ignoring additional comment in lesswrong'
+
+    kill_tags_re = re.compile(r'</?[iub]>')
+    transform_categories_re = re.compile(r'[- ]')
+
+    def process_post(self, post_data, sr):
+        # Prepare data for import
+        title = self.kill_tags_re.sub('', post_data['title'])
+        article = u'%s%s' % (post_data['description'],
+                             Link._more_marker + post_data['mt_text_more'] if post_data['mt_text_more'] else u'')
+        ip = '127.0.0.1'
+        tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data.get('category', [])]
+        naive_date = datetime.datetime.strptime(post_data['dateCreated'], DATE_FORMAT)
+        local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
+        utc_date = local_date.astimezone(pytz.utc)
+
+        # Determine account to use for this post
+        account = self._get_or_create_account(post_data['author'], post_data['authorEmail'])
+
+        # Look for an existing post created due to a previous import
+        post = self._query_post(Link.c.ob_permalink == post_data['permalink'])
+
+        if not post:
+            # Create new post
+            post = Link._submit(title, article, account, sr, ip, tags, date=utc_date)
+            post.blessed = True
+            post.comment_sort_order = 'old'
+            post.ob_permalink = post_data['permalink']
+            post._commit()
+        else:
+            # Update existing post
+            post.title = title
+            post.article = article
+            post.author_id = account._id
+            post.sr_id = sr._id
+            post.ip = ip
+            post.set_tags(tags)
+            post._date = utc_date
+            post.blessed = True
+            post.comment_sort_order = 'old'
+            post._commit()
+
+        # Process each comment for this post
+        comments = self._query_comments(Comment.c.link_id == post._id, Comment.c.ob_imported == True)
+        [self.process_comment(comment_data, comment, post)
+         for comment_data, comment in map(None, post_data.get('comments', []), comments)]
+
+    def substitute_ob_url(self, url):
+        try:
+            url = self.post_mapping[url]
+        except KeyError:
+            pass
+        return url
+
+    # Borrowed from http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url/163684#163684
+    url_re = re.compile(r"""(?:https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]""", re.IGNORECASE)
+    def rewrite_ob_urls(self, text):
+        if text:
+            if isinstance(text, str):
+                text = text.decode('utf-8')
+
+            text = self.url_re.sub(lambda match: self.substitute_ob_url(match.group()), text)
+
+        return text
+
+    def post_process_post(self, post):
+        """Perform post processsing to rewrite URLs and generate mapping
+           between old and new permalinks"""
+        post.article = self.rewrite_ob_urls(post.article)
+        post._commit()
         
-        for entry in self.feed.entry:
-            # Grab the information about the entry kind
-            entry_kind = ""
-            for category in entry.category:
-              if category.scheme == KIND_SCHEME:
-                entry_kind = category.term
+        comments = Comment._query(Comment.c.link_id == post._id, data = True)
+        for comment in comments:
+            comment.body = self.rewrite_ob_urls(comment.body)
+            comment._commit()
 
-            if entry_kind.endswith("#comment"):
-              # # This entry will be a comment, grab the post that it goes to
-              # in_reply_to = entry.FindExtensions('in-reply-to')
-              # post_item = None
-              # # Check to see that the comment has a corresponding post entry
-              # if in_reply_to:
-              #   post_id = self._ParsePostId(in_reply_to[0].attributes['ref'])
-              #   post_item = posts_map.get(post_id, None)
-              # 
-              # # Found the post for the comment, add the commment to it
-              # if post_item:
-              #   # The author email may not be included in the file
-              #   author_email = ''
-              #   if entry.author[0].email:
-              #     author_email = entry.author[0].email.text
-              # 
-              #   # Same for the the author's url
-              #   author_url = ''
-              #   if entry.author[0].uri:
-              #     author_url = entry.author[0].uri.text
-              # 
-              #   post_item.comments.append(wordpress.Comment(
-              #       comment_id = self._GetNextId(),
-              #       author = entry.author[0].name.text,
-              #       author_email = author_email,
-              #       author_url = author_url,
-              #       date = self._ConvertDate(entry.published.text),
-              #       content = self._ConvertContent(entry.content.text)))
-              # 
-              pass
-            elif entry_kind.endswith("#post"):
-              # This entry will be a post
-              for author in entry.author:
-                  if author.name.text in authors:
-                      print '%s by %s' % (entry.title.text, author.name.text)
-                      break
-            
-              # post_item = self._ConvertPostEntry(entry)
-              # posts_map[self._ParsePostId(entry.id.text)] = post_item
-              # wxr.channel.items.append(post_item)
+    def import_into_subreddit(self, sr, data):
+        mapping_file = open('import_mapping.yml', 'w')
 
-if __name__ == '__main__':
-  if len(sys.argv) <= 1:
-    print 'Usage: %s <blogger_export_file>' % os.path.basename(sys.argv[0])
-    print
-    print ' Imports the blogger export file.'
-    sys.exit(-1)
+        for post_data in data:
+            try:
+                print post_data['title']
+                self.process_post(post_data, sr)
+            except Exception, e:
+                print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
 
-  xml_file = open(sys.argv[1])
-  xml_doc = xml_file.read()
-  importer = AtomImporter(xml_doc)
-  print importer.show_posts_by('Eliezer Yudkowsky')
-  xml_file.close()
+        posts = list(Link._query(Link.c.ob_permalink != None, data = True))
+
+        # Generate a mapping between old and new posts
+        self.post_mapping = {}
+        for post in posts:
+            self.post_mapping[post.ob_permalink] = post.url
+
+        # Write out the permalink mapping
+        yaml.dump(self.post_mapping, mapping_file, Dumper=yaml.CDumper)
+
+        # Update URLs in the posts and comments
+        print 'Post processing imported content'
+        for post in posts:
+            self.post_process_post(post)
+
+    def _query_account(self, *args):
+        account = None
+        kwargs = {'data': True}
+        q = Account._query(*args, **kwargs)
+        accounts = list(q)
+        if accounts:
+            account = accounts[0]
+        return account
+
+    def _query_post(self, *args):
+        post = None
+        kwargs = {'data': True}
+        q = Link._query(*args, **kwargs)
+        posts = list(q)
+        if posts:
+            post = posts[0]
+        return post
+
+    def _query_comments(self, *args):
+        kwargs = {'data': True}
+        q = Comment._query(*args, **kwargs)
+        comments = list(q)
+        return comments
+
+    def _username_from_name(self, name):
+        """Convert a name into a username"""
+        return name.replace(' ', '_')
+
+    def _find_account_for(self, name, email):
+        """Try to find an existing account using derivations of the name"""
+
+        try:
+            # Look for an account we have cached
+            account = self.username_mapping[(name, email)]
+        except KeyError:
+            # Look for an existing account that was created due to a previous import
+            account = self._query_account(Account.c.ob_account_name == name,
+                                          Account.c.email == email)
+            if not account:
+                # Look for an existing account based on derivations of the name
+                candidates = (
+                    name,
+                    name.replace(' ', ''),
+                    self._username_from_name(name)
+                )
+
+                account = None
+                for candidate in candidates:
+                    account = self._query_account(Account.c.name == candidate,
+                                                  Account.c.email == email)
+                    if account:
+                        account.ob_account_name = name
+                        account._commit()
+                        break
+
+            # Cache the result for next time
+            self.username_mapping[(name, email)] = account
+
+        if not account:
+            raise NotFound
+
+        return account
+
+    def _get_or_create_account(self, full_name, email):
+        try:
+            account = self._find_account_for(full_name, email)
+        except NotFound:
+            retry = 2 # First retry will by name2
+            name = self._username_from_name(full_name)
+            username = name
+            while True:
+                # Create a new account
+                try:
+                    account = register(username, generate_password(), email)
+                    account.ob_account_name = full_name
+                    account._commit()
+                except AccountExists:
+                    # This username is taken, generate another, but first limit the retries
+                    if retry > MAX_RETRIES:
+                        raise StandardError("Unable to create account for '%s' after %d attempts" % (full_name, retry - 1))
+                else:
+                    # update cache with the successful account
+                    self.username_mapping[(full_name, email)] = account
+                    break
+                username = "%s%d" % (name, retry)
+                retry += 1
+
+        return account

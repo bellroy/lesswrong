@@ -39,8 +39,19 @@ from paste.deploy import loadapp
 import paste.fixture
 import paste.script.appinstall
 
+import r2.config
 from r2.config.routing import *
 from routes import request_config, url_for
+from paste.registry import Registry
+from r2.lib.app_globals import Globals
+from paste.deploy import appconfig
+
+from r2.templates import tmpl_dirs
+import os
+import pylons
+from pylons.i18n.translation import NullTranslations
+from pylons.util import ContextObj
+
 
 test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
@@ -51,5 +62,24 @@ class TestController(TestCase):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
         TestCase.__init__(self, *args)
+
+class ModelTest(object):
+    config = appconfig('config:test.ini', relative_to=conf_dir)
+    root_path = os.path.join(conf_dir, 'r2')
+    paths = {
+        'root': root_path,
+         'controllers': os.path.join(root_path, 'controllers'),
+         'templates': tmpl_dirs,
+         'static_files': os.path.join(root_path, 'public')
+     }
+
+    registry = Registry()
+    registry.prepare()
+    globals = Globals(config.global_conf, config.local_conf, paths)
+    registry.register(pylons.g, globals)
+    registry.register(pylons.translator, NullTranslations())
+    context_obj=ContextObj()
+    registry.register(pylons.c, context_obj)
+    r2.config.cache = globals.cache
 
 __all__ = ['url_for', 'TestController']

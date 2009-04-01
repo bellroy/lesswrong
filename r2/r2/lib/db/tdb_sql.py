@@ -45,6 +45,12 @@ transactions = TransSet()
 
 BigInteger = postgres.PGBigInteger
 
+def alias_generator():
+    n = 1
+    while True:
+        yield 'alias_%d' % n
+        n += 1
+
 def make_metadata(engine):
     metadata = sa.BoundMetaData(engine)
     metadata.engine.echo = settings.DEBUG
@@ -702,17 +708,20 @@ def translate_data_value(alias, op):
     #convert the rval to db types
     op.rval = tuple(py2db(v) for v in tup(op.rval))
 
+
 #TODO sort by data fields
 #TODO sort by id wants thing_id
 def find_data(type_id, get_cols, sort, limit, constraints):
     d_table, t_table = types_id[type_id].data_table
     constraints = deepcopy(constraints)
 
+    aliases = alias_generator()
+
     used_first = False
     s = None
     need_join = False
     have_data_rule = False
-    first_alias = d_table.alias()
+    first_alias = d_table.alias(aliases.next())
     s = sa.select([first_alias.c.thing_id.label('thing_id')])#, distinct=True)
 
     for op in operators.op_iter(constraints):
@@ -732,7 +741,7 @@ def find_data(type_id, get_cols, sort, limit, constraints):
                 alias = first_alias
                 used_first = True
             else:
-                alias = d_table.alias()
+                alias = d_table.alias(aliases.next())
                 id_col = first_alias.c.thing_id
 
             if id_col:
@@ -770,7 +779,8 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
     r_table, t1_table, t2_table, d_table = rel_types_id[rel_type_id].rel_table
     constraints = deepcopy(constraints)
 
-    t1_table, t2_table = t1_table.alias(), t2_table.alias()
+    aliases = alias_generator()
+    t1_table, t2_table = t1_table.alias(aliases.next()), t2_table.alias(aliases.next())
 
     s = sa.select([r_table.c.rel_id.label('rel_id')])
     need_join1 = ('thing1_id', t1_table)
@@ -803,7 +813,7 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
             op.lval = r_table.c[key[1:]]
 
         else:
-            alias = d_table.alias()
+            alias = d_table.alias(aliases.next())
             s.append_whereclause(r_table.c.rel_id == alias.c.thing_id)
             s.append_column(alias.c.value.label(key))
             s.append_whereclause(alias.c.key == key)

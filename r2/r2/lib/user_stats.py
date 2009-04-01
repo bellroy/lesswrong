@@ -31,7 +31,8 @@ def top_users():
     type = tdb.types_id[Account._type_id]
     tt, dt = type.thing_table, type.data_table[0]
 
-    karma = dt.alias()
+    aliases = tdb.alias_generator()
+    karma = dt.alias(aliases.next())
 
     s = sa.select([tt.c.thing_id],
                   sa.and_(tt.c.spam == False,
@@ -62,7 +63,8 @@ def top_user_change(period = '1 day'):
     # dt = data table
     rt, account, link, dt = type.rel_table
 
-    author = dt.alias()
+    aliases = tdb.alias_generator()
+    author = dt.alias(aliases.next())
 
     date = utils.timeago(period)
     

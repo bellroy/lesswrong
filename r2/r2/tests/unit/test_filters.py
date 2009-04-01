@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from r2.lib.filters import wrap_urls
+from r2.lib.filters import wrap_urls, killhtml, format_linebreaks
 import nose
+
+def is_equal(output, expected_output):
+    assert output == expected_output
 
 def test_wrap_urls():
     test_cases = (
@@ -33,10 +36,35 @@ def test_wrap_urls():
         ('Blah <http://a.link.com/> more', 'Blah <http://a.link.com/> more'),
     )
     for input_text, expected_output in test_cases:
-        yield check_wrapped, wrap_urls(input_text), expected_output
+        yield is_equal, wrap_urls(input_text), expected_output
 
-def check_wrapped(output, expected_output):
-    assert output == expected_output
+def test_killhtml():
+    """Test killhtml removes all tags"""
+    test_cases = (
+        ('Just Text', 'Just Text'),
+        ('<p>One</p><p>Two</p>', 'One Two'),
+        ('<p>One</p>     \n  <p>Two</p>', 'One Two'),
+        ('<p>One</p>\n<p>Two</p>', 'One Two'),
+        ('Some Text<p>then tag</p>', 'Some Text then tag'),
+        ('<p>Some Text</p>then no tag.', 'Some Text then no tag.'),
+        ('Entities &amp; &lt;hr/&gt;', 'Entities & <hr/>'),
+        ('<p>Unknown tags: <asdf>qwerty</asdf>', 'Unknown tags: qwerty'),
+    )
+    for input_text, expected_output in test_cases:
+        yield is_equal, killhtml(input_text), expected_output
+
+def test_format_linebreaks():
+    """Test replacing of line breaks with br tags"""
+    test_cases = (
+        ('Simple:\nLine two', '<p>Simple:</p><p>Line two</p>'),
+        ('Single DOS:\r\nLine breaks', '<p>Single DOS:</p><p>Line breaks</p>'),
+        ('Classic Mac:\rLine breaks', '<p>Classic Mac:</p><p>Line breaks</p>'),
+        ('Consecutive:\n\n\n\n\n\nLine breaks', '<p>Consecutive:</p><p>Line breaks</p>'),
+        ('Multiple:\nLine\nbreaks', '<p>Multiple:</p><p>Line</p><p>breaks</p>'),
+        ('\nLeading and trailing\n', '<p>Leading and trailing</p>'),
+    )
+    for input_text, expected_output in test_cases:
+        yield is_equal, format_linebreaks(input_text), expected_output
 
 if __name__ == '__main__':
     nose.main()

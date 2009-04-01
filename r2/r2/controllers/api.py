@@ -275,11 +275,6 @@ class ApiController(RedditController):
         # print "\n".join(request.post.va)
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
-          if l.url.lower() == 'self':
-              l.url = l.make_permalink_slow()
-              l.is_self = True
-              l._commit()
-              l.set_url_cache()
           v = Vote.vote(c.user, l, True, ip, spam)
           if save == 'on':
               r = l._save(c.user)
@@ -657,16 +652,6 @@ class ApiController(RedditController):
                         innerHTML='', value='')
             res._send_things(item)
             res._hide('noresults')
-            # flag search indexer that something has changed
-            tc.changed(item)
-
-            #update last modified
-            set_last_modified(c.user, 'overview')
-            set_last_modified(c.user, 'commented')
-            set_last_modified(link, 'comments')
-
-            #update the comment cache
-            add_comment(item)
 
         #update the queries
         if g.write_query_queue:
