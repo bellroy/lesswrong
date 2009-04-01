@@ -56,12 +56,13 @@ def test_killhtml():
 def test_format_linebreaks():
     """Test replacing of line breaks with br tags"""
     test_cases = (
-        ('Simple:\nLine two', '<p>Simple:</p><p>Line two</p>'),
-        ('Single DOS:\r\nLine breaks', '<p>Single DOS:</p><p>Line breaks</p>'),
-        ('Classic Mac:\rLine breaks', '<p>Classic Mac:</p><p>Line breaks</p>'),
+        ('Simple:\n\nLine two', '<p>Simple:</p><p>Line two</p>'),
+        ('DOS:\r\n\r\nLine breaks', '<p>DOS:</p><p>Line breaks</p>'),
+        ('Classic Mac:\r\rLine breaks', '<p>Classic Mac:</p><p>Line breaks</p>'),
         ('Consecutive:\n\n\n\n\n\nLine breaks', '<p>Consecutive:</p><p>Line breaks</p>'),
-        ('Multiple:\nLine\nbreaks', '<p>Multiple:</p><p>Line</p><p>breaks</p>'),
+        ('Multiple:\r\n\r\nLine\r\n\r\nbreaks', '<p>Multiple:</p><p>Line</p><p>breaks</p>'),
         ('\nLeading and trailing\n', '<p>Leading and trailing</p>'),
+        ('Single\ndoesn\'t wrap', '<p>Single\ndoesn\'t wrap</p>'),
     )
     for input_text, expected_output in test_cases:
         yield is_equal, format_linebreaks(input_text), expected_output

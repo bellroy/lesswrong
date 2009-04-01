@@ -196,7 +196,7 @@ def cleanhtml(html):
     cleaned_html = sanitizer.clean_html(html_doc)
     return lxml.html.tostring(autolink_html(cleaned_html))
 
-linebreaks_re = re.compile(r'[\r\n]+')
+linebreaks_re = re.compile(r'(?:\n{2}|\r{2}|(?:\r\n){2})+')
 def format_linebreaks(html):
     paragraphs = linebreaks_re.split(html.strip())
     return '<p>' + '</p><p>'.join(paragraphs) + '</p>'
