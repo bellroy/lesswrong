@@ -375,7 +375,8 @@ class TestImporterMocktest(TestCase):
         expected_title = 'Test Title with some special italic text and underline text and bold text.'
         description = 'A short test description'
         ip = '127.0.0.1'
-        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        local_date_created = pytz.timezone('America/New_York').localize(datetime.datetime(2009, 11, 1, 1, 0, 0), is_dst=False)
+        utc_date_created = local_date_created.astimezone(pytz.utc)
         permalink = 'http://www.overcomingbias.com/2009/03/test.html'
 
         fixture = ImporterFixture()
@@ -384,7 +385,7 @@ class TestImporterMocktest(TestCase):
                                    category=category,
                                    title=title,
                                    description=description,
-                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
+                                   date_created=local_date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
                                    permalink=permalink)
 
         sr = mock_wrapper().named('subreddit')
@@ -402,11 +403,11 @@ class TestImporterMocktest(TestCase):
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
-        args = submit.called.once().get_args()
-        assert args == ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': date_created})
+        self.assertEqual(submit.called.once().get_args(),
+                         ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        assert post.mock.comment_sort_order == 'old'
-        assert post.mock.ob_permalink == permalink
+        self.assertEqual(post.mock.comment_sort_order, 'old')
+        self.assertEqual(post.mock.ob_permalink, permalink)
 
     def test_create_post_with_more(self):
         author = 'Test User'
@@ -418,12 +419,14 @@ class TestImporterMocktest(TestCase):
         mt_text_more = u'This is more text \u2019 after the fold.'
         ip = '127.0.0.1'
         article = description + Link._more_marker + mt_text_more
-        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        local_date_created = pytz.timezone('America/New_York').localize(datetime.datetime(2009, 11, 1, 1, 0, 0), is_dst=False)
+        utc_date_created = local_date_created.astimezone(pytz.utc)
         permalink = 'http://www.overcomingbias.com/2009/03/test.html'
         comment_author = 'Comment Author'
         comment_author_email = 'comment_author@nowhere.org'
         comment_body = 'A short test comment'
-        comment_date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        local_comment_date_created = pytz.timezone('America/New_York').localize(datetime.datetime(2009, 11, 1, 1, 0, 0), is_dst=False)
+        utc_comment_date_created = local_comment_date_created.astimezone(pytz.utc)
 
         fixture = ImporterFixture()
         post_id = fixture.add_post(author=author,
@@ -432,13 +435,13 @@ class TestImporterMocktest(TestCase):
                                    title=title,
                                    description=description,
                                    mt_text_more=mt_text_more,
-                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
+                                   date_created=local_date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
                                    permalink=permalink)
         fixture.add_comment(post_id=post_id,
                             author=comment_author,
                             author_email=comment_author_email,
                             body=comment_body,
-                            date_created=comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
+                            date_created=local_comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
         sr = mock_wrapper().named('subreddit')
 
@@ -464,14 +467,14 @@ class TestImporterMocktest(TestCase):
 
         self.importer.import_into_subreddit(sr.mock, fixture.get_data())
 
-        submit_args = submit.called.once().get_args()
-        assert submit_args == ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': date_created})
+        self.assertEqual(submit.called.once().get_args(),
+                         ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
         self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        assert post.mock.comment_sort_order == 'old'
-        assert post.mock.ob_permalink == permalink
+        self.assertEqual(post.mock.comment_sort_order, 'old')
+        self.assertEqual(post.mock.ob_permalink, permalink)
 
-        new_args = new.called.once().get_args()
-        assert new_args == ((account_for_comment.mock, post.mock, None, comment_body, ip), {'date': comment_date_created})
+        self.assertEqual(new.called.once().get_args(),
+                         ((account_for_comment.mock, post.mock, None, comment_body, ip), {'date': utc_comment_date_created}))
         self.assertTrue(comment.mock.is_html, 'The comment should be marked as HTML')
         self.assertTrue(comment.mock.ob_imported, 'The comment should be marked as imported from OB')
 
@@ -484,12 +487,14 @@ class TestImporterMocktest(TestCase):
         expected_title = 'Test Title with some special italic text and underline text and bold text.'
         description = 'A short test description'
         ip = '127.0.0.1'
-        date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        local_date_created = pytz.timezone('America/New_York').localize(datetime.datetime(2009, 11, 1, 1, 0, 0), is_dst=False)
+        utc_date_created = local_date_created.astimezone(pytz.utc)
         permalink = 'http://www.overcomingbias.com/2009/03/test.html'
         comment_author = 'Comment Author'
         comment_author_email = 'comment_author@nowhere.org'
         comment_body = 'A short test comment'
-        comment_date_created = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
+        local_comment_date_created = pytz.timezone('America/New_York').localize(datetime.datetime(2009, 11, 1, 1, 0, 0), is_dst=False)
+        utc_comment_date_created = local_comment_date_created.astimezone(pytz.utc)
 
         fixture = ImporterFixture()
         post_id = fixture.add_post(author=author,
@@ -497,13 +502,13 @@ class TestImporterMocktest(TestCase):
                                    category=category,
                                    title=title,
                                    description=description,
-                                   date_created=date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
+                                   date_created=local_date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
                                    permalink=permalink)
         fixture.add_comment(post_id=post_id,
                             author=comment_author,
                             author_email=comment_author_email,
                             body=comment_body,
-                            date_created=comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
+                            date_created=local_comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
         sr = mock_wrapper().named('subreddit').with_children(_id='subreddit id')
 
@@ -534,13 +539,12 @@ class TestImporterMocktest(TestCase):
         self.assertEqual(post.mock.author_id, account_for_post.mock._id)
         self.assertEqual(post.mock.sr_id, sr.mock._id)
         self.assertEqual(post.mock.ip, ip)
-        self.assertEqual(post.mock.date, date_created)
+        self.assertEqual(post.mock._date, utc_date_created)
 
-        self.assertEqual(comment.mock.date, date_created)
         self.assertEqual(comment.mock.author_id, account_for_comment.mock._id)
         self.assertEqual(comment.mock.body, comment_body)
         self.assertEqual(comment.mock.ip, ip)
-        self.assertEqual(comment.mock.date, comment_date_created)
+        self.assertEqual(comment.mock._date, utc_comment_date_created)
         self.assertTrue(comment.mock.is_html)
         self.assertTrue(comment.mock.ob_imported)
 

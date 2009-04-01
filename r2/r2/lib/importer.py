@@ -24,6 +24,8 @@ PASSWORD_UPPER_CHARS='ABCDEFGHJKMNPQRSTUWXZ'
 PASSWORD_OTHER_CHARS='@#$%^&*'
 ALL_PASSWORD_CHARS = ''.join([PASSWORD_NUMBERS,PASSWORD_LOWER_CHARS,PASSWORD_UPPER_CHARS,PASSWORD_OTHER_CHARS])
 
+DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+INPUT_TIMEZONE = pytz.timezone('America/New_York')
 
 rng = Random()
 def generate_password():
@@ -53,14 +55,16 @@ class Importer(object):
     def process_comment(self, comment_data, comment, post):
         # Prepare data for import
         ip = '127.0.0.1'
-        date = datetime.datetime.strptime(comment_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
+        naive_date = datetime.datetime.strptime(comment_data['dateCreated'], DATE_FORMAT)
+        local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
+        utc_date = local_date.astimezone(pytz.utc)
 
         # Determine account to use for this comment
         account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
 
         if comment_data and not comment:
             # Create new comment
-            comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], ip, date=date)
+            comment, inbox_rel = Comment._new(account, post, None, comment_data['body'], ip, date=utc_date)
             comment.is_html = True
             comment.ob_imported = True
             comment._commit()
@@ -69,7 +73,7 @@ class Importer(object):
             comment.author_id = account._id
             comment.body = comment_data['body']
             comment.ip = ip
-            comment.date = date
+            comment._date = utc_date
             comment.is_html = True
             comment.ob_imported = True
             comment._commit()
@@ -87,7 +91,9 @@ class Importer(object):
                              Link._more_marker + post_data['mt_text_more'] if post_data['mt_text_more'] else u'')
         ip = '127.0.0.1'
         tags = [self.transform_categories_re.sub('_', tag.lower()) for tag in post_data['category']]
-        date = datetime.datetime.strptime(post_data['dateCreated'], '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.timezone('UTC'))
+        naive_date = datetime.datetime.strptime(post_data['dateCreated'], DATE_FORMAT)
+        local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
+        utc_date = local_date.astimezone(pytz.utc)
 
         # Determine account to use for this post
         account = self._get_or_create_account(post_data['author'], post_data['authorEmail'])
@@ -97,7 +103,7 @@ class Importer(object):
 
         if not post:
             # Create new post
-            post = Link._submit(title, article, account, sr, ip, tags, date=date)
+            post = Link._submit(title, article, account, sr, ip, tags, date=utc_date)
             post.blessed = True
             post.comment_sort_order = 'old'
             post.ob_permalink = post_data['permalink']
@@ -110,7 +116,7 @@ class Importer(object):
             post.sr_id = sr._id
             post.ip = ip
             post.set_tags(tags)
-            post.date = date
+            post._date = utc_date
             post.blessed = True
             post.comment_sort_order = 'old'
             post._commit()
