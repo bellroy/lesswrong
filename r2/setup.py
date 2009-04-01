@@ -96,6 +96,7 @@ setup(
                       "psycopg2==2.0.8",
                       "py_interface==0.93",
                       "lxml==2.2",
+                      "PyYAML==3.08",
                       "pytz", # Best to keep up with DST updates (so no specific version)
                       ],
     packages=find_packages(),
