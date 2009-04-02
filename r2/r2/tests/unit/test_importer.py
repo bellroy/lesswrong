@@ -12,7 +12,6 @@ import re
 import datetime
 import pytz
 import StringIO
-import yaml
 
 class ImporterFixture(object):
 
@@ -171,7 +170,7 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         args = query.called.once().get_args()
         assert args == ((True, True), {'data': True})
@@ -192,7 +191,7 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_exists2(self):
         fixture = ImporterFixture()
@@ -216,7 +215,7 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_exists3(self):
         fixture = ImporterFixture()
@@ -240,7 +239,7 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_not_exists(self):
         """Should create the account if it doesn't exist"""
@@ -276,7 +275,7 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         assert test_user.mock.ob_account_name == 'Test User'
 
@@ -311,7 +310,7 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         assert test_user5.mock.ob_account_name == 'Test User'
 
@@ -328,7 +327,7 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_cached(self):
         """Test name to account lookup is cached"""
@@ -362,7 +361,7 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         assert test_user5.mock.ob_account_name == 'Test User'
 
@@ -401,7 +400,7 @@ class TestImporterMocktest(TestCase):
         post_anchor._query.returning([]).is_expected
         submit = post_anchor._submit.returning(post.mock)
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         self.assertEqual(submit.called.once().get_args(),
                          ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
@@ -465,7 +464,7 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         new = comment_anchor._new.named('Comment._new').returning((comment.mock, inbox_rel))
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         self.assertEqual(submit.called.once().get_args(),
                          ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
@@ -519,20 +518,34 @@ class TestImporterMocktest(TestCase):
         account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
 
         post = mock_wrapper().named('post')
-        post.with_children(_id='post id', title=None, article=None, author_id=None, sr_id=None, ip=None, date=None).unfrozen()
+        post.with_children(
+            _id='post id',
+            title=None,
+            article=None,
+            author_id=None,
+            sr_id=None,
+            ip=None,
+            _date=None,
+            ob_permalink='http://www.overcomingbias.com/test',
+            canonical_url='http://lesswrong.com/lw/5/test/',
+            blessed=False,
+            comment_sort_order=None,
+        ).unfrozen()
         post.with_methods(set_tags=None).unfrozen()
         post.expects('_commit')
         post.expects('set_tags')
+        post.frozen()
         post_anchor = mock_on(Link)
         post_anchor._query.returning([post.mock])
 
         comment = mock_wrapper().named('comment')
-        comment.with_children(author_id=None, body=None, ip=None, date=None, is_html=False, ob_imported=False).unfrozen()
+        comment.with_children(author_id=None, body=None, ip=None, _date=None, is_html=False, ob_imported=False).unfrozen()
         comment.expects('_commit')
+        comment.frozen()
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([comment.mock])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data())
+        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
         self.assertEqual(post.mock.title, expected_title)
         self.assertEqual(post.mock.article, description)
@@ -540,6 +553,8 @@ class TestImporterMocktest(TestCase):
         self.assertEqual(post.mock.sr_id, sr.mock._id)
         self.assertEqual(post.mock.ip, ip)
         self.assertEqual(post.mock._date, utc_date_created)
+        self.assertEqual(post.mock.comment_sort_order, 'old')
+        self.assertTrue(post.mock.blessed)
 
         self.assertEqual(comment.mock.author_id, account_for_comment.mock._id)
         self.assertEqual(comment.mock.body, comment_body)
@@ -563,7 +578,7 @@ class TestImporterMocktest(TestCase):
         fixture.add_comment(post_id=post)
 
         importer = Importer()
-        importer.import_into_subreddit(sr, fixture.get_data())
+        importer.import_into_subreddit(sr, fixture.get_data(), StringIO.StringIO())
 
     @ignore
     def test_set_sort_order(self):
@@ -575,13 +590,14 @@ class TestImporterMocktest(TestCase):
         link = mock_wrapper()
         mock_link = mock_on(Link)
         mock_link.create.returning(link.mock).with_args().is_expected
-        importer.import_into_subreddit(sr.mock, fixture.get_data())
+        importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
 
     def test_rewrite_ob_urls(self):
         post_no_urls = mock_wrapper().named('post with no urls').with_children(
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
+            canonical_url='http://lesswrong.com/lw/2d/missing-alliances/',
             ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html').unfrozen()
         post_no_urls.expects('_commit')
         post_no_urls.frozen()
@@ -590,6 +606,7 @@ class TestImporterMocktest(TestCase):
             _id=2,
             article='Google: http://google.com/',
             url='new2',
+            canonical_url='new2',
             ob_permalink='old2').unfrozen()
         post_no_ob_urls.expects('_commit')
         post_no_ob_urls.frozen()
@@ -598,6 +615,7 @@ class TestImporterMocktest(TestCase):
             _id=3,
             article=u'Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
+            canonical_url='new3',
             ob_permalink='old3').unfrozen()
         post_ob_urls.expects('_commit')
         post_ob_urls.frozen()
@@ -626,7 +644,7 @@ class TestImporterMocktest(TestCase):
 
         sr = mock_wrapper().named('subreddit')
 
-        self.importer.import_into_subreddit(sr, [])
+        self.importer.import_into_subreddit(sr, [], StringIO.StringIO())
 
         args = post_query.called.once().get_args()
         assert args == ((True,), {'data': True})
@@ -646,6 +664,7 @@ class TestImporterMocktest(TestCase):
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
+            canonical_url='http://lesswrong.com/lw/2d/missing-alliances/',
             ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html').unfrozen()
         post_no_urls.with_methods(_commit=None)
 
@@ -653,6 +672,7 @@ class TestImporterMocktest(TestCase):
             _id=2,
             article='Google: http://google.com/',
             url='new2',
+            canonical_url='new2',
             ob_permalink='old2').unfrozen()
         post_no_ob_urls.with_methods(_commit=None)
 
@@ -660,6 +680,7 @@ class TestImporterMocktest(TestCase):
             _id=3,
             article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
+            canonical_url='new3',
             ob_permalink='old3').unfrozen()
         post_ob_urls.with_methods(_commit=None)
 
@@ -672,19 +693,21 @@ class TestImporterMocktest(TestCase):
 
         sr = mock_wrapper().named('subreddit')
 
-        builtin_anchor = mock_on(r2.lib.importer)
-        import_mapping_file = StringIO.StringIO()
-        builtin_anchor.open.with_args('import_mapping.yml', 'w').returning(import_mapping_file).is_expected
+        rewrite_map_file = StringIO.StringIO()
 
-        post_mapping = {
-            'http://www.overcomingbias.com/2009/03/missing-alliances.html': 'http://lesswrong.com/lw/2d/missing-alliances/',
-            'old2': 'new2',
-            'old3': 'new3',
-        }
-        yaml_anchor = mock_on(yaml)
-        dump = yaml_anchor.dump
+        rewrite_map = [
+            '/2009/03/missing-alliances.html http://lesswrong.com/lw/2d/missing-alliances/',
+            'old3 new3',
+            'old2 new2',
+            '',
+        ]
+        rewrite_map.sort()
 
-        self.importer.import_into_subreddit(sr, [])
+        self.importer.import_into_subreddit(sr, [], rewrite_map_file)
 
-        args = dump.called.once().get_args()
-        assert args == ((post_mapping, import_mapping_file), {'Dumper': yaml.CDumper})
+        output_rewrite_map = rewrite_map_file.getvalue().split('\n')
+        output_rewrite_map.sort()
+        self.assertEqual(rewrite_map, output_rewrite_map)
+
+        # args = dump.called.once().get_args()
+        # assert args == ((post_mapping, import_mapping_file), {'Dumper': yaml.CDumper})

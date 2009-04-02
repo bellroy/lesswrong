@@ -4,6 +4,7 @@ import re
 import datetime
 import pytz
 import yaml
+import urlparse
 
 from random import Random
 from r2.models import Link,Comment,Account,Subreddit
@@ -128,7 +129,7 @@ class Importer(object):
 
     def substitute_ob_url(self, url):
         try:
-            url = self.post_mapping[url]
+            url = self.post_mapping[url].url
         except KeyError:
             pass
         return url
@@ -155,9 +156,26 @@ class Importer(object):
             comment.body = self.rewrite_ob_urls(comment.body)
             comment._commit()
 
-    def import_into_subreddit(self, sr, data):
-        mapping_file = open('import_mapping.yml', 'w')
+    def _post_process(self, rewrite_map_file):
+        posts = list(Link._query(Link.c.ob_permalink != None, data = True))
 
+        # Generate a mapping between ob permalinks and imported posts
+        self.post_mapping = {}
+        for post in posts:
+            self.post_mapping[post.ob_permalink] = post
+
+        # Write out the rewrite map
+        for old_url, post in self.post_mapping.iteritems():
+            ob_url = urlparse.urlparse(old_url)
+            new_url = post.canonical_url
+            rewrite_map_file.write("%s %s\n" % (ob_url.path, new_url))
+
+        # Update URLs in the posts and comments
+        print 'Post processing imported content'
+        for post in posts:
+            self.post_process_post(post)
+
+    def import_into_subreddit(self, sr, data, rewrite_map_file):
         for post_data in data:
             try:
                 print post_data['title']
@@ -165,20 +183,7 @@ class Importer(object):
             except Exception, e:
                 print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
 
-        posts = list(Link._query(Link.c.ob_permalink != None, data = True))
-
-        # Generate a mapping between old and new posts
-        self.post_mapping = {}
-        for post in posts:
-            self.post_mapping[post.ob_permalink] = post.url
-
-        # Write out the permalink mapping
-        yaml.dump(self.post_mapping, mapping_file, Dumper=yaml.CDumper)
-
-        # Update URLs in the posts and comments
-        print 'Post processing imported content'
-        for post in posts:
-            self.post_process_post(post)
+        self._post_process(rewrite_map_file)
 
     def _query_account(self, *args):
         account = None
