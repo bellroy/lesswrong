@@ -185,18 +185,22 @@ def unkeep_space(text):
     return text.replace('&#32;', ' ').replace('&#10;', '\n').replace('&#09;', '\t')
 
 whitespace_re = re.compile('^\s*$')
-def killhtml(html):
+def killhtml(html=''):
     html_doc = soupparser.fromstring(html)
     text = filter(lambda text: not whitespace_re.match(text), html_doc.itertext())
     cleaned_html = ' '.join([fragment.strip() for fragment in text])
     return cleaned_html
 
-def cleanhtml(html):
+def cleanhtml(html=''):
     html_doc = soupparser.fromstring(html)
     cleaned_html = sanitizer.clean_html(html_doc)
     return lxml.html.tostring(autolink_html(cleaned_html))
 
-linebreaks_re = re.compile(r'(?:\n{2}|\r{2}|(?:\r\n){2})+')
-def format_linebreaks(html):
-    paragraphs = linebreaks_re.split(html.strip())
-    return '<p>' + '</p><p>'.join(paragraphs) + '</p>'
+block_tags = r'h1|h2|h3|h4|h5|h6|table|ol|dl|ul|menu|dir|p|pre|center|form|fieldset|select|blockquote|address|div|hr'
+linebreaks_re = re.compile(r'(\n{2}|\r{2}|(?:\r\n){2}|</?(?:%s)[^>]*?>)' % block_tags)
+tags_re = re.compile(r'</?(?:%s)' % block_tags)
+def format_linebreaks(html=''):
+    paragraphs = ['<p>%s</p>' % p if not tags_re.match(p) else p
+                  for p in linebreaks_re.split(html.strip())
+                  if not whitespace_re.match(p)]
+    return ''.join(paragraphs)

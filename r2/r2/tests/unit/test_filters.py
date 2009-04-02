@@ -63,6 +63,10 @@ def test_format_linebreaks():
         ('Multiple:\r\n\r\nLine\r\n\r\nbreaks', '<p>Multiple:</p><p>Line</p><p>breaks</p>'),
         ('\nLeading and trailing\n', '<p>Leading and trailing</p>'),
         ('Single\ndoesn\'t wrap', '<p>Single\ndoesn\'t wrap</p>'),
+        ('Quote:\n\n<blockquote>(1) One\n\n(2) Two</blockquote>\n\nAfter',
+            '<p>Quote:</p><blockquote><p>(1) One</p><p>(2) Two</p></blockquote><p>After</p>'),
+        ('Quote 2:\n\n<blockquote>(1) One\n\n(2) Two\n</blockquote>\n\nAfter',
+            '<p>Quote 2:</p><blockquote><p>(1) One</p><p>(2) Two\n</p></blockquote><p>After</p>'),
     )
     for input_text, expected_output in test_cases:
         yield is_equal, format_linebreaks(input_text), expected_output
