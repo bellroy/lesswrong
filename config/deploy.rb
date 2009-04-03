@@ -37,7 +37,10 @@ namespace :deploy do
 
   desc 'Run Reddit setup routine'
   task :setup_reddit, :roles => [:app] do
-    sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
+	# Put limits on the amount of RAM gcc is allowed to use by
+	# customising its garbage collection parameters
+    #sudo %Q|/bin/bash -c "cd #{release_path}/r2 && CFLAGS='--param ggc-min-expand=0 --param ggc-min-heapsize=8192' python ./setup.py install"|
+	sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
     sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
   end
 
