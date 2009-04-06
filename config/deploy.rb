@@ -35,6 +35,11 @@ namespace :deploy do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
   end
 
+  desc 'Link to a robots.txt file stored on the server (/usr/local/etc/reddit/#{application}-robots.txt'
+  task :symlink_remote_robots_txt, :roles => [:app, :db] do
+    run "ln -sf /usr/local/etc/reddit/#{application}-robots.txt #{release_path}/r2/r2/public/robots.txt"
+  end
+
   desc 'Run Reddit setup routine'
   task :setup_reddit, :roles => [:app] do
     sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
