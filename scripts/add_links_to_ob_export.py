@@ -2,7 +2,6 @@ import os
 import sys
 import yaml
 import re
-import sqlite3
 
 kill_whitespace_re = re.compile('\s')
 kill_entities_re = re.compile('&#?[a-z0-9]{1,4};')
@@ -17,7 +16,7 @@ def kill_whitespace(body):
 
 if __name__ == '__main__':
     if len(sys.argv) <= 4:
-        print 'Usage: %s <export_file> <api_file> <user_db> <outputfile>' % os.path.basename(sys.argv[0])
+        print 'Usage: %s <export_file> <api_file> <user_map> <outputfile>' % os.path.basename(sys.argv[0])
         print
         print ' Uses the api_file to supplement the export_file with permalinks.'
         print ' Writes the result to outputfile.'
@@ -25,19 +24,13 @@ if __name__ == '__main__':
 
     export_file = open(sys.argv[1])
     api_file = open(sys.argv[2])
-    user_db = sqlite3.connect(sys.argv[3])
-    cursor = user_db.cursor()
+    mapfile = open(sys.argv[3])
     output_file = open(sys.argv[4], 'w')
     mappings = yaml.load(api_file, Loader=yaml.CLoader)
     export   = yaml.load(export_file, Loader=yaml.CLoader)
 
-    # Load the user mapping table
-    user_map = {}
-    cursor.execute('select * from ob_users')
-    for row in cursor:
-        user, email = row
-        if email:
-            user_map[user] = email
+    # Load the user mapping dict
+    user_map = yaml.load(mapfile, Loader=yaml.CLoader)
 
     # Turn the mappings into a lookup table on title and content
     post_mapping = {}
