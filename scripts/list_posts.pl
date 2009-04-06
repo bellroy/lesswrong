@@ -28,11 +28,11 @@ unless (defined ($posts)) {
     print "failed: $!";
 }
 
-my $ofile = IO::File->new('posts2.yml', 'w');
+my $ofile = IO::File->new('api-posts.yml', 'w');
 unless($ofile) {
     die "Can't open output file";
 }
-my $log = IO::File->new('log2.txt', 'w');
+my $log = IO::File->new('api-posts-log.txt', 'w');
 unless($log) {
     die "Unable to open log file";
 }
@@ -46,16 +46,16 @@ foreach my $post (@$posts) {
     print "$post->{'title'}\n";
     
     my $full_post = eval {
-         return XMLRPC::Lite 
+         my $res = XMLRPC::Lite 
             ->proxy($proxyurl) 
-            ->call('blogger.getPost', '20f354f288cb1bf9d6c7f13726dfb402',$postid, $username, $password) 
+            ->call('metaWeblog.getPost', $postid, $username, $password) 
             ->result;
+         return $res;
     };
-    if($EVAL_ERROR) {
-        print $log "*** Error retrieving post $post->{title}:\n$EVAL_ERROR\n";
+    if($EVAL_ERROR or !defined $full_post) {
+        print $log "*** Error retrieving post $post->{title}:\n$EVAL_ERROR\n$OS_ERROR\n";
         next;
     }
-    
     push @fullposts, $full_post;
 }
 
