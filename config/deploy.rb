@@ -60,3 +60,4 @@ end
 #after "deploy:symlink", "deploy:apache:config"
 after "deploy:update_code", "deploy:setup_reddit"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
+after "deploy:update_code", "deploy:symlink_remote_robots_txt"
