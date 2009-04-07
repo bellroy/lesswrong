@@ -495,6 +495,7 @@ class LinkInfoPage(Reddit):
             author = Account._byID(comment.author_id, data=True).name
             params = {'author' : author, 'title' : _force_unicode(link_title)}
             title = strings.permalink_title % params
+            self.canonical_link = link.canonical_url
         else:
             params = {'title':_force_unicode(link_title), 'site' : c.site.title}
             title = strings.link_info_title % params
