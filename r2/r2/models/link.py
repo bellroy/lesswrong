@@ -279,7 +279,8 @@ class Link(Thing, Printable):
                               wrapped.thumbnail,
                               wrapped.moderator_banned,
                               wrapped.render_full,
-                              wrapped.comments_enabled))
+                              wrapped.comments_enabled,
+                              wrapped.votable))
         # htmllite depends on other get params
         s = ''.join(s)
         if c.render_style == "htmllite":
@@ -370,6 +371,9 @@ class Link(Thing, Printable):
                 item.hide_score = True
             else:
                 item.hide_score = False
+
+            # Don't allow users to vote on their own posts
+            item.votable = bool(c.user != item.author)
 
             if c.user_is_loggedin and item.author._id == c.user._id:
                 item.nofollow = False
@@ -797,7 +801,8 @@ class Comment(Thing, Printable):
                               wrapped.moderator_banned,
                               wrapped.can_reply,
                               wrapped.deleted,
-                              wrapped.is_html))
+                              wrapped.is_html,
+                              wrapped.votable))
         s = ''.join(s)
         return s
 
@@ -855,6 +860,8 @@ class Comment(Thing, Printable):
 
             item.can_reply = (item.sr_id in can_reply_srs)
 
+            # Don't allow users to vote on their own comments
+            item.votable = bool(c.user != item.author)
 
             # not deleted on profile pages,
             # deleted if spam and not author or admin

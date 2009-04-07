@@ -275,7 +275,6 @@ class ApiController(RedditController):
         # print "\n".join(request.post.va)
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
-          v = Vote.vote(c.user, l, True, ip, spam)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
@@ -287,7 +286,6 @@ class ApiController(RedditController):
           #update the queries
           if g.write_query_queue:
               queries.new_link(l)
-              queries.new_vote(v)
         else:
           old_url = l.url
           l.title = request.post.title
@@ -647,7 +645,6 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
-            Vote.vote(c.user, item, True, ip)
             res._update("comment_reply_" + parent._fullname, 
                         innerHTML='', value='')
             res._send_things(item)
@@ -741,7 +738,7 @@ class ApiController(RedditController):
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
 
-        if thing:
+        if thing and thing.author_id != c.user._id:
             dir = (True if dir > 0
                    else False if dir < 0
                    else None)

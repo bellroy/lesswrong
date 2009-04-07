@@ -417,6 +417,9 @@ div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
 div.comment-links a.mod {
     font-weight: bold;
 }
+div.tools a.comment {
+    margin-left: 0;
+}
 
 .error {
     color: red;

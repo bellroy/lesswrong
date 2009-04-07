@@ -69,7 +69,7 @@
     </div>
   </div><!-- .content -->
   <div class="tools clear">
-    ${parent.midcol()}
+    ${parent.midcol(thing.votable)}
     %if thing.comments_enabled:
       <%
           num_comments = 0 if not thing.num_comments else thing.num_comments
