@@ -841,8 +841,8 @@ class Comment(Thing, Printable):
             if not hasattr(item, 'subreddit'):
                 item.subreddit = item.subreddit_slow
             if hasattr(item, 'parent_id'):
-                parent = Comment._byID(item.parent_id, True)
-                parent_author = Account._byID(parent.author_id)
+                parent = Comment._byID(item.parent_id, data=True)
+                parent_author = Account._byID(parent.author_id, data=True)
                 item.parent_author = parent_author
 
                 if not c.full_comment_listing and cids.has_key(item.parent_id):
