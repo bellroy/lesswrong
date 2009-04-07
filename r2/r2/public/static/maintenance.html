@@ -3,101 +3,43 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us">
   <head>
     <title>
-      LessWrong: Coming Soon
+      LessWrong: Back Soon
     </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style type="text/css">
-/*<![CDATA[*/
-    /* General Page Structure
-    -------------------------------------------------------------------------------------- */
-    body {
-      margin: 0;
-      padding: 0;
-    }
-    #wrapper {
-      background-color: #fff;
-      margin: 0 auto;
-      padding: 35px 20px;
-      width: 950px;
-    }
-    #main {
-      padding: 15px 0;
-    }
-    #content {
-      padding: 0 35px 0 15px;
-    }
-    /* General Styles
-    -------------------------------------------------------------------------------------- */
-    /* IE 6  */
-    * html .clear, * html form div.row { height: 1%; overflow: visible; }
-    /* IE 7  */
-    *+html .clear, *+html form div.row { min-height: 1%; }
-    /* Other */
-    .clear:after, form div.row:after   { clear: both; content: "."; display: block; height: 0; visibility: hidden; }
-
-    a img { border: none; }
-
-    /* General Typography
-    -------------------------------------------------------------------------------------- */
-    body {
-      font: 12px/1.5 Arial, Helvetica, sans-serif;
-    }
-    #content {
-      text-align: justify;
-    }
-    h1, h2, h3, h4, h5, h6, p, ol, ul {
-      margin: 0 0 1em;
-    }
-    h1, h2 {
-      color: #538d4d;
-      font-size: 1.3333em; /* 16px */
-      margin: 0 0 0.75em;
-    }
-    h2 a {
-      color: #538d4d;
-      text-decoration: none;
-    }
-    ol, ul {
-      margin-left: 40px;
-      padding: 0;
-    }
-    a {
-      color: #8a8a8b;
-      text-decoration: underline;
-    }
-    a:hover {
-      color: #3d3d3e;
-    }
-    /* Header
-    -------------------------------------------------------------------------------------- */
-    a#logo {
-      display: block;
-      float: left;
-      margin: 22px 0 60px 24px;
-    }
-    a#logo img {
-      display: block;
-    }
-    /*]]>*/
+    <link rel="stylesheet" href="/static/main.css" type="text/css" />
+    <link rel="stylesheet" href="/static/lesswrong.css" type="text/css" />
+    <!--[if IE 7]>
+    <link rel="stylesheet" type="text/css" href="/static/ie7.css" />
+    <![endif]-->
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="/static/ie6.css" />
+    <![endif]-->
+    <style type="text/css" media="screen">
+      body {
+        background-color: white;
+      }
     </style>
   </head>
   <body>
     <div id="wrapper">
       <div id="header">
-        <a href="/"><img src="/static/header.png" alt="Lesswrong Header" /></a>
+        <img id="gradient" src="/static/black_trans.png" alt="Translucent gradient" />
+        <a id="logo" href="/"><img src="/static/logo_trans.png" alt="Lesswrong Logo" /></a>
+        <a id="fhi" href="http://www.fhi.ox.ac.uk/">
+          <img src="/static/FHI_diamond.png" alt="Future of Humanity Institute Logo" />
+        </a>
       </div><!-- #header -->
       <div id="main" class="clear">
         <div id="content" class="clear fullwidth">
           <h1>
-            Coming Soon
+            Back Soon
           </h1>
           <p>
-            For more information see
-            <a href="http://www.overcomingbias.com/2009/02/and-say-no-more-of-it.html">Overcoming Bias</a>.
+            Less Wrong is down for maintenance and will be back as soon as possible.
           </p>
         </div>
       </div><!-- #main -->
-      <div class="footer"></div>
+      <!-- <div class="footer"></div> -->
     </div><!-- #wrapper -->
   </body>
 </html>
