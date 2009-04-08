@@ -504,7 +504,6 @@ class LinkInfoPage(Reddit):
         if comment:
             title = comment.make_permalink_title(link)
 
-            # If there are query string args
             if is_canonical == False:
                 self.canonical_link = comment.make_permalink(link)
         else:

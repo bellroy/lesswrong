@@ -202,6 +202,9 @@ class FrontController(RedditController):
         else:
             content = PaneStack()
 
+        # is_canonical indicates if the page is the canonical location for
+        # the resource. The canonical location is deemed to be one with
+        # no query string arguments
         res = LinkInfoPage(link = article, comment = comment,
                            content = content, 
                            infotext = infotext,
