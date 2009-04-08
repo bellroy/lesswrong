@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, QueryBuilder, UnbannedCommentBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag
+from r2.models import IDBuilder, QueryBuilder, UnbannedCommentBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag, CommentPermalink
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -474,15 +474,25 @@ class LinkInfoPage(Reddit):
     create_reddit_box  = False
     extension_handling = False # No feed until comment feeds are implemented
 
+    @staticmethod
+    def comment_permalink_wrapper(comment, link):
+        wrapped = Wrapped(link, link_title=comment.make_permalink_title(link))
+        wrapped.render_class = CommentPermalink
+        return wrapped
+
     def __init__(self, link = None, comment = None,
-                 link_title = '', *a, **kw):
-        # TODO: temp hack until we find place for builder_wrapper
+                 link_title = '', is_canonical = False, *a, **kw):
         
         link.render_full = True
         
+        # TODO: temp hack until we find place for builder_wrapper
         from r2.controllers.listingcontroller import ListingController
+        if comment:
+            link_wrapper = lambda link: self.comment_permalink_wrapper(comment, link)
+        else:
+            link_wrapper = ListingController.builder_wrapper
         link_builder = IDBuilder(link._fullname,
-                                 wrap = ListingController.builder_wrapper)
+                                 wrap = link_wrapper)
 
         # link_listing will be the one-element listing at the top
         self.link_listing = LinkListing(link_builder, nextprev=False).listing()
@@ -492,17 +502,18 @@ class LinkInfoPage(Reddit):
 
         link_title = ((self.link.title) if hasattr(self.link, 'title') else '')
         if comment:
-            author = Account._byID(comment.author_id, data=True).name
-            params = {'author' : author, 'title' : _force_unicode(link_title)}
-            title = strings.permalink_title % params
-            self.canonical_link = link.canonical_url
+            title = comment.make_permalink_title(link)
+
+            # If there are query string args
+            if is_canonical == False:
+                self.canonical_link = comment.make_permalink(link)
         else:
             params = {'title':_force_unicode(link_title), 'site' : c.site.title}
             title = strings.link_info_title % params
 
-        if not c.default_sr:
-            # Not on the main page, so include a pointer to the canonical URL for this link
-            self.canonical_link = link.canonical_url
+            if not c.default_sr:
+                # Not on the main page, so include a pointer to the canonical URL for this link
+                self.canonical_link = link.canonical_url
 
         Reddit.__init__(self, title = title, body_class = 'post', *a, **kw)
 

@@ -1,0 +1,21 @@
+<%inherit file="link.html"/>
+
+<%def name="article()">
+  ${self.placeholder()}
+</%def>
+
+<%def name="summary()">
+  ${self.placeholder()}
+</%def>
+
+<%def name="placeholder()">
+  <p>View <a href="#">original post</a>.</p>
+</%def>
+
+<%def name="title()">
+  %if hasattr(thing, 'link_title'):
+    ${thing.link_title}
+  %else:
+    ${parent.title()}
+  %endif
+</%def>

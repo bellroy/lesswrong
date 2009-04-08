@@ -47,7 +47,7 @@
   fullname = thing._fullname
 %>
 <div id="thingrow_${fullname}" class="${css_class}">
-  <h${heading_size}><a href="${thing.url}">${thing.title}</a></h${heading_size}>
+  <h${heading_size}><a href="${thing.url}">${self.title()}</a></h${heading_size}>
   <div class="meta clear">
 
     %if thing.hide_score:
@@ -95,6 +95,10 @@
     </div>
   </div><!-- .tools -->
 </div><!-- .post -->
+</%def>
+
+<%def name="title()">
+  ${thing.title}
 </%def>
 
 <%def name="article()">

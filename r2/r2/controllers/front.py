@@ -204,7 +204,8 @@ class FrontController(RedditController):
 
         res = LinkInfoPage(link = article, comment = comment,
                            content = content, 
-                           infotext = infotext).render()
+                           infotext = infotext,
+                           is_canonical = bool(not request.GET)).render()
         return res
 
     @validate(VUser(),

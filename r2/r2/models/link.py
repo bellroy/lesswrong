@@ -590,6 +590,10 @@ class InlineArticle(Link):
     """Exists to gain a different render_class in Wrapped"""
     _nodb = True
 
+class CommentPermalink(Link):
+    """Exists to gain a different render_class in Wrapped"""
+    _nodb = True
+
 
 class TagExists(Exception): pass
 
@@ -821,7 +825,12 @@ class Comment(Thing, Printable):
     def make_permalink_slow(self):
         l = Link._byID(self.link_id, data=True)
         return self.make_permalink(l, l.subreddit_slow)
-    
+
+    def make_permalink_title(self, link):
+        author = Account._byID(self.author_id, data=True).name
+        params = {'author' : author, 'title' : _force_unicode(link.title)}
+        return strings.permalink_title % params
+          
     @classmethod
     def add_props(cls, user, wrapped):
         #fetch parent links
