@@ -476,7 +476,7 @@ class LinkInfoPage(Reddit):
 
     @staticmethod
     def comment_permalink_wrapper(comment, link):
-        wrapped = Wrapped(link, link_title=comment.make_permalink_title(link))
+        wrapped = Wrapped(link, link_title=comment.make_permalink_title(link), for_comment_permalink=True)
         wrapped.render_class = CommentPermalink
         return wrapped
 

@@ -372,8 +372,11 @@ class Link(Thing, Printable):
             else:
                 item.hide_score = False
 
-            # Don't allow users to vote on their own posts
-            item.votable = bool(c.user != item.author)
+            # Don't allow users to vote on their own posts and don't
+            # allow users to vote on collapsed posts shown when
+            # viewing comment permalinks.
+            item.votable = bool(c.user != item.author and
+                                not getattr(item, 'for_comment_permalink', False))
 
             if c.user_is_loggedin and item.author._id == c.user._id:
                 item.nofollow = False
