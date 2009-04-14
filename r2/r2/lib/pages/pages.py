@@ -133,8 +133,8 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(RecentComments())
-        ps.append(RecentArticles())
+        ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
@@ -248,6 +248,17 @@ class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
     pass
 
+class SideBoxPlaceholder(Wrapped):
+    """A minimal side box with a heading and an anchor.
+
+    If javascript is off the anchor may be followed and if it is on
+    then javascript will replace the content of the div with the HTML
+    result of an ajax request.
+    """
+
+    def __init__(self, node_id, link_text, link_path):
+        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
+
 class RecentItems(Wrapped):
     def __init__(self, *args, **kwargs):
         self.things = self.init_builder()
@@ -269,6 +280,17 @@ class RecentItems(Wrapped):
             w.render_class = InlineComment
 
         return w
+
+    def render(self, *a, **kw):
+        """Overrides default Wrapped.render to do space compression as well.
+
+        In addition, unlike Wrapped.render, the result is in the form of a pylons
+        Response object with it's content set.
+        """
+        res = Wrapped.render(self, *a, **kw)
+        res = spaceCompress(res)
+        c.response.content = res
+        return c.response
 
 class RecentComments(RecentItems):
     def query(self):

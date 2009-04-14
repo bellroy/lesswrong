@@ -80,6 +80,22 @@ function init() {
     if ( reddit_thing_info.fetch && reddit_thing_info.fetch.length != 0 )
         updateLinks(reddit_thing_info.fetch);
     update_reddit_count();
+
+    /* initiate ajax requests to populate the side bar */
+    populate_side_bar('side-posts');
+    populate_side_bar('side-comments');
+}
+
+function populate_side_bar(id) {
+    var node = $(id);
+    if (node) {
+        var path = '/api/' + id.replace('-', '_');
+        new Ajax.Request(path, {
+                method: 'get',
+                onSuccess: function(response) {
+                    node.innerHTML = response.responseText;
+                }});
+    }
 }
 
 function updateLinks(f) {

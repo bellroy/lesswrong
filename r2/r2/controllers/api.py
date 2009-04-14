@@ -36,7 +36,8 @@ from r2.lib.utils import get_title, sanitize_url, timeuntil, set_last_modified
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
-    BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage
+    BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
+    RecentArticles, RecentComments
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -898,7 +899,14 @@ class ApiController(RedditController):
         # reset the status boxes
         res._update('img-status', innerHTML = _("Deleted"))
         res._update('status', innerHTML = "")
-        
+
+    def GET_side_posts(self, *a, **kw):
+        """Return HTML snippet of the recent posts for the side bar."""
+        return RecentArticles().render()
+
+    def GET_side_comments(self, *a, **kw):
+        """Return HTML snippet of the recent comments for the side bar."""
+        return RecentComments().render()
 
     def GET_upload_sr_img(self, *a, **kw):
         """
