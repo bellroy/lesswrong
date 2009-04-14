@@ -139,7 +139,7 @@ class Reddit(Wrapped):
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
-        ps.append(TagCloud())
+        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(TopContributors())
 
         return ps
@@ -256,7 +256,7 @@ class SideBoxPlaceholder(Wrapped):
     result of an ajax request.
     """
 
-    def __init__(self, node_id, link_text, link_path):
+    def __init__(self, node_id, link_text, link_path=None):
         Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
 
 class RecentItems(Wrapped):

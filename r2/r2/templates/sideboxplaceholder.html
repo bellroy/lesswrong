@@ -23,6 +23,10 @@
 <%namespace file="utils.html" import="plain_link"/>
 <div id="${thing.node_id}" class="sidebox">
   <h2>
+  %if thing.link_path:
     ${plain_link(thing.link_text, thing.link_path)}
+  %else:
+    ${thing.link_text}
+  %endif
   </h2>
 </div>

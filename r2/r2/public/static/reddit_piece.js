@@ -84,6 +84,7 @@ function init() {
     /* initiate ajax requests to populate the side bar */
     populate_side_bar('side-posts');
     populate_side_bar('side-comments');
+    populate_side_bar('side-tags');
 }
 
 function populate_side_bar(id) {
