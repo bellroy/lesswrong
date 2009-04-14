@@ -894,7 +894,7 @@ class Comment(Thing, Printable):
             #will get updated in builder
             item.num_children = 0
             item.score_fmt = Score.points
-            item.permalink = item.make_anchored_permalink(item.link, item.subreddit, context=None, anchor='comments')
+            item.permalink = item.make_permalink(item.link, item.subreddit)
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""
