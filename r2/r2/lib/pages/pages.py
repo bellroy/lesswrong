@@ -140,7 +140,7 @@ class Reddit(Wrapped):
             ps.append(FeedBox(feed_url))
 
         ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
-        ps.append(TopContributors())
+        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors')))
 
         return ps
 

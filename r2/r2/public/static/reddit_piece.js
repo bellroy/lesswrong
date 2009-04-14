@@ -85,6 +85,7 @@ function init() {
     populate_side_bar('side-posts');
     populate_side_bar('side-comments');
     populate_side_bar('side-tags');
+    populate_side_bar('side-contributors');
 }
 
 function populate_side_bar(id) {

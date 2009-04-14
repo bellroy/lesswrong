@@ -37,7 +37,7 @@ from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
-    RecentArticles, RecentComments, TagCloud
+    RecentArticles, RecentComments, TagCloud, TopContributors
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -911,6 +911,10 @@ class ApiController(RedditController):
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""
         return TagCloud().render()
+
+    def GET_side_contributors(self, *a, **kw):
+        """Return HTML snippet of the top contributors for the side bar."""
+        return TopContributors().render()
 
     def GET_upload_sr_img(self, *a, **kw):
         """
