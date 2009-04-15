@@ -165,10 +165,6 @@ class Link(Thing, Printable):
         for tag in tags:
             l.add_tag(tag)
 
-        # Whenever a post is added we must invalidate the cache for
-        # the recent posts in the sidebar.
-        g.rendercache.delete('side-posts')
-
         return l
         
     def _summary(self):
@@ -543,6 +539,22 @@ class Link(Thing, Printable):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
 
+    def _commit(self, *a, **kw):
+        """Detect when we need to invalidate the sidebar recent posts.
+
+        Whenever a post is created we need to invalidate.  Also
+        invalidate when various post attributes are changed (such as
+        moving to a different subreddit).
+        """
+
+        should_invalidate = (not self._created or
+                             frozenset(('title', 'sr_id', '_deleted', '_spam')) & frozenset(self._dirties.keys()))
+
+        Thing._commit(self, *a, **kw)
+
+        if should_invalidate:
+            g.rendercache.delete('side-posts')
+
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour
 # (except for add_props). These classes are used to override the
@@ -887,6 +899,21 @@ class Comment(Thing, Printable):
             item.num_children = 0
             item.score_fmt = Score.points
             item.permalink = item.make_anchored_permalink(item.link, item.subreddit, context=None, anchor='comments')
+
+    def _commit(self, *a, **kw):
+        """Detect when we need to invalidate the sidebar recent comments.
+
+        Whenever a comment is created we need to invalidate.  Also
+        invalidate when various comment attributes are changed.
+        """
+
+        should_invalidate = (not self._created or
+                             frozenset(('body', '_deleted', '_spam')) & frozenset(self._dirties.keys()))
+
+        Thing._commit(self, *a, **kw)
+
+        if should_invalidate:
+            g.rendercache.delete('side-comments')
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""

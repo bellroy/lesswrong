@@ -81,10 +81,6 @@ def add_comment_nolock(comment):
         g.permacache.set(comments_key(link_id),
                          (cids, comment_tree, depth, num_children))
 
-        # Whenever a comment is added we must invalidate the cache for
-        # the recent comments in the sidebar.
-        g.rendercache.delete('side-comments')
-
 def delete_comment(comment):
     #nothing really to do here, atm
     pass
