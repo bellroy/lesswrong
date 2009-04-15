@@ -293,14 +293,14 @@ class RecentItems(Wrapped):
 
 class RecentComments(RecentItems):
     def query(self):
-        return c.site.get_comments('new', 'all')
+        sr = Subreddit._by_name(g.default_sr)
+        return sr.get_comments('new', 'all')
 
     def init_builder(self):
-        user = c.user if c.user_is_loggedin else None
-        sr_ids = Subreddit.user_subreddits(user)
+        sr = Subreddit._by_name(g.default_sr)
         return UnbannedCommentBuilder(
             self.query(),
-            sr_ids,
+            [sr._id],
             num = 5,
             wrap = RecentItems.wrap_thing,
             skip = True
@@ -308,7 +308,8 @@ class RecentComments(RecentItems):
         
 class RecentArticles(RecentItems):
     def query(self):
-        q = c.site.get_links('new', 'all')
+        sr = Subreddit._by_name(g.default_sr)
+        q = sr.get_links('new', 'all')
         q._limit = 10
         return q
 
