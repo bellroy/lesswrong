@@ -925,13 +925,15 @@ class ApiController(RedditController):
         c.response.content = content
         return c.response
 
+    TWELVE_HOURS = 3600 * 12
+
     def GET_side_posts(self, *a, **kw):
         """Return HTML snippet of the recent posts for the side bar."""
-        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age)
+        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age, self.TWELVE_HOURS)
 
     def GET_side_comments(self, *a, **kw):
         """Return HTML snippet of the recent comments for the side bar."""
-        return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, 3600*12) # 12 hours
+        return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""

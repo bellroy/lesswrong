@@ -165,6 +165,10 @@ class Link(Thing, Printable):
         for tag in tags:
             l.add_tag(tag)
 
+        # Whenever a post is added we must invalidate the cache for
+        # the recent posts in the sidebar.
+        g.rendercache.delete('side-posts')
+
         return l
         
     def _summary(self):
