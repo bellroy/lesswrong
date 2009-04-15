@@ -259,7 +259,14 @@ class SideBoxPlaceholder(Wrapped):
     def __init__(self, node_id, link_text, link_path=None):
         Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
 
-class RecentItems(Wrapped):
+class SpaceCompressedWrapped(Wrapped):
+    """Overrides default Wrapped.render to do space compression as well."""
+    def render(self, *a, **kw):
+        res = Wrapped.render(self, *a, **kw)
+        res = spaceCompress(res)
+        return res
+
+class RecentItems(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         self.things = self.init_builder()
         Wrapped.__init__(self, *args, **kwargs)
@@ -280,16 +287,6 @@ class RecentItems(Wrapped):
             w.render_class = InlineComment
 
         return w
-
-    def render(self, *a, **kw):
-        """Overrides default Wrapped.render to do space compression as well.
-
-        In addition, unlike Wrapped.render, the result is in the form of a pylons
-        Response object with it's content set.
-        """
-        res = Wrapped.render(self, *a, **kw)
-        res = spaceCompress(res)
-        return res
 
 class RecentComments(RecentItems):
     def query(self):
@@ -318,7 +315,7 @@ class RecentArticlesPage(Wrapped):
     def __init__(self, content, *a, **kw):
         Wrapped.__init__(self, content=content, *a, **kw)
 
-class TopContributors(Wrapped):
+class TopContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users
         uids = top_users()
@@ -332,7 +329,7 @@ class TopContributors(Wrapped):
 
         Wrapped.__init__(self, *args, **kwargs)
 
-class TagCloud(Wrapped):
+class TagCloud(SpaceCompressedWrapped):
     
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
