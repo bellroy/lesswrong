@@ -47,6 +47,8 @@ class Globals(object):
                  'karma_to_post',
                  'side_comments_cache_time',
                  'side_posts_cache_time',
+                 'side_tags_cache_time',
+                 'side_contributors_cache_time',
                  ]
     
     bool_props = ['debug', 'translator', 

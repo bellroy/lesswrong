@@ -931,11 +931,11 @@ class ApiController(RedditController):
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""
-        return TagCloud().render()
+        return self.render_cached('side-tags', TagCloud, g.side_tags_cache_time)
 
     def GET_side_contributors(self, *a, **kw):
         """Return HTML snippet of the top contributors for the side bar."""
-        return TopContributors().render()
+        return self.render_cached('side-contributors', TopContributors, g.side_contributors_cache_time)
 
     def GET_upload_sr_img(self, *a, **kw):
         """
