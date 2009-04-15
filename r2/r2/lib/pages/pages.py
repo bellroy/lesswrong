@@ -289,8 +289,7 @@ class RecentItems(Wrapped):
         """
         res = Wrapped.render(self, *a, **kw)
         res = spaceCompress(res)
-        c.response.content = res
-        return c.response
+        return res
 
 class RecentComments(RecentItems):
     def query(self):

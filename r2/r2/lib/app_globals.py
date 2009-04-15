@@ -45,6 +45,8 @@ class Globals(object):
                  'num_query_queue_workers',
                  'max_sr_images',
                  'karma_to_post',
+                 'side_comments_cache_time',
+                 'side_posts_cache_time',
                  ]
     
     bool_props = ['debug', 'translator', 
