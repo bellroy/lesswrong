@@ -45,10 +45,10 @@ class Globals(object):
                  'num_query_queue_workers',
                  'max_sr_images',
                  'karma_to_post',
-                 'side_comments_cache_time',
-                 'side_posts_cache_time',
-                 'side_tags_cache_time',
-                 'side_contributors_cache_time',
+                 'side_comments_max_age',
+                 'side_posts_max_age',
+                 'side_tags_max_age',
+                 'side_contributors_max_age',
                  ]
     
     bool_props = ['debug', 'translator', 

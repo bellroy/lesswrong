@@ -900,8 +900,12 @@ class ApiController(RedditController):
         res._update('img-status', innerHTML = _("Deleted"))
         res._update('status', innerHTML = "")
 
-    def render_cached(self, cache_key, render_cls, cache_time):
+    def render_cached(self, cache_key, render_cls, max_age, cache_time=0):
         """Render content using client caching and server caching."""
+
+        # Default the cache to be the same as our max age if not
+        # supplied.
+        cache_time = cache_time or max_age
 
         # Get the etag and content from the cache.
         hit = g.rendercache.get(cache_key)
@@ -917,25 +921,25 @@ class ApiController(RedditController):
         etag_cache(etag)
 
         # Return full response using our cached info.
-        c.response.headers['Cache-Control'] = 'max-age=%d' % cache_time
+        c.response.headers['Cache-Control'] = 'max-age=%d' % max_age
         c.response.content = content
         return c.response
 
     def GET_side_posts(self, *a, **kw):
         """Return HTML snippet of the recent posts for the side bar."""
-        return self.render_cached('side-posts', RecentArticles, g.side_posts_cache_time)
+        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age)
 
     def GET_side_comments(self, *a, **kw):
         """Return HTML snippet of the recent comments for the side bar."""
-        return self.render_cached('side-comments', RecentComments, g.side_comments_cache_time)
+        return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, 3600*12) # 12 hours
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""
-        return self.render_cached('side-tags', TagCloud, g.side_tags_cache_time)
+        return self.render_cached('side-tags', TagCloud, g.side_tags_max_age)
 
     def GET_side_contributors(self, *a, **kw):
         """Return HTML snippet of the top contributors for the side bar."""
-        return self.render_cached('side-contributors', TopContributors, g.side_contributors_cache_time)
+        return self.render_cached('side-contributors', TopContributors, g.side_contributors_max_age)
 
     def GET_upload_sr_img(self, *a, **kw):
         """
