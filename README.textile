@@ -1,5 +1,11 @@
-The code behind the rationalists community at "lesswrong.com":http://lesswrong.com/.<br />
-Source hosted on "Github":http://github.com/tricycle/lesswrong.<br />
-Issues tracked on "Google Code":http://code.google.com/p/lesswrong/.
+h1. Less Wrong
 
-A fork of the "Reddit codebase":http://code.reddit.com/.
+The code behind the rationalists community at "lesswrong.com":http://lesswrong.com/.
+
+h2. Resources
+
+* The source code is hosted on "Github":http://github.com/tricycle/lesswrong
+* Documentation is available via the "GitHub wiki":http://wiki.github.com/tricycle/lesswrong
+* Issues are tracked on "Google Code":http://code.google.com/p/lesswrong/
+* Mailing list (lesswrong-dev) on "Google Groups":http://groups.google.com/group/lesswrong-dev
+* The code is a fork of the "Reddit":http://reddit.com/ "codebase":http://code.reddit.com/
