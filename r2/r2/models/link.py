@@ -372,8 +372,11 @@ class Link(Thing, Printable):
             else:
                 item.hide_score = False
 
-            # Don't allow users to vote on their own posts
-            item.votable = bool(c.user != item.author)
+            # Don't allow users to vote on their own posts and don't
+            # allow users to vote on collapsed posts shown when
+            # viewing comment permalinks.
+            item.votable = bool(c.user != item.author and
+                                not getattr(item, 'for_comment_permalink', False))
 
             if c.user_is_loggedin and item.author._id == c.user._id:
                 item.nofollow = False
@@ -587,6 +590,10 @@ class LinkCompressed(Link):
 
 
 class InlineArticle(Link):
+    """Exists to gain a different render_class in Wrapped"""
+    _nodb = True
+
+class CommentPermalink(Link):
     """Exists to gain a different render_class in Wrapped"""
     _nodb = True
 
@@ -821,7 +828,12 @@ class Comment(Thing, Printable):
     def make_permalink_slow(self):
         l = Link._byID(self.link_id, data=True)
         return self.make_permalink(l, l.subreddit_slow)
-    
+
+    def make_permalink_title(self, link):
+        author = Account._byID(self.author_id, data=True).name
+        params = {'author' : author, 'title' : _force_unicode(link.title)}
+        return strings.permalink_title % params
+          
     @classmethod
     def add_props(cls, user, wrapped):
         #fetch parent links
@@ -882,7 +894,7 @@ class Comment(Thing, Printable):
             #will get updated in builder
             item.num_children = 0
             item.score_fmt = Score.points
-            item.permalink = item.make_anchored_permalink(item.link, item.subreddit, context=None, anchor='comments')
+            item.permalink = item.make_permalink(item.link, item.subreddit)
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""
