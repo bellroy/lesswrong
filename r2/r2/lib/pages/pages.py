@@ -336,10 +336,10 @@ class TagCloud(Wrapped):
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        sr_ids = Subreddit.user_subreddits(c.user) if c.default_sr else [c.site._id]
-        cloud = Tag.tag_cloud_for_subreddits(sr_ids)
+        sr = Subreddit._by_name(g.default_sr)
+        cloud = Tag.tag_cloud_for_subreddits([sr._id])
 
-        buttons =[]
+        buttons = []
         for tag, weight in cloud:
             buttons.append(NavButton(tag.name, tag.name, css_class=self.numbers[weight - 1]))
 
