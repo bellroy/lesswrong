@@ -23,6 +23,7 @@ from reddit_base import RedditController
 
 from pylons.i18n import _
 from pylons import c, request
+from pylons.controllers.util import etag_cache
 
 from validator import *
 
@@ -36,7 +37,8 @@ from r2.lib.utils import get_title, sanitize_url, timeuntil, set_last_modified
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
-    BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage
+    BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
+    RecentArticles, RecentComments, TagCloud, TopContributors
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -875,7 +877,6 @@ class ApiController(RedditController):
         # reset the status
         res._update('img-status', innerHTML = _("Deleted"))
 
-
     @Json
     @validate(VSrModerator(),
               VModhash())
@@ -898,7 +899,49 @@ class ApiController(RedditController):
         # reset the status boxes
         res._update('img-status', innerHTML = _("Deleted"))
         res._update('status', innerHTML = "")
-        
+
+    def render_cached(self, cache_key, render_cls, max_age, cache_time=0):
+        """Render content using client caching and server caching."""
+
+        # Default the cache to be the same as our max age if not
+        # supplied.
+        cache_time = cache_time or max_age
+
+        # Get the etag and content from the cache.
+        hit = g.rendercache.get(cache_key)
+        if hit:
+            etag, content = hit
+        else:
+            # Generate and cache the content along with an etag.
+            content = render_cls().render()
+            etag = '"%s"' % datetime.utcnow().isoformat()
+            g.rendercache.set(cache_key, (etag, content), time=cache_time)
+
+        # Check if the client already has the correct content and throw 304 if so.
+        etag_cache(etag)
+
+        # Return full response using our cached info.
+        c.response.headers['Cache-Control'] = 'max-age=%d' % max_age
+        c.response.content = content
+        return c.response
+
+    TWELVE_HOURS = 3600 * 12
+
+    def GET_side_posts(self, *a, **kw):
+        """Return HTML snippet of the recent posts for the side bar."""
+        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age, self.TWELVE_HOURS)
+
+    def GET_side_comments(self, *a, **kw):
+        """Return HTML snippet of the recent comments for the side bar."""
+        return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
+
+    def GET_side_tags(self, *a, **kw):
+        """Return HTML snippet of the tags for the side bar."""
+        return self.render_cached('side-tags', TagCloud, g.side_tags_max_age)
+
+    def GET_side_contributors(self, *a, **kw):
+        """Return HTML snippet of the top contributors for the side bar."""
+        return self.render_cached('side-contributors', TopContributors, g.side_contributors_max_age)
 
     def GET_upload_sr_img(self, *a, **kw):
         """

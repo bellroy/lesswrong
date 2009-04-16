@@ -133,14 +133,14 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(RecentComments())
-        ps.append(RecentArticles())
+        ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
-        ps.append(TagCloud())
-        ps.append(TopContributors())
+        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
+        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors')))
 
         return ps
 
@@ -248,7 +248,25 @@ class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
     pass
 
-class RecentItems(Wrapped):
+class SideBoxPlaceholder(Wrapped):
+    """A minimal side box with a heading and an anchor.
+
+    If javascript is off the anchor may be followed and if it is on
+    then javascript will replace the content of the div with the HTML
+    result of an ajax request.
+    """
+
+    def __init__(self, node_id, link_text, link_path=None):
+        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
+
+class SpaceCompressedWrapped(Wrapped):
+    """Overrides default Wrapped.render to do space compression as well."""
+    def render(self, *a, **kw):
+        res = Wrapped.render(self, *a, **kw)
+        res = spaceCompress(res)
+        return res
+
+class RecentItems(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         self.things = self.init_builder()
         Wrapped.__init__(self, *args, **kwargs)
@@ -272,14 +290,14 @@ class RecentItems(Wrapped):
 
 class RecentComments(RecentItems):
     def query(self):
-        return c.site.get_comments('new', 'all')
+        sr = Subreddit._by_name(g.default_sr)
+        return sr.get_comments('new', 'all')
 
     def init_builder(self):
-        user = c.user if c.user_is_loggedin else None
-        sr_ids = Subreddit.user_subreddits(user)
+        sr = Subreddit._by_name(g.default_sr)
         return UnbannedCommentBuilder(
             self.query(),
-            sr_ids,
+            [sr._id],
             num = 5,
             wrap = RecentItems.wrap_thing,
             skip = True
@@ -287,7 +305,8 @@ class RecentComments(RecentItems):
         
 class RecentArticles(RecentItems):
     def query(self):
-        q = c.site.get_links('new', 'all')
+        sr = Subreddit._by_name(g.default_sr)
+        q = sr.get_links('new', 'all')
         q._limit = 10
         return q
 
@@ -296,7 +315,7 @@ class RecentArticlesPage(Wrapped):
     def __init__(self, content, *a, **kw):
         Wrapped.__init__(self, content=content, *a, **kw)
 
-class TopContributors(Wrapped):
+class TopContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users
         uids = top_users()
@@ -310,15 +329,15 @@ class TopContributors(Wrapped):
 
         Wrapped.__init__(self, *args, **kwargs)
 
-class TagCloud(Wrapped):
+class TagCloud(SpaceCompressedWrapped):
     
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        sr_ids = Subreddit.user_subreddits(c.user) if c.default_sr else [c.site._id]
-        cloud = Tag.tag_cloud_for_subreddits(sr_ids)
+        sr = Subreddit._by_name(g.default_sr)
+        cloud = Tag.tag_cloud_for_subreddits([sr._id])
 
-        buttons =[]
+        buttons = []
         for tag, weight in cloud:
             buttons.append(NavButton(tag.name, tag.name, css_class=self.numbers[weight - 1]))
 

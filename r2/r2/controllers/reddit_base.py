@@ -565,7 +565,7 @@ class RedditController(BaseController):
         if c.response_access_control:
             c.response.headers['Access-Control'] = c.response_access_control
 
-        if c.user_is_loggedin:
+        if c.user_is_loggedin and 'Cache-Control' not in response.headers:
             response.headers['Cache-Control'] = 'no-cache'
             response.headers['Pragma'] = 'no-cache'
 

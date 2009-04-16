@@ -1,11 +1,9 @@
-<div id="side-contributors" class="sidebox">
-  <h2>Top Contributors:</h2>
-  <div class="contributors">
-  %for user in thing.things:
-    <div class="user">
-      <a href="/user/${user.name}">${user.name}</a>&#32;
-      (<b>${user.safe_karma}</b>)
-    </div>
-  %endfor
+<h2>${_('Top Contributors')}:</h2>
+<div class="contributors">
+%for user in thing.things:
+  <div class="user">
+    <a href="/user/${user.name}">${user.name}</a>&#32;
+    (<b>${user.safe_karma}</b>)
   </div>
+%endfor
 </div>
