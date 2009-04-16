@@ -22,7 +22,7 @@
 from reddit_base import RedditController
 
 from pylons.i18n import _
-from pylons import c, request
+from pylons import c, request, response
 from pylons.controllers.util import etag_cache
 
 from validator import *
@@ -917,11 +917,19 @@ class ApiController(RedditController):
             etag = '"%s"' % datetime.utcnow().isoformat()
             g.rendercache.set(cache_key, (etag, content), time=cache_time)
 
-        # Check if the client already has the correct content and throw 304 if so.
+        # Check if the client already has the correct content and
+        # throw 304 if so. Note that we want to set the max age in the
+        # 304 response, we can only do this by using the
+        # pylons.response object just like the etag_cache fn does
+        # within pylons (it sets the etag header).  Setting it on the
+        # c.response won't work as c.response isn't used when an
+        # exception is thrown.  Note also that setting it on the
+        # pylons.response will send the max age in the 200 response
+        # (just like the etag header is sent in the response).
+        response.headers['Cache-Control'] = 'max-age=%d' % max_age
         etag_cache(etag)
 
         # Return full response using our cached info.
-        c.response.headers['Cache-Control'] = 'max-age=%d' % max_age
         c.response.content = content
         return c.response
 
