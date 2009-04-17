@@ -75,7 +75,7 @@ class Vote(MultiRelation('vote',
             v._name = str(amount)
 
             #these still need to be recalculated
-            old_valid_thing = v.valid_thing
+            old_valid_thing = getattr(v, 'valid_thing', True)
             v.valid_thing = (valid_thing(v, karma)
                              and v.valid_thing
                              and not spam)
