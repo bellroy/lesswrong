@@ -18,8 +18,14 @@ div.tools ul {
 }
 div.tools ul li {
 	display: inline;
+	float: right;
 }
-
+div.tools div.boxright {
+  text-align: right;
+}
+div.tools div.tags {
+  display: inline;
+}
 
 /* Comments
 -------------------------------------------------------------------------------------- */
