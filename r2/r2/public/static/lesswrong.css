@@ -410,6 +410,11 @@ div#side-search {
     clear: both;
 }
 
+.error {
+    color: red;
+    margin: 5px;
+}
+
 /* Selected up/down votes */
 div.tools div.vote a.mod, body.post div.tools div.vote a.mod {
     background-position: 0 -36px;
@@ -420,11 +425,17 @@ div.comment-links a.mod {
 div.tools a.comment {
     margin-left: 0;
 }
-
-.error {
-    color: red;
-    margin: 5px;
+div.tools span.error, div.comment-links span.error {
+    clear: left;
+    display: block;
+    padding-top: 5px;
+    margin: 0;
+    line-height: 1em;
 }
+div.comment-links span.error {
+    padding-top: 10px;
+}
+
 div.comment div.parent {
 	padding-left: 5px;
 }

@@ -69,7 +69,9 @@ function mod(id, uc, vh) {
     //logged is global
     var up = $("up_" + id);
     var down = $("down_" + id);
-     var dir = -1; 
+    var status = $("status_" + id);
+    var dir = -1;
+    var old_dir = 0;
 
     if (uc && up.className == upm || !uc && down.className == downm) {
         dir = 0;
@@ -78,12 +80,44 @@ function mod(id, uc, vh) {
         dir = 1;
     }
 
-    if (logged) {
-        redditRequest_no_response('vote', {id: id, uh: modhash, dir: dir, vh: vh});
+    if (up.className == upm) {
+        old_dir = 1;
+    }
+    else if (down.className == downm) {
+        old_dir = -1;
     }
 
+    if (logged) {
+        // Ensure the status field for this vote is hidden.
+        if (status) hide(status);
+
+        // Create the standard worker fn to handle the response.  It
+        // will take care of updating and showing the status field.
+        var action = 'vote';
+        worker = handleResponse(action);
+
+        function hard_worker(r) {
+            // Invoke the standard worker to update and show the
+            // status field if appropriate.
+            worker(r);
+
+            var r = parse_response(r).response;
+            if (r && r.update) {
+                // The ajax response did update and show the status
+                // field so the vote was unsuccessful.  Update the vote
+                // buttons and the score.
+                up.className    = upcls   [old_dir+1];
+                down.className  = downcls [old_dir+1];
+                set_score(id, old_dir);
+            }
+        }
+
+        // Initiate the ajax request to vote.
+        redditRequest(action, {id: id, uh: modhash, dir: dir, vh: vh}, hard_worker);
+    }
+
+    // Update the vote buttons and the score.
     up.className    = upcls   [dir+1];
     down.className  = downcls [dir+1];
     set_score(id, dir);
 }
-

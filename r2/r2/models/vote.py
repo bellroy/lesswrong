@@ -19,6 +19,8 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
+from __future__ import with_statement
+
 from r2.lib.db.thing import MultiRelation, Relation, thing_prefix, cache
 from r2.lib.utils import tup, timeago
 from r2.lib.db.operators import ip_network
@@ -55,50 +57,64 @@ class Vote(MultiRelation('vote',
         from admintools import valid_user, valid_thing, update_score
         from r2.lib.count import incr_counts
 
-        sr = obj.subreddit_slow
-        kind = obj.__class__.__name__.lower()
-        karma = sub.karma(kind, sr)
+        # An account can only perform 1 voting operation at a time.
+        with g.make_lock('account_%s_voting' % sub._id):
+            # If downvoting ensure that the user has enough karma, it
+            # will raise an exception if not.
+            if dir == False:
+                sub.check_downvote()
 
-        #check for old vote
-        rel = cls.rel(sub, obj)
-        oldvote = list(rel._query(rel.c._thing1_id == sub._id,
-                                  rel.c._thing2_id == obj._id,
-                                  data = True))
-        
-        amount = 1 if dir is True else 0 if dir is None else -1
+            # Do the voting.
+            sr = obj.subreddit_slow
+            kind = obj.__class__.__name__.lower()
+            karma = sub.karma(kind, sr)
 
-        is_new = False
-        #old vote
-        if len(oldvote):
-            v = oldvote[0]
-            oldamount = int(v._name)
-            v._name = str(amount)
+            #check for old vote
+            rel = cls.rel(sub, obj)
+            oldvote = list(rel._query(rel.c._thing1_id == sub._id,
+                                      rel.c._thing2_id == obj._id,
+                                      data = True))
 
-            #these still need to be recalculated
-            old_valid_thing = getattr(v, 'valid_thing', True)
-            v.valid_thing = (valid_thing(v, karma)
-                             and v.valid_thing
-                             and not spam)
-            v.valid_user = (v.valid_user
-                            and v.valid_thing
-                            and valid_user(v, sr, karma))
-        #new vote
-        else:
-            is_new = True
-            oldamount = 0
-            v = rel(sub, obj, str(amount))
-            v.author_id = obj.author_id
-            v.ip = ip
-            old_valid_thing = v.valid_thing = (valid_thing(v, karma) and
-                                               not spam)
-            v.valid_user = v.valid_thing and valid_user(v, sr, karma)
-            if organic:
-                v.organic = organic
+            amount = 1 if dir is True else 0 if dir is None else -1
 
-        v._commit()
+            is_new = False
+            #old vote
+            if len(oldvote):
+                v = oldvote[0]
+                oldamount = int(v._name)
+                v._name = str(amount)
 
-        up_change, down_change = score_changes(amount, oldamount)
+                #these still need to be recalculated
+                old_valid_thing = getattr(v, 'valid_thing', True)
+                v.valid_thing = (valid_thing(v, karma)
+                                 and v.valid_thing
+                                 and not spam)
+                v.valid_user = (v.valid_user
+                                and v.valid_thing
+                                and valid_user(v, sr, karma))
+            #new vote
+            else:
+                is_new = True
+                oldamount = 0
+                v = rel(sub, obj, str(amount))
+                v.author_id = obj.author_id
+                v.ip = ip
+                old_valid_thing = v.valid_thing = (valid_thing(v, karma) and
+                                                   not spam)
+                v.valid_user = v.valid_thing and valid_user(v, sr, karma)
+                if organic:
+                    v.organic = organic
 
+            v._commit()
+
+            # Record that this account has made a downvote and
+            # immediately release the lock since both the downvote
+            # count and the vote have been updated.
+            up_change, down_change = score_changes(amount, oldamount)
+            if down_change:
+                sub.incr_downvote(down_change)
+
+        # Continue by updating karmas.
         update_score(obj, up_change, down_change,
                      v.valid_thing, old_valid_thing)
 

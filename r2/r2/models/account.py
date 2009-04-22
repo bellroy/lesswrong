@@ -31,6 +31,11 @@ from copy import copy
 
 class AccountExists(Exception): pass
 
+class NotEnoughKarma(Exception):
+    def __init__(self, karma, downvotes):
+        self.karma = karma
+        self.downvotes = downvotes
+
 class Account(Thing):
     _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma',
                                                'report_made', 'report_correct',
@@ -103,7 +108,7 @@ class Account(Thing):
     @property
     def safe_karma(self):
         karma = self.link_karma + self.comment_karma
-        return max(karma, 1) if karma > -1000 else karma
+        return max(karma, 0) if karma > -1000 else karma
 
     def all_karmas(self):
         """returns a list of tuples in the form (name, link_karma,
@@ -132,7 +137,34 @@ class Account(Thing):
                        self._t.get('comment_karma', 0)))
 
         return karmas
-        
+
+    def vote_cache_key(self):
+        return 'account_%d_downvote_count' % self._id
+
+    def check_downvote(self):
+        """Checks whether this account has enough karma to cast a downvote.
+
+        An account's total number of downvotes must be less than or
+        equal to the account's total karma.  Raises an exception if
+        not able to cast a downvote.
+        """
+        from r2.models.vote import Vote
+
+        downvote_count = g.cache.get(self.vote_cache_key())
+        if downvote_count is None:
+            downvote_count = len(list(Vote._query(Vote.c._thing1_id == self._id,
+                                                  Vote.c._name == str(-1))))
+            g.cache.set(self.vote_cache_key(), downvote_count)
+
+        if self.safe_karma <= downvote_count:
+            raise NotEnoughKarma(self.safe_karma, downvote_count)
+
+    def incr_downvote(self, delta):
+        try:
+            g.cache.incr(self.vote_cache_key(), delta)
+        except ValueError, e:
+            print 'Account.incr_downvote failed with: %s' % e
+
     def make_cookie(self, timestr = None, admin = False):
         if not self._loaded:
             self._load()

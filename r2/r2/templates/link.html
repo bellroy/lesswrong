@@ -93,6 +93,8 @@
         <img src="${static('mini-landscape.gif')}" alt="" class="landscape" />
       %endif
     </div>
+    ## Each link has a hidden status span that is used to indicate voting errors.
+    <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
   </div><!-- .tools -->
 </div><!-- .post -->
 </%def>

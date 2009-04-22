@@ -724,9 +724,9 @@ class ApiController(RedditController):
             #set the ratelimiter
             if should_ratelimit:
                 VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix = "rate_share_")
-            
-            
-            
+
+
+
     @Json
     @validate(VUser(),
               VModhash(),
@@ -740,28 +740,36 @@ class ApiController(RedditController):
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
+        dir = (True if dir > 0
+               else False if dir < 0
+               else None)
 
+        # Ensure authors can't vote on their own posts / comments
         if thing and thing.author_id != c.user._id:
-            dir = (True if dir > 0
-                   else False if dir < 0
-                   else None)
-            organic = vote_type == 'organic'
-            v = Vote.vote(user, thing, dir, ip, spam, organic)
+            try:
+                organic = vote_type == 'organic'
+                v = Vote.vote(user, thing, dir, ip, spam, organic)
 
-            #update relevant caches
-            if isinstance(thing, Link):
-                sr = thing.subreddit_slow
-                set_last_modified(c.user, 'liked')
-                set_last_modified(c.user, 'disliked')
+                #update relevant caches
+                if isinstance(thing, Link):
+                    sr = thing.subreddit_slow
+                    set_last_modified(c.user, 'liked')
+                    set_last_modified(c.user, 'disliked')
 
-                if v.valid_thing:
-                    expire_hot(sr)
+                    if v.valid_thing:
+                        expire_hot(sr)
 
-                if g.write_query_queue:
-                    queries.new_vote(v)
+                    if g.write_query_queue:
+                        queries.new_vote(v)
 
-            # flag search indexer that something has changed
-            tc.changed(thing)
+                # flag search indexer that something has changed
+                tc.changed(thing)
+
+            except NotEnoughKarma, e:
+                # User is downvoting and does not have enough karma.
+                msg = _('Your total down votes (%d) must be less than your karma (%d)') % (e.downvotes, e.karma)
+                res._update('status_'+thing._fullname, innerHTML = msg)
+                res._show('status_'+thing._fullname)
 
     @Json
     @validate(VUser(),
