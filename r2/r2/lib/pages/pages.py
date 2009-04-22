@@ -319,13 +319,11 @@ class TopContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users
         uids = top_users()
-        # Returns a hash keyed in the uid
-        users = Account._byID(uids, data=True)
-        # Retrieve the Account objects in this way to preseve the sort order
-        all_users = (users[u] for u in uids)
+        users = Account._byID(uids, data=True, return_dict=False)
 
-        # Filter out banned and spammy accounts
-        self.things = filter(lambda user: not c.site.is_banned(user) and user.spammer < 1, all_users)
+        # Filter out accounts banned from the default subreddit
+        sr = Subreddit._by_name(g.default_sr)
+        self.things = filter(lambda user: not sr.is_banned(user), users)
 
         Wrapped.__init__(self, *args, **kwargs)
 
