@@ -251,7 +251,7 @@ div.comment .focal {
 .md ol, .md ul, .help ul { margin: 10px 2em; }
 .md ul, .help ul { list-style: disc outside }
 .md ol { list-style: decimal outside }
-.md pre { margin: 10px; overflow-x: scroll; }
+.md pre { margin: 10px; overflow-x: auto; }
 .md blockquote, .help blockquote {
     border-left: 2px solid #369;
     padding-left: 4px;
