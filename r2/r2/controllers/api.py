@@ -767,8 +767,7 @@ class ApiController(RedditController):
 
             except NotEnoughKarma, e:
                 # User is downvoting and does not have enough karma.
-                msg = _('Your total down votes (%d) must be less than your karma (%d)') % (e.downvotes, e.karma)
-                res._update('status_'+thing._fullname, innerHTML = msg)
+                res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
 
     @Json
