@@ -65,7 +65,14 @@
         <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
-              <option value="${sr.name}" ${unsafe('selected="selected"' if sr._id == thing.sr_id else '')}>${sr.title}</option>
+              <option value="${sr.name}"
+                      %if not sr.can_submit(c.user):
+                        disabled="disabled"
+                      %elif sr._id == thing.sr_id:
+                        selected="selected"
+                      %endif
+              >${sr.title} ${_('(Your karma must be at least %d to post here)' % g.karma_to_post) if not sr.can_submit(c.user) else ''}
+              </option>
             %endfor
           </select>
         </td>
@@ -82,6 +89,7 @@
           onclick="continueEditing(true)">${_("Save and continue")}</button>
         <span id="status" class="error"></span>
         ${error_field("RATELIMIT", "span")}
+        ${error_field("SUBREDDIT_FORBIDDEN", "span")}
       </td>
     </tr>
   </table>

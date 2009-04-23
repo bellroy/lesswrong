@@ -52,6 +52,7 @@ error_list = dict((
         ('ALREADY_SUB', _("That link has already been submitted")),
         ('SUBREDDIT_EXISTS', _('That category already exists')),
         ('SUBREDDIT_NOEXIST', _('That category doesn\'t exist')),
+        ('SUBREDDIT_FORBIDDEN', _("You don't have permission to submit to that category.")),
         ('BAD_SR_NAME', _('That name isn\'t going to work')),
         ('RATELIMIT', _('You are trying to submit too fast. try again in %(time)s.')),
         ('EXPIRED', _('Your session has expired')),

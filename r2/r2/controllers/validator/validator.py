@@ -432,9 +432,10 @@ class VSubmitSR(Validator):
             sr = None
 
         if sr and not (c.user_is_loggedin and sr.can_submit(c.user)):
-            abort(403, "forbidden")
-        else:
-            return sr
+            c.errors.add(errors.SUBREDDIT_FORBIDDEN)
+            sr = None
+
+        return sr
         
 pass_rx = re.compile(r".{3,20}")
 

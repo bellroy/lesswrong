@@ -359,7 +359,7 @@ class Subreddit(Thing, Printable):
         sub_ids = cls.user_subreddits(user, False)
         srs = Subreddit._byID(sub_ids, True,
                               return_dict = False)
-        srs = [s for s in srs if s.can_submit(user)]
+        srs = [s for s in srs if s.can_submit(user) or s.name == g.default_sr]
 
         srs.sort(key=lambda a:a.title)
         return srs

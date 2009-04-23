@@ -243,7 +243,7 @@ class ApiController(RedditController):
               tags = VTags('tags'))
     def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
         res._update('status', innerHTML = '')
-        should_ratelimit = sr.should_ratelimit(c.user, 'link')
+        should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
         
         #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
@@ -261,6 +261,9 @@ class ApiController(RedditController):
             res._focus('title')
         elif res._chk_captcha(errors.BAD_CAPTCHA):
             pass
+        elif res._chk_error(errors.SUBREDDIT_FORBIDDEN):
+            pass
+
 
         if res.error or not title: return
 
@@ -1486,7 +1489,7 @@ class ApiController(RedditController):
         elif (not l or url != l.url) and res._chk_error(errors.ALREADY_SUB):
             #if url == l.url, we're just editting something else
             res._focus('url')
-        elif res._chk_error(errors.SUBREDDIT_NOEXIST):
+        elif res._chk_error(errors.SUBREDDIT_NOEXIST) or res._chk_error(errors.SUBREDDIT_FORBIDDEN):
             res._focus('sr')
         elif expire == 'expirein' and res._chk_error(errors.BAD_NUMBER):
             res._focus('timelimitlength')
