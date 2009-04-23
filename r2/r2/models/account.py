@@ -26,15 +26,12 @@ from r2.lib.memoize      import memoize, clear_memo
 from r2.lib.utils        import modhash, valid_hash, randstr 
 
 from pylons import g
+from pylons.i18n import _
 import time, sha
 from copy import copy
 
 class AccountExists(Exception): pass
-
-class NotEnoughKarma(Exception):
-    def __init__(self, karma, downvotes):
-        self.karma = karma
-        self.downvotes = downvotes
+class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
     _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma',
@@ -156,8 +153,10 @@ class Account(Thing):
                                                   Vote.c._name == str(-1))))
             g.cache.set(self.vote_cache_key(), downvote_count)
 
-        if self.safe_karma <= downvote_count:
-            raise NotEnoughKarma(self.safe_karma, downvote_count)
+        karma_threshold = self.safe_karma * 4
+        if karma_threshold <= downvote_count:
+            msg = _('Your total down votes (%d) must be less than four times your karma (%d)') % (downvote_count, karma_threshold)
+            raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta):
         try:
