@@ -35,18 +35,19 @@
         <span class="role">Editor</span>
       %endif
 
-      <%
-        mail_img ="mail"
-        if c.have_messages:
-          mail_img += ".png"
-        else:
-          mail_img += "gray.png"
-        mail_img = static(mail_img)
-      %>
-      <span class="mail">
-      ${img_link(_("messages"), mail_img, path="/message/inbox/",
-                 _id = "mail" )}
-      </span>
+      %if thing.isMe:
+        <%
+          mail_img ="mail"
+          if c.have_messages:
+            mail_img += ".png"
+          else:
+            mail_img += "gray.png"
+          mail_img = static(mail_img)
+        %>
+        <span class="mail">
+          ${img_link(_("messages"), mail_img, path="/message/inbox/", _id="mail")}
+        </span>
+      %endif
 
     </div>
     %if thing.buttons:
