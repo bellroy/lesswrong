@@ -20,7 +20,9 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%namespace file="utils.html" import="submit_form, plain_link"/>
+<%! from r2.lib.template_helpers import static %>
+
+<%namespace file="utils.html" import="plain_link, img_link"/>
 <% user = thing.user %>
 %if thing.user:
 <div id="side-user" class="sidebox">
@@ -32,6 +34,20 @@
       %if thing.user.name in g.admins:
         <span class="role">Editor</span>
       %endif
+
+      <%
+        mail_img ="mail"
+        if c.have_messages:
+          mail_img += ".png"
+        else:
+          mail_img += "gray.png"
+        mail_img = static(mail_img)
+      %>
+      <span class="mail">
+      ${img_link(_("messages"), mail_img, path="/message/inbox/",
+                 _id = "mail" )}
+      </span>
+
     </div>
     %if thing.buttons:
       ${thing.buttons.render()}

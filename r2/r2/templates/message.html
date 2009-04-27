@@ -22,6 +22,7 @@
 
 <%!
    from r2.lib.filters import edit_comment_filter, safemarkdown
+   from r2.lib.utils import prettytime
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -39,21 +40,22 @@
   <%
    taglinetext = ''
    if c.msg_location == "inbox":
-        taglinetext = _("from %(author)s sent %(when)s ago")
+        taglinetext = _("From %(author)s sent %(when)s")
    elif c.msg_location == "sent" or not c.msg_location:
-        taglinetext = _("to %(dest)s sent %(when)s ago")
+        taglinetext = _("To %(dest)s sent %(when)s")
    elif c.msg_location == "admin" and c.user_is_admin:
-        taglinetext = _("to %(dest)s from %(author)s sent %(when)s ago")
+        taglinetext = _("To %(dest)s from %(author)s sent %(when)s")
 
    taglinetext = taglinetext.replace(' ', '&nbsp;')
   %>
-  ${unsafe(taglinetext % dict(when = thing.timesince, 
+  ${unsafe(taglinetext % dict(when = prettytime(thing._date, seconds = True),
                               author= u"<b>%s</b>" % self.author(thing.friend),
                               dest = u"<b>%s</b>" % thing.to.name))}
   </span>
   %if c.user_is_admin:
     ${self.admintagline()}
   %endif
+  ## End paragraph tag that started in entry def and start new one.
   </p>
   <p class="subject">
     ${thing.subject}
@@ -73,7 +75,7 @@ ${unsafe(safemarkdown(thing.body))}
 <%def name="buttons()">
 %if hasattr(thing, "was_comment"):
     <li>
-    ${parent.comment_button("context", thing._fullname, _("context"), 0, 
+    ${parent.comment_button("context", thing._fullname, _("Context"), 0,
                             thing.permalink + "?context=3")}
     </li>
     ${parent.delete_or_report_buttons(delete=False)}
@@ -82,7 +84,7 @@ ${unsafe(safemarkdown(thing.body))}
     ${parent.buttons()}
     %if c.user_is_loggedin:
       <li>
-      ${parent.simple_button("reply", thing._fullname, _("reply {verb}"), "reply")}
+      ${parent.simple_button("reply", thing._fullname, _("Reply"), "reply")}
       </li>
     %endif
 %endif
@@ -95,15 +97,17 @@ ${unsafe(safemarkdown(thing.body))}
     ${self.tagline()}
   </p>
   <div id="body_${fullname}" \
-       class="body">${self.commentBody()}
+       class="message-content">${self.commentBody()}
   </div>
   %if thing.author == c.user:
     <div style="display: none;" \
        id="edit_body_${fullname}">${self.commentText()}\
     </div>
   %endif
-  <ul class="flat-list buttons" ${(collapse and "style='display:none'" or '')}>
-    ${self.buttons()}
-  </ul>
+  <div class="message-links">
+    <ul class="clear" ${(collapse and "style='display:none'" or '')}>
+      ${self.buttons()}
+    </ul>
+  </div>
 </div>
 </%def>

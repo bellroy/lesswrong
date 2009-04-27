@@ -642,7 +642,7 @@ class ApiController(RedditController):
         if is_message:
             to = Account._byID(parent.author_id)
             subject = parent.subject
-            re = "re: "
+            re = "Re: "
             if not subject.startswith(re):
                 subject = re + subject
             item, inbox_rel = Message._new(c.user, to, subject, comment, ip, spam)

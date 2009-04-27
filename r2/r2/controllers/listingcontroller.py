@@ -516,7 +516,7 @@ class UserController(ListingController):
 
 
 class MessageController(ListingController):
-    show_sidebar = False
+    show_sidebar = True
     render_cls = MessagePage
 
     def title(self):
@@ -530,7 +530,7 @@ class MessageController(ListingController):
             w = Wrapped(thing)
             w.render_class = Message
             w.to_id = c.user._id
-            w.subject = 'comment reply'
+            w.subject = _('Comment Reply')
             w.was_comment = True
             w.permalink, w._fullname = p, f
             return w
