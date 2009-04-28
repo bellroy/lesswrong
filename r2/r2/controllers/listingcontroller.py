@@ -307,14 +307,9 @@ class NewController(ListingController):
     title_text = _('Newest submissions')
 
     def query(self):
-        if self.sort == 'rising':
-            return get_rising(c.site)
-        else:
-            return c.site.get_links('new', 'all')
+        return c.site.get_links('new', 'all')
         
-    @validate(sort = VMenu('controller', NewMenu))
-    def GET_listing(self, sort, **env):
-        self.sort = sort
+    def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
 class RecentpostsController(NewController):
