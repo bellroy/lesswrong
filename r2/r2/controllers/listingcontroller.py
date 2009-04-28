@@ -306,10 +306,6 @@ class NewController(ListingController):
     where = 'new'
     title_text = _('Newest submissions')
 
-    @property
-    def menus(self):
-        return [NewMenu(default = self.sort)]
-
     def query(self):
         if self.sort == 'rising':
             return get_rising(c.site)
