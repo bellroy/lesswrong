@@ -135,7 +135,10 @@ ul#nav li a:hover {
 }
 ul#nav li.right {
 	float: right;
-	border: none;
+	border-left: 1px solid #c1c2c4;
+}
+ul#nav li:last-child {
+	border-left: none;
 }
 
 /* Post
