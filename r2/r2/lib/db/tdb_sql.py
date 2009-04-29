@@ -53,7 +53,7 @@ def alias_generator():
 
 def make_metadata(engine):
     metadata = sa.BoundMetaData(engine)
-    metadata.engine.echo = settings.DEBUG
+    metadata.bind.echo = g.sqlprinting
     return metadata
 
 def create_table(table, index_commands=None):
@@ -209,16 +209,16 @@ def build_thing_tables():
 
         thing_engines[name] = thing_engine
 
-        #make thing table
+            #make thing table
         thing_table = get_thing_table(make_metadata(thing_engine), name)
-        create_table(thing_table,
-                     index_commands(thing_table, 'thing'))
+            create_table(thing_table,
+                         index_commands(thing_table, 'thing'))
 
-        #make data tables
+            #make data tables
         data_metadata = make_metadata(data_engine)
         data_table = get_data_table(data_metadata, name)
-        create_table(data_table,
-                     index_commands(data_table, 'data'))
+            create_table(data_table,
+                         index_commands(data_table, 'data'))
 
         #do we need another table?
         if thing_engine == data_engine:
@@ -232,7 +232,7 @@ def build_thing_tables():
                              index_commands(data_thing_table, 'thing'))
             else:
                 data_thing_table = get_thing_table(data_metadata, name)
-        
+
         thing = storage(type_id = type_id,
                         name = name,
                         thing_table = thing_table,
@@ -253,10 +253,10 @@ def build_rel_tables():
                                   type1_id = type1_id,
                                   type2_id = type2_id))
 
-        metadata = make_metadata(engine)
-        
-        #relation table
-        rel_table = get_rel_table(metadata, name)
+            metadata = make_metadata(engine)
+
+            #relation table
+            rel_table = get_rel_table(metadata, name)
         create_table(rel_table,
                      index_commands(rel_table, 'rel'))
 
@@ -270,14 +270,14 @@ def build_rel_tables():
                 create_table(rel_t1_table, index_commands(rel_t1_table, 'thing'))
                 extra_thing_tables.setdefault(type_id, set()).add(rel_t1_table)
             else:
-                rel_t1_table = get_thing_table(metadata, type1_name)
+            rel_t1_table = get_thing_table(metadata, type1_name)
 
         #make thing2 table if required
         if type1_id == type2_id:
-            rel_t2_table = rel_t1_table
+                rel_t2_table = rel_t1_table
         elif engine == thing_engines[type2_name]:
             rel_t2_table = types_name[type2_name].thing_table
-        else:
+            else:
             if dbm.extra_thing2.get(engine):
                 rel_t2_table = get_thing_table(metadata, 'rel_' + name + '_type2')
                 create_table(rel_t2_table, index_commands(rel_t2_table, 'thing'))
@@ -285,10 +285,10 @@ def build_rel_tables():
             else:
                 rel_t2_table = get_thing_table(metadata, type2_name)
 
-        #build the data
-        rel_data_table = get_data_table(metadata, 'rel_' + name)
-        create_table(rel_data_table,
-                     index_commands(rel_data_table, 'data'))
+            #build the data
+            rel_data_table = get_data_table(metadata, 'rel_' + name)
+            create_table(rel_data_table,
+                         index_commands(rel_data_table, 'data'))
 
         rel = storage(type_id = type_id,
                       type1_id = type1_id,
@@ -563,12 +563,6 @@ def del_rel(rel_type_id, rel_id):
     table.delete(table.c.rel_id == rel_id).execute()
     data_table.delete(data_table.c.thing_id == rel_id).execute()
 
-def sa_rval_op(rval):
-    if isinstance(rval, operators.rval_op):
-        return getattr(sa.func, rval.__class__.__name__)(rval.rval)
-    else:
-        return rval
-
 def sa_op(op):
     #if BooleanOp
     if isinstance(op, operators.or_):
@@ -706,7 +700,8 @@ def translate_data_value(alias, op):
     op.lval = lval
         
     #convert the rval to db types
-    op.rval = tuple(py2db(v) for v in tup(op.rval))
+    #convert everything to strings for pg8.3
+    op.rval = tuple(str(py2db(v)) for v in tup(op.rval))
 
 
 #TODO sort by data fields
@@ -825,8 +820,8 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
 
     if sort:
         cols = add_sort(sort,
-                        {'_':r_table, '_t1_':t1_table, '_t2_':t2_table},
-                        s)
+                           {'_':r_table, '_t1_':t1_table, '_t2_':t2_table},
+                           s)
         
         #do we need more joins?
         for (col, table) in cols:
@@ -841,7 +836,7 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
 
     if limit:
         s.limit = limit
-        
+
     r = s.execute()
     return Results(r, lambda (row): (row if get_cols else row.rel_id))
 
