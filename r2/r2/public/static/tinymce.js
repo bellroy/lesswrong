@@ -13,7 +13,8 @@ function init_tinymce(base_url) {
     plugins : "summarybreak,inlinepopups,xhtmlxtras",
     file_browser_callback : 'showImageBrowser',
     relative_urls : false,
-    document_base_url : base_url
+    document_base_url : base_url,
+    gecko_spellcheck : true
   }); 
 };
 
