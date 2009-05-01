@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import optparse
 import urllib
+import urllib2
+import multipartposthandler
 from lxml import etree
 from pprint import pprint
 
@@ -65,18 +68,24 @@ def export_at_once(page_names):
 
     print 'Getting export with full list of pages'
     pages_param = '\n'.join(page_names)
-    get_export(pages_param, 'wiki_export.xml')
+    export_filename = 'wiki_export.xml'
+    get_export(pages_param, export_filename)
 
+    return [export_filename]
 
 def export_page_at_time(page_names):
     """Perform an export for each page."""
 
+    export_filenames = []
     for idx, pages_param in enumerate(page_names):
         print 'Getting export for page %s' % pages_param
-        get_export(pages_param, 'wiki_export%03d.xml' % idx)
+        export_filename = 'wiki_export%04d.xml' % idx
+        get_export(pages_param, export_filename)
+        export_filenames.append(export_filename)
 
+    return export_filenames
 
-def export(at_once=True):
+def export_wiki(at_once):
     """Perform an export of a mediawiki wiki.
 
     First determine all the pages for all the namespaces.  Second
@@ -99,15 +108,105 @@ def export(at_once=True):
     pprint(page_names)
 
     if at_once:
-        export_at_once(page_names)
+        export_filenames = export_at_once(page_names)
     else:
-        export_page_at_time(page_names)
+        export_filenames = export_page_at_time(page_names)
+
+    return export_filenames
+
+
+def setup_opener():
+    """Build a url opener that can handle cookies and multipart form data."""
+
+    print 'Building url opener'
+    cookie_handler = urllib2.HTTPCookieProcessor()
+    multipart_handler = multipartposthandler.MultipartPostHandler()
+    opener = urllib2.build_opener(cookie_handler, multipart_handler)
+    urllib2.install_opener(opener)
+
+
+def login(password):
+    """Login to the destination wiki as the Admin user.
+
+    This will setup our cookies so that we can do the import as the
+    admin user.
+
+    """
+
+    print 'Logging in as the Admin user'
+    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Userlogin&action=submitlogin&type=login'
+    data = urllib.urlencode({'wpLoginattempt': 'Log in', 'wpName': 'Admin', 'wpPassword': password})
+    feed = urllib2.urlopen(url, data)
+    buf = feed.read()
+    open('migrate_wiki_last_login_response.html', 'w').write(buf)
+    tree = etree.fromstring(buf, parser)
+    nodes = tree.xpath('//h1[@class="firstHeading"]')
+    if not nodes or nodes[0].text != 'Login successful':
+        raise Exception('Failed to login to destination wiki')
+
+
+def get_edit_token():
+    """Return the edit token that is needed to do an import."""
+
+    print 'Getting edit token'
+    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import'
+    feed = urllib2.urlopen(url)
+    buf = feed.read()
+    open('migrate_wiki_last_get_edit_token_response.html', 'w').write(buf)
+    tree = etree.fromstring(buf, parser)
+    nodes = tree.xpath('//input[@name="editToken"]')
+    if not nodes or 'value' not in nodes[0].attrib:
+        raise Exception('Failed to get edit token needed for importing')
+    token = nodes[0].get('value')
+    return token
+
+
+def do_import(export_filename, token):
+    """Send the POST import request with the file to be imported."""
+
+    print 'Importing %s' % export_filename
+    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import&action=submit'
+    export_file = open(export_filename, 'rb')
+    data = {'source': 'upload', 'MAX_FILE_SIZE': '2000000', 'xmlimport': export_file, 'editToken': token }
+    feed = urllib2.urlopen(url, data)
+    buf = feed.read()
+    open('migrate_wiki_last_do_import_response.html', 'w').write(buf)
+    tree = etree.fromstring(buf, parser)
+    nodes = tree.xpath('//div[@id="bodyContent"]/p[2]')
+    if not nodes or not nodes[0].text.startswith('Import succeeded!'):
+        raise Exception('Failed to upload file, perhaps export file exceeds max size, try without the --at-once option')
+
+
+def import_wiki(export_filenames, password):
+    """Import the specified export files into the destination wiki."""
+
+    setup_opener()
+
+    login(password)
+
+    token = get_edit_token()
+
+    for export_filename in export_filenames:
+        do_import(export_filename, token)
 
 
 def main():
     """Migrate a mediawiki wiki."""
 
-    export()
+    opt_parser = optparse.OptionParser()
+    opt_parser.add_option('-p', '--password',
+                          dest='password',
+                          help='destination wiki admin password')
+    opt_parser.add_option('-a', '--at-once',
+                          action='store_true', default=False,
+                          help='get single export file in one go, otherwise get export file for each wiki page')
+    options, args = opt_parser.parse_args()
+
+    if options.password:
+        export_filenames = export_wiki(options.at_once)
+        import_wiki(export_filenames, options.password)
+    else:
+        opt_parser.print_help()
 
 
 if __name__ == '__main__':
