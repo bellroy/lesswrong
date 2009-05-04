@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+import datetime
 import optparse
 import urllib
 import urllib2
@@ -54,7 +56,7 @@ def get_export(pages_param, out_filename):
 
     url = 'http://lesswrong.wikia.com/index.php?title=Special:Export&action=submit'
     data = urllib.urlencode({'catname': '', 'pages': pages_param, 'templates': '1'})
-    feed = urllib.urlopen(url, data)
+    feed = urllib2.urlopen(url, data)
     buf = feed.read()
 
     out = open(out_filename, 'w')
@@ -63,29 +65,31 @@ def get_export(pages_param, out_filename):
     print 'Export saved %s' % out_filename
 
 
-def export_at_once(page_names):
+def export_at_once(export_dir, page_names):
     """Perform a single export containing all pages."""
 
     print 'Getting export with full list of pages'
     pages_param = '\n'.join(page_names)
-    export_filename = 'wiki_export.xml'
+    export_filename = os.path.join(export_dir, 'wiki_export.xml')
     get_export(pages_param, export_filename)
 
     return [export_filename]
 
-def export_page_at_time(page_names):
+
+def export_page_at_time(export_dir, page_names):
     """Perform an export for each page."""
 
     export_filenames = []
     for idx, pages_param in enumerate(page_names):
         print 'Getting export for page %s' % pages_param
-        export_filename = 'wiki_export%04d.xml' % idx
+        export_filename = os.path.join(export_dir, 'wiki_export%04d.xml' % idx)
         get_export(pages_param, export_filename)
         export_filenames.append(export_filename)
 
     return export_filenames
 
-def export_wiki(at_once):
+
+def export_wiki(export_dir, at_once):
     """Perform an export of a mediawiki wiki.
 
     First determine all the pages for all the namespaces.  Second
@@ -108,9 +112,9 @@ def export_wiki(at_once):
     pprint(page_names)
 
     if at_once:
-        export_filenames = export_at_once(page_names)
+        export_filenames = export_at_once(export_dir, page_names)
     else:
-        export_filenames = export_page_at_time(page_names)
+        export_filenames = export_page_at_time(export_dir, page_names)
 
     return export_filenames
 
@@ -138,7 +142,6 @@ def login(password):
     data = urllib.urlencode({'wpLoginattempt': 'Log in', 'wpName': 'Admin', 'wpPassword': password})
     feed = urllib2.urlopen(url, data)
     buf = feed.read()
-    open('migrate_wiki_last_login_response.html', 'w').write(buf)
     tree = etree.fromstring(buf, parser)
     nodes = tree.xpath('//h1[@class="firstHeading"]')
     if not nodes or nodes[0].text != 'Login successful':
@@ -152,7 +155,6 @@ def get_edit_token():
     url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import'
     feed = urllib2.urlopen(url)
     buf = feed.read()
-    open('migrate_wiki_last_get_edit_token_response.html', 'w').write(buf)
     tree = etree.fromstring(buf, parser)
     nodes = tree.xpath('//input[@name="editToken"]')
     if not nodes or 'value' not in nodes[0].attrib:
@@ -170,7 +172,6 @@ def do_import(export_filename, token):
     data = {'source': 'upload', 'MAX_FILE_SIZE': '2000000', 'xmlimport': export_file, 'editToken': token }
     feed = urllib2.urlopen(url, data)
     buf = feed.read()
-    open('migrate_wiki_last_do_import_response.html', 'w').write(buf)
     tree = etree.fromstring(buf, parser)
     nodes = tree.xpath('//div[@id="bodyContent"]/p[2]')
     if not nodes or not nodes[0].text.startswith('Import succeeded!'):
@@ -196,14 +197,17 @@ def main():
     opt_parser = optparse.OptionParser()
     opt_parser.add_option('-p', '--password',
                           dest='password',
-                          help='destination wiki admin password')
+                          help='destination wiki admin password (REQUIRED)')
     opt_parser.add_option('-a', '--at-once',
                           action='store_true', default=False,
                           help='get single export file in one go, otherwise get export file for each wiki page')
     options, args = opt_parser.parse_args()
 
     if options.password:
-        export_filenames = export_wiki(options.at_once)
+        export_dir = os.path.join(os.getcwd(), 'wiki_export_%s' % datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+        os.makedirs(export_dir)
+
+        export_filenames = export_wiki(export_dir, options.at_once)
         import_wiki(export_filenames, options.password)
     else:
         opt_parser.print_help()
