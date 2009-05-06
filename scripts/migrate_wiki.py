@@ -138,13 +138,13 @@ def login(password):
     """
 
     print 'Logging in as the Admin user'
-    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Userlogin&action=submitlogin&type=login'
+    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:UserLogin&action=submitlogin&type=login'
     data = urllib.urlencode({'wpLoginattempt': 'Log in', 'wpName': 'Admin', 'wpPassword': password})
     feed = urllib2.urlopen(url, data)
     buf = feed.read()
     tree = etree.fromstring(buf, parser)
-    nodes = tree.xpath('//h1[@class="firstHeading"]')
-    if not nodes or nodes[0].text != 'Login successful':
+    nodes = tree.xpath('//a[@title="Log out"]')
+    if not nodes:
         raise Exception('Failed to login to destination wiki')
 
 
@@ -169,12 +169,12 @@ def do_import(export_filename, token):
     print 'Importing %s' % export_filename
     url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import&action=submit'
     export_file = open(export_filename, 'rb')
-    data = {'source': 'upload', 'MAX_FILE_SIZE': '2000000', 'xmlimport': export_file, 'editToken': token }
+    data = {'source': 'upload', 'log-comment': 'migrate_wiki.py script', 'xmlimport': export_file, 'editToken': token }
     feed = urllib2.urlopen(url, data)
     buf = feed.read()
     tree = etree.fromstring(buf, parser)
     nodes = tree.xpath('//div[@id="bodyContent"]/p[2]')
-    if not nodes or not nodes[0].text.startswith('Import succeeded!'):
+    if not nodes or not nodes[0].text.startswith('Import finished!'):
         raise Exception('Failed to upload file, perhaps export file exceeds max size, try without the --at-once option')
 
 
