@@ -54,5 +54,5 @@ div.sidebox select {
 /* Nav Bar
 -------------------------------------------------------------------------------------- */
 ul#nav {
-	behavior: expression(this.firstChild.style.borderLeft = "none");
+	behavior: expression(this.firstChild.style.borderLeft = this.lastChild.style.borderLeft = "none");
 }
