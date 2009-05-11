@@ -13,6 +13,13 @@ def main():
     re_invalid_dashes = re.compile(ur'^-----(---)?(\r)?\n(?!--------|BODY:|EXTENDED BODY:|EXCERPT:|KEYWORDS:|AUTHOR:|COMMENT:|PING:|\Z)', re.MULTILINE)
     buf = re_invalid_dashes.sub(ur'----\n', buf)
 
+    re_control_chars = re.compile(ur'(\s)[]')
+    buf = re_control_chars.sub(ur'\1', buf)
+    re_control_chars = re.compile(ur'[](\s)')
+    buf = re_control_chars.sub(ur'\1', buf)
+    re_control_chars = re.compile(ur'[]')
+    buf = re_control_chars.sub(ur' ', buf)
+
     buf = buf.encode('utf-8')
     outfile = open(outfilename, 'w')
     outfile.write(buf)
