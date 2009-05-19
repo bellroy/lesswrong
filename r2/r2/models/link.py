@@ -403,6 +403,15 @@ class Link(Thing, Printable):
             self._date = datetime.now(g.tz)
             self._commit()
 
+            # Comments must be in the same subreddit as the link that
+            # the comments belong to.  This is needed so that if a
+            # comment is made on a draft link then when the link moves
+            # to a public subreddit the comments also move and others
+            # will be able to see and reply to the comment.
+            for comment in Comment._query(Comment.c.link_id == self._id, data=True):
+                comment.sr_id = new_sr_id
+                comment._commit()
+
     def set_blessed(self, is_blessed):
         if self.blessed != is_blessed:
           self.blessed = is_blessed
