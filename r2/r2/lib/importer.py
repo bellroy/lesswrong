@@ -56,12 +56,13 @@ class Importer(object):
     def process_comment(self, comment_data, comment, post):
         # Prepare data for import
         ip = '127.0.0.1'
-        naive_date = datetime.datetime.strptime(comment_data['dateCreated'], DATE_FORMAT)
-        local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
-        utc_date = local_date.astimezone(pytz.utc)
+        if comment_data:
+            naive_date = datetime.datetime.strptime(comment_data['dateCreated'], DATE_FORMAT)
+            local_date = INPUT_TIMEZONE.localize(naive_date, is_dst=False) # Pick the non daylight savings time
+            utc_date = local_date.astimezone(pytz.utc)
 
-        # Determine account to use for this comment
-        account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
+            # Determine account to use for this comment
+            account = self._get_or_create_account(comment_data['author'], comment_data['authorEmail'])
 
         if comment_data and not comment:
             # Create new comment
