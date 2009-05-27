@@ -168,7 +168,18 @@ class Importer(object):
         for old_url, post in self.post_mapping.iteritems():
             ob_url = urlparse.urlparse(old_url)
             new_url = post.canonical_url
-            rewrite_map_file.write("%s %s\n" % (ob_url.path, new_url))
+            try:
+                rewrite_map_file.write("%s %s\n" % (ob_url.path, new_url))
+            except UnicodeEncodeError, uee:
+                def unicode_safe(text):
+                    if isinstance(text, str):
+                        print text.decode('utf-8')
+                    else:
+                        print text
+
+                print "Unable to write to rewrite map file:"
+                print unicode_safe(ob_url.path)
+                print unicode_safe(new_url)
 
         # Update URLs in the posts and comments
         print 'Post processing imported content'
