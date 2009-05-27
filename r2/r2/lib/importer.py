@@ -141,6 +141,8 @@ class Importer(object):
             if isinstance(text, str):
                 text = text.decode('utf-8')
 
+            # Double decode needed to handle some wierd characters
+            text = text.encode('utf-8')
             text = self.url_re.sub(lambda match: self.substitute_ob_url(match.group()), text)
 
         return text
@@ -157,6 +159,12 @@ class Importer(object):
             comment._commit()
 
     def _post_process(self, rewrite_map_file):
+        def unicode_safe(text):
+            if isinstance(text, unicode):
+                return text.encode('utf-8')
+            else:
+                return text
+
         posts = list(Link._query(Link.c.ob_permalink != None, data = True))
 
         # Generate a mapping between ob permalinks and imported posts
@@ -169,14 +177,8 @@ class Importer(object):
             ob_url = urlparse.urlparse(old_url)
             new_url = post.canonical_url
             try:
-                rewrite_map_file.write("%s %s\n" % (ob_url.path, new_url))
+                rewrite_map_file.write("%s %s\n" % (unicode_safe(ob_url.path), unicode_safe(new_url)))
             except UnicodeEncodeError, uee:
-                def unicode_safe(text):
-                    if isinstance(text, str):
-                        print text.decode('utf-8')
-                    else:
-                        print text
-
                 print "Unable to write to rewrite map file:"
                 print unicode_safe(ob_url.path)
                 print unicode_safe(new_url)
@@ -193,6 +195,7 @@ class Importer(object):
                 self.process_post(post_data, sr)
             except Exception, e:
                 print 'Unable to create post:\n%s\n%s\n%s' % (type(e), e, post_data)
+                raise
 
         self._post_process(rewrite_map_file)
 
@@ -284,3 +287,4 @@ class Importer(object):
                 retry += 1
 
         return account
+
