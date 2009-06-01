@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, cleanhtml, unsafe_wrap_md, format_linebreaks
+   from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, clean_comment_html, unsafe_wrap_md, format_linebreaks
    from r2.lib.utils import to36, prettytime
 %>
 <%inherit file="comment_skeleton.html"/>
@@ -105,7 +105,7 @@ ${parent.Child(not thing.collapsed)}
 <%def name="commentBody()">
 %if not thing.deleted:
   %if thing.is_html:
-    ${unsafe_wrap_md(cleanhtml(format_linebreaks(thing.body)))}
+    ${unsafe_wrap_md(clean_comment_html(format_linebreaks(thing.body)))}
   %else:
     ${unsafe(safemarkdown(thing.body))}
   %endif

@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.filters import safemarkdown, cleanhtml, format_linebreaks
+   from r2.lib.filters import safemarkdown, clean_comment_html, format_linebreaks
 %>
 
 <item>
@@ -30,7 +30,7 @@
   <dc:date>${thing._date.isoformat()}</dc:date>
   <description>
     %if thing.is_html:
-      ${cleanhtml(format_linebreaks(thing.body))}
+      ${clean_comment_html(format_linebreaks(thing.body))}
     %else:
       ${safemarkdown(thing.body)}
     %endif

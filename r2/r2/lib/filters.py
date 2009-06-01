@@ -37,7 +37,8 @@ MD_END = '</div>'
 # embedded: We want to allow flash movies in posts
 # style: enable removal of style
 # safe_attrs_only: need to allow strange arguments to <object>
-sanitizer = Cleaner(embedded=False,style=True,safe_attrs_only=False)
+sanitizer = Cleaner(embedded=False,safe_attrs_only=False)
+comment_sanitizer = Cleaner(embedded=False,style=True,safe_attrs_only=False)
 
 def python_websafe(text):
     return text.replace('&', "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -191,10 +192,15 @@ def killhtml(html=''):
     cleaned_html = ' '.join([fragment.strip() for fragment in text])
     return cleaned_html
 
-def cleanhtml(html=''):
+def cleanhtml(html='', cleaner=None):
     html_doc = soupparser.fromstring(html)
-    cleaned_html = sanitizer.clean_html(html_doc)
+    if not cleaner:
+        cleaner = sanitizer
+    cleaned_html = cleaner.clean_html(html_doc)
     return lxml.html.tostring(autolink_html(cleaned_html))
+
+def clean_comment_html(html=''):
+    return cleanhtml(html, comment_sanitizer)
 
 block_tags = r'h1|h2|h3|h4|h5|h6|table|ol|dl|ul|menu|dir|p|pre|center|form|fieldset|select|blockquote|address|div|hr'
 linebreaks_re = re.compile(r'(\n{2}|\r{2}|(?:\r\n){2}|</?(?:%s)[^>]*?>)' % block_tags)
