@@ -24,7 +24,7 @@ from validator import *
 
 from r2.models import *
 from r2.lib.pages import *
-from r2.lib.menus import NewMenu, TimeMenu, SortMenu, RecSortMenu, ControversyTimeMenu
+from r2.lib.menus import NewMenu, TimeMenu, SortMenu, RecSortMenu
 from r2.lib.rising import get_rising
 from r2.lib.wrapped import Wrapped
 from r2.lib.normalized_hot import normalized_hot, get_hot
@@ -359,14 +359,14 @@ class BrowseController(ListingController):
 
     @property
     def menus(self):
-        return [ControversyTimeMenu(default = self.time)]
+        return [TimeMenu(default = self.time)]
     
     def query(self):
         return c.site.get_links(self.sort, self.time)
 
     # TODO: this is a hack with sort.
     @validate(sort = VOneOf('sort', ('top', 'controversial')),
-              time = VMenu('where', ControversyTimeMenu))
+              time = VMenu('where', TimeMenu))
     def GET_listing(self, sort, time, **env):
         self.sort = sort
         if sort == 'top':

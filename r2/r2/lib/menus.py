@@ -471,10 +471,6 @@ class TimeMenu(SimpleGetMenu):
         if time != 'all':
             return Link.c._date >= timeago(time)
 
-class ControversyTimeMenu(TimeMenu):
-    """time interval for controversial sort.  Make default time 'day' rather than 'all'"""
-    default = 'day'
-
 class NumCommentsMenu(SimpleGetMenu):
     """menu for toggling between the user's preferred number of
     comments and the max allowed in the display, assuming the number
