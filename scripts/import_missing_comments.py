@@ -83,7 +83,7 @@ def get_or_create_account(name):
                 except ValueError:
                     choice = -1
             if choice in range(len(account)):
-                account = account[choice - 1]
+                account = account[choice]
             elif choice == max_choice:
                 raise Exception("Aborting")
             else:
