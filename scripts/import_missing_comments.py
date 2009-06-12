@@ -166,7 +166,10 @@ def process_comments_on_post(post, comments):
             new_comment.ob_imported = True
             new_comment._commit()
 
-        print " Imported as '%s' %s" % (account.name.decode('utf-8').encode('utf-8'), comment_excerpt(comment).decode('utf-8').encode('utf-8'))
+        try:
+            print " Imported as '%s' %s" % (account.name.decode('utf-8').encode('utf-8'), comment_excerpt(comment).decode('utf-8').encode('utf-8'))
+        except UnicodeError:
+            print " Imported comment"
 
 re_strip_path = re.compile(r'^/overcomingbias')
 def adjust_permalink(permalink):
@@ -209,6 +212,9 @@ def import_missing_comments(filename, apply_changes=False):
             imported_post = imported_post[0]
 
         post_count += 1
-        print "Importing (%d of %d) comments on: %s" % (post_count, total_posts, imported_post.canonical_url)
+        try:
+            print "Importing (%d of %d) comments on: %s" % (post_count, total_posts, imported_post.canonical_url)
+        except UnicodeError:
+            print "Importing comments on post (%d of %d)"
         process_comments_on_post(imported_post, post['comments'])
 
