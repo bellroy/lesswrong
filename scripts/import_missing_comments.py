@@ -33,8 +33,12 @@ def generate_password():
     return ''.join(password)
 
 def comment_excerpt(comment):
-  excerpt = comment['body'].replace("\n", '')[0:50]
-  return "comment by '%s': %s" % (comment['author'].decode('utf-8').encode('utf-8'), excerpt.decode('utf-8').encode('utf-8'))
+    excerpt = comment['body'].replace("\n", '')[0:50]
+    try:
+        excerpt = "comment by '%s': %s" % (comment['author'].decode('utf-8').encode('utf-8'), excerpt.decode('utf-8').encode('utf-8'))
+    except UnicodeError:
+        excerpt = '*'
+    return excerpt
 
 re_non_alphanum = re.compile(r'[^a-zA-Z0-9]*')
 def comment_exists(post, comment):
