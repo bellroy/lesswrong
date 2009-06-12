@@ -34,7 +34,7 @@ def generate_password():
 
 def comment_excerpt(comment):
   excerpt = comment['body'].replace("\n", '')[0:50]
-  return "comment by '%s': %s" % (comment['author'], excerpt)
+  return "comment by '%s': %s" % (comment['author'].decode('utf-8').encode('utf-8'), excerpt.decode('utf-8').encode('utf-8'))
 
 re_non_alphanum = re.compile(r'[^a-zA-Z0-9]*')
 def comment_exists(post, comment):
@@ -166,7 +166,7 @@ def process_comments_on_post(post, comments):
             new_comment.ob_imported = True
             new_comment._commit()
 
-        print " Imported as '%s' %s" % (account.name, comment_excerpt(comment))
+        print " Imported as '%s' %s" % (account.name.decode('utf-8').encode('utf-8'), comment_excerpt(comment).decode('utf-8').encode('utf-8'))
 
 re_strip_path = re.compile(r'^/overcomingbias')
 def adjust_permalink(permalink):
