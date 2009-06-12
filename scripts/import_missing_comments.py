@@ -65,8 +65,30 @@ def get_or_create_account(name):
         if len(account) == 1:
             account = account[0]
         elif len(account) > 1:
-            print "Got more than one account for OB username '%s'" % name
-            raise Exception
+            print " Got more than one account for OB username '%s', select one below:" % name
+            for i in range(len(account)):
+                email = account[i].email if hasattr(account[i], 'email') else ''
+                print "  %d. %s, %s" % (i, account[i].name, email)
+            i += 1
+            print "  %d. Create new" % i
+            i += 1
+            print "  %d. None, abort" % i
+            
+            max_choice = i
+            choice = -1
+            while choice < 0 or choice > max_choice:
+                choice = raw_input("Enter selection: ")
+                try:
+                    choice = int(choice)
+                except ValueError:
+                    choice = -1
+            if choice in range(len(account)):
+                account = account[choice - 1]
+            elif choice == max_choice:
+                raise Exception("Aborting")
+            else:
+                # Fall through to code below
+                account = None
         else:
             # Try derivatives of the name that may exist
             candidates = (
@@ -87,9 +109,9 @@ def get_or_create_account(name):
                         account._commit()
                     break
 
-            # No account found, create a new one
-            if not account:
-                account = create_account(name)
+        # No account found, create a new one
+        if not account:
+            account = create_account(name)
 
         username_mapping[name] = account
 
@@ -166,6 +188,8 @@ def import_missing_comments(filename, apply_changes=False):
     global dryrun
     dryrun = not apply_changes
 
+    total_posts = len(missing_comments)
+    post_count = 0
     for post in missing_comments:
         if post['author'] != 'Eliezer Yudkowsky':
             # print "Skipping non-EY post (%s): %s" % (post['author'], post['permalink'])
@@ -184,6 +208,7 @@ def import_missing_comments(filename, apply_changes=False):
         else:
             imported_post = imported_post[0]
 
-        print "Importing comments on: %s" % imported_post.canonical_url
+        post_count += 1
+        print "Importing (%d of %d) comments on: %s" % (post_count, total_posts, imported_post.canonical_url)
         process_comments_on_post(imported_post, post['comments'])
 
