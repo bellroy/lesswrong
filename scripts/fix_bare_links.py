@@ -1,9 +1,10 @@
 import re
 import sys
+import codecs
 
 bare_link_re = re.compile(r'([^-A-Z0-9+&@#/%?=~_|!:,.;">]|^)(/lw/[^/]+/[^/]+/)([^-A-Z0-9+&@#/%?=~_|!:;"<]|$)')
 linked_bare_link_re = re.compile(r'(<a href="[^"]+">)(/lw/[^/]+/[^/]+[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]</a>)')
-spaces_around_anchor_re = re.compile(r'<a href\s+=\s+"([^"]+)"\s*>', re.IGNORECASE)
+spaces_around_anchor_re = re.compile(r'<a href\s*=\s+"?([^">]+)"?\s*>', re.IGNORECASE)
 no_quotes_on_anchor_re = re.compile(r'<a href=([^>\'"]+)>([^<]+)</a>', re.IGNORECASE)
 single_quotes_on_anchor_re = re.compile(r'<a href=\'([^>]+)\'>')
 well_formed_uppercase_re = re.compile(r'<A [Hh][Rr][Ee][Ff]="([^"]+)">([^<]+)</A>')
@@ -37,8 +38,8 @@ def fix_bare_links(apply=False):
     from r2.models import Comment
     from r2.lib.db.thing import NotFound
     
-    fbefore = open('fix_bare_links_before.txt', 'w')
-    fafter  = open('fix_bare_links_after.txt', 'w')
+    fbefore = codecs.open('fix_bare_links_before.txt', 'w', 'utf-8')
+    fafter  = codecs.open('fix_bare_links_after.txt', 'w', 'utf-8')
     
     comment_id = 1
     try:
@@ -48,11 +49,18 @@ def fix_bare_links(apply=False):
             comment = Comment._byID(comment_id, data=True)
         
             if (hasattr(comment, 'ob_imported') and comment.ob_imported) and (hasattr(comment, 'is_html') and comment.is_html):
-                new_content = rewrite_bare_links(comment.body)
+                body = comment.body
+                if isinstance(body, str):
+                    try:
+                        body = body.decode('utf-8')
+                    except UnicodeDecodeError:
+                        print >>sys.stderr, "UnicodeDecodeError, using 'ignore' error mode, comment: %d" % comment._id
+                        body = body.decode('utf-8', errors='ignore')
+                new_content = rewrite_bare_links(body)
                 
-                if new_content != comment.body:
-                    print >>fbefore, comment.body.encode('utf-8')
-                    print >>fafter, new_content.encode('utf-8')
+                if new_content != body:
+                    print >>fbefore, body
+                    print >>fafter, new_content
                     
                     if apply:
                         comment.body = new_content
