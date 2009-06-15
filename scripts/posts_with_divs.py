@@ -34,4 +34,4 @@ def posts_with_divs():
                     article = article.decode('utf-8', errors='ignore')
                 
             if '<div' in article:
-                print >>sys.stderr, link.canonocal_url.encode('utf-8')
+                print >>sys.stderr, link.canonical_url.encode('utf-8')
