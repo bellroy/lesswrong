@@ -26,6 +26,7 @@ class Exporter:
         self.export_comments()
         self.export_votes()
         self.create_indexes()
+        print >>sys.stderr, "Finished, total run time %d secs" % ((datetime.now() - self.started_at).seconds,)
 
     def export_users(self):
         max_id = self.max_thing_id(Account)
