@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 from r2.lib.db import tdb_sql as tdb
 from r2.lib.db.thing import NotFound, Relation
@@ -19,15 +20,17 @@ class Exporter:
         self.init_db()
 
     def export_db(self):
+        self.started_at = datetime.now()
         self.export_users()
         self.export_links()
         self.export_comments()
         self.export_votes()
+        self.create_indexes()
 
     def export_users(self):
         max_id = self.max_thing_id(Account)
-        table = Table('users', self.db, autoload=True)
-        print >>sys.stderr, "# %d users to process" % max_id
+        processed = 0
+        print >>sys.stderr, "%d users to process" % max_id
         for account_id in xrange(max_id):
             try:
                 account = Account._byID(account_id, data=True)
@@ -41,13 +44,14 @@ class Exporter:
                 account.link_karma,
                 account.comment_karma
             )
-            table.insert(values=row).execute()
-            
+            self.users.insert(values=row).execute()
+            processed += 1
+            self.update_progress(processed)
 
     def export_links(self):
+        processed = 0
         max_id = self.max_thing_id(Link)
-        table = Table('articles', self.db, autoload=True)
-        print >>sys.stderr, "# %d articles to process" % max_id
+        print >>sys.stderr, "%d articles to process" % max_id
         for link_id in xrange(max_id):
             try:
                 link = Link._byID(link_id, data=True)
@@ -64,12 +68,14 @@ class Exporter:
                 link._date,
                 sr.name
             )
-            table.insert(values=row).execute()
+            self.articles.insert(values=row).execute()
+            processed += 1
+            self.update_progress(processed)
 
     def export_comments(self):
+        processed = 0
         max_id = self.max_thing_id(Comment)
-        table = Table('comments', self.db, autoload=True)
-        print >>sys.stderr, "# %d comments to process" % max_id
+        print >>sys.stderr, "%d comments to process" % max_id
         for comment_id in xrange(max_id):
             try:
                 comment = Comment._byID(comment_id, data=True)
@@ -83,19 +89,20 @@ class Exporter:
                 comment.body,
                 comment._date
             )
-            table.insert(values=row).execute()
+            self.comments.insert(values=row).execute()
+            processed += 1
+            self.update_progress(processed)
 
     def export_votes(self):
-        self.export_rel_votes(Link, 'article_votes')
-        self.export_rel_votes(Comment, 'comment_votes')
+        self.export_rel_votes(Link, self.article_votes)
+        self.export_rel_votes(Comment, self.comment_votes)
 
-    def export_rel_votes(self, votes_on_cls, tablename):
+    def export_rel_votes(self, votes_on_cls, table):
         # Vote.vote(c.user, link, action == 'like', request.ip)
-        
+        processed = 0
         rel = Vote.rel(Account, votes_on_cls)
         max_id = self.max_rel_type_id(rel)
-        table = Table(tablename, self.db, autoload=True)
-        print >>sys.stderr, "# %d votes_on_cls votes to process" % max_id
+        print >>sys.stderr, "%d %s to process" % (max_id, table.name)
         for vote_id in xrange(max_id):
             try:
                 vote = rel._byID(vote_id, data=True)
@@ -110,6 +117,8 @@ class Exporter:
                 vote._date
             )
             table.insert(values=row).execute()
+            processed += 1
+            self.update_progress(processed)
 
     def max_rel_type_id(self, rel_thing):
         thing_type = tdb.rel_types_id[rel_thing._type_id]
@@ -140,43 +149,78 @@ class Exporter:
         return text
 
     def init_db(self):
-        Table('users', self.db,
-            Column('id', Integer, primary_key=True, index=True),
-            Column('name', VARCHAR(), index=True),
+        self.users = Table('users', self.db,
+            Column('id', Integer, primary_key=True),
+            Column('name', VARCHAR()),
             Column('email', VARCHAR()),
             Column('article_karma', Integer),
             Column('comment_karma', Integer),
-        ).create()
+        )
+        self.users.create()
         
-        Table('articles', self.db,
-            Column('id', Integer, primary_key=True, index=True),
-            Column('title', VARCHAR(), index=True),
+        self.articles = Table('articles', self.db,
+            Column('id', Integer, primary_key=True),
+            Column('title', VARCHAR()),
             Column('body', TEXT()),
-            Column('author_id', Integer, ForeignKey('users.id'), index=True),
+            Column('author_id', Integer, ForeignKey('users.id')),
             Column('updated_at', DateTime()),
             Column('subreddit', VARCHAR()),
-        ).create()
+        )
+        self.articles.create()
 
-        Table('comments', self.db,
-            Column('id', Integer, primary_key=True, index=True),
-            Column('author_id', Integer, ForeignKey('users.id'), index=True),
-            Column('article_id', Integer, ForeignKey('articles.id'), index=True),
+        self.comments = Table('comments', self.db,
+            Column('id', Integer, primary_key=True),
+            Column('author_id', Integer, ForeignKey('users.id')),
+            Column('article_id', Integer, ForeignKey('articles.id')),
             Column('body', TEXT()),
             Column('updated_at', DateTime()),
-        ).create()
+        )
+        self.comments.create()
 
-        Table('article_votes', self.db,
-            Column('id', Integer, primary_key=True, index=True),
-            Column('user_id', Integer, ForeignKey('users.id'), index=True),
-            Column('article_id', Integer, ForeignKey('articles.id'), index=True),
+        self.article_votes = Table('article_votes', self.db,
+            Column('id', Integer, primary_key=True),
+            Column('user_id', Integer, ForeignKey('users.id')),
+            Column('article_id', Integer, ForeignKey('articles.id')),
             Column('vote', Integer()),
             Column('updated_at', DateTime()),
-        ).create()
+        )
+        self.article_votes.create()
 
-        Table('comment_votes', self.db,
-            Column('id', Integer, primary_key=True, index=True),
-            Column('user_id', Integer, ForeignKey('users.id'), index=True),
-            Column('comment_id', Integer, ForeignKey('comments.id'), index=True),
+        self.comment_votes = Table('comment_votes', self.db,
+            Column('id', Integer, primary_key=True),
+            Column('user_id', Integer, ForeignKey('users.id')),
+            Column('comment_id', Integer, ForeignKey('comments.id')),
             Column('vote', Integer()),
             Column('updated_at', DateTime()),
-        ).create()
+        )
+        self.comment_votes.create()
+
+    def create_indexes(self):
+        #i = Index('someindex', sometable.c.col5)
+        print >>sys.stderr, "Creating indexes on users table"
+        Index('ix_users_id', self.users.c.id).create()
+        Index('ix_users_name', self.users.c.name).create()
+        Index('ix_users_email', self.users.c.email).create()
+        print >>sys.stderr, "Creating indexes on articles table"
+        Index('ix_articles_id', self.articles.c.id).create()
+        Index('ix_articles_author_id', self.articles.c.author_id).create()
+        Index('ix_articles_title', self.articles.c.title).create()
+        print >>sys.stderr, "Creating indexes on comments table"
+        Index('ix_comments_id', self.comments.c.id).create()
+        Index('ix_comments_author_id', self.comments.c.author_id).create()
+        Index('ix_comments_article_id', self.comments.c.article_id).create()
+        print >>sys.stderr, "Creating indexes on article_votes table"
+        Index('ix_article_votes_id', self.article_votes.c.id).create()
+        Index('ix_article_votes_author_id', self.article_votes.c.user_id).create()
+        Index('ix_article_votes_article_id', self.article_votes.c.article_id).create()
+        Index('ix_article_votes_vote', self.article_votes.c.vote).create()
+        print >>sys.stderr, "Creating indexes on comment_votes table"
+        Index('ix_comment_votes_id', self.comment_votes.c.id).create()
+        Index('ix_comment_votes_author_id', self.comment_votes.c.user_id).create()
+        Index('ix_comment_votes_comment_id', self.comment_votes.c.comment_id).create()
+        Index('ix_comment_votes_vote', self.comment_votes.c.vote).create()
+
+    def update_progress(self, done):
+        """print a progress message"""
+        if done % 50 == 0:
+            print >>sys.stderr, "  %d processed, run time %d secs" % (done, (datetime.now() - self.started_at).seconds)
