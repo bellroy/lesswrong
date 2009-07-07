@@ -27,7 +27,6 @@ class Exporter:
     def export_users(self):
         max_id = self.max_thing_id(Account)
         table = Table('users', self.db, autoload=True)
-        print >>sys.stderr, insert
         print >>sys.stderr, "# %d users to process" % max_id
         for account_id in xrange(max_id):
             try:
