@@ -142,42 +142,42 @@ class Exporter:
 
     def init_db(self):
         Table('users', self.db,
-            Column('id', Integer, primary_key=True),
-            Column('name', VARCHAR()),
+            Column('id', Integer, primary_key=True, index=True),
+            Column('name', VARCHAR(), index=True),
             Column('email', VARCHAR()),
             Column('article_karma', Integer),
             Column('comment_karma', Integer),
         ).create()
         
         Table('articles', self.db,
-            Column('id', Integer, primary_key=True),
-            Column('title', VARCHAR()),
+            Column('id', Integer, primary_key=True, index=True),
+            Column('title', VARCHAR(), index=True),
             Column('body', TEXT()),
-            Column('author_id', Integer, ForeignKey('users.id')),
+            Column('author_id', Integer, ForeignKey('users.id'), index=True),
             Column('updated_at', DateTime()),
             Column('subreddit', VARCHAR()),
         ).create()
 
         Table('comments', self.db,
-            Column('id', Integer, primary_key=True),
-            Column('author_id', Integer, ForeignKey('users.id')),
-            Column('article_id', Integer, ForeignKey('articles.id')),
+            Column('id', Integer, primary_key=True, index=True),
+            Column('author_id', Integer, ForeignKey('users.id'), index=True),
+            Column('article_id', Integer, ForeignKey('articles.id'), index=True),
             Column('body', TEXT()),
             Column('updated_at', DateTime()),
         ).create()
 
         Table('article_votes', self.db,
-            Column('id', Integer, primary_key=True),
-            Column('user_id', Integer, ForeignKey('users.id')),
-            Column('article_id', Integer, ForeignKey('articles.id')),
+            Column('id', Integer, primary_key=True, index=True),
+            Column('user_id', Integer, ForeignKey('users.id'), index=True),
+            Column('article_id', Integer, ForeignKey('articles.id'), index=True),
             Column('vote', Integer()),
             Column('updated_at', DateTime()),
         ).create()
 
         Table('comment_votes', self.db,
-            Column('id', Integer, primary_key=True),
-            Column('user_id', Integer, ForeignKey('users.id')),
-            Column('comment_id', Integer, ForeignKey('comments.id')),
+            Column('id', Integer, primary_key=True, index=True),
+            Column('user_id', Integer, ForeignKey('users.id'), index=True),
+            Column('comment_id', Integer, ForeignKey('comments.id'), index=True),
             Column('vote', Integer()),
             Column('updated_at', DateTime()),
         ).create()
