@@ -28,71 +28,62 @@ class Exporter:
         self.create_indexes()
         print >>sys.stderr, "Finished, total run time %d secs" % ((datetime.now() - self.started_at).seconds,)
 
-    def export_users(self):
-        max_id = self.max_thing_id(Account)
+    def export_thing(self, thing_class, table, row_extract):
         processed = 0
-        print >>sys.stderr, "%d users to process" % max_id
-        for account_id in xrange(max_id):
+        max_id = self.max_thing_id(thing_class)
+        print >>sys.stderr, "%d %s to process" % (max_id, table.name)
+        for thing_id in xrange(max_id):
             try:
-                account = Account._byID(account_id, data=True)
+                thing = thing_class._byID(thing_id, data=True)
             except NotFound:
                 continue
             
-            row = (
-                account._id,
-                self.utf8(account.name),
-                account.email if hasattr(account, 'email') else None,
-                account.link_karma,
-                account.comment_karma
-            )
-            self.users.insert(values=row).execute()
+            row = row_extract(thing)
+            table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
+            del thing
+            del row
+
+    def user_row_extract(self, account):
+        return (
+            account._id,
+            self.utf8(account.name),
+            account.email if hasattr(account, 'email') else None,
+            account.link_karma,
+            account.comment_karma
+        )
+
+    def export_users(self):
+        self.export_thing(Account, self.users, self.user_row_extract)
+
+    def article_row_extract(self, link):
+        sr = Subreddit._byID(link.sr_id, data=True)
+        row = (
+            link._id,
+            self.utf8(link.title),
+            self.utf8(link.article),
+            link.author_id,
+            link._date,
+            sr.name
+        )
+        del sr
+        return row
 
     def export_links(self):
-        processed = 0
-        max_id = self.max_thing_id(Link)
-        print >>sys.stderr, "%d articles to process" % max_id
-        for link_id in xrange(max_id):
-            try:
-                link = Link._byID(link_id, data=True)
-            except NotFound:
-                continue
-            
-            sr = Subreddit._byID(link.sr_id, data=True)
-            
-            row = (
-                link._id,
-                self.utf8(link.title),
-                self.utf8(link.article),
-                link.author_id,
-                link._date,
-                sr.name
-            )
-            self.articles.insert(values=row).execute()
-            processed += 1
-            self.update_progress(processed)
+        self.export_thing(Link, self.articles, self.article_row_extract)
+
+    def comment_row_extract(self, comment):
+        return (
+            comment._id,
+            comment.author_id,
+            comment.link_id,
+            comment.body,
+            comment._date
+        )
 
     def export_comments(self):
-        processed = 0
-        max_id = self.max_thing_id(Comment)
-        print >>sys.stderr, "%d comments to process" % max_id
-        for comment_id in xrange(max_id):
-            try:
-                comment = Comment._byID(comment_id, data=True)
-            except NotFound:
-                continue
-            
-            row = (
-                comment._id,
-                comment.author_id,
-                comment.link_id,
-                comment.body,
-                comment._date
-            )
-            self.comments.insert(values=row).execute()
-            processed += 1
-            self.update_progress(processed)
+        self.export_thing(Comment, self.comments, self.comment_row_extract)
 
     def export_votes(self):
         self.export_rel_votes(Link, self.article_votes)
@@ -120,6 +111,8 @@ class Exporter:
             table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
+            del vote
+            del row
 
     def max_rel_type_id(self, rel_thing):
         thing_type = tdb.rel_types_id[rel_thing._type_id]
