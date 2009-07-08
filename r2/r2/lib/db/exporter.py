@@ -5,8 +5,10 @@ from datetime import datetime
 from r2.lib.db import tdb_sql as tdb
 from r2.lib.db.thing import NotFound, Relation
 from r2.models import Link, Comment, Account, Vote, Subreddit
+from r2.lib.cache import Memcache, SelfEmptyingCache, CacheChain
 
 from sqlalchemy import *
+import pylons
 
 class Exporter:
     
@@ -18,6 +20,7 @@ class Exporter:
             os.unlink(output_db)
         self.db = create_engine("sqlite:///%s" % output_db)
         self.init_db()
+        pylons.g.cache = CacheChain((SelfEmptyingCache(max_size=1000), Memcache(pylons.g.memcaches)))
 
     def export_db(self):
         self.started_at = datetime.now()
@@ -42,8 +45,6 @@ class Exporter:
             table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
-            del thing
-            del row
 
     def user_row_extract(self, account):
         return (
@@ -67,7 +68,6 @@ class Exporter:
             link._date,
             sr.name
         )
-        del sr
         return row
 
     def export_links(self):
@@ -111,8 +111,6 @@ class Exporter:
             table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
-            del vote
-            del row
 
     def max_rel_type_id(self, rel_thing):
         thing_type = tdb.rel_types_id[rel_thing._type_id]
@@ -216,5 +214,5 @@ class Exporter:
 
     def update_progress(self, done):
         """print a progress message"""
-        if done % 50 == 0:
+        if done % 100 == 0:
             print >>sys.stderr, "  %d processed, run time %d secs" % (done, (datetime.now() - self.started_at).seconds)
