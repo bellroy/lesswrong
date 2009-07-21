@@ -639,7 +639,7 @@ class CommentsController(ListingController):
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
-                           sort = desc('_date'))
+                           sort = desc('_date'), data = True)
         if not c.user_is_admin:
             q._filter(Comment.c._spam == False)
 
