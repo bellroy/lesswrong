@@ -142,6 +142,9 @@ class Reddit(Wrapped):
         ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors')))
 
+        if g.site_meter_codename:
+            ps.append(SiteMeter(g.site_meter_codename))
+
         return ps
 
     def render(self, *a, **kw):
@@ -1304,4 +1307,9 @@ class AboutBox(Wrapped): pass
 class FeedBox(Wrapped):
     def __init__(self, feed_url, *a, **kw):
         self.feed_url = feed_url
+        Wrapped.__init__(self, *a, **kw)
+
+class SiteMeter(Wrapped):
+    def __init__(self, codename, *a, **kw):
+        self.codename = codename
         Wrapped.__init__(self, *a, **kw)
