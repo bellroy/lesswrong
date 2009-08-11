@@ -948,10 +948,12 @@ class ApiController(RedditController):
 
     def GET_side_posts(self, *a, **kw):
         """Return HTML snippet of the recent posts for the side bar."""
-        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age, self.TWELVE_HOURS)
+        # Server side cache is also invalidated when new article is posted
+        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age)
 
     def GET_side_comments(self, *a, **kw):
         """Return HTML snippet of the recent comments for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
         return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
 
     def GET_side_tags(self, *a, **kw):
