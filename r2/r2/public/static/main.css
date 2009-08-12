@@ -66,13 +66,21 @@ ol, ul {
 	padding: 0;
 }
 a {
-	color: #8a8a8b;
+	color: #6a8a6b;
 	text-decoration: underline;
 }
-a:hover {
+a:visited {
+	color: #8a8a8b;
+}
+h2 a:visited:hover, a:hover, div.tools a:hover {
 	color: #3d3d3e;
 }
-
+h2 a:visited {
+  color: #5a5a5b;
+}
+div.tools a {
+	color: #8a8a8b;
+}
 
 /* Forms
 -------------------------------------------------------------------------------------- */
