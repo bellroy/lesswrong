@@ -104,7 +104,7 @@ class Exporter:
             row = (
                 vote._id,
                 vote._thing1_id, # Account
-                vote._thing1_id, # Link/Comment (votes_on_cls)
+                vote._thing2_id, # Link/Comment (votes_on_cls)
                 vote._name, # Vote value
                 vote._date
             )
