@@ -1,0 +1,37 @@
+<%
+   from r2.lib.template_helpers import static, add_sr, join_urls
+   container_id = thing.feed_url
+## title_id = "%s_title" % container_id
+%>
+<div class="sidebox">
+  <h2 id="recent-wiki-edits">Recent Wiki Edits</h2>
+  <ul id="${container_id}"></ul>
+  <script type="text/javascript">
+    function initialize() {
+      var feed = new google.feeds.Feed("${unsafe(thing.feed_url)}");
+      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      feed.setNumEntries(5);
+      feed.load(function(result) {
+        if (!result.error) {
+          var container = document.getElementById("${unsafe(container_id)}");
+          for (var i = 0; i < result.feed.entries.length; i++) {
+            var entry = result.feed.entries[i];
+            var li = document.createElement("li");
+            var link = document.createElement("a");
+            var href = entry.link.replace(/&diff=\d+&oldid=prev$/, "");
+            link.setAttribute("href", href);
+            link.appendChild(document.createTextNode(entry.title));
+            li.appendChild(link);
+            var author_link = document.createElement('a');
+            author_link.setAttribute("href", "http://wiki.lesswrong.com/wiki/User:" + entry.author.replace(/ /g, "_"));
+            author_link.appendChild(document.createTextNode(entry.author));
+            li.appendChild(document.createTextNode(" by "));
+            li.appendChild(author_link);
+            container.appendChild(li);
+          }
+        }
+      });
+    }
+    google.setOnLoadCallback(initialize);
+  </script>
+</div>

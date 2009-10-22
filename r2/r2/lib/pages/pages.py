@@ -136,6 +136,9 @@ class Reddit(Wrapped):
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
+        if g.recent_edits_feed:
+            ps.append(RecentWikiEditsBox(g.recent_edits_feed))
+
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
@@ -1305,6 +1308,11 @@ class FeedLinkBar(Wrapped): pass
 class AboutBox(Wrapped): pass
 
 class FeedBox(Wrapped):
+    def __init__(self, feed_url, *a, **kw):
+        self.feed_url = feed_url
+        Wrapped.__init__(self, *a, **kw)
+
+class RecentWikiEditsBox(Wrapped):
     def __init__(self, feed_url, *a, **kw):
         self.feed_url = feed_url
         Wrapped.__init__(self, *a, **kw)
