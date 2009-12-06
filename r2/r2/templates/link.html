@@ -58,6 +58,15 @@
     ${unsafe(self.author(friend = thing.friend))}
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
+##{_RL
+<!--
+<div>
+  <i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
+<br/>
+<br/>
+</div>
+-->
+##}_RL
   <div id="entry_${fullname}" class="content clear">
 ## The div below is a hack to get the space compressor to leave whitespace in articles alone
     <div class="md">
@@ -95,6 +104,483 @@
     </div>
     ## Each link has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
+
+##{_RL
+
+<!-- - ->
+<font size=1>
+<br/>
+<a class="previouslink" href="${thing.url}#comments">&larr;</a>
+&nbsp;
+<select name="listby">
+<option value="Promoted">Promoted</option>
+<option value="New">New</option>
+<option value="Top">Top</option>
+</select>
+&nbsp;
+<a class="previouslink" href="${thing.url}#comments">&rarr;</a>
+<br/>
+<a class="previouslink" href="${thing.url}#comments">&larr;</a>
+&nbsp;
+by&nbsp;<a href="http://lesswrong.com/user/Eliezer_Yudkowsky/">Eliezer Yudkowsky</a>
+&nbsp;
+<a class="previouslink" href="${thing.url}#comments">&rarr;</a>
+<br/>
+<a class="previouslink" href="${thing.url}#comments">&larr;</a>
+&nbsp;
+in sequence '<a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a>'
+&nbsp;
+<a class="previouslink" href="${thing.url}#comments">&rarr;</a>
+</font>
+<!- - -->
+
+<!-- - ->
+
+<table cellpadding=0 height=5>
+<tr>
+</tr>
+</table>
+<table rowspacing=0 cellpadding=0 border=0>
+  <tr>
+    <td align=right>
+      previous article: &nbsp;
+    </td>
+    <td>
+<a class="previouslink" href="${thing.url}#comments">by sequence</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by author</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by date</a>
+    </td>
+    <td rowspan=2>
+in&nbsp;
+<select name="listby">
+<option value="Promoted">Promoted</option>
+<option value="New">New</option>
+<option value="Top">Top</option>
+</select>
+    </td>
+  </tr>
+  <tr align=right>
+    <td>
+      next article: &nbsp;
+    </td>
+    <td>
+<a class="previouslink" href="${thing.url}#comments">by sequence</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by author</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by date</a>
+    </td>
+  </tr>
+</table>
+
+
+
+
+  </tr>
+  <tr>
+    <td align=right>
+      previous article: &nbsp;
+    </td>
+    <td>
+<a class="previouslink" href="${thing.url}#comments">by sequence</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by author</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by date</a>
+    </td>
+    <td rowspan=2>
+in&nbsp;
+<select name="listby">
+<option value="Promoted">Promoted</option>
+<option value="New">New</option>
+<option value="Top">Top</option>
+</select>
+    </td>
+  </tr>
+  <tr align=right>
+    <td>
+      next article: &nbsp;
+    </td>
+    <td>
+<a class="previouslink" href="${thing.url}#comments">by sequence</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by author</a>
+&nbsp;|&nbsp;
+<a class="previouslink" href="${thing.url}#comments">by date</a>
+    </td>
+  </tr>
+
+
+
+  <i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
+
+
+<!- - -->
+
+<!-- -->
+
+
+
+
+<font size=1>
+
+<br/>
+
+
+
+
+
+
+
+<div class="articlenavigation">
+
+<table cellpadding=0 height=5>
+<tr>
+</tr>
+</table>
+
+<%!
+autoexpand = 0
+%>
+
+
+<%!
+##f = open('/home/robert/Desktop/LW/workfile', 'w')
+
+##import urllib2
+##for line in urllib2.urlopen('http://wiki.lesswrong.com/wiki.lesswrong.xml'):
+##for line in open('/home/robert/Desktop/LW/wiki.lesswrong.xml', 'r'):
+##for line in open('../../wiki.lesswrong.xml', 'r'):
+##for line in urllib2.urlopen('http://acceleratingfuture.com/peer/LWcode/wiki.lesswrong.xml'):
+##    if '<title>' in line or '</title>' in line:
+##        f.write(line)
+
+##f.close()
+%>
+
+
+
+
+%if autoexpand == 1:
+  <h1>
+    <a href="javascript:void(0)" class="dsphead" onclick="dsp(this)">
+      <span class="dspchar">(-)</span>&nbsp; Article Navigation
+    </a>
+  </h1>
+  <div class="dspcontshown">
+%else:
+  <h1>
+    <a href="javascript:void(0)" class="dsphead" onclick="dsp(this)">
+      <span class="dspchar">(+)</span>&nbsp; Article Navigation
+    </a>
+  </h1>
+  <div class="dspcont">
+%endif
+
+
+
+
+<table rowspacing=0 cellpadding=0 border=0>
+  <tr>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">prev</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      |
+      &nbsp;
+    </td>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">next</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      post
+      &nbsp;
+    </td>
+    <td align=right>
+      22
+    </td>
+    <td align=right>
+      &nbsp;
+      of
+      &nbsp;
+    </td>
+    <td align=right>
+      999
+    </td>
+    <td align=left>
+      &nbsp;
+      by&nbsp;
+      ${unsafe(self.author(friend = thing.friend))}
+      &nbsp;
+    </td>
+  </tr>
+
+
+<%!
+
+url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
+##url = thing.url
+
+f = open('/home/robert/Desktop/LW/workfile', 'w')
+
+f.write("testing\n")
+
+f.write(url + "\n")
+
+#these variables store information about the wikipage currently being scanned
+foundLinkToThisArticle = 0
+foundSequenceCategoryLink = 0
+articleLinksFoundOnthisWikiPage = 0
+indexOfThisArticle = 0
+previousArticleLink = ""
+theLastArticleLinkWeFoundWasTheCurrentArticle = 0
+currentLinkForPreviousButton = ""
+currentLinkForNextButton = ""
+title = ""
+
+#these variables are the final result of the scan
+thisArticleIsInASequence = 0
+finalIndexForThisArticle = 0
+finalArticleCount = 0
+finalLinkForPreviousButton = ""
+finalLinkForNextButton = ""
+finalSequenceWikipageTitle = ""
+
+##import urllib2
+##for line in urllib2.urlopen('http://wiki.lesswrong.com/wiki.lesswrong.xml'):
+##for line in open('/home/robert/Desktop/LW/wiki.lesswrong.xml', 'r'):
+##for line in urllib2.urlopen('http://acceleratingfuture.com/peer/LWcode/wiki.lesswrong.xml'):
+for line in open('../../wiki.lesswrong.xml', 'r'):
+    if '<title>' in line or '</title>' in line:
+        #first finish processing the previous wiki page
+        if foundLinkToThisArticle != 0 and foundSequenceCategoryLink != 0:
+            thisArticleIsInASequence = 1
+            finalIndexForThisArticle = indexOfThisArticle
+            finalArticleCount = articleLinksFoundOnthisWikiPage
+            finalLinkForPreviousButton = currentLinkForPreviousButton
+            finalLinkForNextButton = currentLinkForNextButton
+            finalSequenceWikipageTitle = title
+            finalSequenceWikipageTitleWithUnderscores = finalSequenceWikipageTitle.replace(' ', '_');
+
+        #now get the title of the next wiki page
+        titleStartPos = line.find('<title>')
+        titleEndPos = line.find('</title>')
+        title = line[titleStartPos+len('<title>'):titleEndPos]
+
+        #now reset the counter variables
+        foundLinkToThisArticle = 0
+        foundSequenceCategoryLink = 0
+        articleLinksFoundOnthisWikiPage = 0
+        indexOfThisArticle = 0;
+        previousArticleLink = ""
+        theLastArticleLinkWeFoundWasTheCurrentArticle = 0
+        #f.write(title + "\n")
+
+    if '[[Category:Sequences]]' in line:
+        foundSequenceCategoryLink = 1
+
+    if url in line:
+        articleLinksFoundOnthisWikiPage = articleLinksFoundOnthisWikiPage + 1;
+        foundLinkToThisArticle = 1
+        theLastArticleLinkWeFoundWasTheCurrentArticle = 1
+        currentLinkForPreviousButton = previousArticleLink
+        indexOfThisArticle = articleLinksFoundOnthisWikiPage
+        f.write(title + "\n")
+
+    if 'http://lesswrong.com/lw/' in line:
+        articleLinksFoundOnthisWikiPage = articleLinksFoundOnthisWikiPage + 1
+        linkStartPos = line.find('[http://lesswrong')
+        linkEndPos = line.find(' ', linkStartPos)
+        linkWeAreLookingAtNow = line[linkStartPos+len('['):linkEndPos]
+        if theLastArticleLinkWeFoundWasTheCurrentArticle != 0:
+            currentLinkForNextButton = linkWeAreLookingAtNow
+        previousArticleLink = linkWeAreLookingAtNow
+        theLastArticleLinkWeFoundWasTheCurrentArticle = 0
+        f.write(linkWeAreLookingAtNow + "\n")
+
+
+#bug: the above code won't process the last wikipage in the XML file, because the processing for each page happens when the next title is detected
+#I'm just leaving this bug in for now until the rest of the code is actually working
+
+f.close()
+
+
+%>
+
+%if thisArticleIsInASequence == 1:
+
+  <tr>
+    <td align=right>
+      <a class="previouslink" href="${finalLinkForPreviousButton}">prev</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      |
+      &nbsp;
+    </td>
+    <td align=right>
+      <a class="previouslink" href="${finalLinkForNextButton}">next</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      post
+      &nbsp;
+    </td>
+    <td align=right>
+      ${finalIndexForThisArticle}
+    </td>
+    <td align=right>
+      &nbsp;
+      of
+      &nbsp;
+    </td>
+    <td align=right>
+      ${finalArticleCount}
+    </td>
+    <td align=left>
+      &nbsp;
+      in '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence
+      &nbsp;
+    </td>
+  </tr>
+
+%endif
+
+
+  <tr>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">prev</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      |
+      &nbsp;
+    </td>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">next</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      post
+      &nbsp;
+    </td>
+    <td align=right>
+      44
+    </td>
+    <td align=right>
+      &nbsp;
+      of
+      &nbsp;
+    </td>
+    <td align=right>
+      9999
+    </td>
+    <td align=left>
+      &nbsp;
+      in&nbsp;<a href="http://lesswrong.com/">Promoted Posts</a>
+      &nbsp;
+    </td>
+  </tr>
+
+  <tr>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">prev</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      |
+      &nbsp;
+    </td>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">next</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      post
+      &nbsp;
+    </td>
+    <td align=right>
+      55
+    </td>
+    <td align=right>
+      &nbsp;
+      of
+      &nbsp;
+    </td>
+    <td align=right>
+      9999
+    </td>
+    <td align=left>
+      &nbsp;
+      in&nbsp;<a href="http://lesswrong.com/new/">All Posts</a>
+      &nbsp;
+    </td>
+  </tr>
+
+  <tr>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">prev</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      |
+      &nbsp;
+    </td>
+    <td align=right>
+      <a class="previouslink" href="${thing.url}#comments">next</a>
+    </td>
+    <td align=right>
+      &nbsp;
+      post
+      &nbsp;
+    </td>
+    <td align=right>
+      66
+    </td>
+    <td align=right>
+      &nbsp;
+      of
+      &nbsp;
+    </td>
+    <td align=right>
+      9999
+    </td>
+    <td align=left>
+      &nbsp;
+      in&nbsp;<a href="http://lesswrong.com/top/">Top Posts</a>
+      &nbsp;
+    </td>
+  </tr>
+
+
+
+
+
+</table>
+
+
+  </div>
+## class="dspcont"
+
+
+
+</div>
+## class="articlenavigation"
+
+</font>
+
+
+
+
+<!-- -->
+
+##}_RL
+
+
   </div><!-- .tools -->
 </div><!-- .post -->
 </%def>

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -125,6 +126,11 @@ class Reddit(Wrapped):
 
         if self.searchbox:
             ps.append(GoogleSearchForm())
+
+##{_RL
+        if self.searchbox:
+            ps.append(WikiPageList())
+##}_RL
 
         #don't show the subreddit info bar on cnames
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
@@ -901,6 +907,13 @@ class GoogleSearchForm(Wrapped):
     """Shows Google Custom Search box"""
     def __init__(self):
         Wrapped.__init__(self)
+
+##{_RL
+class WikiPageList(Wrapped):
+    """Shows Wiki Page List box"""
+    def __init__(self):
+        Wrapped.__init__(self)
+##}_RL
 
 class GoogleSearchResultsFrame(Wrapped):
     """Shows Google Custom Search box"""

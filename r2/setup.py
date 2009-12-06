@@ -93,7 +93,7 @@ setup(
                       "BeautifulSoup==3.0.7a",
                       "cssutils==0.9.5.1",
                       "chardet==1.0.1",
-                      "psycopg2==2.0.8",
+                      "psycopg2",
                       "py_interface==0.93",
                       "lxml==2.2",
                       "PyYAML==3.08",
