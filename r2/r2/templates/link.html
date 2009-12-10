@@ -149,23 +149,95 @@
   f.close()
 
 
+  PrevLinkInPromoted = None
+  PrevLinkInAll      = None
+  PrevLinkInTop      = None
+  PrevLinkByAuthor   = None
+
+  NextLinkInPromoted = None
+  NextLinkInAll      = None
+  NextLinkInTop      = None
+  NextLinkByAuthor   = None
+
+  CurrentIndexInPromoted = 0
+  CurrentIndexInAll      = 0
+  CurrentIndexInTop      = 0
+  CurrentIndexByAuthor   = 0
+
+  TotalPostsInPromoted   = 0
+  TotalPostsInAll        = 0
+  TotalPostsInTop        = 0
+  TotalPostsByAuthor     = 0
 
   ##q = Link._query(Link.c._id < l._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
   ##q = Link._query(Link.c._id < thing._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
-  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
 
   link = None
+
+  #get the previous post by author, sorted by date
+  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = desc('_date'), data = True)
+
   results = list(q)
   if results:
     link = results[0]
 
-  linkurl = "http://www.google.com"
+  if link:
+    PrevLinkInAll = link.url
+
+
+  #get the next post by author, sorted by date
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = desc('_date'), data = True)
+
+  results = list(q)
+  if results:
+    link = results[0]
 
   if link:
-    linkurl = link.url
+    NextLinkInAll = link.url
 
-  linkurl = thing.author_id
 
+  #get the previous post in Promoted, sorted by date
+  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
+
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    PrevLinkInAll = link.url
+
+
+  #get the next post in Promoted, sorted by date
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
+
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    NextLinkInAll = link.url
+
+
+  #get the previous post in All, sorted by date
+  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
+
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    PrevLinkInAll = link.url
+
+
+  #get the next post in All, sorted by date
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
+
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    NextLinkInAll = link.url
 
 
 ##}_RL
@@ -236,8 +308,6 @@
 <br/>
 <br/>
 
-<a href="${linkurl}">Next</a>
-
 
 
 
@@ -269,9 +339,9 @@ autoexpand = 1
 
 
 <li class="clear">
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post 22 of 999</span>
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${PrevLinkByAuthor}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span>
+  <a class="nav" href="${NextLinkByAuthor}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
   <span class="type">by ${unsafe(self.author(friend = thing.friend))}</span>
 </li>
 
@@ -287,21 +357,21 @@ autoexpand = 1
 %endif
 
 <li class="clear">
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post 44 of 9999</span>
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${PrevLinkInPromoted}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span>
+  <a class="nav" href="${NextLinkInPromoted}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
   <span class="type">in <a href="http://lesswrong.com/">Promoted Posts</a></span>
 </li>
 <li class="clear">
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post 555 of 9999</span>
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${PrevLinkInAll}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span>
+  <a class="nav" href="${NextLinkInAll}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
   <span class="type">in <a href="http://lesswrong.com/new/">All Posts</a></span>
 </li>
 <li class="clear">
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post 7777 of 9999</span>
-  <a class="nav" href="http://lesswrong.local:8080/lw/1/testing/#comments"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${PrevLinkInTop}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
+  <a class="nav" href="${NextLinkInTop}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
   <span class="type">in <a href="http://lesswrong.com/top/">Top Posts</a></span>
 </li>
 
