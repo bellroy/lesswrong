@@ -531,6 +531,10 @@ div.articlenavigation ul li a.nav img {
 	display: block;
 	float: left;
 }
+div.articlenavigation ul li img {
+	display: block;
+	float: left;
+}
 div.articlenavigation ul li span.place {
 	float: left;
 	display: block;

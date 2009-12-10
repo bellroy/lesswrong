@@ -25,7 +25,7 @@
    ##{_RL
 
    from r2.models import Link
-   from r2.lib.db.operators import desc
+   from r2.lib.db.operators import desc, asc
 
    ##}_RL
 
@@ -172,33 +172,34 @@
   ##q = Link._query(Link.c._id < l._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
   ##q = Link._query(Link.c._id < thing._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
 
-  link = None
-
   #get the previous post by author, sorted by date
-  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = desc('_date'), data = True)
+  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==thing.author_id, limit = 1, sort = desc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
 
   if link:
-    PrevLinkInAll = link.url
+    PrevLinkByAuthor = link.url
 
 
   #get the next post by author, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = desc('_date'), data = True)
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==thing.author_id, limit = 1, sort = asc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
 
   if link:
-    NextLinkInAll = link.url
+    NextLinkByAuthor = link.url
 
 
   #get the previous post in Promoted, sorted by date
   q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
@@ -208,8 +209,9 @@
 
 
   #get the next post in Promoted, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = asc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
@@ -221,6 +223,7 @@
   #get the previous post in All, sorted by date
   q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
@@ -230,14 +233,39 @@
 
 
   #get the next post in All, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = asc('_date'), data = True)
 
+  link = None
   results = list(q)
   if results:
     link = results[0]
 
   if link:
     NextLinkInAll = link.url
+
+
+  #get the previous post in Top, sorted by date
+  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.top_link == True, limit = 1, sort = desc('_date'), data = True)
+
+  link = None
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    PrevLinkInTop = link.url
+
+
+  #get the next post in Top, sorted by date
+  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.top_link == True, limit = 1, sort = asc('_date'), data = True)
+
+  link = None
+  results = list(q)
+  if results:
+    link = results[0]
+
+  if link:
+    NextLinkInTop = link.url
 
 
 ##}_RL
@@ -339,41 +367,91 @@ autoexpand = 1
 
 
 <li class="clear">
+%if PrevLinkByAuthor:
   <a class="nav" href="${PrevLinkByAuthor}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span> -->
+  <span class="place">by ${unsafe(self.author(friend = thing.friend))}</span>
+%if NextLinkByAuthor:
   <a class="nav" href="${NextLinkByAuthor}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-  <span class="type">by ${unsafe(self.author(friend = thing.friend))}</span>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
 </li>
 
 %if thisArticleIsInASequence == 1:
 
 <li class="clear">
+%if finalLinkForPreviousButton:
   <a class="nav" href="${finalLinkForPreviousButton}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span> -->
+  <span class="place">in '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
+%if finalLinkForNextButton:
   <a class="nav" href="${finalLinkForNextButton}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-  <span class="type">in '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
 </li>
 
 %endif
 
+%if PrevLinkInPromoted or NextLinkInPromoted:
 <li class="clear">
+%if PrevLinkInPromoted:
   <a class="nav" href="${PrevLinkInPromoted}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span> -->
+  <span class="place">in <a href="http://lesswrong.com/">Promoted Posts</a></span>
+%if NextLinkInPromoted:
   <a class="nav" href="${NextLinkInPromoted}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-  <span class="type">in <a href="http://lesswrong.com/">Promoted Posts</a></span>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
 </li>
+%endif
+
+
+%if PrevLinkInAll or NextLinkInAll:
 <li class="clear">
+%if PrevLinkInAll:
   <a class="nav" href="${PrevLinkInAll}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span> -->
+  <span class="place">in <a href="http://lesswrong.com/new/">All Posts</a></span>
+%if NextLinkInAll:
   <a class="nav" href="${NextLinkInAll}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-  <span class="type">in <a href="http://lesswrong.com/new/">All Posts</a></span>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
 </li>
+%endif
+
+
+%if PrevLinkInTop or NextLinkInTop:
 <li class="clear">
+%if PrevLinkInTop:
   <a class="nav" href="${PrevLinkInTop}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-  <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span> -->
+  <span class="place">in <a href="http://lesswrong.com/top/">Top Posts</a></span>
+%if NextLinkInTop:
   <a class="nav" href="${NextLinkInTop}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-  <span class="type">in <a href="http://lesswrong.com/top/">Top Posts</a></span>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
 </li>
+%endif
 
 </ul>
 </div><!-- class="dspcont" -->
