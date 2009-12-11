@@ -351,7 +351,7 @@ class TagController(ListingController):
         q.prewrap_fn = lambda x: x._thing1
         return q
     
-    @validate(tag = VTagByName('tag'), sort = VMenu("sort", TagSortMenu))
+    @validate(tag = VTagByName('tag'), sort = VMenu('where', TagSortMenu))
     def GET_listing(self, tag, sort, **env):
         self._tag = tag
         self.sort = sort
