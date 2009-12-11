@@ -24,7 +24,7 @@ from validator import *
 
 from r2.models import *
 from r2.lib.pages import *
-from r2.lib.menus import NewMenu, TimeMenu, SortMenu, RecSortMenu
+from r2.lib.menus import NewMenu, TimeMenu, SortMenu, RecSortMenu, TagSortMenu
 from r2.lib.rising import get_rising
 from r2.lib.wrapped import Wrapped
 from r2.lib.normalized_hot import normalized_hot, get_hot
@@ -332,25 +332,29 @@ class RecentpostsController(NewController):
             env['limit'] = 250
         return NewController.GET_listing(self, **env)
 
-
 class TagController(ListingController):
     where = 'tag'
     title_text = _('Articles tagged')
+
+    @property
+    def menus(self):
+        return [TagSortMenu(default = self.sort)]
 
     def query(self):
         q = LinkTag._query(LinkTag.c._thing2_id == self._tag._id,
                            LinkTag.c._name == 'tag',
                            LinkTag.c._t1_deleted == False,
-                           sort = asc('_t1_date'),
+                           sort = TagSortMenu.operator(self.sort),
                            eager_load = True,
                            thing_data = not g.use_query_cache
                       )
         q.prewrap_fn = lambda x: x._thing1
         return q
     
-    @validate(tag = VTagByName('tag'))
-    def GET_listing(self, tag, **env):
+    @validate(tag = VTagByName('tag'), sort = VMenu("sort", TagSortMenu))
+    def GET_listing(self, tag, sort, **env):
         self._tag = tag
+        self.sort = sort
         TagController.title_text = _('Articles tagged ' + tag.name)
         return ListingController.GET_listing(self, **env)
 

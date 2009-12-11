@@ -513,6 +513,25 @@ class SubredditMenu(NavMenu):
         """Always return False so the title is always displayed"""
         return None
 
+class TagSortMenu(SimpleGetMenu):
+    """Menu for listings by tag"""
+    get_param = 'sort'
+    default   = 'old'
+    options   = ('old', 'new', 'top')
+
+    def __init__(self, **kw):
+        kw['title'] = _("Sort By") + ':'
+        SimpleGetMenu.__init__(self, **kw)
+
+    @classmethod
+    def operator(self, sort):
+        if sort == 'new':
+            return operators.desc('_t1_date')
+        elif sort == 'old':
+            return operators.asc('_t1_date')
+        elif sort == 'top':
+            return operators.desc('_t1_score')
+
 # --------------------
 # TODO: move to admin area
 class AdminReporterMenu(SortMenu):
