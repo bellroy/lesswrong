@@ -24,7 +24,7 @@
 
    ##{_RL
 
-   from r2.models import Link
+   from r2.models import Link, LinkTag
    from r2.lib.db.operators import desc, asc
 
    ##}_RL
@@ -63,11 +63,11 @@
   url=thing.url
 
 
-  f = open('/home/robert/Desktop/LW/workfile', 'w')
+  #f = open('/home/robert/Desktop/LW/workfile', 'w')
 
-  f.write("testing\n")
+  #f.write("testing\n")
 
-  f.write(url + "\n")
+  #f.write(url + "\n")
 
   #these variables store information about the wikipage currently being scanned
   foundLinkToThisArticle = 0
@@ -129,7 +129,7 @@
       theLastArticleLinkWeFoundWasTheCurrentArticle = 1
       currentLinkForPreviousButton = previousArticleLink
       indexOfThisArticle = articleLinksFoundOnthisWikiPage
-      f.write(title + "\n")
+      #f.write(title + "\n")
 
     if 'http://lesswrong.com/lw/' in line:
       articleLinksFoundOnthisWikiPage = articleLinksFoundOnthisWikiPage + 1
@@ -140,34 +140,45 @@
         currentLinkForNextButton = linkWeAreLookingAtNow
       previousArticleLink = linkWeAreLookingAtNow
       theLastArticleLinkWeFoundWasTheCurrentArticle = 0
-      f.write(linkWeAreLookingAtNow + "\n")
+      #f.write(linkWeAreLookingAtNow + "\n")
 
 
   #bug: the above code won't process the last wikipage in the XML file, because the processing for each page happens when the next title is detected
   #I'm just leaving this bug in for now until the rest of the code is actually working
 
-  f.close()
+  #f.close()
 
 
   PrevLinkInPromoted = None
   PrevLinkInAll      = None
   PrevLinkInTop      = None
   PrevLinkByAuthor   = None
+  PrevLinkByTag      = [] # this is bad code!  the separate arrays should be combined into an object!
 
   NextLinkInPromoted = None
   NextLinkInAll      = None
   NextLinkInTop      = None
   NextLinkByAuthor   = None
+  NextLinkByTag      = []
 
   CurrentIndexInPromoted = 0
   CurrentIndexInAll      = 0
   CurrentIndexInTop      = 0
   CurrentIndexByAuthor   = 0
+  CurrentIndexByTag      = []
 
   TotalPostsInPromoted   = 0
   TotalPostsInAll        = 0
   TotalPostsInTop        = 0
   TotalPostsByAuthor     = 0
+  TotalPostsByTag        = []
+
+  # this is a really stupid and dangerous hack.
+  # PrevLinkByTag, NextLinkByTag, and TagNamesByTag should be combined into an object.
+  # then having a separate array to store the valid indexes would be unnecessary
+  TagNamesByTag          = []
+  IndexesByTag           = []
+  nextIndexByTag         = 0
 
   ##q = Link._query(Link.c._id < l._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
   ##q = Link._query(Link.c._id < thing._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
@@ -267,6 +278,65 @@
   if link:
     NextLinkInTop = link.url
 
+  tags = thing.get_tags()
+
+  #debugValue = None
+
+  for tag in tags:
+    #debugValue = tag.name
+
+    #get the previous post by tag, sorted by date
+    q = LinkTag._query(LinkTag.c._thing2_id == tag._id,
+                       LinkTag.c._name == 'tag',
+                       LinkTag.c._t1_deleted == False,
+                       LinkTag.c._t1_spam == False,
+                       LinkTag.c._t1_date < thing._date,
+                       limit = 1,
+                       sort = desc('_t1_date'),
+                       eager_load = True,
+                       thing_data = True)
+
+    link = None
+    results = list(q)
+
+    if results:
+      link = results[0]
+
+    if link:
+      PrevLinkByTag.append(link._thing1)
+    else:
+      PrevLinkByTag.append(None)
+
+
+    #get the next post by tag, sorted by date
+    q = LinkTag._query(LinkTag.c._thing2_id == tag._id,
+                       LinkTag.c._name == 'tag',
+                       LinkTag.c._t1_deleted == False,
+                       LinkTag.c._t1_spam == False,
+                       LinkTag.c._t1_date > thing._date,
+                       limit = 1,
+                       sort = asc('_t1_date'),
+                       eager_load = True,
+                       thing_data = True)
+
+    link = None
+    results = list(q)
+
+    if results:
+      link = results[0]
+
+    if link:
+      NextLinkByTag.append(link._thing1)
+    else:
+      NextLinkByTag.append(None)
+
+    TagNamesByTag.append(tag.name)
+
+    IndexesByTag.append(nextIndexByTag);
+
+    nextIndexByTag = nextIndexByTag + 1
+
+
 
 ##}_RL
 
@@ -342,7 +412,7 @@
 <div class="articlenavigation">
 
 <%!
-autoexpand = 1
+autoexpand = 0
 %>
 
 
@@ -360,7 +430,7 @@ autoexpand = 1
       <span class="dspchar">(+)</span>&nbsp; Article Navigation
     </a>
   </h4>
-  <div style="display: block;" class="dspcont">
+  <div style="display: none;" class="dspcont">
 %endif
 
 <ul class="clear">
@@ -373,12 +443,14 @@ autoexpand = 1
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 <!--   <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span> -->
-  <span class="place">by ${unsafe(self.author(friend = thing.friend))}</span>
+  <span class="place">by author</span>
 %if NextLinkByAuthor:
   <a class="nav" href="${NextLinkByAuthor}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
+<!--  <span class="type">by &nbsp; ${unsafe(self.author(friend = thing.friend))}</span> -->
+  <span class="type">${unsafe(self.author(friend = thing.friend))}</span>
 </li>
 
 %if thisArticleIsInASequence == 1:
@@ -390,12 +462,14 @@ autoexpand = 1
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 <!--   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span> -->
-  <span class="place">in '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
+  <span class="place">in sequence</span>
 %if finalLinkForNextButton:
   <a class="nav" href="${finalLinkForNextButton}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
+<!--  <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span> -->
+  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a></span>
 </li>
 
 %endif
@@ -408,10 +482,11 @@ autoexpand = 1
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 <!--   <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span> -->
-  <span class="place">in <a href="http://lesswrong.com/">Promoted Posts</a></span>
+  <span class="place"><a href="http://lesswrong.com/">Promoted Posts</a></span>
 %if NextLinkInPromoted:
   <a class="nav" href="${NextLinkInPromoted}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
+<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/">Promoted Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
 </li>
@@ -426,10 +501,11 @@ autoexpand = 1
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 <!--   <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span> -->
-  <span class="place">in <a href="http://lesswrong.com/new/">All Posts</a></span>
+  <span class="place"><a href="http://lesswrong.com/new/">All Posts</a></span>
 %if NextLinkInAll:
   <a class="nav" href="${NextLinkInAll}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
+<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/new/">All Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
 </li>
@@ -444,14 +520,35 @@ autoexpand = 1
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 <!--   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span> -->
-  <span class="place">in <a href="http://lesswrong.com/top/">Top Posts</a></span>
+  <span class="place"><a href="http://lesswrong.com/top/">Top Posts</a></span>
 %if NextLinkInTop:
   <a class="nav" href="${NextLinkInTop}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
+<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/top/">Top Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
 </li>
 %endif
+
+
+%for index in IndexesByTag:
+<li class="clear">
+%if PrevLinkByTag[index]:
+  <a class="nav" href="${PrevLinkByTag[index]}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+<!--   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span> -->
+  <span class="place">by tag</span>
+%if NextLinkByTag[index]:
+  <a class="nav" href="${NextLinkByTag[index]}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
+<!--  <span class="type">by tag &nbsp; <a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span> -->
+  <span class="type"><a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span>
+</li>
+%endfor
 
 </ul>
 </div><!-- class="dspcont" -->
