@@ -1,4 +1,11 @@
+<%!
+##url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
+##url = thing.url
+url = thing.articleurl
+%>
+
 ##{_RL
+
 
 
 <%!
@@ -15,10 +22,7 @@
   <form action="http://wiki.lesswrong.com/" id="cse-wikipagelist-box" onsubmit="return true;">
     <div>
 
-<%!
-url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
-##url = thing.url
-%>
+##${thing.articleurl}
 
       LW Wiki pages that link here:
 

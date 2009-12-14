@@ -303,7 +303,7 @@
       link = results[0]
 
     if link:
-      PrevLinkByTag.append(link._thing1)
+      PrevLinkByTag.append(link._thing1.url)
     else:
       PrevLinkByTag.append(None)
 
@@ -326,7 +326,7 @@
       link = results[0]
 
     if link:
-      NextLinkByTag.append(link._thing1)
+      NextLinkByTag.append(link._thing1.url)
     else:
       NextLinkByTag.append(None)
 
