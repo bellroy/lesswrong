@@ -101,6 +101,11 @@
           </div>
         %endif
         <img src="${static('mini-landscape.gif')}" alt="" class="landscape" />
+
+        <script type="text/javascript">
+        Event.observe(window, 'load', function() { populate_side_bar('side-wikilinks', 'article_id=2') }, false);
+        </script>
+
       %endif
     </div>
     ## Each link has a hidden status span that is used to indicate voting errors.
@@ -111,6 +116,7 @@
 		</div>
   </div><!-- .tools -->
 </div><!-- .post -->
+
 </%def>
 
 <%def name="title()">

@@ -910,8 +910,11 @@ class GoogleSearchForm(Wrapped):
 ##{_RL
 class WikiPageList(Wrapped):
     """Shows Wiki Page List box"""
-    def __init__(self):
-        self.articleurl = "http://lesswrong.local:8080/lw/2/why_truth_and/"
+    def __init__(self, link):
+        if link:
+          self.articleurl = link.url
+        else:
+          self.articleurl = None
         Wrapped.__init__(self)
 ##}_RL
 
