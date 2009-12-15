@@ -4,8 +4,6 @@
 url = thing.articleurl
 %>
 
-##{_RL
-
 
 
 <%!
@@ -18,19 +16,13 @@ url = thing.articleurl
 
 
 
-<div id="side-search" class="sidebox">
-  <form action="http://wiki.lesswrong.com/" id="cse-wikipagelist-box" onsubmit="return true;">
+<div id="side-wikilinks" class="sidebox">
+  <form action="http://wiki.lesswrong.com/" id="cse-wikilinks-box" onsubmit="return true;">
     <div>
-
-##${thing.articleurl}
-
       LW Wiki pages that link here:
-
-<select name="title">
+      <select name="title">
 
 <%
-#f = open('/home/robert/Desktop/LW/workfile', 'w')
-
 titlesToAdd = []
 
 ##import urllib2
@@ -42,29 +34,18 @@ for line in open('../../wiki.lesswrong.xml', 'r'):
         titleStartPos = line.find('<title>')
         titleEndPos = line.find('</title>')
         title = line[titleStartPos+len('<title>'):titleEndPos]
-        #f.write(title + "\n")
     if url in line:
        if not 'User:' in title and not 'Less Wrong/' in title:
-            #f.write(title + "\n")
             titlesToAdd.append(title)
-
-#f.close()
 %>
 
 %for nextTitle in titlesToAdd:
-  <option value="${nextTitle}">${nextTitle}</option>
+        <option value="${nextTitle}">${nextTitle}</option>
 %endfor
 
 
-##<option value="Truth">Truth</option>
-##<option value="Rationality">Rationality</option>
-##<option value="Emotion">Emotion</option>
-##<option value="Litany of Tarski">Litany of Tarski</option>
-</select>
+      </select>
       <input type="submit" value="Go" />
     </div>
   </form>
-</div><!-- #side-wikipagelist -->
-
-
-##}_RL
+</div>

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -38,7 +39,7 @@ from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
-    RecentArticles, RecentComments, TagCloud, TopContributors
+    RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -945,6 +946,12 @@ class ApiController(RedditController):
         return c.response
 
     TWELVE_HOURS = 3600 * 12
+
+    def GET_side_wikilinks(self, *a, **kw):
+        """Return HTML snippet of the Wiki Pages That Link Here for the side bar."""
+        # Server side cache is also invalidated when new article is posted
+        #return self.render_cached('wikilinks', WikiPageList, g.side_posts_max_age)
+        return self.render_cached('wikilinks', WikiPageList, 0)
 
     def GET_side_posts(self, *a, **kw):
         """Return HTML snippet of the recent posts for the side bar."""

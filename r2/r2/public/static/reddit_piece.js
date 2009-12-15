@@ -82,6 +82,7 @@ function init() {
     update_reddit_count();
 
     /* initiate ajax requests to populate the side bar */
+    populate_side_bar('side-wikilinks');
     populate_side_bar('side-posts');
     populate_side_bar('side-comments');
     populate_side_bar('side-tags');

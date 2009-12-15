@@ -392,6 +392,15 @@ div#side-search {
     padding-bottom: 10px;
 }
 
+/* Wiki links */
+#side-wikilinks input[type=submit] {
+    width: 45px;
+    margin-left: 5px;
+}
+div#side-wikilinks {
+    padding-bottom: 10px;
+}
+
 /* Message bar at the top of the page */
 .infobar {
     background-color: #f7f7f8;
