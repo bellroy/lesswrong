@@ -16,11 +16,10 @@ url = thing.articleurl
 
 
 
-<div id="side-wikilinks" class="sidebox">
   <form action="http://wiki.lesswrong.com/" id="cse-wikilinks-box" onsubmit="return true;">
     <div>
       LW Wiki pages that link here:
-      <select name="title">
+      <select name="title" id="wikilinks-select-box" >
 
 <%
 titlesToAdd = []
@@ -48,4 +47,3 @@ for line in open('../../wiki.lesswrong.xml', 'r'):
       <input type="submit" value="Go" />
     </div>
   </form>
-</div>

@@ -393,9 +393,12 @@ div#side-search {
 }
 
 /* Wiki links */
+#side-wikilinks select {
+    width: 136px;
+}
 #side-wikilinks input[type=submit] {
     width: 45px;
-    margin-left: 5px;
+    margin-left: 2px;
 }
 div#side-wikilinks {
     padding-bottom: 10px;
