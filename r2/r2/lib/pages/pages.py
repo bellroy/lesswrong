@@ -128,9 +128,7 @@ class Reddit(Wrapped):
             ps.append(GoogleSearchForm())
 
 ##{_RL
-        if self.searchbox:
-            ##ps.append(WikiPageList())
-            ps.append(SideBoxPlaceholder('side-wikilinks', _('Wiki Pages That Link Here')))
+        ps.append(SideBoxPlaceholder('side-wikilinks', _('Wiki Pages That Link Here')))
 ##}_RL
 
         #don't show the subreddit info bar on cnames
