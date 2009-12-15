@@ -1,8 +1,53 @@
+<%
+##url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
+##url = thing.url
+url = thing.articleurl
+%>
+
+
+
+<%!
+   from r2.models.subreddit import Default
+   from r2.lib.template_helpers import get_domain, static
+   from r2.lib.filters import safemarkdown, cleanhtml
+   from r2.lib.utils import prettytime
+   from r2.lib.strings import strings
+ %>
+
+
+<%
+titlesToAdd = []
+
+##import urllib2
+##for line in urllib2.urlopen('http://wiki.lesswrong.com/wiki.lesswrong.xml'):
+##for line in open('/home/robert/Desktop/LW/wiki.lesswrong.xml', 'r'):
+##for line in urllib2.urlopen('http://acceleratingfuture.com/peer/LWcode/wiki.lesswrong.xml'):
+for line in open('../../wiki.lesswrong.xml', 'r'):
+    if '<title>' in line or '</title>' in line:
+        titleStartPos = line.find('<title>')
+        titleEndPos = line.find('</title>')
+        title = line[titleStartPos+len('<title>'):titleEndPos]
+    if url in line:
+       if not 'User:' in title and not 'Less Wrong/' in title:
+            titlesToAdd.append(title)
+%>
+
+
+
+%if len(titlesToAdd) > 0:
   <form action="http://wiki.lesswrong.com/" id="cse-wikilinks-box" onsubmit="return true;">
     <div>
-${thing.articleurl}
+      LW Wiki pages that link here:
       <select name="title" id="wikilinks-select-box" >
+
+
+%for nextTitle in titlesToAdd:
+        <option value="${nextTitle}">${nextTitle}</option>
+%endfor
+
+
       </select>
       <input type="submit" value="Go" />
     </div>
   </form>
+%endif

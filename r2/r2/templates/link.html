@@ -102,9 +102,13 @@
         %endif
         <img src="${static('mini-landscape.gif')}" alt="" class="landscape" />
 
-        <script type="text/javascript">
-        Event.observe(window, 'load', function() { populate_side_bar('side-wikilinks', 'article_id=2') }, false);
-        </script>
+       <script type="text/javascript">
+         var orig_load = window.onload;
+         window.onload = function() {
+           if( orig_load ) orig_load();
+           populate_side_bar('side-wikilinks', 'article_id=' + '${thing._id36}');
+         };
+       </script>
 
       %endif
     </div>
