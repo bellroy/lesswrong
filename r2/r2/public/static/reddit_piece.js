@@ -101,6 +101,21 @@ function populate_side_bar(id) {
     }
 }
 
+function toggle_article_navigation(article_id) {
+  var elem = $('article_nav_controls');
+  if(elem && article_id) {
+    // TODO URI escape parameters
+    new Ajax.Request('/api/article_navigation', {
+      method: 'get',
+      parameters: 'article_id=' + article_id,
+      onSuccess: function(response) {
+        elem.innerHTML = response.responseText;
+        show('article_nav_controls');
+      }
+    });
+  }
+}
+
 function updateLinks(f) {
     for (var i = 0; i < f.length; i++) {
         var l = new Link(f[i]);

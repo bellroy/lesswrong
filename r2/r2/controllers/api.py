@@ -39,7 +39,8 @@ from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
-    RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList
+    RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
+    ArticleNavigation
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -987,6 +988,11 @@ class ApiController(RedditController):
         As above
         """
         return "nothing to see here."
+
+    @validate(link = VLink('article_id', redirect=False))
+    def GET_article_navigation(self, link, *a, **kw):
+      """Returns the article navigation fragment for the article specified"""
+      return ArticleNavigation(link).render()
 
     @validate(VModhash(),
               file = VLength('file', length=1024*500),
