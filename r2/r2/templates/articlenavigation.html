@@ -4,16 +4,8 @@
 %>
 
 <%
-#url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
 article = thing.article
 url = article.url
-
-
-#f = open('/home/robert/Desktop/LW/workfile', 'w')
-
-#f.write("testing\n")
-
-#f.write(url + "\n")
 
 #these variables store information about the wikipage currently being scanned
 foundLinkToThisArticle = 0
@@ -34,10 +26,6 @@ finalLinkForPreviousButton = ""
 finalLinkForNextButton = ""
 finalSequenceWikipageTitle = ""
 
-##import urllib2
-##for line in urllib2.urlopen('http://wiki.lesswrong.com/wiki.lesswrong.xml'):
-##for line in open('/home/robert/Desktop/LW/wiki.lesswrong.xml', 'r'):
-##for line in urllib2.urlopen('http://acceleratingfuture.com/peer/LWcode/wiki.lesswrong.xml'):
 for line in open('../public/files/wiki.lesswrong.xml', 'r'):
   if '<title>' in line or '</title>' in line:
     #first finish processing the previous wiki page
@@ -75,7 +63,6 @@ for line in open('../public/files/wiki.lesswrong.xml', 'r'):
     theLastArticleLinkWeFoundWasTheCurrentArticle = 1
     currentLinkForPreviousButton = previousArticleLink
     indexOfThisArticle = articleLinksFoundOnthisWikiPage
-    #f.write(title + "\n")
 
   if 'http://lesswrong.com/lw/' in line:
     articleLinksFoundOnthisWikiPage = articleLinksFoundOnthisWikiPage + 1
@@ -86,14 +73,9 @@ for line in open('../public/files/wiki.lesswrong.xml', 'r'):
       currentLinkForNextButton = linkWeAreLookingAtNow
     previousArticleLink = linkWeAreLookingAtNow
     theLastArticleLinkWeFoundWasTheCurrentArticle = 0
-    #f.write(linkWeAreLookingAtNow + "\n")
-
 
 #bug: the above code won't process the last wikipage in the XML file, because the processing for each page happens when the next title is detected
 #I'm just leaving this bug in for now until the rest of the code is actually working
-
-#f.close()
-
 
 PrevLinkInPromoted = None
 PrevLinkInAll      = None
@@ -125,9 +107,6 @@ TotalPostsByTag        = []
 TagNamesByTag          = []
 IndexesByTag           = []
 nextIndexByTag         = 0
-
-##q = Link._query(Link.c._id < l._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
-##q = Link._query(Link.c._id < thing._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
 
 #get the previous post by author, sorted by date
 q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==article.author_id, limit = 1, sort = desc('_date'), data = True)
@@ -302,23 +281,26 @@ for tag in tags:
   <span class="type">TODO add author</span>
 </li>
 
-%for sequence in thing.sequences:
-
+%for sequence_name in article.get_sequence_names():
+<%
+  prev_link = article.prev_in_sequence(sequence_name)
+  next_link = article.next_in_sequence(sequence_name)
+%>
 <li class="clear">
-%if sequence['prev'] is None:
+%if prev_link is None:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %else:
-  <a class="nav" href="${sequence['prev']}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <a class="nav" href="${prev_link}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
 %endif
 <!--   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span> -->
   <span class="place">in sequence</span>
-%if sequence['next'] is None:
+%if next_link is None:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %else:
-  <a class="nav" href="${sequence['next']}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${next_link}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %endif
 <!--  <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span> -->
-  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a></span>
+  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${sequence_name}">${sequence_name}</a></span>
 </li>
 
 %endfor

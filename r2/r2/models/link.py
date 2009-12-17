@@ -42,6 +42,7 @@ import re
 import random
 import urllib
 from datetime import datetime
+from lxml import etree
 
 class LinkExists(Exception): pass
 
@@ -550,6 +551,108 @@ class Link(Thing, Printable):
     def tag_names(self):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
+
+    def _parse_wiki_file(self):
+      """docstring for _parse_wiki_file"""
+
+      # Algo:
+      # Find references to this article in the wiki dump, note
+      # the sequence, index and next prev articles
+
+      # Parse the XML file
+      MEDIAWIKI_NS = 'http://www.mediawiki.org/xml/export-0.3/'
+      sequences = {}
+      lw_url_re = re.compile(r'\[(http://lesswrong\.com/lw/[^ ]+) [^\]]+\]')
+      wiki = etree.parse('../public/files/wiki.lesswrong.xml')
+      for page in wiki.getroot().iterfind('.//{%s}page' % MEDIAWIKI_NS): # TODO: Change to use iterparse
+        # Get the titles
+        title = page.findtext('{%s}title' % MEDIAWIKI_NS)
+
+        # See if this page is a sequence page
+        sequence_elem = page.xpath("mw:revision[1]/mw:text[contains(., '[[Category:Sequences]]')]", namespaces={'mw': MEDIAWIKI_NS})
+
+        if sequence_elem:
+          sequence_elem = sequence_elem[0]
+          index = 0
+          article_index = None
+          articles = []
+
+          # Find all the lesswrong urls
+          for match in lw_url_re.finditer(sequence_elem.text):
+            article_url = match.group(1)
+
+            # Ensure url ends in slash
+            if article_url[-1] != '/':
+              article_url += '/'
+
+            if article_url.endswith(self.url):
+              article_index = index
+
+            articles.append(article_url)
+            index += 1
+
+          if article_index is not None:
+            try:
+              next = articles[article_index + 1]
+            except IndexError:
+              next = None
+            prev = articles[article_index - 1] if article_index > 0 else None
+
+            sequences[title] = {
+              'title': title,
+              'next': next,
+              'prev': prev,
+              'index': article_index
+            }
+      return {'sequences': sequences}
+
+    def _get_wiki_data(self):
+      """docstring for _parse_wiki_file"""
+      # TODO retrieve from cache or parse and cache
+      return self._parse_wiki_file()
+
+    def get_sequences(self):
+      """docstring for get_sequences"""
+      wiki = self._get_wiki_data()
+      return wiki['sequences']
+
+    def get_sequence_names(self):
+      """TODO"""
+      return [seq['title'] for seq in self.get_sequences().itervalues()]
+
+    def next_by_tag(self, tag):
+      """docstring for next_by_tag"""
+      pass
+
+    def prev_by_tag(self, tag):
+      """docstring for prev_by_tag"""
+      pass
+
+    def next_in_sequence(self, sequence_name):
+      """docstring for next_in_sequence"""
+      sequence = self.get_sequences().get(sequence_name)
+      return sequence['next'] if sequence else None
+
+    def prev_in_sequence(self, sequence_name):
+      """docstring for prev_in_sequence"""
+      sequence = self.get_sequences().get(sequence_name)
+      return sequence['prev'] if sequence else None
+
+    def next_by_author(self):
+      """docstring for next_by_author"""
+      pass
+
+    def prev_by_author(self):
+      """docstring for prev_by_author"""
+      pass
+
+    def next_link(self):
+      """docstring for next_link"""
+      pass
+
+    def prev_link(self):
+      """docstring for prev_link"""
+      pass
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
