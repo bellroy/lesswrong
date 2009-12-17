@@ -939,27 +939,20 @@ class ArticleNavigation(Wrapped):
   """Generates article navigation fragment for the supplied link"""
   def __init__(self, link):
     self.article = link
-    self.parse_wiki_export()
+    self.sequences = self.sequences_for_article()
     Wrapped.__init__(self)
 
-  def parse_wiki_export(self):
+  def sequences_for_article(self):
     """docstring for parse_wiki_export"""
     from lxml import etree
     MEDIAWIKI_NS = 'http://www.mediawiki.org/xml/export-0.3/'
 
     # Algo:
-    # For each mediawiki page that is in the Sequences category, extract each of the
-    # Less Wrong urls. Given an article with a URL need to find what sequences that
-    # article is in and what position it is in those sequences.
-
-    # Load sequences keyed on title
-    #  seq -> list of articles
-
-    # Post process to create a structure that is keyed on article url
-    #  url -> list of articles
+    # Find references to this article in the wiki dump, note
+    # the sequence, index and next prev articles
 
     # Parse the XML file
-    sequences = {}
+    sequences = []
     import re
     lw_url_re = re.compile(r'\[(http://lesswrong\.com/lw/[^ ]+) [^\]]+\]')
     wiki = etree.parse('../public/files/wiki.lesswrong.xml')
@@ -971,29 +964,43 @@ class ArticleNavigation(Wrapped):
       # sequence_text = page.xpath("mediawiki:text[contains(., '[[Category:Sequences]]')]", 
       # page.xpath('mw:revision[1]/mw:text',namespaces={'mw':MEDIAWIKI_NS})
       sequence_elem = page.xpath("mw:revision[1]/mw:text[contains(., '[[Category:Sequences]]')]", namespaces={'mw': MEDIAWIKI_NS})
-      # print etree.tostring(page)
-      # print title
+
       if sequence_elem:
         sequence_elem = sequence_elem[0]
+        index = 0
+        article_index = None
+        articles = []
+
         # Find all the lesswrong urls
-        print "%s is a sequence" % title
+        # print "%s is a sequence" % title
         for match in lw_url_re.finditer(sequence_elem.text):
-          print match.group(1)
-          seq = sequences.setdefault(title, {'title': title, 'articles': []})
+          # print match.group(1)
           article_url = match.group(1)
-      
+
           # Ensure url ends in slash
           if article_url[-1] != '/':
             article_url += '/'
-          seq['articles'].append(article_url)
 
-    # Post process sequences into article lookup structure
-    article_sequences = {}
-    for seq in sequences.itervalues():
-      # Reduce the articles to a unique list preserving order
-      seq['articles'] = self.uniq(seq['articles'])
-      for article in seq['articles']:
-        article_sequences.setdefault(article, []).append(seq)
+          if article_url.endswith(self.article.url):
+            article_index = index
+          
+          articles.append(article_url)
+          index += 1
+        
+        if article_index is not None:
+          try:
+            next = articles[article_index + 1]
+          except IndexError:
+            next = None
+          prev = articles[article_index - 1] if article_index > 0 else None
+          
+          sequences.append({
+            'title': title,
+            'next': next,
+            'prev': prev,
+            'index': article_index
+          })
+    return sequences
 
   # Lifted from: http://www.peterbe.com/plog/uniqifiers-benchmark
   @staticmethod

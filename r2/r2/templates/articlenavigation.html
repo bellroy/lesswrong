@@ -302,26 +302,26 @@ for tag in tags:
   <span class="type">TODO add author</span>
 </li>
 
-%if thisArticleIsInASequence == 1:
+%for sequence in thing.sequences:
 
 <li class="clear">
-%if finalLinkForPreviousButton:
-  <a class="nav" href="${finalLinkForPreviousButton}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%else:
+%if sequence['prev'] is None:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%else:
+  <a class="nav" href="${sequence['prev']}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
 %endif
 <!--   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span> -->
   <span class="place">in sequence</span>
-%if finalLinkForNextButton:
-  <a class="nav" href="${finalLinkForNextButton}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%else:
+%if sequence['next'] is None:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%else:
+  <a class="nav" href="${sequence['next']}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %endif
 <!--  <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span> -->
   <span class="type"><a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a></span>
 </li>
 
-%endif
+%endfor
 
 %if PrevLinkInPromoted or NextLinkInPromoted:
 <li class="clear">
