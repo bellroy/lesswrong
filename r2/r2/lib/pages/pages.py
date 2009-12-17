@@ -939,7 +939,79 @@ class ArticleNavigation(Wrapped):
   """Generates article navigation fragment for the supplied link"""
   def __init__(self, link):
     self.article = link
+    self.parse_wiki_export()
     Wrapped.__init__(self)
+
+  def parse_wiki_export(self):
+    """docstring for parse_wiki_export"""
+    from lxml import etree
+    MEDIAWIKI_NS = 'http://www.mediawiki.org/xml/export-0.3/'
+
+    # Algo:
+    # For each mediawiki page that is in the Sequences category, extract each of the
+    # Less Wrong urls. Given an article with a URL need to find what sequences that
+    # article is in and what position it is in those sequences.
+
+    # Load sequences keyed on title
+    #  seq -> list of articles
+
+    # Post process to create a structure that is keyed on article url
+    #  url -> list of articles
+
+    # Parse the XML file
+    sequences = {}
+    import re
+    lw_url_re = re.compile(r'\[(http://lesswrong\.com/lw/[^ ]+) [^\]]+\]')
+    wiki = etree.parse('../public/files/wiki.lesswrong.xml')
+    for page in wiki.getroot().iterfind('.//{%s}page' % MEDIAWIKI_NS): # TODO: Change to use iterparse
+      # Get the titles
+      title = page.findtext('{%s}title' % MEDIAWIKI_NS)
+  
+      # See if this page is a sequence page
+      # sequence_text = page.xpath("mediawiki:text[contains(., '[[Category:Sequences]]')]", 
+      # page.xpath('mw:revision[1]/mw:text',namespaces={'mw':MEDIAWIKI_NS})
+      sequence_elem = page.xpath("mw:revision[1]/mw:text[contains(., '[[Category:Sequences]]')]", namespaces={'mw': MEDIAWIKI_NS})
+      # print etree.tostring(page)
+      # print title
+      if sequence_elem:
+        sequence_elem = sequence_elem[0]
+        # Find all the lesswrong urls
+        print "%s is a sequence" % title
+        for match in lw_url_re.finditer(sequence_elem.text):
+          print match.group(1)
+          seq = sequences.setdefault(title, {'title': title, 'articles': []})
+          article_url = match.group(1)
+      
+          # Ensure url ends in slash
+          if article_url[-1] != '/':
+            article_url += '/'
+          seq['articles'].append(article_url)
+
+    # Post process sequences into article lookup structure
+    article_sequences = {}
+    for seq in sequences.itervalues():
+      # Reduce the articles to a unique list preserving order
+      seq['articles'] = self.uniq(seq['articles'])
+      for article in seq['articles']:
+        article_sequences.setdefault(article, []).append(seq)
+
+  # Lifted from: http://www.peterbe.com/plog/uniqifiers-benchmark
+  @staticmethod
+  def uniq(seq, idfun=None):
+    # order preserving
+    if idfun is None:
+      def idfun(x): return x
+      seen = {}
+      result = []
+      for item in seq:
+        marker = idfun(item)
+        # in old Python versions:
+        # if seen.has_key(marker)
+        # but in new ones:
+        if marker in seen: continue
+        seen[marker] = 1
+        result.append(item)
+        return result
 
 class SearchBar(Wrapped):
     """More detailed search box for /search and /categories pages.
