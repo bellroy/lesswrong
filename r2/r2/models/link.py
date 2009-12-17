@@ -33,6 +33,7 @@ from r2.lib import utils
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
+from r2.lib.db import operators
 from r2.lib.filters import _force_unicode
 
 from pylons import c, g, request
@@ -620,13 +621,40 @@ class Link(Thing, Printable):
       """TODO"""
       return [seq['title'] for seq in self.get_sequences().itervalues()]
 
+    def _tag_nav_query(self, tag, sort):
+      """Returns a query navigation by tag using sort"""
+      if isinstance(sort, operators.desc):
+        date_clause = LinkTag.c._t1_date < self._date
+      else:
+        date_clause = LinkTag.c._t1_date > self._date
+
+      return LinkTag._query(LinkTag.c._thing2_id == tag._id,
+                            LinkTag.c._name == 'tag',
+                            LinkTag.c._t1_deleted == False,
+                            LinkTag.c._t1_spam == False,
+                            date_clause,
+                            limit = 1,
+                            sort = sort,
+                            eager_load = True,
+                            thing_data = True)
+
+    def _link_for_rel_query(self, query):
+      """Runs and returns the first result of the query"""
+      results = list(query)
+      return results[0]._thing1 if results else None
+
     def next_by_tag(self, tag):
       """docstring for next_by_tag"""
-      pass
+      q = self._tag_nav_query(tag, operators.asc('_t1_date'))
+      return self._link_for_rel_query(q)
+      # TagNamesByTag.append(tag.name)
+      # IndexesByTag.append(nextIndexByTag);
+      # nextIndexByTag = nextIndexByTag + 1
 
     def prev_by_tag(self, tag):
       """docstring for prev_by_tag"""
-      pass
+      q = self._tag_nav_query(tag, operators.desc('_t1_date'))
+      return self._link_for_rel_query(q)
 
     def next_in_sequence(self, sequence_name):
       """docstring for next_in_sequence"""
