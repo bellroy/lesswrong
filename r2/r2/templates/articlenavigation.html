@@ -1,3 +1,6 @@
+<%!
+  from r2.lib.utils import wiki_url_for_title
+%>
 <%
   article = thing.article
   url = article.url
@@ -43,7 +46,7 @@
   <a class="nav" href="${next_link}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %endif
 ## <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
-  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${sequence_name}">${sequence_name}</a></span>
+  <span class="type"><a href="${wiki_url_for_title(sequence_name)}">${sequence_name}</a></span>
 </li>
 
 %endfor

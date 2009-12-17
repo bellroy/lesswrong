@@ -25,7 +25,7 @@ from threading import local, Thread
 import Queue
 from copy import deepcopy
 import cPickle as pickle
-import re, datetime, math, random, string, sha, os
+import re, datetime, math, random, string, sha, os, yaml
 
 from datetime import datetime, timedelta
 from pylons.i18n import ungettext, _
@@ -1011,3 +1011,38 @@ def trace(fn):
                     % (fn,a,kw,ret))
         return ret
     return new_fn
+
+def wiki_url_for_title(title):
+    """Uses the MediaWiki API to get the URL for a wiki page
+    with the given title"""
+    if title is None:
+        return None
+
+    from pylons import g
+    cache_key = 'wiki_url_%s' % title
+    wiki_url = g.cache.get(cache_key)
+    if wiki_url is None:
+        # http://www.mediawiki.org/wiki/API:Query_-_Properties#info_.2F_in
+        api = UrlParser(g.wiki_api_url)
+        api.update_query(
+            action = 'query',
+            titles= title,
+            prop = 'info',
+            format = 'yaml',
+            inprop = 'url'
+        )
+
+        try:
+            response = urlopen(api.unparse()).read()
+            parsed_response = yaml.load(response, Loader=yaml.CLoader)
+            page = parsed_response['query']['pages'][0]
+        except:
+            return None
+
+        wiki_url = page['fullurl'].strip()
+
+        # Things are created every couple of days so 12 hours seems
+        # to be a reasonable cache time
+        g.cache.set(cache_key, wiki_url, time=3600 * 12)
+
+    return wiki_url
