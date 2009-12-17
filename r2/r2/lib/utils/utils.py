@@ -1039,7 +1039,7 @@ def wiki_url_for_title(title):
         except:
             return None
 
-        wiki_url = page['fullurl'].strip()
+        wiki_url = page.get('fullurl').strip()
 
         # Things are created every couple of days so 12 hours seems
         # to be a reasonable cache time
