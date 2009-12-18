@@ -996,7 +996,7 @@ class ApiController(RedditController):
       """Returns the article navigation fragment for the article specified"""
       author = Account._byID(link.author_id, data=True) if link else None
       return self.render_cached(
-        'article_navigation_%s' % link._id36 if link else None,
+        'article_navigation_%s' % (link._id36 if link else None),
         ArticleNavigation, g.article_navigation_max_age,
         link=link, author=author
       )

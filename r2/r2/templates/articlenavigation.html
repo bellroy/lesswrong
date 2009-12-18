@@ -4,31 +4,35 @@
 %>
 <%
   article = thing.article
-  url = article.url
   author = thing.author
 %>
-<ul class="clear">
-  ${unsafe(self.article_nav_item(article.prev_by_author(), article.next_by_author(), unsafe(self.author(thing.author)), _('by author')))}
 
-  %for sequence_name in article.get_sequence_names():
-  ${unsafe(self.article_nav_item(article.prev_in_sequence(sequence_name), article.next_in_sequence(sequence_name), unsafe(self.sequence(sequence_name)), _('in sequence')))}
-  %endfor
+%if article is None:
+  <p>${_('Unable to retrieve navigation options for this article.')}</p>
+%else:
+  <ul class="clear">
+    ${unsafe(self.article_nav_item(article.prev_by_author(), article.next_by_author(), unsafe(self.author(thing.author)), _('by author')))}
 
-  %if article.blessed:
-  ${unsafe(self.article_nav_item(article.prev_in_promoted(), article.next_in_promoted(), None, unsafe(self.promoted())))}
-  %endif
+    %for sequence_name in article.get_sequence_names():
+    ${unsafe(self.article_nav_item(article.prev_in_sequence(sequence_name), article.next_in_sequence(sequence_name), unsafe(self.sequence(sequence_name)), _('in sequence')))}
+    %endfor
 
-  ${unsafe(self.article_nav_item(article.prev_link(), article.next_link(), None, unsafe(self.new())))}
+    %if article.blessed:
+    ${unsafe(self.article_nav_item(article.prev_in_promoted(), article.next_in_promoted(), None, unsafe(self.promoted())))}
+    %endif
+
+    ${unsafe(self.article_nav_item(article.prev_link(), article.next_link(), None, unsafe(self.new())))}
 
 
-  %if hasattr(article, 'top_link') and article.top_link:
-  ${unsafe(self.article_nav_item(article.prev_in_top(), article.next_in_top(), None, unsafe(self.top())))}
-  %endif
+    %if hasattr(article, 'top_link') and article.top_link:
+    ${unsafe(self.article_nav_item(article.prev_in_top(), article.next_in_top(), None, unsafe(self.top())))}
+    %endif
 
-  %for tag in article.get_tags():
-  ${unsafe(self.article_nav_item(article.prev_by_tag(tag), article.next_by_tag(tag), unsafe(self.tag(tag)), _('by tag')))}
-  %endfor
-</ul>
+    %for tag in article.get_tags():
+    ${unsafe(self.article_nav_item(article.prev_by_tag(tag), article.next_by_tag(tag), unsafe(self.tag(tag)), _('by tag')))}
+    %endfor
+  </ul>
+%endif
 
 <%def name="article_nav_item(prev_link, next_link, navtype, place)">
 <li class="clear">
