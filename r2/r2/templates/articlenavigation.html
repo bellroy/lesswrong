@@ -8,138 +8,74 @@
   author = thing.author
 %>
 <ul class="clear">
-<li class="clear">
-<%
-  prev_link = article.prev_by_author()
-  next_link = article.next_by_author()
-%>
-%if prev_link:
-  <a class="nav" href="${prev_link.url}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%else:
-  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
-%endif
-##  <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span>
-  <span class="place">by author</span>
-%if next_link:
-  <a class="nav" href="${next_link.url}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%else:
-  <img src="/static/articlenav-next-grey.gif" alt="Next" />
-%endif
-  <% author_path = unsafe(add_sr("/user/%s/" % websafe(author.name), sr_path = False)) %>
-  <span class="type"><a href="${author_path}">${author.name}</a></span>
-</li>
+  ${unsafe(self.article_nav_item(article.prev_by_author(), article.next_by_author(), unsafe(self.author(thing.author)), _('by author')))}
 
-%for sequence_name in article.get_sequence_names():
-<%
-  prev_link = article.prev_in_sequence(sequence_name)
-  next_link = article.next_in_sequence(sequence_name)
-%>
-<li class="clear">
-%if prev_link is None:
-  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
-%else:
-  <a class="nav" href="${prev_link}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%endif
-##  <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span>
-  <span class="place">in sequence</span>
-%if next_link is None:
-  <img src="/static/articlenav-next-grey.gif" alt="Next" />
-%else:
-  <a class="nav" href="${next_link}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%endif
-## <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
-  <span class="type"><a href="${wiki_url_for_title(sequence_name)}">${sequence_name}</a></span>
-</li>
+  %for sequence_name in article.get_sequence_names():
+  ${unsafe(self.article_nav_item(article.prev_in_sequence(sequence_name), article.next_in_sequence(sequence_name), unsafe(self.sequence(sequence_name)), _('in sequence')))}
+  %endfor
 
-%endfor
+  %if article.blessed:
+  ${unsafe(self.article_nav_item(article.prev_in_promoted(), article.next_in_promoted(), None, unsafe(self.promoted())))}
+  %endif
 
-%if article.blessed:
-<%
-  prev_link = article.prev_in_promoted()
-  next_link = article.next_in_promoted()
-%>
+  ${unsafe(self.article_nav_item(article.prev_link(), article.next_link(), None, unsafe(self.new())))}
+
+
+  %if hasattr(article, 'top_link') and article.top_link:
+  ${unsafe(self.article_nav_item(article.prev_in_top(), article.next_in_top(), None, unsafe(self.top())))}
+  %endif
+
+  %for tag in article.get_tags():
+  ${unsafe(self.article_nav_item(article.prev_by_tag(tag), article.next_by_tag(tag), unsafe(self.tag(tag)), _('by tag')))}
+  %endfor
+</ul>
+
+<%def name="article_nav_item(prev_link, next_link, navtype, place)">
 <li class="clear">
 %if prev_link:
-  <a class="nav" href="${prev_link.url}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%else:
-  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
-%endif
-##  <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span>
-  <span class="place"><a href="http://lesswrong.com/">Promoted Posts</a></span>
-%if next_link:
-  <a class="nav" href="${next_link.url}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%else:
-##  <span class="type">in &nbsp; <a href="http://lesswrong.com/">Promoted Posts</a></span>
-  <img src="/static/articlenav-next-grey.gif" alt="Next" />
-%endif
-</li>
-%endif
-
-
-<%
-  prev_link = article.prev_link()
-  next_link = article.next_link()
-%>
-<li class="clear">
-%if prev_link:
-  <a class="nav" href="${prev_link.url}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%else:
-  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
-%endif
-##  <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span>
-  <span class="place"><a href="http://lesswrong.com/new/">All Posts</a></span>
-%if next_link:
-  <a class="nav" href="${next_link.url}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%else:
-##  <span class="type">in &nbsp; <a href="http://lesswrong.com/new/">All Posts</a></span>
-  <img src="/static/articlenav-next-grey.gif" alt="Next" />
-%endif
-</li>
-
-
-%if hasattr(article, 'top_link') and article.top_link:
-<%
-  prev_link = article.prev_in_top()
-  next_link = article.next_in_top()
-%>
-<li class="clear">
-%if prev_link:
-  <a class="nav" href="${prev_link.url}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+  <a class="nav" href="${prev_link.url if hasattr(prev_link, 'url') else prev_link}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
 ##  <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
-  <span class="place"><a href="http://lesswrong.com/top/">Top Posts</a></span>
-%if NextLinkInTop:
-  <a class="nav" href="${next_link.url}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
-%else:
-##  <span class="type">in &nbsp; <a href="http://lesswrong.com/top/">Top Posts</a></span>
-  <img src="/static/articlenav-next-grey.gif" alt="Next" />
-%endif
-</li>
-%endif
-
-
-%for tag in article.get_tags():
-<%
-  prev_link = article.prev_by_tag(tag)
-  next_link = article.next_by_tag(tag)
-%>
-<li class="clear">
-%if prev_link:
-  <a class="nav" href="${prev_link.url}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
-%else:
-  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
-%endif
-##  <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
-  <span class="place">by tag</span>
+  <span class="place">${place}</span>
 %if next_link:
-  <a class="nav" href="${next_link.url}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+  <a class="nav" href="${next_link.url if hasattr(next_link, 'url') else next_link}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
 ## <span class="type">by tag &nbsp; <a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span>
-  <span class="type"><a href="${tag.path}">${tag.name}</a></span>
+  %if navtype:
+  <span class="type">${navtype}</span>
+  %endif
 </li>
-%endfor
-</ul>
+</%def>
+
+<%def name="author(author)" buffered="True">
+  %if author is None:
+    ${_('Unknown')}
+  %else:
+    <% author_path = unsafe(add_sr("/user/%s/" % websafe(author.name), sr_path = False)) %>
+    <a href="${author_path}">${author.name}</a>
+  %endif
+</%def>
+
+<%def name="sequence(title)" buffered="True">
+  <a href="${wiki_url_for_title(title)}">${title}</a>
+</%def>
+
+<%def name="promoted()" buffered="True">
+  <a href="/">${_('Promoted')}</a>
+</%def>
+
+<%def name="new()" buffered="True">
+  <a href="/new/">All Posts</a>
+</%def>
+
+<%def name="top()" buffered="True">
+  <a href="/top/">Top Posts</a>
+</%def>
+
+<%def name="tag(tag)" buffered="True">
+  <a href="${tag.path}">${tag.name}</a>
+</%def>
