@@ -1,9 +1,11 @@
 <%!
   from r2.lib.utils import wiki_url_for_title
+  from r2.lib.template_helpers import add_sr
 %>
 <%
   article = thing.article
   url = article.url
+  author = thing.author
 %>
 <ul class="clear">
 <li class="clear">
@@ -23,8 +25,8 @@
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
-##  <span class="type">by &nbsp; ${unsafe(self.author(friend = thing.friend))}</span>
-  <span class="type">TODO add author</span>
+  <% author_path = unsafe(add_sr("/user/%s/" % websafe(author.name), sr_path = False)) %>
+  <span class="type"><a href="${author_path}">${author.name}</a></span>
 </li>
 
 %for sequence_name in article.get_sequence_names():

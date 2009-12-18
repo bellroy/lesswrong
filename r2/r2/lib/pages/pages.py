@@ -937,9 +937,8 @@ class GoogleSearchResults(BoringPage):
 
 class ArticleNavigation(Wrapped):
   """Generates article navigation fragment for the supplied link"""
-  def __init__(self, link):
-    self.article = link
-    Wrapped.__init__(self)
+  def __init__(self, link, author):
+    Wrapped.__init__(self, article=link, author=author)
 
 class SearchBar(Wrapped):
     """More detailed search box for /search and /categories pages.
