@@ -201,6 +201,10 @@ class Score(object):
         return max(x, 0)
 
     @staticmethod
+    def signed_number(x):
+        return x
+
+    @staticmethod
     def points(x):
         return  strings.number_label % (x, plurals.N_points(x))
 
