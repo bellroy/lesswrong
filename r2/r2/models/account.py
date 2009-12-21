@@ -96,7 +96,7 @@ class Account(Thing):
 
     @property
     def link_karma(self):
-        return self.karma('link')
+        return self.karma('link') * g.post_karma_multiplier
 
     @property
     def comment_karma(self):
