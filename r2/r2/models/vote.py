@@ -112,7 +112,7 @@ class Vote(MultiRelation('vote',
             # count and the vote have been updated.
             up_change, down_change = score_changes(amount, oldamount)
             if down_change:
-                sub.incr_downvote(down_change)
+                sub.incr_downvote(down_change, kind)
 
         # Continue by updating karmas.
         update_score(obj, up_change, down_change,
