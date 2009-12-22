@@ -139,12 +139,11 @@ class Account(Thing):
         """kind is 'link' or 'comment'"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
 
-    def check_downvote(self):
+    def check_downvote(self, vote_kind):
         """Checks whether this account has enough karma to cast a downvote.
 
-        An account's total number of downvotes must be less than or
-        equal to the account's total karma.  Raises an exception if
-        not able to cast a downvote.
+        vote_kind is 'link' or 'comment' depenging on the type of vote that's
+        being cast.
         """
         from r2.models.vote import Vote, Link, Comment
 
@@ -160,10 +159,12 @@ class Account(Thing):
 
         link_downvote_karma = get_cached_downvotes(Link) * g.post_karma_multiplier
         comment_downvote_karma = get_cached_downvotes(Comment)
+        karma_spent = link_downvote_karma + comment_downvote_karma
 
-        karma_threshold = self.safe_karma * 4
-        if karma_threshold <= link_downvote_karma + comment_downvote_karma:
-            msg = _('You do not have enough karma to downvote right now. You need %d more points.') % ((link_downvote_karma + comment_downvote_karma) - karma_threshold + 1,)
+        karma_balance = self.safe_karma * 4
+        vote_cost = g.post_karma_multiplier if vote_kind == 'link' else 1
+        if karma_spent + vote_cost > karma_balance:
+            msg = _('You do not have enough karma to downvote right now. You need %d more points.') % abs(karma_balance - karma_spent - vote_cost)
             raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta, kind):
