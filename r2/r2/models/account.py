@@ -164,7 +164,8 @@ class Account(Thing):
         karma_balance = self.safe_karma * 4
         vote_cost = g.post_karma_multiplier if vote_kind == 'link' else 1
         if karma_spent + vote_cost > karma_balance:
-            msg = _('You do not have enough karma to downvote right now. You need %d more points.') % abs(karma_balance - karma_spent - vote_cost)
+            points_needed = abs(karma_balance - karma_spent - vote_cost)
+            msg = strings.not_enough_downvote_karma % (points_needed, plurals.N_points(points_needed))
             raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta, kind):
