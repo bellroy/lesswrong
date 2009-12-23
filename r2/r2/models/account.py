@@ -24,6 +24,7 @@ from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
 from r2.lib.memoize      import memoize, clear_memo
 from r2.lib.utils        import modhash, valid_hash, randstr 
+from r2.lib.strings      import strings, plurals
 
 from pylons import g
 from pylons.i18n import _
