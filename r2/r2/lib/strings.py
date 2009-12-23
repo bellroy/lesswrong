@@ -108,7 +108,7 @@ string_dict = dict(
     submit_box_text = _('To anything interesting: news article, blog entry, video, picture...'),
     permalink_title = _("%(author)s comments on %(title)s"),
     link_info_title = _("%(site)s: %(title)s"),
-    not_enough_downvote_karma = _('You do not have enough karma to downvote right now. You need %d more points.')
+    not_enough_downvote_karma = _('You do not have enough karma to downvote right now. You need %d more %s.')
 )
 
 class StringHandler(object):
