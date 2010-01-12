@@ -44,14 +44,19 @@ def top_users():
                   limit = 10)
     # Translation of query:
     # SELECT
-    #  reddit_thing_account.thing_id,
+    #  reddit_thing_account.thing_id
+    # FROM
+    #   reddit_thing_account,
+    #   reddit_data_account
     # WHERE
-    #  (reddit_thing_account.spam = f AND
-    #   reddit_thing_account.deleted = f AND
+    #  (reddit_thing_account.spam = 'f' AND
+    #   reddit_thing_account.deleted = 'f' AND
     #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
-    #   reddit_data_account.key LIKE '%link_karma')
+    #   reddit_data_account.key LIKE '%_karma')
+    # GROUP BY
+    #   reddit_thing_account.thing_id
     # ORDER BY
-    #  sum(CAST(reddit_data_acc_3355.value AS INTEGER)) DESC
+    #  sum(CAST(reddit_data_account.value AS INTEGER)) DESC
     # LIMIT 10
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
