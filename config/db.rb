@@ -10,7 +10,10 @@ namespace :db do
     host = roles[:db].servers.first.host
     source = fetch(:remote_db_dump_location, File.join(['', 'usr', 'local', 'backup', 'sql', 'all_databases.00.psql.gz']))
     destination = fetch(:db_dump_location, File.join('db', 'dumps', host))
-    FileUtils.mkdir_p destination unless File.directory?(destination) || File.symlink?(destination)
+    unless File.directory?(destination) || File.symlink?(destination)
+      FileUtils.mkdir_p destination
+      File.chmod 0775, destination # Ensure group has write access
+    end
     get source, File.join(destination, db_dump_filename)
   end
 
