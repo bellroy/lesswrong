@@ -105,16 +105,25 @@ function populate_side_bar(id, args) {
 
 function toggle_article_navigation(article_id) {
   var elem = $('article_nav_controls');
-  if(elem && article_id) {
-    // TODO URI escape parameters
-    new Ajax.Request('/api/article_navigation', {
-      method: 'get',
-      parameters: 'article_id=' + article_id,
-      onSuccess: function(response) {
-        elem.innerHTML = response.responseText;
-        show('article_nav_controls');
-      }
-    });
+  if(!(elem && article_id)) return;
+
+  if(!elem.style.display) {
+    // Already visible
+    hide(elem);
+  }
+  else {
+    if(!elem.hasChildNodes()) {
+      // Needs to be populated
+      new Ajax.Request('/api/article_navigation', {
+        method: 'get',
+        parameters: 'article_id=' + escape(article_id),
+        onSuccess: function(response) {
+          elem.innerHTML = response.responseText;
+        }
+      });
+    }
+
+    show(elem);
   }
 }
 
