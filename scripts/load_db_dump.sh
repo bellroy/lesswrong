@@ -21,7 +21,7 @@ cd r2
 
 # Stop the current server
 if [ -e "$PIDFILE" ]; then
-  paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
+  sudo -u www-data paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
 
 cd ..
@@ -31,24 +31,28 @@ for TABLE in changes email query_queue reddit; do
   sudo -u postgres dropdb "$TABLE"
 done
 
-# Extract and load
-sudo -u postgres sh -c "gunzip -c \"$DUMPFILE\" | psql"
+# Extract dump
+DUMPEXTRACT=`echo "$DUMPFILE" | sed s/\\.gz$//`
+rm -f "$DUMPEXTRACT" # gzip will abort if the target file exists
+
+# Load dump
+sudo -u postgres psql -f "$DUMPEXTRACT"
 
 cd r2
 
 # Restart memcache as the cache is now out of date
-if [ -e /etc/init.d/memcached ]; then
-  /etc/init.d/memcached restart
+if [ -x /etc/init.d/memcached ]; then
+  sudo /etc/init.d/memcached restart
 fi
 
 # Start the server
 if [ -e "$PIDFILE" ]; then
-  paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
+  sudo -u www-data paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
 
 # Run the export
 paster run -c "export_to('${EXPORTDB}')" "$INIFILE" ../scripts/db_export.py
 
 # Compress the export
-rm -f "$EXPORTDB.bz2" # bzip2 will exit if the target file exists
+rm -f "$EXPORTDB.bz2" # bzip2 will abort if the target file exists
 bzip2 "$EXPORTDB"
