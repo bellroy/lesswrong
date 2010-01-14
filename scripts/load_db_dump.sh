@@ -20,7 +20,9 @@ cap prod db:fetch_dump
 cd r2
 
 # Stop the current server
-paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
+if [ -e "$PIDFILE" ]; then
+  paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
+fi
 
 cd ..
 
@@ -34,8 +36,15 @@ sudo -u postgres sh -c "gunzip -c \"$DUMPFILE\" | psql"
 
 cd r2
 
-# Stop the current server
-paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
+# Restart memcache as the cache is now out of date
+if [ -e /etc/init.d/memcached ]; then
+  /etc/init.d/memcached restart
+fi
+
+# Start the server
+if [ -e "$PIDFILE" ]; then
+  paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
+fi
 
 # Run the export
 paster run -c "export_to('${EXPORTDB}')" "$INIFILE" ../scripts/db_export.py
