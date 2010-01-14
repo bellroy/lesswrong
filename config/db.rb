@@ -1,5 +1,5 @@
 set :db_dump_filename do
-  stage + '.psql.gz'
+  "#{stage}.psql.gz"
 end
 
 namespace :db do
