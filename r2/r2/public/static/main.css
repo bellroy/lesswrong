@@ -224,6 +224,7 @@ div.tools div.vote a.down {
 div.tools a.comment {
 	float: left;
 	margin-left: 10px;
+	margin-bottom: 1em;
 }
 body.post div.tools a.comment {
 	font-weight: bold;
