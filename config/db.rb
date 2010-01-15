@@ -5,10 +5,10 @@ end
 namespace :db do
 
   desc 'Fetches the latest PostgesQL dump'
-  task :fetch_dump, :roles => :db, :only => { :primary => true } do
-    # ensure_rake_tasks_present!
-    host = roles[:db].servers.first.host
-    source = fetch(:remote_db_dump_location, File.join(['', 'usr', 'local', 'backup', 'sql', 'all_databases.00.psql.gz']))
+  task :fetch_dump, :roles => :backups do
+    set :user, 'backup'
+    host = roles[:app].servers.first.host
+    source = fetch(:remote_db_dump_location, File.join(['', 'srv', 'backup', 'sql', host.sub(/\..*$/, ''), 'all_databases.psql.gz']))
     destination = fetch(:db_dump_location, File.join('db', 'dumps', host))
     unless File.directory?(destination) || File.symlink?(destination)
       FileUtils.mkdir_p destination
