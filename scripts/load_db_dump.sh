@@ -1,30 +1,47 @@
 #!/bin/bash
 
-for arg in "$1" "$2" "$3"; do
+for arg in "$1" "$2"; do
   if [ "EMPTY${arg}" = "EMPTY" ]; then
-    echo "Usage: load_db_dump.sh /path/to/dump.psql.gz /path/to/export.db lesswrong.ini"
-    echo "This script should be run from within the lesswrong directory."
-    echo "E.g. /srv/www/lesswrong.org/current"
+    echo "Usage: load_db_dump.sh basedir lesswrong.ini"
+    echo "E.g. load_db_dump.sh /srv/www/lesswrong.org lesswrong.org.ini"
     exit 2
   fi
 done
 
-DUMPFILE="$1" # E.g. /srv/www/lesswrong.org/current/db/dumps/serpent.trike.com.au/prod.psql.gz
-EXPORTDB="$2" # E.g /srv/www/lesswrong.org/shared/files/lesswrong.db
-INIFILE="$3"  # E.g. lesswrong.org.ini
-PIDFILE="../../shared/pids/paster.pid"
+BASEDIR="$1"
+INIFILE="$2"  # E.g. lesswrong.org.ini
+
+first_char=`echo "$BASEDIR" | grep -o '^/'`
+if [ "EMPTY${first_char}" = "EMPTY" ]; then
+  echo "The basepath passed to this script must be an absolute path"
+  exit 2
+fi
+
+CURRENT="$BASEDIR/current"
+SHARED="$BASEDIR/shared"
+APPDIR="$CURRENT/r2"
+
+if [ ! -e "$CURRENT" ]; then
+  echo "The base path doesn't appear to refer to a capistrano managed directory tree"
+  exit 2
+fi
+
+DUMPFILE="$CURRENT/db/dumps/serpent.trike.com.au/prod.psql.gz"
+EXPORTDB="$SHARED/files/lesswrong.db"
+PIDFILE="$SHARED/pids/paster.pid"
+
+cd "$CURRENT"
 
 # Fetch the remote production dump
 cap prod db:fetch_dump
 
-cd r2
+cd "$APPDIR"
 
 # Stop the current server
 if [ -e "$PIDFILE" ]; then
+  echo "Stopping server"
   sudo -u www-data paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
-
-cd ..
 
 # Drop existing databases
 for TABLE in changes email query_queue reddit; do
@@ -38,15 +55,14 @@ rm -f "$DUMPEXTRACT" # gzip will abort if the target file exists
 # Load dump
 sudo -u postgres psql -f "$DUMPEXTRACT"
 
-cd r2
-
 # Restart memcache as the cache is now out of date
 if [ -x /etc/init.d/memcached ]; then
   sudo /etc/init.d/memcached restart
 fi
 
 # Start the server
-if [ -e "$PIDFILE" ]; then
+if [ ! -e "$PIDFILE" ]; then
+  echo "Starting server"
   sudo -u www-data paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
 
@@ -56,3 +72,4 @@ paster run -c "export_to('${EXPORTDB}')" "$INIFILE" ../scripts/db_export.py
 # Compress the export
 rm -f "$EXPORTDB.bz2" # bzip2 will abort if the target file exists
 bzip2 "$EXPORTDB"
+
