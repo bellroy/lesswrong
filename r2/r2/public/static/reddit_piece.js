@@ -111,7 +111,7 @@ function toggle_article_navigation(article_id) {
   if(!elem.style.display) {
     // Already visible
     hide(elem);
-    state.innerHTML = '+'
+    state.className = 'dsphead';
   }
   else {
     if(!elem.hasChildNodes()) {
@@ -126,7 +126,7 @@ function toggle_article_navigation(article_id) {
     }
 
     show(elem);
-    state.innerHTML = '-'
+    state.className = 'dsphead open';
   }
 }
 

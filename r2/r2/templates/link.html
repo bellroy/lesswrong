@@ -115,7 +115,7 @@
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
     %if full_article:
 		<div class="articlenavigation">
-			<h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')"><span class="dspchar">(<span id="articlenavstate">+</span>)</span>&nbsp; Article Navigation</a></h4>
+			<h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
 			<div style="display: none;" class="dspcont" id="article_nav_controls"></div>
 		</div><!-- .articlenavigation -->
     %endif

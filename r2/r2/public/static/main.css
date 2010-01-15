@@ -483,15 +483,7 @@ div.sidebox select {
     display: inline;
 }
 
-
-
-
-
-
-/*{_RL*/
-
-
-/* These are new styles
+/* Article Navigation
 ----------------------------------------------------------------------------------------------------*/
 div.articlenavigation {
 	clear: both;
@@ -503,6 +495,11 @@ div.articlenavigation h4 {
 }
 div.articlenavigation h4 a {
 	text-decoration: none;
+	background: url(/static/disclosure-triangle.gif) top left no-repeat;
+	padding-left: 18px;
+}
+div.articlenavigation h4 a.open {
+  background-position: 0 -16px;
 }
 div.articlenavigation ul {
 	border-top: 1px solid #DEDEDE;
@@ -547,5 +544,3 @@ div.articlenavigation ul li span.type {
 	margin: 0 0 0 10px;
 	width: 509px;
 }
-
-/*}_RL*/
