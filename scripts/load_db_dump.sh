@@ -51,6 +51,7 @@ done
 # Extract dump
 DUMPEXTRACT=`echo "$DUMPFILE" | sed s/\\.gz$//`
 rm -f "$DUMPEXTRACT" # gzip will abort if the target file exists
+gunzip "$DUMPFILE"
 
 # Load dump
 sudo -u postgres psql -f "$DUMPEXTRACT"
