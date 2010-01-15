@@ -105,11 +105,13 @@ function populate_side_bar(id, args) {
 
 function toggle_article_navigation(article_id) {
   var elem = $('article_nav_controls');
-  if(!(elem && article_id)) return;
+  var state = $('articlenavstate');
+  if(!(elem && article_id && state)) return;
 
   if(!elem.style.display) {
     // Already visible
     hide(elem);
+    state.innerHTML = '+'
   }
   else {
     if(!elem.hasChildNodes()) {
@@ -124,6 +126,7 @@ function toggle_article_navigation(article_id) {
     }
 
     show(elem);
+    state.innerHTML = '-'
   }
 }
 
