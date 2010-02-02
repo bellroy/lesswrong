@@ -209,16 +209,16 @@ def build_thing_tables():
 
         thing_engines[name] = thing_engine
 
-            #make thing table
+        #make thing table
         thing_table = get_thing_table(make_metadata(thing_engine), name)
-            create_table(thing_table,
-                         index_commands(thing_table, 'thing'))
+        create_table(thing_table,
+                     index_commands(thing_table, 'thing'))
 
-            #make data tables
+        #make data tables
         data_metadata = make_metadata(data_engine)
         data_table = get_data_table(data_metadata, name)
-            create_table(data_table,
-                         index_commands(data_table, 'data'))
+        create_table(data_table,
+                     index_commands(data_table, 'data'))
 
         #do we need another table?
         if thing_engine == data_engine:
@@ -253,10 +253,10 @@ def build_rel_tables():
                                   type1_id = type1_id,
                                   type2_id = type2_id))
 
-            metadata = make_metadata(engine)
+        metadata = make_metadata(engine)
 
-            #relation table
-            rel_table = get_rel_table(metadata, name)
+        #relation table
+        rel_table = get_rel_table(metadata, name)
         create_table(rel_table,
                      index_commands(rel_table, 'rel'))
 
@@ -270,14 +270,14 @@ def build_rel_tables():
                 create_table(rel_t1_table, index_commands(rel_t1_table, 'thing'))
                 extra_thing_tables.setdefault(type_id, set()).add(rel_t1_table)
             else:
-            rel_t1_table = get_thing_table(metadata, type1_name)
+                rel_t1_table = get_thing_table(metadata, type1_name)
 
         #make thing2 table if required
         if type1_id == type2_id:
-                rel_t2_table = rel_t1_table
+            rel_t2_table = rel_t1_table
         elif engine == thing_engines[type2_name]:
             rel_t2_table = types_name[type2_name].thing_table
-            else:
+        else:
             if dbm.extra_thing2.get(engine):
                 rel_t2_table = get_thing_table(metadata, 'rel_' + name + '_type2')
                 create_table(rel_t2_table, index_commands(rel_t2_table, 'thing'))
@@ -285,10 +285,10 @@ def build_rel_tables():
             else:
                 rel_t2_table = get_thing_table(metadata, type2_name)
 
-            #build the data
-            rel_data_table = get_data_table(metadata, 'rel_' + name)
-            create_table(rel_data_table,
-                         index_commands(rel_data_table, 'data'))
+        #build the data
+        rel_data_table = get_data_table(metadata, 'rel_' + name)
+        create_table(rel_data_table,
+                     index_commands(rel_data_table, 'data'))
 
         rel = storage(type_id = type_id,
                       type1_id = type1_id,
@@ -820,8 +820,8 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
 
     if sort:
         cols = add_sort(sort,
-                           {'_':r_table, '_t1_':t1_table, '_t2_':t2_table},
-                           s)
+                        {'_':r_table, '_t1_':t1_table, '_t2_':t2_table},
+                        s)
         
         #do we need more joins?
         for (col, table) in cols:
