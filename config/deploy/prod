@@ -8,5 +8,5 @@ set :rails_env, "NA"
 role :app, "serpent.trike.com.au"
 role :web, "serpent.trike.com.au"
 role :db,  "serpent.trike.com.au", :primary => true
-role :backups, "offsite.trike.com.au", :user => 'backup', :no_release => true
+role :backups, "backup.trike.com.au", :user => 'backup', :no_release => true
 
