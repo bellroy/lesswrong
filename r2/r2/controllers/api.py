@@ -30,6 +30,7 @@ from validator import *
 from r2.models import *
 from r2.models.subreddit import Default as DefaultSR
 import r2.models.thing_changes as tc
+import r2.models.poll as poll
 
 from r2.controllers import ListingController
 
@@ -284,6 +285,11 @@ class ApiController(RedditController):
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
+          
+          # Replace any poll-syntax with polls by ID
+          l.article = poll.parsepolls(l.article, l._id)
+          l._commit()
+          
           #set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
@@ -294,7 +300,7 @@ class ApiController(RedditController):
         else:
           old_url = l.url
           l.title = request.post.title
-          l.article = new_content
+          l.article = poll.parsepolls(new_content, l._id)
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -580,7 +586,7 @@ class ApiController(RedditController):
 
         if not res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG,errors.NOT_AUTHOR),
                            comment._fullname):
-            comment.body = body
+            comment.body = poll.parsepolls(body, comment._id)
             if not c.user_is_admin: comment.editted = True
             comment._commit()
             res._send_things(comment)
@@ -651,6 +657,7 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
+            item.body = poll.parsepolls(item.body, item._id)
             res._update("comment_reply_" + parent._fullname, 
                         innerHTML='', value='')
             res._send_things(item)
@@ -772,6 +779,27 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
+
+	@Json
+	@validate(VUser(),
+	          comment = VComment('commentid'),
+	          ip = ValidIP())
+	def POST_ballot(self, comment, polls, ip):
+		user = c.user
+		# TODO
+
+    #@validate(VUser(),
+    #          VCaptcha(),
+    #          VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
+    #          ip = ValidIP(),
+    #          sr = VSubmitSR('sr'),
+    #          title = VTitle('title'),
+    #          l = VLink('article_id'),
+    #          new_content = nop('article'),
+    #          save = nop('save'),
+    #          continue_editing = VBoolean('keep_editing'),
+    #          tags = VTags('tags'))
+    #def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
 
     @Json
     @validate(VUser(),
