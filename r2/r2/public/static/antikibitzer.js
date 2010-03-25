@@ -53,14 +53,12 @@ function apply_kibitzing(){
 
 apply_kibitzing();
 
-unsafeWindow.toggle_kibitzing = toggle_kibitzing;
-
 var div = document.createElement("div")
 div.innerHTML = "<div id='kfloat' style='position:fixed;top:0px;right:0px'><form><input id='kbutton' type='button' value='Turn Kibitzing On' onclick='toggle_kibitzing()'/></form></div><script>toggle_kibitzing()</script>";
 
 document.body.appendChild(div);
 
-unsafeWindow.Ajax.Responders.register({
+Ajax.Responders.register({
   onComplete: function(request,response,json) {
     if ((request.url == "/api/side_comments") || (request.url == "/api/side_posts"))
 	apply_kibitzing();

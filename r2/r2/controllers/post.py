@@ -87,6 +87,7 @@ class PostController(ApiController):
         return self.redirect(request.referer)
 
     @validate(pref_public_votes = VBoolean('public_votes'),
+              pref_kibitz = VBoolean('kibitz'),
               pref_hide_ups = VBoolean('hide_ups'),
               pref_hide_downs = VBoolean('hide_downs'),
               pref_numsites = VInt('numsites', 1, 100),
