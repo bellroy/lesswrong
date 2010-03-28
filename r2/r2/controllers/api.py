@@ -30,7 +30,6 @@ from validator import *
 from r2.models import *
 from r2.models.subreddit import Default as DefaultSR
 import r2.models.thing_changes as tc
-import r2.models.poll as poll
 
 from r2.controllers import ListingController
 
@@ -279,16 +278,13 @@ class ApiController(RedditController):
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
+        import r2.models.poll as poll
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
-          
-          # Replace any poll-syntax with polls by ID
-          l.article = poll.parsepolls(l.article, l._id)
-          l._commit()
           
           #set the ratelimiter
           if should_ratelimit:
@@ -300,7 +296,7 @@ class ApiController(RedditController):
         else:
           old_url = l.url
           l.title = request.post.title
-          l.article = poll.parsepolls(new_content, l._id)
+          l.set_article(new_content)
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -586,9 +582,8 @@ class ApiController(RedditController):
 
         if not res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG,errors.NOT_AUTHOR),
                            comment._fullname):
-            comment.body = poll.parsepolls(body, comment._id)
             if not c.user_is_admin: comment.editted = True
-            comment._commit()
+            comment.set_body(body)
             res._send_things(comment)
 
             # flag search indexer that something has changed
@@ -657,7 +652,6 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
-            item.body = poll.parsepolls(item.body, item._id)
             res._update("comment_reply_" + parent._fullname, 
                         innerHTML='', value='')
             res._send_things(item)
@@ -784,6 +778,7 @@ class ApiController(RedditController):
     @validate(VUser(), VModhash(),
               comment = VLinkOrCommentID('comment'))
     def POST_submitballot(self, res, comment):
+        import r2.models.poll as poll
         ip = request.ip
         user = c.user
         spam = (c.user._spam or
@@ -796,6 +791,7 @@ class ApiController(RedditController):
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
                 pollobj = poll.Poll._byID(pollid)
+                print("pollobj = "+str(pollobj))
                 response = request.POST[param]
                 ballot = poll.Ballot.submitballot(user, comment, pollobj, response, ip, spam)
                 if ballot and g.write_query_queue:

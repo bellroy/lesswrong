@@ -1322,13 +1322,47 @@ class SiteMeter(Wrapped):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
 
-class PollDisplay(Wrapped):
+
+
+class PollBallot(Wrapped):
     def __init__(self, poll, *a, **kw):
         self.poll = poll
         Wrapped.__init__(self, *a, **kw)
 
-class PollResultDisplay(Wrapped):
+class PollResults(Wrapped):
     def __init__(self, poll, *a, **kw):
         self.poll = poll
         Wrapped.__init__(self, *a, **kw)
+
+class MultipleChoicePollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class MultipleChoicePollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class ScalePollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class ScalePollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class ProbabilityPollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class ProbabilityPollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class NumberPollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class NumberPollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
 

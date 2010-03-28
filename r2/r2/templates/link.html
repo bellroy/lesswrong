@@ -105,7 +105,7 @@
 </%def>
 
 <%def name="article()">
-  ${unsafe(cleanhtml(renderpolls(thing.article, thing._id)))}
+  ${unsafe(renderpolls(cleanhtml(thing.article), thing._id))}
   <div class="social-sharing-button">
   <!-- AddThis Button BEGIN -->
   <script type="text/javascript">var addthis_pub="lesswrong";</script>

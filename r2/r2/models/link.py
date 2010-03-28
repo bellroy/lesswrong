@@ -159,6 +159,9 @@ class Link(Thing, Printable):
         l.is_self = True
         l._commit()
 
+        # Parse and create polls in the article
+        set_article(article)
+
         l.set_url_cache()
 
         # Add tags
@@ -167,6 +170,12 @@ class Link(Thing, Printable):
 
         return l
         
+    def set_article(self, article):
+        import r2.models.poll as poll
+        self.article = article
+        self.has_polls = poll.containspolls(article)
+        self._commit()
+    
     def _summary(self):
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[0]
@@ -755,13 +764,19 @@ class Comment(Thing, Printable):
                           author_id = author._id,
                           ip = ip,
                           date = date)
-
+        
         comment._spam = spam
 
         #these props aren't relations
         if parent:
             comment.parent_id = parent._id
 
+        comment._commit()
+
+        #Parse the comment for polls
+        import r2.models.poll as poll
+        comment.body = poll.parsepolls(body, comment)
+        
         comment._commit()
 
         link._incr('num_comments', 1)
@@ -790,6 +805,14 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
+    # Changes the body of this comment, parsing the new body for polls and
+    # creating them if found, and commits.
+    def set_body(self, body):
+        import r2.models.poll as poll
+        self.has_polls = poll.containspolls(body)
+        self.body = poll.parsepolls(body, self)
+        self._commit()
+
     @property
     def subreddit_slow(self):
         from subreddit import Subreddit
@@ -811,6 +834,8 @@ class Comment(Thing, Printable):
     @staticmethod
     def cache_key(wrapped):
         if c.user_is_admin:
+            return False
+        if hasattr(wrapped, 'has_polls'):
             return False
 
         s = (str(i) for i in (c.profilepage,
