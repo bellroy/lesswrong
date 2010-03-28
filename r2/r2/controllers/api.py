@@ -779,27 +779,30 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
-
-	@Json
-	@validate(VUser(),
-	          comment = VComment('commentid'),
-	          ip = ValidIP())
-	def POST_ballot(self, comment, polls, ip):
-		user = c.user
-		# TODO
-
-    #@validate(VUser(),
-    #          VCaptcha(),
-    #          VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
-    #          ip = ValidIP(),
-    #          sr = VSubmitSR('sr'),
-    #          title = VTitle('title'),
-    #          l = VLink('article_id'),
-    #          new_content = nop('article'),
-    #          save = nop('save'),
-    #          continue_editing = VBoolean('keep_editing'),
-    #          tags = VTags('tags'))
-    #def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
+    
+    @Json
+    @validate(VUser(),
+              VModhash(),
+              VCommentID('comment'))
+    def POST_submitballot(self, comment):
+        ip = request.ip
+        print("ip="+str(ip))
+        print("request="+str(request))
+        print("comment="+str(comment))
+        user = c.user
+        spam = (c.user._spam or
+                errors.BANNED_IP in c.errors or
+                errors.CHEATER in c.errors)
+        
+        for param in request.POST:
+            ballotparam = re.match("poll_([a-z0-9]+)", param)
+            if(ballotparam and request.POST[param]):
+                pollid = int(ballotparam.group(1), 36)
+                pollobj = poll.Poll._byID(pollid)
+                response = request.POST[param]
+                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, ip, spam)
+                if g.write_query_queue:
+                    queries.new_ballot(ballot)
 
     @Json
     @validate(VUser(),
