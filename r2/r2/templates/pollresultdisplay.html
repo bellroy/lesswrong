@@ -1,0 +1,6 @@
+<B>${thing.poll.description}</B>
+<ul>
+  %for ii in range(len(thing.poll.choices)):
+    <li>${thing.poll.choices[ii]}: ${thing.poll.num_votes_for_choice(ii)}</li>
+  %endfor
+</ul>

@@ -783,17 +783,15 @@ class ApiController(RedditController):
     @Json
     @validate(VUser(),
               VModhash(),
-              VCommentID('comment'))
+              VLinkOrCommentID('comment'))
     def POST_submitballot(self, comment):
         ip = request.ip
-        print("ip="+str(ip))
-        print("request="+str(request))
-        print("comment="+str(comment))
         user = c.user
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
         
+        #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
         for param in request.POST:
             ballotparam = re.match("poll_([a-z0-9]+)", param)
             if(ballotparam and request.POST[param]):
@@ -803,6 +801,8 @@ class ApiController(RedditController):
                 ballot = poll.Ballot.submitballot(user, comment, pollobj, response, ip, spam)
                 if g.write_query_queue:
                     queries.new_ballot(ballot)
+        
+        #Return a new rendering, with the results included
 
     @Json
     @validate(VUser(),

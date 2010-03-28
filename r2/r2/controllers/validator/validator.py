@@ -131,6 +131,25 @@ class VLink(Validator):
                 else:
                     return None
 
+class VLinkOrCommentID(Validator):
+    def __init__(self, param, redirect = True, *a, **kw):
+        Validator.__init__(self, param, *a, **kw)
+        self.redirect = redirect
+    
+    def run(self, thing_id):
+        if thing_id:
+            try:
+                parsedid = int(link_id, 36)
+                return Comment._byID(parsedid, True)
+            except (NotFound, ValueError):
+                try:
+                    return Link._byID(parsedid, True)
+                except (NotFound, ValueError):
+                    if self.redirect:
+                        abort(404, 'page not found')
+                    else:
+                        return None
+
 class VTagByName(Validator):
     def __init__(self, param, *a, **kw):
         Validator.__init__(self, param, *a, **kw)

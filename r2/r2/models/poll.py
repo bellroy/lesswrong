@@ -4,6 +4,8 @@ from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationEr
 from account import Account
 from r2.lib.utils import to36
 from r2.lib.db import queries
+from r2.lib.wrapped import Wrapped
+from r2.lib.pages import *
 
 poll_re = re.compile(r"""
     \[\s*poll\s*(?::([a-zA-Z]*))?\s*\]    # Starts with [poll] or [poll:polltype]
@@ -55,14 +57,15 @@ def renderpolls(text, commentid):
     rendered_body = re.sub(pollid_re, checkmatch, text)
     
     if(len(polls_not_voted) > 0):
-    	return polltemplate(commentid, rendered_body,)
+        return wrap_ballot(commentid, rendered_body)
     else:
         return rendered_body
 
-def polltemplate(commentid, body):
-    ret = "<form id=\"" + str(commentid) + "\" method=\"post\" action=\"/api/submitballot\" onsubmit=\"return submitballot(this)\">" + body + pollfooter(commentid) + "<button type=\"Submit\">Submit</button><button>Reveal</button></form>"
-
-def pollfooter(commentid):
+def wrap_ballot(commentid, body):
+    return ("<form id=\"" + str(commentid) + "\" method=\"post\" action=\"/api/submitballot\" onsubmit=\"return submitballot(this)\">"
+           + body
+           + "<button type=\"Submit\">Submit</button>"
+           + "</form>")
 
 def createpoll(commentid, polltype, args):
     poll = Poll.createpoll(commentid, polltype, args[0], args[1:])
@@ -81,11 +84,7 @@ class Poll(Thing):
         return poll
     
     def render(self):
-        ret = "<form><B>" + self.description + "\n"
-        for ii in range(len(self.choices)):
-            ret += "<input type=\"radio\" name=\"" + self._id36 + "\" value=\"" + str(ii) + "\">" + self.choices[ii] + "</input>"
-        ret += "</B></form>"
-        return ret
+        return PollDisplay(self).render()
     
     def render_results(self):
         ballots = list(Ballot._query(Ballot.c._thing2_id == self._id))
@@ -94,7 +93,8 @@ class Poll(Thing):
         for ballot in ballots:
             sum += int(ballot.response)
         
-        return self.description + (" (mean %i)" % (sum/len(ballots)))
+        #return self.description + (" (mean %i)" % (sum/len(ballots)))
+        return PollResultDisplay(self).render()
     
     def user_has_voted(self, user):
         oldballots = get_user_ballot(user, self)
@@ -102,6 +102,10 @@ class Poll(Thing):
     
     def get_results(self):
         return get_ballots(self)
+    
+    def num_votes_for_choice(self, choice):
+        # TODO
+        return 0
 
 class Ballot(Relation(Account, Poll)):
     @classmethod

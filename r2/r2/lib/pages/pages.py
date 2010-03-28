@@ -1321,3 +1321,14 @@ class SiteMeter(Wrapped):
     def __init__(self, codename, *a, **kw):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
+
+class PollDisplay(Wrapped):
+    def __init__(self, poll, *a, **kw):
+        self.poll = poll
+        Wrapped.__init__(self, *a, **kw)
+
+class PollResultDisplay(Wrapped):
+    def __init__(self, poll, *a, **kw):
+        self.poll = poll
+        Wrapped.__init__(self, *a, **kw)
+
