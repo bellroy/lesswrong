@@ -6,6 +6,7 @@ from r2.lib.utils import to36
 from r2.lib.db import queries
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import *
+from r2.lib.filters import safemarkdown
 
 poll_re = re.compile(r"""
     \[\s*poll\s*(?::([a-zA-Z]*))?\s*\]    # Starts with [poll] or [poll:polltype]
@@ -30,6 +31,10 @@ def parsepolls(text, thingid):
 pollid_re = re.compile(r"""
     \[pollid:([a-zA-Z0-9]*)\]
     """, re.VERBOSE)
+
+def pollsandmarkdown(text, commentid):
+    ret = renderpolls(safemarkdown(text), commentid)
+    return ret
 
 def renderpolls(text, commentid):
     # Look for poll IDs in a comment/article, like "[pollid:123]", find the
@@ -62,7 +67,7 @@ def renderpolls(text, commentid):
         return rendered_body
 
 def wrap_ballot(commentid, body):
-    return ("<form id=\"" + str(commentid) + "\" method=\"post\" action=\"/api/submitballot\" onsubmit=\"return submitballot(this)\">"
+    return ("<form id=\"" + str(to36(commentid)) + "\" method=\"post\" action=\"/api/submitballot\" onsubmit=\"return submitballot(this)\">"
            + body
            + "<button type=\"Submit\">Submit</button>"
            + "</form>")
@@ -76,15 +81,28 @@ def createpoll(commentid, polltype, args):
 class Poll(Thing):
     @classmethod
     def createpoll(cls, commentid, polltype, description, options):
+        polltype = 'multiplechoice'
         poll = cls(commentid = commentid,
-                   polltype = polltype,
+                   polltype = polltype.lower(),
                    description = description,
-                   choices = options)
+                   choices = options,
+                   votes_for_choice = [])
+        poll.init_blank()
         poll._commit()
         return poll
     
+    def init_blank(self):
+        # TODO
+        self.votes_for_choice = []
+        for choice in self.choices:
+            self.votes_for_choice.append(0)
+        
+    def add_response(self, response):
+        self.votes_for_choice[int(response)] = self.votes_for_choice[int(response)] + 1
+        self._commit()
+    
     def render(self):
-        return PollDisplay(self).render()
+        return PollDisplay(self).render('html')
     
     def render_results(self):
         ballots = list(Ballot._query(Ballot.c._thing2_id == self._id))
@@ -94,18 +112,21 @@ class Poll(Thing):
             sum += int(ballot.response)
         
         #return self.description + (" (mean %i)" % (sum/len(ballots)))
-        return PollResultDisplay(self).render()
+        return PollResultDisplay(self).render('html')
     
     def user_has_voted(self, user):
         oldballots = get_user_ballot(user, self)
+        print("user_has_voted found "+str(len(oldballots))+" ballots")
         return (len(oldballots) > 0)
     
     def get_results(self):
         return get_ballots(self)
     
     def num_votes_for_choice(self, choice):
-        # TODO
-        return 0
+        if (self.votes_for_choice):
+            return self.votes_for_choice[choice]
+        else:
+            return -1
 
 class Ballot(Relation(Account, Poll)):
     @classmethod
@@ -115,11 +136,13 @@ class Ballot(Relation(Account, Poll)):
             oldballot = list(cls._query(cls.c._thing1_id == user._id,
                                         cls.c._thing2_id == pollid))
             if len(oldballot):
-                ballot = oldballot[0]
+                print("not submitting a ballot because an old one was found")
+                return
             else:
+                print("creating a ballot")
                 ballot = Ballot(user, pollobj, response)
                 ballot.ip = ip
-                #ballot = cls(pollid = pollid, ip = ip, spam = spam)
+                pollobj.add_response(response)
             ballot.response = response
             ballot._commit()
         return ballot

@@ -15,7 +15,7 @@ function submitballot(form)
         }
     }
     
-    redditRequest('submitballot', ballots, null, true); 
+    result = redditRequest('submitballot', ballots, null, true); 
     return false;
 }
 

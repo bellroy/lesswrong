@@ -65,7 +65,7 @@
 </%def>
 
 <%def name="commentBody()">
-${unsafe(safemarkdown(thing.body))}
+  ${unsafe(pollsandmarkdown(thing.body, thing._id))}
 </%def>
 
 <%def name="commentText()">

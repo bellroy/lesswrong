@@ -781,10 +781,9 @@ class ApiController(RedditController):
                 res._show('status_'+thing._fullname)
     
     @Json
-    @validate(VUser(),
-              VModhash(),
-              VLinkOrCommentID('comment'))
-    def POST_submitballot(self, comment):
+    @validate(VUser(), VModhash(),
+              comment = VLinkOrCommentID('comment'))
+    def POST_submitballot(self, res, comment):
         ip = request.ip
         user = c.user
         spam = (c.user._spam or
@@ -799,10 +798,11 @@ class ApiController(RedditController):
                 pollobj = poll.Poll._byID(pollid)
                 response = request.POST[param]
                 ballot = poll.Ballot.submitballot(user, comment, pollobj, response, ip, spam)
-                if g.write_query_queue:
+                if ballot and g.write_query_queue:
                     queries.new_ballot(ballot)
         
         #Return a new rendering, with the results included
+        res._send_things(comment)
 
     @Json
     @validate(VUser(),

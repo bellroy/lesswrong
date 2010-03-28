@@ -138,12 +138,12 @@ class VLinkOrCommentID(Validator):
     
     def run(self, thing_id):
         if thing_id:
+            parsed_id = int(thing_id, 36)
             try:
-                parsedid = int(link_id, 36)
-                return Comment._byID(parsedid, True)
+                return Comment._byID(parsed_id, True)
             except (NotFound, ValueError):
                 try:
-                    return Link._byID(parsedid, True)
+                    return Link._byID(parsed_id, True)
                 except (NotFound, ValueError):
                     if self.redirect:
                         abort(404, 'page not found')
