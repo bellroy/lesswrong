@@ -160,7 +160,7 @@ class Link(Thing, Printable):
         l._commit()
 
         # Parse and create polls in the article
-        set_article(article)
+        l.set_article(article)
 
         l.set_url_cache()
 
@@ -171,9 +171,7 @@ class Link(Thing, Printable):
         return l
         
     def set_article(self, article):
-        import r2.models.poll as poll
         self.article = article
-        self.has_polls = poll.containspolls(article)
         self._commit()
     
     def _summary(self):
@@ -263,6 +261,8 @@ class Link(Thing, Printable):
     @staticmethod
     def cache_key(wrapped):
         if c.user_is_admin:
+            return False
+        if hasattr(wrapped, 'has_polls') and wrapped.has_polls:
             return False
 
         s = (str(i) for i in (wrapped.render_class.__name__,
@@ -835,7 +835,7 @@ class Comment(Thing, Printable):
     def cache_key(wrapped):
         if c.user_is_admin:
             return False
-        if hasattr(wrapped, 'has_polls'):
+        if hasattr(wrapped, 'has_polls') and wrapped.has_polls:
             return False
 
         s = (str(i) for i in (c.profilepage,

@@ -8,15 +8,15 @@ from r2.lib.pages import MultipleChoicePollBallot, MultipleChoicePollResults, Sc
 from r2.lib.filters import safemarkdown
 
 poll_re = re.compile(r"""
-    \[\s*poll\s*(?::([a-zA-Z0-9_\.]*))?\s*\]    # Starts with [poll] or [poll:polltype]
-    ((?:\s*{[^}]+})*)                     # Poll options enclosed in curly braces
+    \[\s*poll\s*(?::\s*([a-zA-Z0-9_\.]*))?\s*\]    # Starts with [poll] or [poll:polltype]
+    ((?:\s*{[^}]+})*)                             # Poll options enclosed in curly braces
     """, re.VERBOSE)
 poll_options_re = re.compile(r"""
     {([^}]+)}
     """, re.VERBOSE)
 
 def parsepolls(text, thing):
-    # Look for markup that looks like a poll specification, ie "[poll:polltype]{polldescription}",
+    # Look for markup that looks like a poll specification, ie "[poll:polltype]{poll options}",
     # parse the descriptions and create poll objects, and replace the specifications with IDs,
     # ie "[pollid:123]". Returns the adjusted text.
     def checkmatch(match):
@@ -35,11 +35,11 @@ def pollsandmarkdown(text, commentid):
     ret = renderpolls(safemarkdown(text), commentid)
     return ret
 
+# Look for poll IDs in a comment/article, like "[pollid:123]", find the
+# matching poll in the database, and convert it into an HTML implementation
+# of that poll. If there was at least one poll, puts poll options ('[]Vote
+# Anonymously [Submit]/[View Results] [Raw Data]') at the bottom
 def renderpolls(text, commentid):
-    # Look for poll IDs in a comment/article, like "[pollid:123]", find the
-    # matching poll in the database, and convert it into an HTML implementation
-    # of that poll. If there was at least one poll, puts poll options ('[]Vote
-    # Anonymously [Submit]/[View Results] [Raw Data]') at the bottom
     polls_not_voted = []
     polls_voted = []
     oldballots = []
@@ -48,6 +48,8 @@ def renderpolls(text, commentid):
         pollid = match.group(1)
         try:
             poll = Poll._byID(pollid, True)
+            if poll.thingid != commentid:
+                return "Error: Poll belongs to a different comment"
             
             if(poll.user_has_voted(c.user)):
                 polls_voted.append(pollid)
@@ -62,8 +64,22 @@ def renderpolls(text, commentid):
     
     if(len(polls_not_voted) > 0):
         return wrap_ballot(commentid, rendered_body)
+    elif(len(polls_voted) > 0):
+        return wrap_results(commentid, rendered_body)
     else:
         return rendered_body
+
+def getpolls(text):
+    polls = []
+    matches = re.findall(pollid_re, text)
+    if not matches:
+        return []
+    for match in matches:
+        try:
+            pollid = int(str(match))
+            polls.append(pollid)
+        except: pass
+    return polls
 
 def containspolls(text):
     if re.match(poll_re, text):
@@ -74,16 +90,37 @@ def containspolls(text):
         return False
 
 def wrap_ballot(commentid, body):
-    return ("<form id=\"" + str(to36(commentid)) + "\" method=\"post\" action=\"/api/submitballot\" onsubmit=\"return submitballot(this)\">"
-           + body
-           + "<button type=\"Submit\">Submit</button>"
-           + "</form>")
+    return """
+        <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">"
+            {1}
+        <button type="Submit">Submit</button>"
+        </form>""".format(to36(commentid), body)
+
+def wrap_results(commentid, body):
+     return """{0} <a href="/api/rawdata?thing={1}">Raw poll data</a>""".format(body, to36(commentid))
 
 def createpoll(thing, polltype, args):
-    poll = Poll.createpoll(thing, polltype, args[0], args[1:])
+    poll = Poll.createpoll(thing, polltype, args)
     if g.write_query_queue:
         queries.new_poll(poll)
     return poll._id
+
+def exportvotes(pollids):
+    csv_rows = []
+    for pollid in pollids:
+        poll = Poll._byID(pollid)
+        ballots = poll.get_ballots()
+        for ballot in ballots:
+            row = ballot.export_row()
+            csv_rows.append(row)
+    return exportheader() + '\n'.join(csv_rows)
+
+def exportheader():
+    return """#
+#Exported poll results from Less Wrong
+#Columns: user, pollid, response
+#
+"""
 
 scalepoll_re = re.compile(r"""
     ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
@@ -109,12 +146,10 @@ class MultipleChoicePoll:
 
 class ScalePoll:
     def init_blank(self, poll):
-        print("polltypestring = "+poll.polltypestring)
         parsed_poll = re.match(scalepoll_re, poll.polltypestring)
         poll.scalesize = len(parsed_poll.group(2))
         poll.leftlabel = parsed_poll.group(1)
         poll.rightlabel = parsed_poll.group(3)
-        print("leftlabel="+poll.leftlabel)
         poll.votes_for_choice = []
         for choice in range(poll.scalesize):
             poll.votes_for_choice.append(0)
@@ -174,12 +209,11 @@ class ProbabilityPoll(NumberPoll):
 
 class Poll(Thing):
     @classmethod
-    def createpoll(cls, thing, polltypestring, description, options):
+    def createpoll(cls, thing, polltypestring, options):
         polltype = Poll.normalize_polltype(polltypestring)
         poll = cls(thingid = thing._id,
                    polltype = polltype,
                    polltypestring = polltypestring,
-                   description = description,
                    choices = options)
         thing.has_polls = True
         poll.init_blank()
@@ -275,20 +309,25 @@ class Poll(Thing):
 
 class Ballot(Relation(Account, Poll)):
     @classmethod
-    def submitballot(cls, user, comment, pollobj, response, ip, spam):
+    def submitballot(cls, user, comment, pollobj, response, anonymous, ip, spam):
         with g.make_lock('voting_on_%s' % pollobj._id):
             pollid = pollobj._id
             oldballot = list(cls._query(cls.c._thing1_id == user._id,
                                         cls.c._thing2_id == pollid))
             if len(oldballot):
-                print("not submitting a ballot because an old one was found")
                 return
             else:
-                print("creating a ballot")
                 ballot = Ballot(user, pollobj, response)
                 ballot.ip = ip
+                ballot.anonymous = anonymous
                 pollobj.add_response(response)
             ballot.response = response
             ballot._commit()
         return ballot
+    
+    def export_row(self):
+        userid = self._thing1_id
+        pollid = self._thing2_id
+        user = Account._byID(userid)
+        return "\"{0}\",\"{1}\",\"{2}\"".format(user.name, pollid, self.response)
 

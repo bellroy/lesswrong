@@ -776,8 +776,9 @@ class ApiController(RedditController):
     
     @Json
     @validate(VUser(), VModhash(),
-              comment = VLinkOrCommentID('comment'))
-    def POST_submitballot(self, res, comment):
+              comment = VLinkOrCommentID('comment'),
+              anonymous = VBoolean('anonymous'))
+    def POST_submitballot(self, res, comment, anonymous):
         import r2.models.poll as poll
         ip = request.ip
         user = c.user
@@ -791,15 +792,25 @@ class ApiController(RedditController):
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
                 pollobj = poll.Poll._byID(pollid)
-                print("pollobj = "+str(pollobj))
                 response = request.POST[param]
-                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, ip, spam)
+                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
                 if ballot and g.write_query_queue:
                     queries.new_ballot(ballot)
         
         #Return a new rendering, with the results included
         res._send_things(comment)
 
+    @Json
+    @validate(thing = VLinkOrCommentID('thing'))
+    def GET_rawdata(self, response, thing):
+        import r2.models.poll as poll
+        pollids = poll.getpolls(thing.body)
+        csv = poll.exportvotes(pollids)
+        c.response_content_type = 'text/plain'
+        c.response.content = csv
+        c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'
+        return c.response
+    
     @Json
     @validate(VUser(),
               VModhash(),

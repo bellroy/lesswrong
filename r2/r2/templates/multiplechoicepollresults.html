@@ -1,5 +1,4 @@
 <div class="multiplechoicepoll pollresults">
-  <span class="polldescription">${thing.poll.description}</span>
   <ul>
     %for ii in range(len(thing.poll.choices)):
       <li class="multiplechoicepoll_choice">${thing.poll.choices[ii]}: ${thing.poll.num_votes_for(ii)}</li>
