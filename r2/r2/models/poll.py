@@ -94,7 +94,7 @@ def wrap_ballot(commentid, body):
     return """
         <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">
             {1}
-        <input type="checkbox" checked="1" name="anonymous" value="1">Vote anonymously</input>
+        <input type="checkbox" checked="1" name="anonymous" value="1">Vote anonymously</input><br>
         <button type="Submit">Submit</button>
         </form>""".format(to36(commentid), body)
 
