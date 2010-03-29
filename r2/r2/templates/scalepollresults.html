@@ -1,0 +1,20 @@
+<div class="scalepoll pollresults">
+  <table>
+    %for ii in range(thing.poll.scalesize):
+      <tr>
+        <td align="right">
+          %if ii == 0:
+            <span class="scalepoll_label">${thing.poll.leftlabel}</span>
+          %elif ii == thing.poll.scalesize-1:
+            <span class="scalepoll_label">${thing.poll.rightlabel}</span>
+          %else:
+            <span class="scalepoll_label">*</span>
+          %endif
+        </td>
+        <td><span class="scalepoll_numvotes">${thing.poll.num_votes_for(ii)}</span></td>
+        <td width="300"><div class="pollbar" style="width: ${thing.poll.bar_length(ii, 300)}pt">&nbsp;</div></td>
+      </tr>
+    %endfor
+  </table>
+</div>
+

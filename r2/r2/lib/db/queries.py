@@ -1,5 +1,4 @@
-from r2.models import Account, Link, Comment, Vote, SaveHide
-from r2.models import Message, Inbox, Subreddit
+from r2.models import *
 from r2.lib.db.thing import Thing, Merge
 from r2.lib.db.operators import asc, desc, timeago
 from r2.lib.db import query_queue
@@ -213,6 +212,7 @@ def get_overview(user, sort, time):
     return merge_results(get_comments(user, sort, time),
                          get_submitted(user, sort, time))
     
+
 def user_rel_query(rel, user, name):
     """General user relationship query."""
     q = rel._query(rel.c._thing1_id == user._id,
@@ -354,7 +354,10 @@ def new_vote(vote):
     else:
         add_queries([get_liked(user)], delete_item = vote)
         add_queries([get_disliked(user)], delete_item = vote)
-    
+
+def new_ballot(ballot):
+	return
+
 def new_message(message, inbox_rel):
     from_user = Account._byID(message.author_id)
     to_user = Account._byID(message.to_id)
