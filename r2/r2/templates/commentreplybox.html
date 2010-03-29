@@ -91,6 +91,35 @@
               <li>${_( "item")} 3</li></ul></td></tr>
         <tr><td>&gt; ${_( "quoted text")}</td>
           <td><blockquote>${_( "quoted text" )}</blockquote></td></tr>
+        <tr>
+          <td>[poll]{Red}{Green}{Blue}</td>
+          <td>
+            <input type="radio">Red</input>
+            <input type="radio">Green</input>
+            <input type="radio">Blue</input>
+          </td>
+        </tr>
+        <tr>
+          <td>[poll:probability]</td>
+          <td>
+            Probability: <input type="text"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>[poll:number]</td>
+          <td>
+            Number: <input type="text"></input>
+          </td>
+        </tr>
+        <tr>
+          <td>[poll:Agree....Disagree]</td>
+          <td>
+            Agree
+            <input class="pollchoice" type="radio"></input> <input class="pollchoice" type="radio"></input>
+            <input class="pollchoice" type="radio"></input> <input class="pollchoice" type="radio"></input>
+            Disagree
+          </td>
+        </tr>
       </table>
     </div>
   </form>
