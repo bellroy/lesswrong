@@ -10,7 +10,7 @@ function submitballot(form)
             var f = field(form.elements[i]);
             if (f) {
             	//ballots.append({"name": form.elements[i].name, "response": f});
-                ballots["poll_" + form.elements[i].name] = f;
+                ballots[form.elements[i].name] = f;
             }
         }
     }

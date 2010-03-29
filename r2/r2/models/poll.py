@@ -1,4 +1,5 @@
 import re
+import datetime
 from pylons import c, g, request
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationError
 from account import Account
@@ -91,9 +92,10 @@ def containspolls(text):
 
 def wrap_ballot(commentid, body):
     return """
-        <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">"
+        <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">
             {1}
-        <button type="Submit">Submit</button>"
+        <input type="checkbox" checked="1" name="anonymous" value="1">Vote anonymously</input>
+        <button type="Submit">Submit</button>
         </form>""".format(to36(commentid), body)
 
 def wrap_results(commentid, body):
@@ -107,18 +109,27 @@ def createpoll(thing, polltype, args):
 
 def exportvotes(pollids):
     csv_rows = []
+    aliases = {'next_alias': 1}
     for pollid in pollids:
         poll = Poll._byID(pollid)
         ballots = poll.get_ballots()
         for ballot in ballots:
-            row = ballot.export_row()
+            row = ballot.export_row(aliases)
             csv_rows.append(row)
     return exportheader() + '\n'.join(csv_rows)
 
 def exportheader():
     return """#
-#Exported poll results from Less Wrong
-#Columns: user, pollid, response
+# Exported poll results from Less Wrong
+# Columns: user, pollid, response, date
+# user is either a username or a number (if the 'voted anonymously' button was
+# checked). Anonymous user numbers are shared between poll questions asked in a
+# single comment, but not between comments.
+# pollid is a site-wide unique identifier of the poll.
+# response is the user's answer to the poll. For multiple-choice polls, this is
+# the index of their choice, starting at zero. For scale polls, this is the
+# distance of their choice from the left, starting at zero. For probability and
+# numeric polls, this is a number.
 #
 """
 
@@ -293,6 +304,23 @@ class Poll(Thing):
             return self.votes_for_choice[choice]
         else:
             return -1
+
+    def bar_length(self, choice, max_length):
+        max_votes = 0
+        for otherchoice in self.votes_for_choice:
+             votes = self.num_votes_for(otherchoice)
+             if(votes > max_votes):
+                 max_votes = votes
+        if max_votes == 0:
+            return 0
+        ret = int(float(self.num_votes_for(choice)) / max_votes * max_length)
+        return ret
+
+    def fraction_for(self, choice):
+        return float(self.num_votes_for(choice)) / self.num_votes * 100
+    
+    def rendered_percentage_for(self, choice):
+        return str(int(round(self.fraction_for(choice)))) + "%"
     
     #Get the total number of votes on this poll as a correctly-pluralized noun phrase, ie "123 votes" or "1 vote"
     def num_votes_string(self):
@@ -320,14 +348,21 @@ class Ballot(Relation(Account, Poll)):
                 ballot = Ballot(user, pollobj, response)
                 ballot.ip = ip
                 ballot.anonymous = anonymous
+                ballot.date = datetime.datetime.now().isoformat()
                 pollobj.add_response(response)
             ballot.response = response
             ballot._commit()
         return ballot
     
-    def export_row(self):
+    def export_row(self, aliases):
         userid = self._thing1_id
         pollid = self._thing2_id
-        user = Account._byID(userid)
-        return "\"{0}\",\"{1}\",\"{2}\"".format(user.name, pollid, self.response)
+        if hasattr(self, 'anonymous') and self.anonymous:
+            if not userid in aliases:
+                aliases[userid] = aliases['next_alias']
+                aliases['next_alias'] = aliases['next_alias'] + 1
+            username = aliases[userid]
+        else:
+            username = Account._byID(userid).name
+        return "\"{0}\",\"{1}\",\"{2}\",\"{3}\"".format(username, pollid, self.response, self.date)
 

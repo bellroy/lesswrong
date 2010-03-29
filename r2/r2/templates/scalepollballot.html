@@ -2,7 +2,7 @@
   <div>
     ${thing.poll.leftlabel}
     %for ii in range(thing.poll.scalesize):
-      <input class="pollchoice" type="radio" name="${thing.poll._id36}" value="${ii}"></input>
+      <input class="pollchoice" type="radio" name="poll_${thing.poll._id36}" value="${ii}"></input>
     %endfor
     ${thing.poll.rightlabel}
   </div>

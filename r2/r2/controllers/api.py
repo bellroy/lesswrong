@@ -786,6 +786,7 @@ class ApiController(RedditController):
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
         
+        print("anonymous = "+str(anonymous))
         #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
         for param in request.POST:
             ballotparam = re.match("poll_([a-z0-9]+)", param)
