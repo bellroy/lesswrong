@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import re
 import datetime
 from pylons import c, g, request
