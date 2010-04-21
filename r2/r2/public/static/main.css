@@ -544,3 +544,9 @@ div.articlenavigation ul li span.type {
 	margin: 0 0 0 10px;
 	width: 509px;
 }
+div.articlenavigation #article_nav_controls .loading {
+	padding-left: 18px;
+}
+div.articlenavigation #article_nav_controls .loading img {
+	padding-right: 5px;
+}

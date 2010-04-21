@@ -106,10 +106,13 @@
     ## Each link has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
     %if full_article:
-		<div class="articlenavigation">
-			<h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
-			<div style="display: none;" class="dspcont" id="article_nav_controls"></div>
-		</div><!-- .articlenavigation -->
+    <div class="articlenavigation">
+      <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
+      <div style="display: none;" class="dspcont" id="article_nav_controls">
+        <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
+        Loading&hellip;</span>
+      </div>
+    </div><!-- .articlenavigation -->
     %endif
   </div><!-- .tools -->
 </div><!-- .post -->
