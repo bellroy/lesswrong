@@ -11,7 +11,7 @@ from sqlalchemy import *
 import pylons
 
 class Exporter:
-    
+
     def __init__(self, output_db):
         """Initialise with path to output SQLite DB file"""
         # If the output file exists, delete it so that the db is
@@ -40,8 +40,13 @@ class Exporter:
                 thing = thing_class._byID(thing_id, data=True)
             except NotFound:
                 continue
-            
-            row = row_extract(thing)
+
+            try:
+                row = row_extract(thing)
+            except AttributeError:
+                print >>sys.stderr, "  thing with id %d is broken, skipping" % thing_id
+                continue
+
             table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
@@ -100,14 +105,19 @@ class Exporter:
                 vote = rel._byID(vote_id, data=True)
             except NotFound:
                 continue
-            
-            row = (
-                vote._id,
-                vote._thing1_id, # Account
-                vote._thing2_id, # Link/Comment (votes_on_cls)
-                vote._name, # Vote value
-                vote._date
-            )
+
+            try:
+                row = (
+                    vote._id,
+                    vote._thing1_id, # Account
+                    vote._thing2_id, # Link/Comment (votes_on_cls)
+                    vote._name, # Vote value
+                    vote._date
+                )
+            except AttributeError:
+                print >>sys.stderr, "  vote with id %d is broken, skipping" % vote_id
+                continue
+
             table.insert(values=row).execute()
             processed += 1
             self.update_progress(processed)
@@ -149,7 +159,7 @@ class Exporter:
             Column('comment_karma', Integer),
         )
         self.users.create()
-        
+
         self.articles = Table('articles', self.db,
             Column('id', Integer, primary_key=True),
             Column('title', VARCHAR()),

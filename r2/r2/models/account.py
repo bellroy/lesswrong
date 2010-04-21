@@ -24,6 +24,7 @@ from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
 from r2.lib.memoize      import memoize, clear_memo
 from r2.lib.utils        import modhash, valid_hash, randstr 
+from r2.lib.strings      import strings, plurals
 
 from pylons import g
 from pylons.i18n import _
@@ -45,8 +46,8 @@ class Account(Thing):
                      pref_public_votes = False,
                      pref_hide_ups = False,
                      pref_hide_downs = True,
-                     pref_min_link_score = -4,
-                     pref_min_comment_score = -4,
+                     pref_min_link_score = -2,
+                     pref_min_comment_score = -2,
                      pref_num_comments = g.num_comments,
                      pref_lang = 'en',
                      pref_content_langs = ('en',),
@@ -96,7 +97,7 @@ class Account(Thing):
 
     @property
     def link_karma(self):
-        return self.karma('link')
+        return self.karma('link') * g.post_karma_multiplier
 
     @property
     def comment_karma(self):
@@ -135,32 +136,43 @@ class Account(Thing):
 
         return karmas
 
-    def vote_cache_key(self):
-        return 'account_%d_downvote_count' % self._id
+    def vote_cache_key(self, kind):
+        """kind is 'link' or 'comment'"""
+        return 'account_%d_%s_downvotes' % (self._id, kind)
 
-    def check_downvote(self):
+    def check_downvote(self, vote_kind):
         """Checks whether this account has enough karma to cast a downvote.
 
-        An account's total number of downvotes must be less than or
-        equal to the account's total karma.  Raises an exception if
-        not able to cast a downvote.
+        vote_kind is 'link' or 'comment' depenging on the type of vote that's
+        being cast.
         """
-        from r2.models.vote import Vote
+        from r2.models.vote import Vote, Link, Comment
 
-        downvote_count = g.cache.get(self.vote_cache_key())
-        if downvote_count is None:
-            downvote_count = len(list(Vote._query(Vote.c._thing1_id == self._id,
-                                                  Vote.c._name == str(-1))))
-            g.cache.set(self.vote_cache_key(), downvote_count)
+        def get_cached_downvotes(content_cls):
+            kind = content_cls.__name__.lower()
+            downvotes = g.cache.get(self.vote_cache_key(kind))
+            if downvotes is None:
+                vote_cls = Vote.rel(Account, content_cls)
+                downvotes = len(list(vote_cls._query(Vote.c._thing1_id == self._id,
+                                                          Vote.c._name == str(-1))))
+                g.cache.set(self.vote_cache_key(kind), downvotes)
+            return downvotes
 
-        karma_threshold = self.safe_karma * 4
-        if karma_threshold <= downvote_count:
-            msg = _('Your total down votes (%d) must be less than four times your karma (%d)') % (downvote_count, karma_threshold)
+        link_downvote_karma = get_cached_downvotes(Link) * g.post_karma_multiplier
+        comment_downvote_karma = get_cached_downvotes(Comment)
+        karma_spent = link_downvote_karma + comment_downvote_karma
+
+        karma_balance = self.safe_karma * 4
+        vote_cost = g.post_karma_multiplier if vote_kind == 'link' else 1
+        if karma_spent + vote_cost > karma_balance:
+            points_needed = abs(karma_balance - karma_spent - vote_cost)
+            msg = strings.not_enough_downvote_karma % (points_needed, plurals.N_points(points_needed))
             raise NotEnoughKarma(msg)
 
-    def incr_downvote(self, delta):
+    def incr_downvote(self, delta, kind):
+        """kind is link or comment"""
         try:
-            g.cache.incr(self.vote_cache_key(), delta)
+            g.cache.incr(self.vote_cache_key(kind), delta)
         except ValueError, e:
             print 'Account.incr_downvote failed with: %s' % e
 

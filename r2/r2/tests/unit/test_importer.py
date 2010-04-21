@@ -150,27 +150,27 @@ class TestImporterMocktest(TestCase):
     @property
     def post(self):
         post_anchor = mock_on(Link)
-        post = mock_wrapper().named('post')
-        post_anchor._submit.returning(post.mock)
+        post = mock().named('post')
+        post_anchor._submit.returning(post.raw)
         return post
 
     def test_get_or_create_account_prev_imported_exists(self):
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
-        sr = mock_wrapper().named('subreddit')
+        sr = mock().named('subreddit')
 
-        account = mock_wrapper().named('account')
+        account = mock().named('account')
 
         account_anchor = mock_on(Account)
         account_anchor.c.with_children(ob_account_name='Test User', email='user@host.com')
-        query = account_anchor._query.returning([account.mock])
+        query = account_anchor._query.returning([account.raw])
 
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
         args = query.called.once().get_args()
         assert args == ((True, True), {'data': True})
@@ -179,10 +179,10 @@ class TestImporterMocktest(TestCase):
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
-        account = mock_wrapper()
-        account_anchor._query.returning([account.mock]).is_expected
+        account = mock()
+        account_anchor._query.returning([account.raw]).is_expected
 
         mock_on(r2.lib.importer).register.is_expected.no_times()
 
@@ -191,18 +191,18 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_exists2(self):
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         def query_action(name_match, email_match, data):
-            return [account.mock] if name_match and email_match else []
+            return [account.raw] if name_match and email_match else []
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
-        account = mock_wrapper()
+        account = mock()
         query = account_anchor._query
         query.action = query_action
         query.is_expected.thrice() # Third attempt should succeed
@@ -215,18 +215,18 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_exists3(self):
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
         def query_action(name_match, email_match, data):
-            return [account.mock] if name_match and email_match else []
+            return [account.raw] if name_match and email_match else []
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
-        account = mock_wrapper()
+        account = mock()
         query = account_anchor._query
         query.action = query_action
         query.is_expected.exactly(4).times # Fourth attempt should succeed
@@ -239,27 +239,27 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
     def test_get_or_create_account_not_exists(self):
         """Should create the account if it doesn't exist"""
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
         query = account_anchor._query
         query.return_value = []
         query.is_expected.exactly(4).times
 
-        test_user = mock_wrapper().named('Test_User').with_methods(_safe_load=None, _commit=None).unfrozen()
+        test_user = mock().named('Test_User').with_methods(_safe_load=None, _commit=None).unfrozen()
         test_user.with_children(ob_account_name='bogus')
 
         def register_action(name, password, email):
             if name != test_user.name:
                 raise AccountExists
             else:
-                return test_user.mock
+                return test_user.raw
 
         def check_register_args(name, password, email):
             return name == test_user.name and email == 'user@host.com'
@@ -275,29 +275,29 @@ class TestImporterMocktest(TestCase):
         comment_anchor = mock_on(Comment)
         comment_anchor._query.named('Comment._query').returning([])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
-        assert test_user.mock.ob_account_name == 'Test User'
+        assert test_user.raw.ob_account_name == 'Test User'
 
     def test_create_account_multiple_attempts(self):
         """Make multiple attempts to create a new account"""
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
         query = account_anchor._query
         query.return_value = []
         query.is_expected.exactly(4).times
 
-        test_user5 = mock_wrapper().named('Test_User5').with_methods(_safe_load=None, _commit=None).unfrozen()
+        test_user5 = mock().named('Test_User5').with_methods(_safe_load=None, _commit=None).unfrozen()
         test_user5.with_children(ob_account_name='bogus')
 
         def register_action(name, password, email):
             if name != test_user5.name:
                 raise AccountExists
             else:
-                return test_user5.mock
+                return test_user5.raw
 
         # Mocking on importer because it imported register
         account_module_anchor = mock_on(r2.lib.importer)
@@ -310,16 +310,16 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
-        assert test_user5.mock.ob_account_name == 'Test User'
+        assert test_user5.raw.ob_account_name == 'Test User'
 
     def test_get_or_create_account_max_retries(self):
         """Should raise an error after 100 tries"""
         fixture = ImporterFixture()
         post_id = fixture.add_post(author='Test User', author_email='user@host.com')
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
         query = account_anchor._query.returning([]).is_expected.exactly(4).times
         account_module_anchor = mock_on(r2.lib.importer)
@@ -327,7 +327,9 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.assertRaises(
+            StandardError, lambda: self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO()),
+            message="Unable to create account for 'Test User' after 100 attempts")
 
     def test_get_or_create_account_cached(self):
         """Test name to account lookup is cached"""
@@ -335,20 +337,20 @@ class TestImporterMocktest(TestCase):
         fixture.add_post(author='Test User', author_email='user@host.com', description='Post 1')
         fixture.add_post(author='Test User', author_email='user@host.com', description='Post 2')
 
-        sr = mock_wrapper()
+        sr = mock()
         account_anchor = mock_on(Account)
         query = account_anchor._query
         query.return_value = []
         query.is_expected.exactly(4).times
 
-        test_user5 = mock_wrapper().named('Test_User5').with_methods(_safe_load=None, _commit=None).unfrozen()
+        test_user5 = mock().named('Test_User5').with_methods(_safe_load=None, _commit=None).unfrozen()
         test_user5.with_children(ob_account_name='bogus')
 
         def register_action(name, password, email):
             if name != test_user5.name:
                 raise AccountExists
             else:
-                return test_user5.mock
+                return test_user5.raw
 
         # Mocking on importer because it imported register
         account_module_anchor = mock_on(r2.lib.importer)
@@ -361,9 +363,9 @@ class TestImporterMocktest(TestCase):
 
         post = self.post
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
-        assert test_user5.mock.ob_account_name == 'Test User'
+        assert test_user5.raw.ob_account_name == 'Test User'
 
     def test_create_post(self):
         author = 'Test User'
@@ -387,26 +389,26 @@ class TestImporterMocktest(TestCase):
                                    date_created=local_date_created.strftime('%m/%d/%Y %I:%M:%S %p'),
                                    permalink=permalink)
 
-        sr = mock_wrapper().named('subreddit')
+        sr = mock().named('subreddit')
 
         account_anchor = mock_on(Account)
-        account = mock_wrapper().named('account')
-        account_anchor._query.returning([account.mock])
+        account = mock().named('account')
+        account_anchor._query.returning([account.raw])
 
-        post = mock_wrapper().named('post')
+        post = mock().named('post')
         post.expects('_commit')
         post.with_children(_id='post id', blessed=False, comment_sort_order='new', ob_permalink='bogus')
         post_anchor = mock_on(Link)
         post_anchor._query.returning([]).is_expected
-        submit = post_anchor._submit.returning(post.mock)
+        submit = post_anchor._submit.returning(post.raw)
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
         self.assertEqual(submit.called.once().get_args(),
-                         ((expected_title, description, account.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
-        self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        self.assertEqual(post.mock.comment_sort_order, 'old')
-        self.assertEqual(post.mock.ob_permalink, permalink)
+                         ((expected_title, description, account.raw, sr.raw, ip, expected_category), {'date': utc_date_created}))
+        self.assertTrue(post.raw.blessed, 'The post should be promoted')
+        self.assertEqual(post.raw.comment_sort_order, 'old')
+        self.assertEqual(post.raw.ob_permalink, permalink)
 
     def test_create_post_with_more(self):
         author = 'Test User'
@@ -442,40 +444,40 @@ class TestImporterMocktest(TestCase):
                             body=comment_body,
                             date_created=local_comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
-        sr = mock_wrapper().named('subreddit')
+        sr = mock().named('subreddit')
 
-        account_for_post = mock_wrapper().named('account for post').with_methods(_safe_load=None, _commit=None)
-        account_for_comment = mock_wrapper().named('account for comment').with_methods(_safe_load=None, _commit=None)
-        account_generator = ([account.mock] for account in (account_for_post, account_for_comment))
+        account_for_post = mock().named('account for post').with_methods(_safe_load=None, _commit=None)
+        account_for_comment = mock().named('account for comment').with_methods(_safe_load=None, _commit=None)
+        account_generator = ([account.raw] for account in (account_for_post, account_for_comment))
         account_anchor = mock_on(Account)
         account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
 
-        post = mock_wrapper().named('post')
+        post = mock().named('post')
         post.with_children(_id='post id', blessed=False, comment_sort_order='new', ob_permalink='bogus').unfrozen()
         post.expects('_commit')
         post_anchor = mock_on(Link)
         post_anchor._query.returning([])
-        submit = post_anchor._submit.named('Link._submit').returning(post.mock)
+        submit = post_anchor._submit.named('Link._submit').returning(post.raw)
 
-        comment = mock_wrapper().named('comment')
+        comment = mock().named('comment')
         comment.expects('_commit')
         comment.with_children(is_html=False, ob_imported=False)
         inbox_rel = None
         comment_anchor = mock_on(Comment)
-        new = comment_anchor._new.named('Comment._new').returning((comment.mock, inbox_rel))
+        new = comment_anchor._new.named('Comment._new').returning((comment.raw, inbox_rel))
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
         self.assertEqual(submit.called.once().get_args(),
-                         ((title, article, account_for_post.mock, sr.mock, ip, expected_category), {'date': utc_date_created}))
-        self.assertTrue(post.mock.blessed, 'The post should be promoted')
-        self.assertEqual(post.mock.comment_sort_order, 'old')
-        self.assertEqual(post.mock.ob_permalink, permalink)
+                         ((title, article, account_for_post.raw, sr.raw, ip, expected_category), {'date': utc_date_created}))
+        self.assertTrue(post.raw.blessed, 'The post should be promoted')
+        self.assertEqual(post.raw.comment_sort_order, 'old')
+        self.assertEqual(post.raw.ob_permalink, permalink)
 
         self.assertEqual(new.called.once().get_args(),
-                         ((account_for_comment.mock, post.mock, None, comment_body, ip), {'date': utc_comment_date_created}))
-        self.assertTrue(comment.mock.is_html, 'The comment should be marked as HTML')
-        self.assertTrue(comment.mock.ob_imported, 'The comment should be marked as imported from OB')
+                         ((account_for_comment.raw, post.raw, None, comment_body, ip), {'date': utc_comment_date_created}))
+        self.assertTrue(comment.raw.is_html, 'The comment should be marked as HTML')
+        self.assertTrue(comment.raw.ob_imported, 'The comment should be marked as imported from OB')
 
     def test_create_post_prev_imported_exists(self):
         author = 'Test User'
@@ -509,15 +511,15 @@ class TestImporterMocktest(TestCase):
                             body=comment_body,
                             date_created=local_comment_date_created.strftime('%m/%d/%Y %I:%M:%S %p'))
 
-        sr = mock_wrapper().named('subreddit').with_children(_id='subreddit id')
+        sr = mock().named('subreddit').with_children(_id='subreddit id')
 
-        account_for_post = mock_wrapper().named('account for post').with_children(_id='account for post id')
-        account_for_comment = mock_wrapper().named('account for comment').with_children(_id='account for comment id')
-        account_generator = ([account.mock] for account in (account_for_post, account_for_comment))
+        account_for_post = mock().named('account for post').with_children(_id='account for post id')
+        account_for_comment = mock().named('account for comment').with_children(_id='account for comment id')
+        account_generator = ([account.raw] for account in (account_for_post, account_for_comment))
         account_anchor = mock_on(Account)
         account_anchor._query.named('Account._query').with_action(lambda *args, **kwargs: account_generator.next())
 
-        post = mock_wrapper().named('post')
+        post = mock().named('post')
         post.with_children(
             _id='post id',
             title=None,
@@ -536,32 +538,32 @@ class TestImporterMocktest(TestCase):
         post.expects('set_tags')
         post.frozen()
         post_anchor = mock_on(Link)
-        post_anchor._query.returning([post.mock])
+        post_anchor._query.returning([post.raw])
 
-        comment = mock_wrapper().named('comment')
+        comment = mock().named('comment')
         comment.with_children(author_id=None, body=None, ip=None, _date=None, is_html=False, ob_imported=False).unfrozen()
         comment.expects('_commit')
         comment.frozen()
         comment_anchor = mock_on(Comment)
-        comment_anchor._query.named('Comment._query').returning([comment.mock])
+        comment_anchor._query.named('Comment._query').returning([comment.raw])
 
-        self.importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        self.importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
-        self.assertEqual(post.mock.title, expected_title)
-        self.assertEqual(post.mock.article, description)
-        self.assertEqual(post.mock.author_id, account_for_post.mock._id)
-        self.assertEqual(post.mock.sr_id, sr.mock._id)
-        self.assertEqual(post.mock.ip, ip)
-        self.assertEqual(post.mock._date, utc_date_created)
-        self.assertEqual(post.mock.comment_sort_order, 'old')
-        self.assertTrue(post.mock.blessed)
+        self.assertEqual(post.raw.title, expected_title)
+        self.assertEqual(post.raw.article, description)
+        self.assertEqual(post.raw.author_id, account_for_post.raw._id)
+        self.assertEqual(post.raw.sr_id, sr.raw._id)
+        self.assertEqual(post.raw.ip, ip)
+        self.assertEqual(post.raw._date, utc_date_created)
+        self.assertEqual(post.raw.comment_sort_order, 'old')
+        self.assertTrue(post.raw.blessed)
 
-        self.assertEqual(comment.mock.author_id, account_for_comment.mock._id)
-        self.assertEqual(comment.mock.body, comment_body)
-        self.assertEqual(comment.mock.ip, ip)
-        self.assertEqual(comment.mock._date, utc_comment_date_created)
-        self.assertTrue(comment.mock.is_html)
-        self.assertTrue(comment.mock.ob_imported)
+        self.assertEqual(comment.raw.author_id, account_for_comment.raw._id)
+        self.assertEqual(comment.raw.body, comment_body)
+        self.assertEqual(comment.raw.ip, ip)
+        self.assertEqual(comment.raw._date, utc_comment_date_created)
+        self.assertTrue(comment.raw.is_html)
+        self.assertTrue(comment.raw.ob_imported)
 
     @ignore
     def test_failing_post(self):
@@ -571,7 +573,7 @@ class TestImporterMocktest(TestCase):
 
     @ignore
     def test_import_into_subreddit(self):
-        sr = mock_wrapper()
+        sr = mock()
 
         fixture = ImporterFixture()
         post_id = fixture.add_post()
@@ -586,14 +588,14 @@ class TestImporterMocktest(TestCase):
         post_id = fixture.add_post()
         fixture.add_comment(post)
         importer = Importer()
-        sr = mock_wrapper()
-        link = mock_wrapper()
+        sr = mock()
+        link = mock()
         mock_link = mock_on(Link)
-        mock_link.create.returning(link.mock).with_args().is_expected
-        importer.import_into_subreddit(sr.mock, fixture.get_data(), StringIO.StringIO())
+        mock_link.create.returning(link.raw).with_args().is_expected
+        importer.import_into_subreddit(sr.raw, fixture.get_data(), StringIO.StringIO())
 
     def test_rewrite_ob_urls(self):
-        post_no_urls = mock_wrapper().named('post with no urls').with_children(
+        post_no_urls = mock().named('post with no urls').with_children(
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
@@ -602,7 +604,7 @@ class TestImporterMocktest(TestCase):
         post_no_urls.expects('_commit')
         post_no_urls.frozen()
 
-        post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
+        post_no_ob_urls = mock().named('post with no ob urls').with_children(
             _id=2,
             article='Google: http://google.com/',
             url='new2',
@@ -611,7 +613,7 @@ class TestImporterMocktest(TestCase):
         post_no_ob_urls.expects('_commit')
         post_no_ob_urls.frozen()
 
-        post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
+        post_ob_urls = mock().named('post with ob urls').with_children(
             _id=3,
             article=u'Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
@@ -624,43 +626,43 @@ class TestImporterMocktest(TestCase):
 
         post_anchor = mock_on(Link)
         post_anchor.c.with_children(ob_permalink='not None')
-        post_query = post_anchor._query.returning([post.mock for post in posts])
+        post_query = post_anchor._query.returning([post.raw for post in posts])
 
-        comment_no_urls = mock_wrapper().named('comment with no urls').with_children(body='Comment *body*, no links.')
+        comment_no_urls = mock().named('comment with no urls').with_children(body='Comment *body*, no links.')
         comment_no_urls.unfrozen().expects('_commit')
         comment_no_urls.frozen()
         
-        comment_no_ob_urls = mock_wrapper().named('comment with no ob urls').with_children(body='Google:\nhttp://google.com/ is good')
+        comment_no_ob_urls = mock().named('comment with no ob urls').with_children(body='Google:\nhttp://google.com/ is good')
         comment_no_ob_urls.unfrozen().expects('_commit')
         comment_no_ob_urls.frozen()
         
-        comment_ob_urls = mock_wrapper().named('comment with ob urls').with_children(body='Blah http://www.overcomingbias.com/2009/03/missing-alliances.html blah')
+        comment_ob_urls = mock().named('comment with ob urls').with_children(body='Blah http://www.overcomingbias.com/2009/03/missing-alliances.html blah')
         comment_ob_urls.unfrozen().expects('_commit')
         comment_ob_urls.frozen()
 
-        comment_generator = ([comment.mock] for comment in (comment_no_urls, comment_no_ob_urls, comment_ob_urls))
+        comment_generator = ([comment.raw] for comment in (comment_no_urls, comment_no_ob_urls, comment_ob_urls))
         comment_anchor = mock_on(Comment)
         comment_query = comment_anchor._query.with_action(lambda *args, **kwargs: comment_generator.next())
 
-        sr = mock_wrapper().named('subreddit')
+        sr = mock().named('subreddit')
 
         self.importer.import_into_subreddit(sr, [], StringIO.StringIO())
 
         args = post_query.called.once().get_args()
         assert args == ((True,), {'data': True})
 
-        self.assertEqual(post_no_urls.mock.article, 'This is the post body')
-        self.assertEqual(post_no_ob_urls.mock.article, 'Google: http://google.com/')
-        self.assertEqual(post_ob_urls.mock.article, 'Blah\nblerg http://lesswrong.com/lw/2d/missing-alliances/ blah')
+        self.assertEqual(post_no_urls.raw.article, 'This is the post body')
+        self.assertEqual(post_no_ob_urls.raw.article, 'Google: http://google.com/')
+        self.assertEqual(post_ob_urls.raw.article, 'Blah\nblerg http://lesswrong.com/lw/2d/missing-alliances/ blah')
 
         comment_query.called.thrice()
 
-        self.assertEqual(comment_no_urls.mock.body, 'Comment *body*, no links.')
-        self.assertEqual(comment_no_ob_urls.mock.body, 'Google:\nhttp://google.com/ is good')
-        self.assertEqual(comment_ob_urls.mock.body, 'Blah http://lesswrong.com/lw/2d/missing-alliances/ blah')
+        self.assertEqual(comment_no_urls.raw.body, 'Comment *body*, no links.')
+        self.assertEqual(comment_no_ob_urls.raw.body, 'Google:\nhttp://google.com/ is good')
+        self.assertEqual(comment_ob_urls.raw.body, 'Blah http://lesswrong.com/lw/2d/missing-alliances/ blah')
 
     def test_generate_mapping_file(self):
-        post_no_urls = mock_wrapper().named('post with no urls').with_children(
+        post_no_urls = mock().named('post with no urls').with_children(
             _id=1,
             article='This is the post body',
             url='http://lesswrong.com/lw/2d/missing-alliances/',
@@ -668,7 +670,7 @@ class TestImporterMocktest(TestCase):
             ob_permalink='http://www.overcomingbias.com/2009/03/missing-alliances.html').unfrozen()
         post_no_urls.with_methods(_commit=None)
 
-        post_no_ob_urls = mock_wrapper().named('post with no ob urls').with_children(
+        post_no_ob_urls = mock().named('post with no ob urls').with_children(
             _id=2,
             article='Google: http://google.com/',
             url='new2',
@@ -676,7 +678,7 @@ class TestImporterMocktest(TestCase):
             ob_permalink='old2').unfrozen()
         post_no_ob_urls.with_methods(_commit=None)
 
-        post_ob_urls = mock_wrapper().named('post with ob urls').with_children(
+        post_ob_urls = mock().named('post with ob urls').with_children(
             _id=3,
             article='Blah\nblerg http://www.overcomingbias.com/2009/03/missing-alliances.html blah',
             url='new3',
@@ -686,12 +688,12 @@ class TestImporterMocktest(TestCase):
 
         post_anchor = mock_on(Link)
         post_anchor.c.with_children(ob_permalink='not None')
-        post_query = post_anchor._query.returning([post.mock for post in [post_no_urls, post_no_ob_urls, post_ob_urls]])
+        post_query = post_anchor._query.returning([post.raw for post in [post_no_urls, post_no_ob_urls, post_ob_urls]])
 
         comment_anchor = mock_on(Comment)
         comment_query = comment_anchor._query.returning([])
 
-        sr = mock_wrapper().named('subreddit')
+        sr = mock().named('subreddit')
 
         rewrite_map_file = StringIO.StringIO()
 

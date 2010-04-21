@@ -34,24 +34,42 @@ def top_users():
     aliases = tdb.alias_generator()
     karma = dt.alias(aliases.next())
 
-    s = sa.select([tt.c.thing_id],
-                  sa.and_(tt.c.spam == False,
-                          tt.c.deleted == False,
-                          karma.c.thing_id == tt.c.thing_id,
-                          karma.c.key.like('%_karma')),
-                  group_by = [tt.c.thing_id],
-                  order_by = sa.desc(sa.func.sum(sa.cast(karma.c.value, sa.Integer))),
-                  limit = 10)
+    s = sa.select(
+        [tt.c.thing_id],
+        sa.and_(tt.c.spam == False,
+              tt.c.deleted == False,
+              karma.c.thing_id == tt.c.thing_id,
+              karma.c.key.like('%_karma')),
+        group_by = [tt.c.thing_id],
+        order_by = sa.desc(sa.func.sum(
+            sa.case(
+                [(karma.c.key.like('%_link_karma'),
+                    sa.cast(karma.c.value, sa.Integer) * g.post_karma_multiplier)],
+                else_ = sa.cast(karma.c.value, sa.Integer)
+            )
+        )),
+        limit = 10)
     # Translation of query:
     # SELECT
-    #  reddit_thing_account.thing_id,
+    #  reddit_thing_account.thing_id
+    # FROM
+    #   reddit_thing_account,
+    #   reddit_data_account
     # WHERE
-    #  (reddit_thing_account.spam = f AND
-    #   reddit_thing_account.deleted = f AND
+    #  (reddit_thing_account.spam = 'f' AND
+    #   reddit_thing_account.deleted = 'f' AND
     #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
-    #   reddit_data_account.key LIKE '%link_karma')
+    #   reddit_data_account.key LIKE '%_karma')
+    # GROUP BY
+    #   reddit_thing_account.thing_id
     # ORDER BY
-    #  sum(CAST(reddit_data_acc_3355.value AS INTEGER)) DESC
+    #  sum(
+    #    CASE
+    #      WHEN reddit_data_account.key = 'lesswrong_link_karma' THEN
+    #        CAST(reddit_data_account.value AS INTEGER) * 10
+    #      ELSE CAST(reddit_data_account.value AS INTEGER)
+    #    END
+    #  ) DESC
     # LIMIT 10
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]

@@ -18,29 +18,29 @@ function show () {
     }
 }
 
-Object.prototype.__iter__ = function(func) {
+function __iter__(obj,func) {
     var res = [];
-    for(var o in this) {
+    for(var o in obj) {
         if(!(o in Object.prototype)) {
-            res.unshift(func(o, this[o]));
+            res.unshift(func(o, obj[o]));
         }
     }
     return res;
 };
 
 function make_get_params(obj) {
-    return obj.__iter__(function(x, y) {
+    return __iter__(obj,function(x, y) {
             return x + "=" + encodeURIComponent(y);
         }).join("&");
 }
 
 function update_get_params(updates) {
     var getparams = {};
-    where.params.__iter__(function(x, y) {
+    __iter__(where.params,function(x, y) {
             getparams[x] = y;
         });
     if (updates)
-        updates.__iter__(function(x, y) {
+        __iter__(updates,function(x, y) {
                 getparams[x] = y;
             });
     return getparams;
@@ -140,7 +140,7 @@ function get_class_from_id(id) {
 
 function parse_response(r) {
     if(r.status == 500) return;
-    return r.responseText.parseJSON();
+    return r.responseText.evalJSON();
 }
 
 function tup(x) {

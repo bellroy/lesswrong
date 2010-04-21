@@ -59,14 +59,15 @@ class Vote(MultiRelation('vote',
 
         # An account can only perform 1 voting operation at a time.
         with g.make_lock('account_%s_voting' % sub._id):
+            kind = obj.__class__.__name__.lower()
+
             # If downvoting ensure that the user has enough karma, it
             # will raise an exception if not.
             if dir == False:
-                sub.check_downvote()
+                sub.check_downvote(kind)
 
             # Do the voting.
             sr = obj.subreddit_slow
-            kind = obj.__class__.__name__.lower()
             karma = sub.karma(kind, sr)
 
             #check for old vote
@@ -112,7 +113,7 @@ class Vote(MultiRelation('vote',
             # count and the vote have been updated.
             up_change, down_change = score_changes(amount, oldamount)
             if down_change:
-                sub.incr_downvote(down_change)
+                sub.incr_downvote(down_change, kind)
 
         # Continue by updating karmas.
         update_score(obj, up_change, down_change,

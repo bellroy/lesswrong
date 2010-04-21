@@ -347,8 +347,6 @@ class Link(Thing, Printable):
             else:
                 item.thumbnail = g.default_thumb
             
-            item.score = max(0, item.score)
-
             item.domain = (domain(item.url) if not item.is_self
                           else 'self.' + item.subreddit.name)
             if not hasattr(item,'top_link'):
@@ -358,7 +356,7 @@ class Link(Thing, Printable):
             item.hidden = bool(hidden.get((user, item, 'hide')))
             item.clicked = bool(clicked.get((user, item, 'click')))
             item.num = None
-            item.score_fmt = Score.number_only
+            item.score_fmt = Score.signed_number
             item.permalink = item.make_permalink(item.subreddit)
             if item.is_self:
                 item.url = item.make_permalink(item.subreddit, force_domain = True)
