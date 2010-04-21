@@ -948,14 +948,6 @@ class ApiController(RedditController):
 
     TWELVE_HOURS = 3600 * 12
 
-    @validate(link = VLink('article_id', redirect=False))
-    def GET_side_wikilinks(self, link, *a, **kw):
-        """Return HTML snippet of the Wiki Pages That Link Here for the side bar."""
-        # Server side cache is also invalidated when new article is posted
-        #return self.render_cached('wikilinks', WikiPageList, g.side_posts_max_age)
-        #return self.render_cached('wikilinks', WikiPageList, 0)
-        return WikiPageList(link).render()
-
     def GET_side_posts(self, *a, **kw):
         """Return HTML snippet of the recent posts for the side bar."""
         # Server side cache is also invalidated when new article is posted

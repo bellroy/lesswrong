@@ -127,10 +127,6 @@ class Reddit(Wrapped):
         if self.searchbox:
             ps.append(GoogleSearchForm())
 
-##{_RL
-        ps.append(SideBoxPlaceholder('side-wikilinks', _('Wiki Pages That Link Here')))
-##}_RL
-
         #don't show the subreddit info bar on cnames
         if not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
@@ -907,7 +903,6 @@ class GoogleSearchForm(Wrapped):
     def __init__(self):
         Wrapped.__init__(self)
 
-##{_RL
 class WikiPageList(Wrapped):
     """Shows Wiki Page List box"""
     def __init__(self, link):
@@ -916,7 +911,6 @@ class WikiPageList(Wrapped):
         else:
           self.articleurl = None
         Wrapped.__init__(self)
-##}_RL
 
 class GoogleSearchResultsFrame(Wrapped):
     """Shows Google Custom Search box"""
