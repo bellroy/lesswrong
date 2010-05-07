@@ -29,12 +29,15 @@
   <div id="side-status" class="clear">
     <div class="userinfo editor">
       <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
+      <span class="location">${thing.user.pref_location}</span><br><br>
       <span class="label">Karma Score</span>
       <span class="score">${thing.user.safe_karma}</span>
       %if thing.user.name in g.admins:
         <span class="role">Editor</span>
       %endif
-
+      <br><br>
+      <span class="url"><a href="${thing.user.pref_url}" rel="nofollow">${thing.user.pref_url_name}</a></span>
+      
       %if thing.isMe:
         <%
           mail_img ="mail"

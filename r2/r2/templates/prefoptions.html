@@ -143,6 +143,24 @@
       <a target="blank" href="http://lesswrong.com/lw/1s/lesswrong_antikibitzer_hides_comment_authors_and/1hvk">${_("(What's this?)")}</a>
     </td>
   </tr>
+  <tr>
+    <th>${_("Location")}</th>
+    <td class="prefright">
+      <input name="location" type="text" size="40" value="${c.user.pref_location}" />
+    </td>
+  </tr>
+  <tr>
+    <th>${_("Personal Link")}</th>
+    <td class="prefright">
+      <table>
+        <tr>
+          <td align="right">Name</td><td><input name="url_name" id="url_name" type="text" size="40" value="${c.user.pref_url_name}" /></td>
+        </tr><tr>
+          <td align="right">URL</td><td><input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" /></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
   %endif
   <tr>
     <td>

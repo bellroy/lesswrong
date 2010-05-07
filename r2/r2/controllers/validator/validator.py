@@ -549,6 +549,13 @@ class VBoolean(Validator):
     def run(self, val):
         return val != "off" and bool(val)
 
+class VString(Validator):
+    def run(self, val):
+        if val == None:
+            return ''
+        else:
+            return val
+
 class VInt(Validator):
     def __init__(self, param, min=None, max=None, *a, **kw):
         self.min = min

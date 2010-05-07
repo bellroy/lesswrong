@@ -96,6 +96,9 @@ class PostController(ApiController):
               pref_min_comment_score = VInt('min_comment_score', -100, 100),
               pref_num_comments = VInt('num_comments', 1, g.max_comments,
                                        default = g.num_comments),
+              pref_url = VSanitizedUrl('url'),
+              pref_url_name = VString('url_name'),
+              pref_location = VString('location'),
               all_langs = nop('all-langs', default = 'all'))
     def POST_options(self, all_langs, pref_lang, **kw):
         self.set_options(all_langs, pref_lang, **kw)
