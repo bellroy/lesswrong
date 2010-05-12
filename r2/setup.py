@@ -78,7 +78,7 @@ setup(
     dependency_links=[
         'http://www.crummy.com/software/BeautifulSoup/download/3.x/',
     ],
-    install_requires=["WebHelpers==0.3.2",
+    install_requires=["WebHelpers==0.3.4",
                       "Routes==1.7.3",
                       "Beaker==1.1.3",
                       "Paste==1.4.2",
@@ -93,7 +93,7 @@ setup(
                       "BeautifulSoup==3.0.7a",
                       "cssutils==0.9.5.1",
                       "chardet==1.0.1",
-                      "psycopg2==2.0.8",
+                      "psycopg2==2.0.14",
                       "py_interface==0.93",
                       "lxml==2.2",
                       "PyYAML==3.08",
