@@ -24,7 +24,7 @@ namespace :deploy do
   end
 
   def link_shared_dir(dir)
-    shared_subdir = "#{deploy_to}/shared/#{dir}"
+    shared_subdir = "#{shared_path}/#{dir}"
     public_dir = "#{release_path}/public/#{dir}"
     run "mkdir -p #{shared_subdir}"  # make sure the shared dir exists
     run "if [ -e #{public_dir} ]; then rm -rf #{public_dir} && echo '***\n*** #{public_dir} removed (in favour of a symlink to the shared version) ***\n***'; fi"
@@ -49,9 +49,9 @@ namespace :deploy do
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    pid_file = "#{shared_dir}/pids/paster.pid"
-    run "cd #{deploy_to}/current/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
-    run "cd #{deploy_to}/current/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
+    pid_file = "#{shared_path}/pids/paster.pid"
+    run "cd #{current_path}/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
+    run "cd #{current_path}/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
   end
 end
 
