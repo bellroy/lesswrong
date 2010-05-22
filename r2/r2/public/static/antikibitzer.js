@@ -28,27 +28,27 @@ function forallKibitzes(fn){
   forallElts("//div[@id='side-comments']//a[contains(@href,'lesswrong.com/user')]", fn)
 }
 
-function hide(n) { n.style.display = "none"; }
-function show(n) { n.style.display = "inline"; }
+function ak_hide(n) { n.style.display = "none"; }
+function ak_show(n) { n.style.display = "inline"; }
 
 var kib_hidden = true;
 function toggle_kibitzing(){
   kbutton = document.getElementById("kbutton")
   if(kib_hidden){
     kib_hidden = false;
-    kbutton.value = "Turn Kibitzing Off";
+    kbutton.value = "Turn Kibitzing On";
   }else{
     kib_hidden = true;
-    kbutton.value = "Turn Kibitzing On";
+    kbutton.value = "Turn Kibitzing Off";
   }
   apply_kibitzing()
 }
 
 function apply_kibitzing(){
   if (kib_hidden)
-    forallKibitzes(show);
+    forallKibitzes(ak_show);
   else
-    forallKibitzes(hide);
+    forallKibitzes(ak_hide);
 }
 
 apply_kibitzing();
