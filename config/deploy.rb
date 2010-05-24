@@ -13,7 +13,7 @@ set :deploy_via, :remote_cache
 set :repository_cache, 'cached-copy'
 
 # Be sure to change these in your application-specific files
-set :branch, 'master'
+set :branch, 'stable'
 
 set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
@@ -30,7 +30,7 @@ namespace :deploy do
     run "if [ -e #{public_dir} ]; then rm -rf #{public_dir} && echo '***\n*** #{public_dir} removed (in favour of a symlink to the shared version) ***\n***'; fi"
     run "ln -sv #{shared_subdir} #{public_dir}"
   end
- 
+
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
   task :symlink_remote_reddit_ini, :roles => [:app, :db] do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
