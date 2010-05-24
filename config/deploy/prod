@@ -3,7 +3,7 @@ set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
 set :engine, "paster"
 set :rails_env, "NA"
-set :branch, 'turnip'
+set :branch, 'stable'
 
 role :app, "turnip.trike.com.au"
 role :web, "turnip.trike.com.au"
