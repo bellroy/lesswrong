@@ -38,7 +38,7 @@
 
 <%def name="stylesheet()">
   <link rel="stylesheet" href="${static('main.css')}?v=20090812" type="text/css" />
- %if c.user_is_loggedin and not c.user.pref_kibitz:
+ %if c.user_is_loggedin and c.user.pref_kibitz:
   <link rel="stylesheet" href="${static('antikibitzer.css')}?v=20090812" type="text/css"
  %endif
   <link rel="stylesheet" href="${static(g.stylesheet)}?v=20091027" type="text/css" />
