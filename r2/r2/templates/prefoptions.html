@@ -138,9 +138,11 @@
   <tr>
     <th>${_("Kibitz options")}</th>
     <td class="prefright">
-      ${checkbox(_("Show commenter names and scores by default"), "kibitz")}
+      ${checkbox(_("Enable Anti-Kibitzer"), "kibitz")}
       &nbsp;
       <a target="blank" href="http://lesswrong.com/lw/1s/lesswrong_antikibitzer_hides_comment_authors_and/1hvk">${_("(What's this?)")}</a>
+      &nbsp;
+      ${_("Note: currently only works with Firefox.")}
     </td>
   </tr>
   %endif
