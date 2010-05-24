@@ -1,37 +1,10 @@
-// ==UserScript==
-// @name           LessWrong anti-kibitzer
-// @namespace      http://stanford.edu/~marce110/
-// @description    Allows the user to toggle whether point values and commenters are shown on LW.
-// @include        http://*lesswrong.com/*
-// @include        http://*.lesswrong.com/*
-// ==/UserScript==
-
-
-// LessWrong anti-kibitzer version 0.45
-// Thanks to Baughn for fixing the flickering bug.
-
-function forallElts(pattern, fn){
-  var allElts = document.evaluate(pattern,
-      document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-  for(var i = 0 ; i < allElts.snapshotLength ; i++){
-    fn(allElts.snapshotItem(i));
-  }
-}
-
-function forallKibitzes(fn){
-  forallElts("//span[contains(@class,'author')]", fn)
-  forallElts("//span[contains(@class,'score')]", fn)
-  forallElts("//span[contains(@class,'votes')]", fn)
-  forallElts("//span[contains(@id,'score')]", fn)
-  forallElts("//div[contains(@class,'reddit-link')]//span", fn)
-  forallElts("//div[@id='siteTable']//a[contains(@href,'lesswrong.com/user')]", fn)
-  forallElts("//div[@id='side-comments']//a[contains(@href,'lesswrong.com/user')]", fn)
-}
-
-function hide(n) { n.style.display = "none"; }
-function show(n) { n.style.display = "inline"; }
+// LessWrong anti-kibitzer version 0.5
+// Originally authored by Marcello Herreshoff
+// Versions 0.44 and further by Morendil
+// Allows the user to toggle whether point values and commenters are shown on LW.
 
 var kib_hidden = true;
+
 function toggle_kibitzing(){
   kbutton = document.getElementById("kbutton")
   if(kib_hidden){
@@ -45,22 +18,22 @@ function toggle_kibitzing(){
 }
 
 function apply_kibitzing(){
-  if (kib_hidden)
-    forallKibitzes(show);
-  else
-    forallKibitzes(hide);
+  function ak_hide(n) { n.style.display = "none"; }
+  function ak_show(n) { n.style.display = "inline"; }
+
+  var rules = document.styleSheets[1].cssRules;
+  if (!rules) rules = document.styleSheets[1].rules; // IE compatibility
+
+  var nbRules = rules.length;
+  for (var i=0; i < nbRules; i++) {
+    var rule = rules[i];
+    if (kib_hidden) ak_hide(rule); else ak_show(rule);
+  }
 }
 
-apply_kibitzing();
-
-var div = document.createElement("div")
-div.innerHTML = "<div id='kfloat' style='position:fixed;top:0px;right:0px'><form><input id='kbutton' type='button' value='Turn Kibitzing On' onclick='toggle_kibitzing()'/></form></div><script>toggle_kibitzing()</script>";
+var div = document.createElement("div");
+var pos = "fixed";
+if (document.styleSheets[1].rules) pos = "absolute"; // IE compatibility
+div.innerHTML = "<div id='kfloat' style='position:"+pos+";top:0px;right:0px'><form><input id='kbutton' type='button' value='Turn Kibitzing On' onclick='toggle_kibitzing()'/></form>";
 
 document.body.appendChild(div);
-
-Ajax.Responders.register({
-  onComplete: function(request,response,json) {
-    if ((request.url == "/api/side_comments") || (request.url == "/api/side_posts"))
-	apply_kibitzing();
-  }
-});
