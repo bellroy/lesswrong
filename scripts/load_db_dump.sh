@@ -74,3 +74,5 @@ paster run -c "export_to('${EXPORTDB}')" "$INIFILE" ../scripts/db_export.py
 rm -f "$EXPORTDB.bz2" # bzip2 will abort if the target file exists
 bzip2 "$EXPORTDB"
 
+# Let the group remove these files if needed (by Capistrano for example)
+chmod -R g+w "$CURRENT/db/dumps" "$EXPORTDB"
