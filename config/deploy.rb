@@ -11,6 +11,7 @@ set :repository, "git@github.com:tricycle/lesswrong.git"
 set :git_enable_submodules, 1
 set :deploy_via, :remote_cache
 set :repository_cache, 'cached-copy'
+set :engine, "paster"
 
 # Be sure to change these in your application-specific files
 set :branch, 'stable'

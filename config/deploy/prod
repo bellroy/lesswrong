@@ -1,7 +1,6 @@
 set :application, "lesswrong.com"
 set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
-set :engine, "paster"
 set :rails_env, "NA"
 set :branch, 'stable'
 
