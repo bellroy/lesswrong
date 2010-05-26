@@ -7,6 +7,10 @@
 *.orig
 *.tmp
 *.md5
+*.swp
+.fseventsd
+db
+public
 *.*.py
 .\#*
 \#*.*\#

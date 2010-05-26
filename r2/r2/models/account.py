@@ -44,6 +44,7 @@ class Account(Thing):
                      pref_frame = False,
                      pref_newwindow = False,
                      pref_public_votes = False,
+                     pref_kibitz = False,
                      pref_hide_ups = False,
                      pref_hide_downs = True,
                      pref_min_link_score = -2,

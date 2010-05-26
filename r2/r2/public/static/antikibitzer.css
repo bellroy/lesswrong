@@ -1,0 +1,24 @@
+#side-status div.userinfo span.score {
+	display:none;
+}
+div.meta span.votes {
+	display:none;
+}
+div.meta span.author a {
+	display:none;
+}
+div.comment-meta span.comment-author a {
+	display:none;
+}
+div.comment-meta span.votes {
+        display:none;
+}
+#side-comments span.tagline a {
+        display:none;
+}
+#side-comments span.tagline span{
+        display:none;
+}
+#side-posts span {
+	display:none;
+}

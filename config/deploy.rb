@@ -11,9 +11,10 @@ set :repository, "git@github.com:tricycle/lesswrong.git"
 set :git_enable_submodules, 1
 set :deploy_via, :remote_cache
 set :repository_cache, 'cached-copy'
+set :engine, "paster"
 
 # Be sure to change these in your application-specific files
-set :branch, 'master'
+set :branch, 'stable'
 
 set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
@@ -24,13 +25,13 @@ namespace :deploy do
   end
 
   def link_shared_dir(dir)
-    shared_subdir = "#{deploy_to}/shared/#{dir}"
+    shared_subdir = "#{shared_path}/#{dir}"
     public_dir = "#{release_path}/public/#{dir}"
     run "mkdir -p #{shared_subdir}"  # make sure the shared dir exists
     run "if [ -e #{public_dir} ]; then rm -rf #{public_dir} && echo '***\n*** #{public_dir} removed (in favour of a symlink to the shared version) ***\n***'; fi"
     run "ln -sv #{shared_subdir} #{public_dir}"
   end
- 
+
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
   task :symlink_remote_reddit_ini, :roles => [:app, :db] do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
@@ -49,9 +50,9 @@ namespace :deploy do
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    pid_file = "#{shared_dir}/pids/paster.pid"
-    run "cd #{deploy_to}/current/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
-    run "cd #{deploy_to}/current/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
+    pid_file = "#{shared_path}/pids/paster.pid"
+    run "cd #{current_path}/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
+    run "cd #{current_path}/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
   end
 end
 

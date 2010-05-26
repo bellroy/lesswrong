@@ -1,12 +1,11 @@
-set :application, "lesswrong.org"
-set :domains, %w[ lesswrong.org ]
+set :application, "lesswrong.com"
+set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
-set :shared_dir, "#{deploy_to}/shared"
-set :engine, "paster"
 set :rails_env, "NA"
+set :branch, 'stable'
 
-role :app, "serpent.trike.com.au"
-role :web, "serpent.trike.com.au"
-role :db,  "serpent.trike.com.au", :primary => true
+role :app, "turnip.trike.com.au"
+role :web, "turnip.trike.com.au"
+role :db,  "turnip.trike.com.au", :primary => true
 role :backups, "backup.trike.com.au", :user => 'backup', :no_release => true
 
