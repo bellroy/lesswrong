@@ -229,7 +229,7 @@ class VLength(Validator):
         self.emp_error = empty_error
 
     def run(self, title):
-        if (self.empty_error is not None) and not title:
+        if (self.emp_error is not None) and not title:
             c.errors.add(self.emp_error)
         elif len(title) > self.length:
             c.errors.add(self.len_error)
@@ -560,9 +560,11 @@ class VBoolean(Validator):
 class VLocation(VLength):
     def __init__(self, item, length = 100, **kw):
         VLength.__init__(self, item, length = length, 
+                         length_error = errors.LOCATION_TOO_LONG,
                          empty_error = None, **kw)
 
     def run(self, val):
+        val = VLength.run(self, val)
         if val == None:
             return ''
         else:

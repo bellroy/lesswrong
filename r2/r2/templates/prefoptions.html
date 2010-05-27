@@ -24,7 +24,7 @@
    from r2.lib.utils import UrlParser
    import random
 %>
-<%namespace file="utils.html" import="language_tool, language_checkboxes, plain_link"/>
+<%namespace file="utils.html" import="error_field, language_tool, language_checkboxes, plain_link"/>
 
 <%def name="checkbox(text, name)">
     <input name="${name}" id="${name}" type="checkbox"\
@@ -147,6 +147,7 @@
     <th>${_("Location")}</th>
     <td class="prefright">
       <input name="location" type="text" size="40" value="${c.user.pref_location}" />
+      ${error_field("LOCATION_TOO_LONG", kind="span")}
     </td>
   </tr>
   <tr>

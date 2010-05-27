@@ -28,6 +28,7 @@ error_list = dict((
         ('BAD_URL', _('You should check that url')),
         ('NO_TITLE', _('Title required')),
         ('TITLE_TOO_LONG', _('Title too long')),
+        ('LOCATION_TOO_LONG', _('Location is too long')),
         ('COMMENT_TOO_LONG', _('Comment too long')),
         ('BAD_CAPTCHA', _('Incorrect, try again')),
         ('BAD_USERNAME', _('Invalid user name')),
