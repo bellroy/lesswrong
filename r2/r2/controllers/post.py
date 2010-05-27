@@ -53,8 +53,7 @@ class PostController(ApiController):
 
     def set_options(self, all_langs, pref_lang, **kw):
         if c.errors.errors:
-            print "fucker"
-            raise "broken"
+            raise "Options are invalid"
 
         if all_langs == 'all':
             langs = 'all'
@@ -96,8 +95,14 @@ class PostController(ApiController):
               pref_min_comment_score = VInt('min_comment_score', -100, 100),
               pref_num_comments = VInt('num_comments', 1, g.max_comments,
                                        default = g.num_comments),
+              pref_url = VUserWebsiteUrl('url'),
+              pref_location = VLocation('location'),
               all_langs = nop('all-langs', default = 'all'))
     def POST_options(self, all_langs, pref_lang, **kw):
+        errors = list(c.errors)
+        if errors:
+            return PrefsPage(content = PrefOptions(), infotext="Unable to save preferences").render()
+
         self.set_options(all_langs, pref_lang, **kw)
         u = UrlParser(c.site.path + "prefs")
         u.update_query(done = 'true')

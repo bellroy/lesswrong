@@ -50,6 +50,10 @@ div.sidebox select {
 #side-comments h3 {
 	width: 175px;
 }
+#side-status .extrainfo dd {
+  overflow: hidden;
+  width: 140px;
+}
 
 /* Nav Bar
 -------------------------------------------------------------------------------------- */
