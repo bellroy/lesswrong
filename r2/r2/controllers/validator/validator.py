@@ -229,8 +229,9 @@ class VLength(Validator):
         self.emp_error = empty_error
 
     def run(self, title):
-        if (self.emp_error is not None) and not title:
-            c.errors.add(self.emp_error)
+        if not title:
+            if self.emp_error is not None:
+                c.errors.add(self.emp_error)
         elif len(title) > self.length:
             c.errors.add(self.len_error)
         else:
