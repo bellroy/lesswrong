@@ -229,7 +229,7 @@ class VLength(Validator):
         self.emp_error = empty_error
 
     def run(self, title):
-        if not title:
+        if (self.emp_error is not None) and not title:
             c.errors.add(self.emp_error)
         elif len(title) > self.length:
             c.errors.add(self.len_error)
@@ -495,6 +495,14 @@ class VSanitizedUrl(Validator):
     def run(self, url):
         return utils.sanitize_url(url)
 
+class VUserWebsiteUrl(VSanitizedUrl):
+    def run(self, url):
+        val = VSanitizedUrl.run(self, url)
+        if val is None:
+            return ''
+        else:
+            return val
+
 class VUrl(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.NO_URL, *a, **kw)
@@ -548,6 +556,19 @@ class VUserWithEmail(VExistingUname):
 class VBoolean(Validator):
     def run(self, val):
         return val != "off" and bool(val)
+
+class VLocation(VLength):
+    def __init__(self, item, length = 100, **kw):
+        VLength.__init__(self, item, length = length, 
+                         length_error = errors.LOCATION_TOO_LONG,
+                         empty_error = None, **kw)
+
+    def run(self, val):
+        val = VLength.run(self, val)
+        if val == None:
+            return ''
+        else:
+            return val
 
 class VInt(Validator):
     def __init__(self, param, min=None, max=None, *a, **kw):

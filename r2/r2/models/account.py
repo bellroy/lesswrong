@@ -56,6 +56,8 @@ class Account(Thing):
                      pref_compress = False,
                      pref_organic = True,
                      pref_show_stylesheets = True,
+                     pref_url = '',
+                     pref_location = '',
                      reported = 0,
                      report_made = 0,
                      report_correct = 0,
