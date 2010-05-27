@@ -152,13 +152,7 @@
   <tr>
     <th>${_("Personal Link")}</th>
     <td class="prefright">
-      <table>
-        <tr>
-          <td align="right">Name</td><td><input name="url_name" id="url_name" type="text" size="40" value="${c.user.pref_url_name}" /></td>
-        </tr><tr>
-          <td align="right">URL</td><td><input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" /></td>
-        </tr>
-      </table>
+      <input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" placeholder="http://yoursite.com/" />
     </td>
   </tr>
   %endif
