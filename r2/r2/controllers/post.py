@@ -104,9 +104,10 @@ class PostController(ApiController):
             return PrefsPage(content = PrefOptions(), infotext="Unable to save preferences").render()
 
         self.set_options(all_langs, pref_lang, **kw)
-        u = UrlParser(c.site.path + "prefs")
-        u.update_query(done = 'true')
         # Doesn't work when proxying to AWS
+        #u = UrlParser(c.site.path + "prefs")
+        u = UrlParser('/' + "prefs")
+        u.update_query(done = 'true')
         #if c.cname:
         #    u.put_in_frame()
         return self.redirect(u.unparse())
