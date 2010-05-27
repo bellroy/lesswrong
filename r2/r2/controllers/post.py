@@ -106,11 +106,10 @@ class PostController(ApiController):
         self.set_options(all_langs, pref_lang, **kw)
         # Doesn't work when proxying to AWS
         #u = UrlParser(c.site.path + "prefs")
-        u = UrlParser('/' + "prefs")
-        u.update_query(done = 'true')
+        #u.update_query(done = 'true')
         #if c.cname:
         #    u.put_in_frame()
-        return self.redirect(u.unparse())
+        return self.redirect('/prefs?done=true')
             
     def GET_over18(self):
         return BoringPage(_("Over 18?"),
