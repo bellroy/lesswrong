@@ -429,9 +429,6 @@ div.sidebox select {
 	font-weight: bold;
 	line-height: 22px;
 }
-#side-status div.userinfo span.location {
-	color: #988a8b;
-}
 #side-status div.userinfo span.mail {
     margin-top: 8px;
     clear: both;
@@ -461,6 +458,25 @@ div.sidebox select {
 	-webkit-border-radius: 4px; /* Webkit (Safari,Chrome) */
 	display: block;
 	text-align: center;
+}
+#side-status dl.extrainfo {
+  margin: 0;
+  padding: 8px 0 0 0;
+  clear: both;
+}
+#side-status .extrainfo dt, #side-status .extrainfo dd {
+  margin: 0;
+  padding: 0;
+  float: left
+}
+#side-status .extrainfo dt {
+  color: #538D4D;
+  clear: left;
+  width: 50px;
+}
+#side-status .extrainfo dd {
+  overflow: hidden;
+  max-width: 190px;
 }
 #side-login label {
 	width: 84px;
