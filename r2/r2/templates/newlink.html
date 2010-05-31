@@ -20,8 +20,15 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
+<%! 
+   from r2.lib.template_helpers import static, get_domain
+   import os
+%>
 <%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links"/>
 <%namespace file="printable.html" import="yes_no_button"/>
+
+<script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
+<script src="${static('tinymce.js')}" type="text/javascript"></script>
 
 %if thing.subreddits:
   <h1>${_("Submit article")}</h1>
@@ -95,6 +102,7 @@
   </table>
 
   <script type="text/javascript">
+    init_tinymce("http://${get_domain(subreddit=False)}/");
     var form = $('newlink');
     if(form) {
       setMessage(form.title,

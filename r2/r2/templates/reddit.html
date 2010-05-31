@@ -75,8 +75,6 @@
     <script src="${static('psrs.js')}"  type="text/javascript"></script>
     <script src="${static('lesswrong.js')}"  type="text/javascript"></script>
   %endif
-  <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
-  <script src="${static('tinymce.js')}" type="text/javascript"></script>
   <script type="text/javascript" src="http://www.google.com/jsapi?key=${g.google_api_key}"></script>
 </%def>
 
@@ -95,7 +93,6 @@
   var _global_fetching_tag = "${_('Fetching title...')}";
   var _global_submitting_tag = "${_('Submitting...')}";
   var _global_loading_tag = "${_('Loading...')}";
-  init_tinymce("http://${get_domain(subreddit=False)}/");
   
   google.load("feeds", "1");
 </%def>
