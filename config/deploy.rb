@@ -4,6 +4,7 @@ set :stages, stages
 
 require 'capistrano/ext/multistage'
 load 'config/cap-tasks/trike-tasks.rb'
+load 'config/cap-tasks/git.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
