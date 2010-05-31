@@ -4,6 +4,7 @@ set :stages, stages
 
 require 'capistrano/ext/multistage'
 load 'config/cap-tasks/trike-tasks.rb'
+load 'config/cap-tasks/git.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
@@ -20,7 +21,7 @@ set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
 
 namespace :deploy do
-  task :after_update_code, :roles => [:web, :app] do
+  after :update_code, :roles => [:web, :app] do
     %w[files assets].each {|dir| link_shared_dir(dir) }
   end
 
@@ -52,6 +53,11 @@ namespace :deploy do
     sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
   end
 
+  desc 'Compress and concetenate JS and generate MD5 files'
+  task :process_static_files, :roles => [:app] do
+    run "cd #{release_path}/r2 && ./compress_js.sh"
+  end
+
   desc "Restart the Application"
   task :restart, :roles => :app do
     pid_file = "#{shared_path}/pids/paster.pid"
@@ -60,10 +66,9 @@ namespace :deploy do
   end
 end
 
-#before 'deploy:update_code', 'git:ensure_pushed'
-#before 'deploy:update_code', 'git:ensure_deploy_branch'
-#after "deploy:update_code", "deploy:symlink_remote_db_yaml"
-#after "deploy:symlink", "deploy:apache:config"
+before 'deploy:update_code', 'git:ensure_pushed'
+before 'deploy:update_code', 'git:ensure_deploy_branch'
 after "deploy:update_code", "deploy:setup_reddit"
+after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
 after "deploy:update_code", "deploy:symlink_remote_robots_txt"
