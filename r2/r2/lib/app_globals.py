@@ -149,7 +149,7 @@ class Globals(object):
         if os.path.exists(static_files):
             for f in os.listdir(static_files):
                 if f.endswith('.md5'):
-                    key = f.strip('.md5')
+                    key = f[0:-4]
                     f = os.path.join(static_files, f)
                     with open(f, 'r') as handle:
                         md5 = handle.read().strip('\n')
