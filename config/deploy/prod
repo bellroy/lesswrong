@@ -9,3 +9,5 @@ role :web, "turnip.trike.com.au"
 role :db,  "turnip.trike.com.au", :primary => true
 role :backups, "backup.trike.com.au", :user => 'backup', :no_release => true
 
+before "deploy:update_code", "tests_check:manual_tests_executed?"
+
