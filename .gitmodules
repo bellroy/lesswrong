@@ -1,3 +1,6 @@
 [submodule "config/cap-tasks"]
 	path = config/cap-tasks
 	url = git@git.trike.com.au:capistrano.git
+[submodule "tasks/manual_test_script"]
+	path = tasks/manual_test_script
+	url = git://github.com/tricycle/manual_test_script.git
