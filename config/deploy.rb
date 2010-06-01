@@ -5,6 +5,7 @@ set :stages, stages
 require 'capistrano/ext/multistage'
 load 'config/cap-tasks/trike-tasks.rb'
 load 'config/cap-tasks/git.rb'
+load 'config/cap-tasks/test.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
@@ -36,6 +37,10 @@ namespace :deploy do
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
   task :symlink_remote_reddit_ini, :roles => [:app, :db] do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
+    if application == "lesswrong.com"
+      # for backwards compatibility
+      run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/lesswrong.org.ini"
+    end
   end
 
   desc 'Link to a robots.txt file stored on the server (/usr/local/etc/reddit/#{application}-robots.txt'

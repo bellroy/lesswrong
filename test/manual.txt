@@ -1,0 +1,47 @@
+- Registration & Login
+--------------------------------------------------------------------------------
+Navigate to the homepage and click the Register link in the sidebar
+You should see a popup with a register form and a login form
+Complete the registration form and click Create account.
+  You should now be logged in (see sidebar)
+Click Log out in the side bar
+  You should be logged out (login form in sidebar)
+Enter your username and password into the login form in the side bar and click Login
+  The page should refresh and you should be logged in
+
+
+- Preferences
+--------------------------------------------------------------------------------
+Click the Preferences button in the side bar
+Enter a Location in the location field, E.g. "Test Land" and click Save options
+You should see "Your preferences have been updated"
+The location should be shown in the sidebar.
+
+
+- Browsing
+--------------------------------------------------------------------------------
+Click the Less Wrong logo
+Click each of the following:
+  New, Top, Comments, Promoted
+Click on the first article, you should see the article and its comments
+Click "Vote up" on the article, the circle should become filled
+Refresh the page, the "Vote up" circle should still be filled
+
+
+- Commenting
+--------------------------------------------------------------------------------
+Enter some text in the comment field and click "comment", you should see your comment
+Click Reply on the second comment
+  You should see a comment field
+  Enter some comment text and click "comment", you should see your comment
+
+
+- Submitting
+--------------------------------------------------------------------------------
+Click the "Create new article" button in the side bar.
+  You should see the submit article form with a rich text editor
+  Enter a title and some body text
+  Enter a tag of "test"
+  Click Submit, you should see your article titled and tagged correctly.
+  Click the "test" tag link, you should see a list of articles, including yours
+  Click the "Log out" button in the sidebar, your article should no longer be visible
