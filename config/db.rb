@@ -4,7 +4,7 @@ end
 
 namespace :db do
 
-  desc 'Fetches the latest PostgesQL dump'
+  desc 'Fetches the latest PostgeSQL dump from the backup server'
   task :fetch_dump, :roles => :backups do
     host = roles[:app].servers.first.host
     source = fetch(:remote_db_dump_location, File.join(['', 'srv', 'backup', 'sql', host.sub(/\..*$/, ''), 'all_databases.psql.gz']))

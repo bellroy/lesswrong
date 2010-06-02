@@ -78,6 +78,18 @@
         </li>
       </ul>
     %endif
+
+    <dl class="extrainfo">
+      %if thing.user.pref_location:
+        <dt>Location</dt>
+        <dd>${thing.user.pref_location}</dd>
+      %endif
+      %if thing.user.pref_url:
+        <dt>Website</dt>
+        <dd><a href="${thing.user.pref_url}" rel="nofollow">${thing.user.pref_url}</a></dd>
+      %endif
+    </dl>
+
   </div>
 </div><!-- #side-user -->
 %endif

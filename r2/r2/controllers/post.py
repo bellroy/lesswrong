@@ -53,8 +53,7 @@ class PostController(ApiController):
 
     def set_options(self, all_langs, pref_lang, **kw):
         if c.errors.errors:
-            print "fucker"
-            raise "broken"
+            raise "Options are invalid"
 
         if all_langs == 'all':
             langs = 'all'
@@ -87,6 +86,7 @@ class PostController(ApiController):
         return self.redirect(request.referer)
 
     @validate(pref_public_votes = VBoolean('public_votes'),
+              pref_kibitz = VBoolean('kibitz'),
               pref_hide_ups = VBoolean('hide_ups'),
               pref_hide_downs = VBoolean('hide_downs'),
               pref_numsites = VInt('numsites', 1, 100),
@@ -95,14 +95,21 @@ class PostController(ApiController):
               pref_min_comment_score = VInt('min_comment_score', -100, 100),
               pref_num_comments = VInt('num_comments', 1, g.max_comments,
                                        default = g.num_comments),
+              pref_url = VUserWebsiteUrl('url'),
+              pref_location = VLocation('location'),
               all_langs = nop('all-langs', default = 'all'))
     def POST_options(self, all_langs, pref_lang, **kw):
+        errors = list(c.errors)
+        if errors:
+            return PrefsPage(content = PrefOptions(), infotext="Unable to save preferences").render()
+
         self.set_options(all_langs, pref_lang, **kw)
-        u = UrlParser(c.site.path + "prefs")
-        u.update_query(done = 'true')
-        if c.cname:
-            u.put_in_frame()
-        return self.redirect(u.unparse())
+        # Doesn't work when proxying to AWS
+        #u = UrlParser(c.site.path + "prefs")
+        #u.update_query(done = 'true')
+        #if c.cname:
+        #    u.put_in_frame()
+        return self.redirect('/prefs?done=true')
             
     def GET_over18(self):
         return BoringPage(_("Over 18?"),

@@ -349,7 +349,7 @@ function update_reddit_count() {
     var reddit_counts = readCookie(count_cookie);
 
     //init the reddit_counts dict
-    if (reddit_counts) reddit_counts = reddit_counts.parseJSON();
+    if (reddit_counts) reddit_counts = reddit_counts.evalJSON();
     else {
         reddit_counts = {};
         reddit_counts[date_key] = cur_date.toString();
@@ -396,7 +396,7 @@ function update_reddit_count() {
 
     //set the two cookies: one for the counts, one for the final
     //recent list
-    createCookie(count_cookie, reddit_counts.toJSONString());
+    createCookie(count_cookie, Object.toJSON(reddit_counts));
     if (recent_reddits) {
         createCookie(recent_cookie, recent_reddits);
     }

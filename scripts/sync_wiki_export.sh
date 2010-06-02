@@ -23,14 +23,17 @@
 ################################################################################
 
 BASE_DIR=${1:-/srv/www/lesswrong.org/shared/files}
-WIKI_DUMP_FILE="wiki.lesswrong.xml.gz"
+WIKI_DUMP_FILE="wiki.lesswrong.xml"
 WIKI_DUMP_PATH="$BASE_DIR/$WIKI_DUMP_FILE"
 
 # Download to a temp file
-wget -q "http://wiki.lesswrong.com/$WIKI_DUMP_FILE" -O "$WIKI_DUMP_PATH.tmp"
+wget -q "http://wiki.lesswrong.com/$WIKI_DUMP_FILE.gz" -O "/tmp/$WIKI_DUMP_FILE.gz"
 
-# Move into place atomically
-mv "$WIKI_DUMP_PATH.tmp" "$WIKI_DUMP_PATH"
+# Remove existing target file if present other wise gunzip won't extract
+rm -f "/tmp/$WIKI_DUMP_FILE"
 
 # Unzip
-gunzip "$WIKI_DUMP_PATH"
+gunzip "/tmp/$WIKI_DUMP_FILE.gz"
+
+# Move into place atomically (assuming on the same filesystem)
+mv "/tmp/$WIKI_DUMP_FILE" "$WIKI_DUMP_PATH"

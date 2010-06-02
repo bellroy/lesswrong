@@ -66,7 +66,7 @@ function update_organic_pos(new_pos) {
     var c = readLCookie('reddit_first');
     if(c != '') {
         try {
-          c = c.parseJSON();
+          c = c.evalJSON();
         } catch(e) {
           c = '';
         }
@@ -82,7 +82,7 @@ function update_organic_pos(new_pos) {
       c.organic_pos = ['none', new_pos];
     }
 
-    createLCookie('reddit_first', c.toJSONString());
+    createLCookie('reddit_first', Object.toJSON(c));
 }
 
 OrganicListing.unhide = _fire_and_shift('unhide');

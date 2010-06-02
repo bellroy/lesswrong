@@ -24,7 +24,7 @@
    from r2.lib.utils import UrlParser
    import random
 %>
-<%namespace file="utils.html" import="language_tool, language_checkboxes, plain_link"/>
+<%namespace file="utils.html" import="error_field, language_tool, language_checkboxes, plain_link"/>
 
 <%def name="checkbox(text, name)">
     <input name="${name}" id="${name}" type="checkbox"\
@@ -133,6 +133,29 @@
     <th>${_("Privacy options")}</th>
     <td class="prefright">
       ${checkbox(_("Make my votes public"), "public_votes")}
+    </td>
+  </tr>
+  <tr>
+    <th>${_("Kibitz options")}</th>
+    <td class="prefright">
+      ${checkbox(_("Enable Anti-Kibitzer"), "kibitz")}
+      &nbsp;
+      <a target="blank" href="http://lesswrong.com/lw/1s/lesswrong_antikibitzer_hides_comment_authors_and/1hvk">${_("(What's this?)")}</a>
+      &nbsp;
+      ${_("Note: currently only works with Firefox.")}
+    </td>
+  </tr>
+  <tr>
+    <th>${_("Location")}</th>
+    <td class="prefright">
+      <input name="location" type="text" size="40" value="${c.user.pref_location}" />
+      ${error_field("LOCATION_TOO_LONG", kind="span")}
+    </td>
+  </tr>
+  <tr>
+    <th>${_("Personal Link")}</th>
+    <td class="prefright">
+      <input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" placeholder="http://yoursite.com/" />
     </td>
   </tr>
   %endif

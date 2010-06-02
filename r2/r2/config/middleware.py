@@ -475,7 +475,8 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
     # Static files
     javascripts_app = StaticJavascripts()
-    static_app = StaticURLParser(config['pylons.paths']['static_files'])
+    # Set cache headers indicating the client should cache for 7 days
+    static_app = StaticURLParser(config['pylons.paths']['static_files'], cache_max_age=604800)
     app = Cascade([static_app, javascripts_app, app])
 
     app = make_gzip_middleware(app, app_conf)

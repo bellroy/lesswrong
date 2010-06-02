@@ -48,7 +48,12 @@ class Wrapped(object):
         found = False
         for lookup in self.lookups:
             try:
-                res = getattr(lookup, attr)
+                if attr.startswith('_t1'):
+                    res = getattr(lookup, attr[3:])
+                elif attr.startswith('_t2'):
+                    res = getattr(lookup, attr[3:])
+                else:
+                    res = getattr(lookup, attr)
                 found = True
                 break
             except AttributeError:
