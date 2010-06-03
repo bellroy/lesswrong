@@ -86,7 +86,7 @@ setup(
                       "PasteScript==1.6.2",
                       "Pylons==0.9.6.2",
                       "pycrypto==2.0.1",
-                      "Babel==0.9.4",
+                      "Babel==0.9.5",
                       "flup==1.0.1",
                       "simplejson==2.0.9",
                       "SQLAlchemy==0.3.10",
