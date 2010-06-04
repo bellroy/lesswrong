@@ -3,8 +3,7 @@ stages = Dir[stages_glob].collect {|f| File.basename(f) }.sort
 set :stages, stages
 
 require 'capistrano/ext/multistage'
-load 'config/cap-tasks/trike-tasks.rb'
-load 'config/cap-tasks/git.rb'
+load 'config/cap-tasks/common.rb'
 load 'config/cap-tasks/test.rb'
 load 'config/db.rb'
 
