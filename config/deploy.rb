@@ -34,7 +34,7 @@ namespace :deploy do
   end
 
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
-  task :symlink_remote_reddit_ini, :roles => [:app, :db] do
+  task :symlink_remote_reddit_ini, :roles => :app do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
     if application == "lesswrong.com"
       # for backwards compatibility
@@ -43,18 +43,18 @@ namespace :deploy do
   end
 
   desc 'Link to a robots.txt file stored on the server (/usr/local/etc/reddit/#{application}-robots.txt'
-  task :symlink_remote_robots_txt, :roles => [:app, :db] do
+  task :symlink_remote_robots_txt, :roles => :app do
     run "ln -sf /usr/local/etc/reddit/#{application}-robots.txt #{release_path}/r2/r2/public/robots.txt"
   end
 
   desc 'Run Reddit setup routine'
-  task :setup_reddit, :roles => [:app] do
+  task :setup_reddit, :roles => :app do
     sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
     sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
   end
 
   desc 'Compress and concetenate JS and generate MD5 files'
-  task :process_static_files, :roles => [:app] do
+  task :process_static_files, :roles => :app do
     run "cd #{release_path}/r2 && ./compress_js.sh"
   end
 
