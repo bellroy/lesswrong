@@ -264,7 +264,7 @@ class _Markdown:
                 url = self.urls[link_id]
                 url = url.replace("*", self.escapetable["*"])
                 url = url.replace("_", self.escapetable["_"])
-                res = '<a href="%s"' % htmlquote(url)
+                res = '<a href="%s" rel="nofollow"' % htmlquote(url)
 
                 if title:
                     title = title.replace("*", self.escapetable["*"])
@@ -283,7 +283,7 @@ class _Markdown:
 
             url = url.replace("*", self.escapetable["*"])
             url = url.replace("_", self.escapetable["_"])
-            res = '''<a href="%s"''' % htmlquote(url)
+            res = '''<a href="%s" rel="nofollow"''' % htmlquote(url)
             
             if title:
                 title = title.replace('"', '&quot;')
@@ -602,7 +602,7 @@ class _Markdown:
       )
       >""", re.VERBOSE|re.I)
     def _DoAutoLinks(self, text):
-        text = self.r_link.sub(r'<a href="\1">\1</a>', text)
+        text = self.r_link.sub(r'<a href="\1" rel="nofollow">\1</a>', text)
 
         def handler(m):
             l = m.group(1)
@@ -632,7 +632,7 @@ class _Markdown:
             else:
                 addr += encode[0](c)
 
-        text = '<a href="%s">%s</a>' % (addr, addr)
+        text = '<a href="%s" rel="nofollow">%s</a>' % (addr, addr)
         text = self.r_EncodeEmailAddress.sub('>', text)
         return text
 
