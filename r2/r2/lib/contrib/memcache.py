@@ -47,7 +47,7 @@ import sys
 import socket
 import time
 import types
-from md5 import md5
+from hashlib import md5
 try:
     import cPickle as pickle
 except ImportError:

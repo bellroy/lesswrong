@@ -41,7 +41,7 @@ from r2.lib.jsontemplates import api_type
 #middleware stuff
 from r2.lib.html_source import HTMLValidationParser
 from cStringIO import StringIO
-import sys, tempfile, urllib, re, os, sha
+import sys, tempfile, urllib, re, os, hashlib
 
 
 #from pylons.middleware import error_mapper
@@ -354,7 +354,7 @@ class RequestLogMiddleware(object):
     def __call__(self, environ, start_response):
         request = '\n'.join('%s: %s' % (k,v) for k,v in environ.iteritems()
                            if k.isupper())
-        iden = self.process_iden + '-' + sha.new(request).hexdigest()
+        iden = self.process_iden + '-' + hashlib.sha1(request).hexdigest()
 
         fname = os.path.join(self.log_path, iden)
         f = open(fname, 'w')

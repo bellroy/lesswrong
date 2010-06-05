@@ -20,7 +20,6 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.config import cache
-import sha
 
 class NoneResult(object): pass
 

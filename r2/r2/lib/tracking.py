@@ -25,7 +25,7 @@ from Crypto.Cipher import AES
 from random import choice
 from pylons import g, c
 from urllib import quote_plus, unquote_plus
-import sha
+import hashlib
 
 key_len = 16
 pad_len = 32
@@ -153,7 +153,7 @@ class PromotedLinkInfo(Info):
 
     @classmethod
     def make_hash(cls, ip, fullname):
-        return sha.new("%s%s%s" % (ip, fullname,
+        return hashlib.sha1("%s%s%s" % (ip, fullname,
                                    g.tracking_secret)).hexdigest()
 
     def tracking_url(self):

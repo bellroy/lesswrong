@@ -25,7 +25,7 @@ from threading import local, Thread
 import Queue
 from copy import deepcopy
 import cPickle as pickle
-import re, datetime, math, random, string, sha, os
+import re, datetime, math, random, string, os
 
 from datetime import datetime, timedelta
 from pylons.i18n import ungettext, _
