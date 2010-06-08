@@ -1,0 +1,5 @@
+# IF YOU STUMBLE UPON THIS FILE YOU MAY NOT HAVE NOTICED THAT IT IS SYMLINKED
+# INTO THE APP REPO. MAKE SURE THAT IT GETS COMMITED IF YOU MAKE ANY CHANGES.
+
+23 * * * *  www-data  /srv/www/lesswrong.com/current/scripts/sync_wiki_export.sh
+

@@ -22,7 +22,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-BASE_DIR=${1:-/srv/www/lesswrong.org/shared/files}
+BASE_DIR=${1:-/srv/www/lesswrong.com/shared/files}
 WIKI_DUMP_FILE="wiki.lesswrong.xml"
 WIKI_DUMP_PATH="$BASE_DIR/$WIKI_DUMP_FILE"
 

@@ -41,7 +41,7 @@ from r2.lib.jsontemplates import api_type
 from copy import copy
 from Cookie import CookieError
 from datetime import datetime
-import sha, inspect, simplejson
+import hashlib, inspect, simplejson
 from urllib import quote, unquote
 
 from r2.lib.tracking import encrypt, decrypt
@@ -206,7 +206,7 @@ def over18():
     else:
         if 'over18' in c.cookies:
             cookie = c.cookies['over18'].value
-            if cookie == sha.new(request.ip).hexdigest():
+            if cookie == hashlib.sha1(request.ip).hexdigest():
                 return True
 
 def set_subreddit():
