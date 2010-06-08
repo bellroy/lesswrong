@@ -286,7 +286,7 @@ class _Markdown:
 
             url = url.replace("*", self.escapetable["*"])
             url = url.replace("_", self.escapetable["_"])
-            res = '''<a href="%s"''' % quoted_url
+            res = '''<a href="%s"''' % htmlquote(url)
 
             if not re.search('lesswrong|overcomingbias', res):
                 res += ' rel="nofollow"'
