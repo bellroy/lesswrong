@@ -264,11 +264,11 @@ class _Markdown:
                 url = self.urls[link_id]
                 url = url.replace("*", self.escapetable["*"])
                 url = url.replace("_", self.escapetable["_"])
-                quoted_url=htmlquote(url)
-                if "lesswrong" in quoted_url or "overcomingbias" in quoted_url:                
-                    res = '<a href="%s"' % quoted_url
-                else:
-	                res = '<a href="%s" rel="nofollow"' % quoted_url
+                res = '<a href="%s"' % htmlquote(url)
+
+                if not re.search('lesswrong|overcomingbias', res):
+                    res += ' rel="nofollow"'
+
                 if title:
                     title = title.replace("*", self.escapetable["*"])
                     title = title.replace("_", self.escapetable["_"])
@@ -286,12 +286,11 @@ class _Markdown:
 
             url = url.replace("*", self.escapetable["*"])
             url = url.replace("_", self.escapetable["_"])
-            quoted_url=htmlquote(url)
-            if "lesswrong" in quoted_url or "overcomingbias" in quoted_url:
-                res = '''<a href="%s"''' % quoted_url
-            else:
-                res = '''<a href="%s" rel="nofollow"''' % quoted_url
-            
+            res = '''<a href="%s"''' % quoted_url
+
+            if not re.search('lesswrong|overcomingbias', res):
+                res += ' rel="nofollow"'
+
             if title:
                 title = title.replace('"', '&quot;')
                 title = title.replace("*", self.escapetable["*"])
