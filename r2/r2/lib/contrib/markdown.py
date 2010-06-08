@@ -638,7 +638,7 @@ class _Markdown:
             else:
                 addr += encode[0](c)
 
-        text = '<a href="%s" rel="nofollow">%s</a>' % (addr, addr)
+        text = '<a href="%s">%s</a>' % (addr, addr)
         text = self.r_EncodeEmailAddress.sub('>', text)
         return text
 
