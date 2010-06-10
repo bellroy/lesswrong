@@ -552,7 +552,7 @@ class Link(Thing, Printable):
         return [tag.name for tag in self.get_tags()]
 
     def _parse_wiki_file(self):
-      """docstring for _parse_wiki_file"""
+      """Parse the MediaWiki XML export file into a hash of article sequences"""
 
       # Algo:
       # Find references to this article in the wiki dump, note
@@ -606,21 +606,21 @@ class Link(Thing, Printable):
       return {'sequences': sequences}
 
     def _get_wiki_data(self):
-      """docstring for _parse_wiki_file"""
+      """Retrieve cached wiki data or parse and cache"""
       # TODO retrieve from cache or parse and cache
       return self._parse_wiki_file()
 
     def get_sequences(self):
-      """docstring for get_sequences"""
+      """Return the article sequences extracted from the wiki export"""
       wiki = self._get_wiki_data()
       return wiki['sequences']
 
     def get_sequence_names(self):
-      """TODO"""
+      """Returns the names of the sequences"""
       return [seq['title'] for seq in self.get_sequences().itervalues()]
 
     def _tag_nav_query(self, tag, sort):
-      """Returns a query navigation by tag using sort"""
+      """Returns a query navigation by tag using the supplied sort"""
       if isinstance(sort, operators.desc):
         date_clause = LinkTag.c._t1_date < self._date
       else:
@@ -642,13 +642,12 @@ class Link(Thing, Printable):
       return results[0]._thing1 if results else None
 
     def _link_for_query(self, query):
-      """TODO"""
+      """Returns a single Link result for the given query"""
       results = list(query)
       return results[0] if results else None
 
     # TODO: These navigation methods might be better in their own module
     def next_by_tag(self, tag):
-      """docstring for next_by_tag"""
       q = self._tag_nav_query(tag, operators.asc('_t1_date'))
       return self._link_for_rel_query(q)
       # TagNamesByTag.append(tag.name)
@@ -656,17 +655,14 @@ class Link(Thing, Printable):
       # nextIndexByTag = nextIndexByTag + 1
 
     def prev_by_tag(self, tag):
-      """docstring for prev_by_tag"""
       q = self._tag_nav_query(tag, operators.desc('_t1_date'))
       return self._link_for_rel_query(q)
 
     def next_in_sequence(self, sequence_name):
-      """docstring for next_in_sequence"""
       sequence = self.get_sequences().get(sequence_name)
       return sequence['next'] if sequence else None
 
     def prev_in_sequence(self, sequence_name):
-      """docstring for prev_in_sequence"""
       sequence = self.get_sequences().get(sequence_name)
       return sequence['prev'] if sequence else None
 
@@ -682,48 +678,40 @@ class Link(Thing, Printable):
       return Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, clause, limit = 1, sort = sort, data = True)
 
     def next_by_author(self):
-      """docstring for next_by_author"""
       # q = Link._query(Link.c._date > article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==article.author_id, limit = 1, sort = asc('_date'), data = True)
       q = self._link_nav_query(Link.c.author_id == self.author_id, operators.asc('_date'))
       return self._link_for_query(q)
 
     def prev_by_author(self):
-      """docstring for prev_by_author"""
       # q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==article.author_id, limit = 1, sort = desc('_date'), data = True)
       q = self._link_nav_query(Link.c.author_id == self.author_id, operators.desc('_date'))
       return self._link_for_query(q)
 
     def next_in_top(self):
-      """docstring for next_in_top"""
       q = self._link_nav_query(Link.c.top_link == True, operators.asc('_date'))
       return self._link_for_query(q)
 
     def prev_in_top(self):
-      """docstring for next_in_top"""
       q = self._link_nav_query(Link.c.top_link == True, operators.desc('_date'))
       return self._link_for_query(q)
 
     def next_in_promoted(self):
-      """docstring for next_in_promoted"""
       q = self._link_nav_query(Link.c.blessed == True, operators.asc('_date'))
       return self._link_for_query(q)
 
     def prev_in_promoted(self):
-      """docstring for prev_in_promoted"""
       #get the previous post in Promoted, sorted by date
       # q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
       q = self._link_nav_query(Link.c.blessed == True, operators.desc('_date'))
       return self._link_for_query(q)
 
     def next_link(self):
-      """docstring for next_link"""
       # q = self._link_nav_query(Link.c.blessed == True, operators.desc('_date'))
       sort = operators.asc('_date')
       q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = sort, data = True)
       return self._link_for_query(q)
 
     def prev_link(self):
-      """docstring for prev_link"""
       sort = operators.desc('_date')
       q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = sort, data = True)
       return self._link_for_query(q)
