@@ -37,11 +37,11 @@
 </%def>
 
 <%def name="stylesheet()">
-  <link rel="stylesheet" href="${static('main.css')}?v=20091216" type="text/css" />
+  <link rel="stylesheet" href="${static('main.css')}" type="text/css" />
  %if c.user_is_loggedin and c.user.pref_kibitz:
-  <link rel="stylesheet" href="${static('antikibitzer.css')}?v=20090812" type="text/css"
+  <link rel="stylesheet" href="${static('antikibitzer.css')}" type="text/css"
  %endif
-  <link rel="stylesheet" href="${static(g.stylesheet)}?v=20091027" type="text/css" />
+  <link rel="stylesheet" href="${static(g.stylesheet)}" type="text/css" />
   <!--[if IE 7]>
   <link rel="stylesheet" type="text/css" href="${static('ie7.css')}" />
   <![endif]-->
@@ -72,10 +72,9 @@
     <script src="${static('reddit_piece.js')}"  type="text/javascript"></script>
     <script src="${static('organic.js')}"  type="text/javascript"></script>
   %else:
-    <script src="${static('reddit.js')}"  type="text/javascript"></script>
+    <script src="${static('psrs.js')}"  type="text/javascript"></script>
+    <script src="${static('lesswrong.js')}"  type="text/javascript"></script>
   %endif
-  <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
-  <script src="${static('tinymce.js')}" type="text/javascript"></script>
   <script type="text/javascript" src="http://www.google.com/jsapi?key=${g.google_api_key}"></script>
 </%def>
 
@@ -94,7 +93,6 @@
   var _global_fetching_tag = "${_('Fetching title...')}";
   var _global_submitting_tag = "${_('Submitting...')}";
   var _global_loading_tag = "${_('Loading...')}";
-  init_tinymce("http://${get_domain(subreddit=False)}/");
   
   google.load("feeds", "1");
 </%def>

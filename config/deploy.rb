@@ -3,7 +3,8 @@ stages = Dir[stages_glob].collect {|f| File.basename(f) }.sort
 set :stages, stages
 
 require 'capistrano/ext/multistage'
-load 'config/cap-tasks/trike-tasks.rb'
+load 'config/cap-tasks/common.rb'
+load 'config/cap-tasks/test.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
@@ -20,7 +21,7 @@ set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
 
 namespace :deploy do
-  task :after_update_code, :roles => [:web, :app] do
+  after :update_code, :roles => [:web, :app] do
     %w[files assets].each {|dir| link_shared_dir(dir) }
   end
 
@@ -33,19 +34,28 @@ namespace :deploy do
   end
 
   desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
-  task :symlink_remote_reddit_ini, :roles => [:app, :db] do
+  task :symlink_remote_reddit_ini, :roles => :app do
     run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
+    if application == "lesswrong.com"
+      # for backwards compatibility
+      run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/lesswrong.org.ini"
+    end
   end
 
   desc 'Link to a robots.txt file stored on the server (/usr/local/etc/reddit/#{application}-robots.txt'
-  task :symlink_remote_robots_txt, :roles => [:app, :db] do
+  task :symlink_remote_robots_txt, :roles => :app do
     run "ln -sf /usr/local/etc/reddit/#{application}-robots.txt #{release_path}/r2/r2/public/robots.txt"
   end
 
   desc 'Run Reddit setup routine'
-  task :setup_reddit, :roles => [:app] do
+  task :setup_reddit, :roles => :app do
     sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
     sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
+  end
+
+  desc 'Compress and concetenate JS and generate MD5 files'
+  task :process_static_files, :roles => :app do
+    run "cd #{release_path}/r2 && ./compress_js.sh"
   end
 
   desc "Restart the Application"
@@ -56,10 +66,9 @@ namespace :deploy do
   end
 end
 
-#before 'deploy:update_code', 'git:ensure_pushed'
-#before 'deploy:update_code', 'git:ensure_deploy_branch'
-#after "deploy:update_code", "deploy:symlink_remote_db_yaml"
-#after "deploy:symlink", "deploy:apache:config"
+before 'deploy:update_code', 'git:ensure_pushed'
+before 'deploy:update_code', 'git:ensure_deploy_branch'
 after "deploy:update_code", "deploy:setup_reddit"
+after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
 after "deploy:update_code", "deploy:symlink_remote_robots_txt"

@@ -30,7 +30,7 @@ from r2.config import cache
 from r2.config.databases import tz
 from r2.lib.cache import sgm
 
-import new, sys, sha
+import new, sys, hashlib
 from datetime import datetime
 from copy import copy, deepcopy
 
@@ -765,7 +765,7 @@ class Query(object):
             rules.sort()
             for r in rules:
                 i += str(r)
-        return sha.new(i).hexdigest()
+        return hashlib.sha1(i).hexdigest()
 
     def __iter__(self):
         used_cache = False

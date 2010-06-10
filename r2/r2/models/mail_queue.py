@@ -29,7 +29,7 @@ from r2.lib.utils import Storage, timeago
 from account import Account
 from r2.lib.db.thing import Thing
 from email.MIMEText import MIMEText
-import sha
+import hashlib
 from r2.lib.memoize import memoize, clear_memo
 
 
@@ -205,7 +205,7 @@ class EmailHandler(object):
         for email in emails:
             uid = user._id if user else 0
             tid = thing._fullname if thing else ""
-            key = sha.new(str((email, from_name, uid, tid, ip, kind, body,
+            key = hashlib.sha1(str((email, from_name, uid, tid, ip, kind, body,
                                datetime.datetime.now()))).hexdigest()
             s.insert().execute({s.c.to_addr : email,
                                 s.c.account_id : uid,

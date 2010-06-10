@@ -28,7 +28,7 @@ from r2.lib.strings      import strings, plurals
 
 from pylons import g
 from pylons.i18n import _
-import time, sha
+import time, hashlib
 from copy import copy
 
 class AccountExists(Exception): pass
@@ -187,7 +187,7 @@ class Account(Thing):
         to_hash = ','.join((id_time, self.password, g.SECRET))
         if admin:
             to_hash += 'admin'
-        return id_time + ',' + sha.new(to_hash).hexdigest()
+        return id_time + ',' + hashlib.sha1(to_hash).hexdigest()
 
     def needs_captcha(self):
         # TODO: decide on who/what/why needs a captcha
@@ -327,7 +327,7 @@ def passhash(username, password, salt = ''):
     if isinstance(tohash, unicode):
         # Force tohash to be a byte string so it can be hashed
         tohash = tohash.encode('utf8')
-    return salt + sha.new(tohash).hexdigest()
+    return salt + hashlib.sha1(tohash).hexdigest()
 
 def change_password(user, newpassword):
     user.password = passhash(user.name, newpassword, True)

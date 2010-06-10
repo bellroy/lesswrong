@@ -266,6 +266,9 @@ class _Markdown:
                 url = url.replace("_", self.escapetable["_"])
                 res = '<a href="%s"' % htmlquote(url)
 
+                if not re.search('lesswrong|overcomingbias', res):
+                    res += ' rel="nofollow"'
+
                 if title:
                     title = title.replace("*", self.escapetable["*"])
                     title = title.replace("_", self.escapetable["_"])
@@ -284,7 +287,10 @@ class _Markdown:
             url = url.replace("*", self.escapetable["*"])
             url = url.replace("_", self.escapetable["_"])
             res = '''<a href="%s"''' % htmlquote(url)
-            
+
+            if not re.search('lesswrong|overcomingbias', res):
+                res += ' rel="nofollow"'
+
             if title:
                 title = title.replace('"', '&quot;')
                 title = title.replace("*", self.escapetable["*"])
@@ -602,7 +608,7 @@ class _Markdown:
       )
       >""", re.VERBOSE|re.I)
     def _DoAutoLinks(self, text):
-        text = self.r_link.sub(r'<a href="\1">\1</a>', text)
+        text = self.r_link.sub(r'<a href="\1" rel="nofollow">\1</a>', text)
 
         def handler(m):
             l = m.group(1)

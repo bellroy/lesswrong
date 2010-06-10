@@ -22,7 +22,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-import base64, hmac, sha, os, sys, getopt
+import base64, hmac, hashlib, os, sys, getopt
 from datetime import datetime
 from pylons import g,config
 
@@ -49,7 +49,7 @@ def make_header(verb, date, amz_headers, resource, content_type):
                    amz_str,
                    resource))
 
-    h = hmac.new(SECRET_KEY, s, sha)
+    h = hmac.new(SECRET_KEY, s, hashlib.sha1)
     return base64.encodestring(h.digest()).strip()
                    
 def send_file(filename, resource, content_type, acl, rate, meter):

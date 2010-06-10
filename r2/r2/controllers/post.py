@@ -26,7 +26,7 @@ from r2.lib.emailer import opt_in, opt_out
 from pylons import request, c, g
 from validator import *
 from pylons.i18n import _
-import sha
+import hashlib
 
 def to_referer(func, **params):
     def _to_referer(self, *a, **kw):
@@ -104,11 +104,12 @@ class PostController(ApiController):
             return PrefsPage(content = PrefOptions(), infotext="Unable to save preferences").render()
 
         self.set_options(all_langs, pref_lang, **kw)
-        u = UrlParser(c.site.path + "prefs")
-        u.update_query(done = 'true')
-        if c.cname:
-            u.put_in_frame()
-        return self.redirect(u.unparse())
+        # Doesn't work when proxying to AWS
+        #u = UrlParser(c.site.path + "prefs")
+        #u.update_query(done = 'true')
+        #if c.cname:
+        #    u.put_in_frame()
+        return self.redirect('/prefs?done=true')
             
     def GET_over18(self):
         return BoringPage(_("Over 18?"),
@@ -123,7 +124,7 @@ class PostController(ApiController):
                 c.user.pref_over_18 = True
                 c.user._commit()
             else:
-                ip_hash = sha.new(request.ip).hexdigest()
+                ip_hash = hashlib.sha1(request.ip).hexdigest()
                 domain = g.domain if not c.frameless_cname else None
                 c.cookies.add('over18', ip_hash,
                               domain = domain)

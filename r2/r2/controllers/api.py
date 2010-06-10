@@ -26,6 +26,7 @@ from pylons.i18n import _
 from pylons import c, request, response
 from pylons.controllers.util import etag_cache
 
+import hashlib
 from validator import *
 
 from r2.models import *
@@ -1429,7 +1430,7 @@ class ApiController(RedditController):
 
     def action_cookie(action):
         s = action + request.ip + request.user_agent
-        return sha.new(s).hexdigest()
+        return hashlib.sha1(s).hexdigest()
 
 
     @Json

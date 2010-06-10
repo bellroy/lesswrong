@@ -53,7 +53,7 @@ def alias_generator():
 
 def make_metadata(engine):
     metadata = sa.BoundMetaData(engine)
-    metadata.engine.echo = settings.DEBUG
+    metadata.bind.echo = g.sqlprinting
     return metadata
 
 def create_table(table, index_commands=None):
@@ -232,7 +232,7 @@ def build_thing_tables():
                              index_commands(data_thing_table, 'thing'))
             else:
                 data_thing_table = get_thing_table(data_metadata, name)
-        
+
         thing = storage(type_id = type_id,
                         name = name,
                         thing_table = thing_table,
@@ -254,7 +254,7 @@ def build_rel_tables():
                                   type2_id = type2_id))
 
         metadata = make_metadata(engine)
-        
+
         #relation table
         rel_table = get_rel_table(metadata, name)
         create_table(rel_table,
@@ -563,12 +563,6 @@ def del_rel(rel_type_id, rel_id):
     table.delete(table.c.rel_id == rel_id).execute()
     data_table.delete(data_table.c.thing_id == rel_id).execute()
 
-def sa_rval_op(rval):
-    if isinstance(rval, operators.rval_op):
-        return getattr(sa.func, rval.__class__.__name__)(rval.rval)
-    else:
-        return rval
-
 def sa_op(op):
     #if BooleanOp
     if isinstance(op, operators.or_):
@@ -706,7 +700,8 @@ def translate_data_value(alias, op):
     op.lval = lval
         
     #convert the rval to db types
-    op.rval = tuple(py2db(v) for v in tup(op.rval))
+    #convert everything to strings for pg8.3
+    op.rval = tuple(str(py2db(v)) for v in tup(op.rval))
 
 
 #TODO sort by data fields
@@ -841,7 +836,7 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
 
     if limit:
         s.limit = limit
-        
+
     r = s.execute()
     return Results(r, lambda (row): (row if get_cols else row.rel_id))
 
