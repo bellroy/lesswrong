@@ -625,7 +625,7 @@ class Link(Thing, Printable):
       import sqlalchemy as sa
 
       # List of the subreddit ids this user has access to
-      sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
+      sr = Subreddit.default()
 
       # Get a reference to reddit_rel_linktag
       linktag_type = tdb.rel_types_id[LinkTag._type_id]
@@ -658,7 +658,7 @@ class Link(Thing, Printable):
                                 link_thing_table.c.spam == False,
                                 link_thing_table.c.deleted == False,
                                 date_clause,
-                                link_sr.c.sr_id.in_(*sr_ids)),
+                                link_sr.c.sr_id == sr._id),
                         order_by = sort,
                         limit = 1)
 
@@ -696,9 +696,9 @@ class Link(Thing, Printable):
       return date_clause
 
     def _link_nav_query(self, clause = None, sort = None):
-      sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
+      sr = Subreddit.default()
 
-      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, Link.c.sr_id == sr_ids, limit = 1, sort = sort, data = True)
+      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, Link.c.sr_id == sr._id, limit = 1, sort = sort, data = True)
       if clause is not None:
         q._filter(clause)
       return q
