@@ -619,27 +619,51 @@ class Link(Thing, Printable):
       """Returns the names of the sequences"""
       return [seq['title'] for seq in self.get_sequences().itervalues()]
 
-    def _tag_nav_query(self, tag, sort):
+    def _next_link_for_tag(self, tag, sort):
       """Returns a query navigation by tag using the supplied sort"""
+      from r2.lib.db import tdb_sql as tdb
+      import sqlalchemy as sa
+
+      # List of the subreddit ids this user has access to
+      sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
+
+      # Get a reference to reddit_rel_linktag
+      linktag_type = tdb.rel_types_id[LinkTag._type_id]
+      linktag_thing_table = linktag_type.rel_table[0]
+
+      # Get a reference to the reddit_thing_link & reddit_data_link tables
+      link_type = tdb.types_id[Link._type_id]
+      link_data_table = link_type.data_table[0]
+      link_thing_table = link_type.thing_table
+
+      # Subreddit subquery aliased as link_sr
+      link_sr = sa.select([
+          link_data_table.c.thing_id,
+          sa.cast(link_data_table.c.value, sa.INT).label('sr_id')],
+          link_data_table.c.key == 'sr_id').alias('link_sr')
+
+      # Determine the date clause based on the sort order requested
       if isinstance(sort, operators.desc):
-        date_clause = LinkTag.c._t1_date < self._date
+        date_clause = link_thing_table.c.date < self._date
+        sort = sa.desc(link_thing_table.c.date)
       else:
-        date_clause = LinkTag.c._t1_date > self._date
+        date_clause = link_thing_table.c.date > self._date
+        sort = sa.asc(link_thing_table.c.date)
 
-      return LinkTag._query(LinkTag.c._thing2_id == tag._id,
-                            LinkTag.c._name == 'tag',
-                            LinkTag.c._t1_deleted == False,
-                            LinkTag.c._t1_spam == False,
-                            date_clause,
-                            limit = 1,
-                            sort = sort,
-                            eager_load = True,
-                            thing_data = True)
+      query = sa.select([linktag_thing_table.c.thing1_id],
+                        sa.and_(linktag_thing_table.c.thing2_id == tag._id,
+                                linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
+                                linktag_thing_table.c.thing1_id == link_thing_table.c.thing_id,
+                                linktag_thing_table.c.name == 'tag',
+                                link_thing_table.c.spam == False,
+                                link_thing_table.c.deleted == False,
+                                date_clause,
+                                link_sr.c.sr_id.in_(*sr_ids)),
+                        order_by = sort,
+                        limit = 1)
 
-    def _link_for_rel_query(self, query):
-      """Runs and returns the first result of the query"""
-      results = list(query)
-      return results[0]._thing1 if results else None
+      row = query.execute().fetchone()
+      return Link._byID(row.thing1_id, data=True) if row else None
 
     def _link_for_query(self, query):
       """Returns a single Link result for the given query"""
@@ -648,15 +672,13 @@ class Link(Thing, Printable):
 
     # TODO: These navigation methods might be better in their own module
     def next_by_tag(self, tag):
-      q = self._tag_nav_query(tag, operators.asc('_t1_date'))
-      return self._link_for_rel_query(q)
+      return self._next_link_for_tag(tag, operators.asc('_t1_date'))
       # TagNamesByTag.append(tag.name)
       # IndexesByTag.append(nextIndexByTag);
       # nextIndexByTag = nextIndexByTag + 1
 
     def prev_by_tag(self, tag):
-      q = self._tag_nav_query(tag, operators.desc('_t1_date'))
-      return self._link_for_rel_query(q)
+      return self._next_link_for_tag(tag, operators.desc('_t1_date'))
 
     def next_in_sequence(self, sequence_name):
       sequence = self.get_sequences().get(sequence_name)
@@ -673,17 +695,19 @@ class Link(Thing, Printable):
         date_clause = Link.c._date > self._date
       return date_clause
 
-    def _link_nav_query(self, clause, sort):
-      # Link.c._date > article._date
-      return Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, clause, limit = 1, sort = sort, data = True)
+    def _link_nav_query(self, clause = None, sort = None):
+      sr_ids = Subreddit.user_subreddits(c.user if c.user_is_loggedin else None)
+
+      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, Link.c.sr_id == sr_ids, limit = 1, sort = sort, data = True)
+      if clause is not None:
+        q._filter(clause)
+      return q
 
     def next_by_author(self):
-      # q = Link._query(Link.c._date > article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==article.author_id, limit = 1, sort = asc('_date'), data = True)
       q = self._link_nav_query(Link.c.author_id == self.author_id, operators.asc('_date'))
       return self._link_for_query(q)
 
     def prev_by_author(self):
-      # q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.author_id==article.author_id, limit = 1, sort = desc('_date'), data = True)
       q = self._link_nav_query(Link.c.author_id == self.author_id, operators.desc('_date'))
       return self._link_for_query(q)
 
@@ -700,20 +724,15 @@ class Link(Thing, Printable):
       return self._link_for_query(q)
 
     def prev_in_promoted(self):
-      #get the previous post in Promoted, sorted by date
-      # q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
       q = self._link_nav_query(Link.c.blessed == True, operators.desc('_date'))
       return self._link_for_query(q)
 
     def next_link(self):
-      # q = self._link_nav_query(Link.c.blessed == True, operators.desc('_date'))
-      sort = operators.asc('_date')
-      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = sort, data = True)
+      q = self._link_nav_query(sort = operators.asc('_date'))
       return self._link_for_query(q)
 
     def prev_link(self):
-      sort = operators.desc('_date')
-      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = sort, data = True)
+      q = self._link_nav_query(sort = operators.desc('_date'))
       return self._link_for_query(q)
 
     def _commit(self, *a, **kw):
