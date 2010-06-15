@@ -30,7 +30,7 @@ import thing_changes as tc
 from r2.config import cache
 from r2.lib.memoize import memoize, clear_memo
 from r2.lib import utils
-from r2.lib import wiki
+from r2.lib.wiki import Wiki
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
@@ -551,14 +551,10 @@ class Link(Thing, Printable):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
 
-    def get_sequences(self):
-      """Return the article sequences extracted from the wiki export"""
-      wiki_data = wiki._get_wiki_data(self.url)
-      return wiki_data['sequences']
-
     def get_sequence_names(self):
       """Returns the names of the sequences"""
-      return [seq['title'] for seq in self.get_sequences().itervalues()]
+      return Wiki().sequences_for_article_url(self.url).keys()
+      #return [seq['title'] for seq in .itervalues()]
 
     def _next_link_for_tag(self, tag, sort):
       """Returns a query navigation by tag using the supplied sort"""
@@ -622,11 +618,11 @@ class Link(Thing, Printable):
       return self._next_link_for_tag(tag, operators.desc('_t1_date'))
 
     def next_in_sequence(self, sequence_name):
-      sequence = self.get_sequences().get(sequence_name)
+      sequence = Wiki().sequences_for_article_url(self.url).get(sequence_name)
       return sequence['next'] if sequence else None
 
     def prev_in_sequence(self, sequence_name):
-      sequence = self.get_sequences().get(sequence_name)
+      sequence = Wiki().sequences_for_article_url(self.url).get(sequence_name)
       return sequence['prev'] if sequence else None
 
     def _nav_query_date_clause(self, sort):
