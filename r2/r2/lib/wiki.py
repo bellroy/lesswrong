@@ -30,12 +30,16 @@ class Wiki(object):
   @property
   def data(self):
     """Returns the data extracted from the wiki export XML file"""
-    #wiki_data = g.permacache.get(wiki_cache_key)
+    from pylons import g
+    wiki_data = g.permacache.get(self.cache_key)
 
-    # Parse the XML file
-    wiki_xml = etree.parse(self.pathname)
-    processed_data = self._process_data(wiki_xml)
-    return processed_data
+    if wiki_data is None:
+      # Parse the XML file
+      wiki_xml = etree.parse(self.pathname)
+      wiki_data = self._process_data(wiki_xml)
+      g.permacache.set(self.cache_key, wiki_data)
+
+    return wiki_data
 
   def url_for_title(self, title):
       """Uses the MediaWiki API to get the URL for a wiki page
