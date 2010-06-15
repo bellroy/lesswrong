@@ -1,7 +1,7 @@
 from r2.lib.utils import UrlParser
 
 from urllib import urlopen
-import os, yaml, re
+import os.path, yaml, re
 from lxml import etree
 
 def url_for_title(title):
@@ -39,19 +39,30 @@ def url_for_title(title):
 
     return wiki_url
 
-def _parse_wiki_file(url):
-  """Parse the MediaWiki XML export file into a hash of article sequences"""
+def _get_wiki_data(url):
+  """Parse the MediaWiki XML export file into a hash of article sequences
+     and cache the result keyed on last modified time of the file"""
 
-  # Algo:
-  # Find references to this article in the wiki dump, note
-  # the sequence, index and next prev articles
+  wiki_file_name = 'wiki.lesswrong.xml'
+  wiki_file_path = os.path.join('..', 'public', 'files', wiki_file_name)
+  #wiki_cache_key = wiki_file_name + 
+
+  #wiki = g.permacache.get(wiki_cache_key)
 
   # Parse the XML file
+  wiki = etree.parse(wiki_file_path)
+  return _process_data(wiki, url)
+  
+def _process_data(wiki_data, url):
+  """Algo:
+     Find references to this article in the wiki dump, note
+     the sequence, index and next prev articles"""
+
   MEDIAWIKI_NS = 'http://www.mediawiki.org/xml/export-0.3/'
   sequences = {}
   lw_url_re = re.compile(r'\[(http://lesswrong\.com/lw/[^ ]+) [^\]]+\]')
-  wiki = etree.parse('../public/files/wiki.lesswrong.xml')
-  for page in wiki.getroot().iterfind('.//{%s}page' % MEDIAWIKI_NS): # TODO: Change to use iterparse
+
+  for page in wiki_data.getroot().iterfind('.//{%s}page' % MEDIAWIKI_NS): # TODO: Change to use iterparse
     # Get the titles
     title = page.findtext('{%s}title' % MEDIAWIKI_NS)
 
@@ -92,9 +103,4 @@ def _parse_wiki_file(url):
           'index': article_index
         }
   return {'sequences': sequences}
-
-def _get_wiki_data(url):
-  """Retrieve cached wiki data or parse and cache"""
-  # TODO retrieve from cache or parse and cache
-  return _parse_wiki_file(url)
 
