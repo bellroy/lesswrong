@@ -76,16 +76,16 @@ class Wiki(object):
     """Return the article sequences extracted from the wiki export"""
     all_sequences = self.data['sequences']
     sequences = {}
+    url = UrlParser(url)
 
     for sequence in all_sequences:
       articles = sequence['articles']
-      article_index = None
 
       # Find the index of the given URL in the sequence's articles
-      for index, article_url in zip(range(len(articles)), articles):
-        if article_url.endswith(url):
-          article_index = index
-          break
+      try:
+        article_index = articles.index(url.path)
+      except ValueError:
+        article_index = None
 
       if article_index is not None:
         # The url passed is a part of the current sequence
@@ -125,13 +125,16 @@ class Wiki(object):
 
         # Find all the lesswrong urls
         for match in lw_url_re.finditer(sequence_elem.text):
-          article_url = match.group(1)
+          article_url = UrlParser(match.group(1))
 
-          # Ensure url ends in slash
-          if article_url[-1] != '/':
-            article_url += '/'
+          # Only store the path to the article
+          article_path = article_url.path
 
-          articles.append(article_url)
+          # Ensure path ends in slash
+          if article_path[-1] != '/':
+            article_path += '/'
+
+          articles.append(article_path)
 
         sequences.append({
           'title': title,
