@@ -30,6 +30,7 @@ import thing_changes as tc
 from r2.config import cache
 from r2.lib.memoize import memoize, clear_memo
 from r2.lib import utils
+from r2.lib import wiki
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
@@ -43,7 +44,6 @@ import re
 import random
 import urllib
 from datetime import datetime
-from lxml import etree
 
 class LinkExists(Exception): pass
 
@@ -551,69 +551,10 @@ class Link(Thing, Printable):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
 
-    def _parse_wiki_file(self):
-      """Parse the MediaWiki XML export file into a hash of article sequences"""
-
-      # Algo:
-      # Find references to this article in the wiki dump, note
-      # the sequence, index and next prev articles
-
-      # Parse the XML file
-      MEDIAWIKI_NS = 'http://www.mediawiki.org/xml/export-0.3/'
-      sequences = {}
-      lw_url_re = re.compile(r'\[(http://lesswrong\.com/lw/[^ ]+) [^\]]+\]')
-      wiki = etree.parse('../public/files/wiki.lesswrong.xml')
-      for page in wiki.getroot().iterfind('.//{%s}page' % MEDIAWIKI_NS): # TODO: Change to use iterparse
-        # Get the titles
-        title = page.findtext('{%s}title' % MEDIAWIKI_NS)
-
-        # See if this page is a sequence page
-        sequence_elem = page.xpath("mw:revision[1]/mw:text[contains(., '[[Category:Sequences]]')]", namespaces={'mw': MEDIAWIKI_NS})
-
-        if sequence_elem:
-          sequence_elem = sequence_elem[0]
-          index = 0
-          article_index = None
-          articles = []
-
-          # Find all the lesswrong urls
-          for match in lw_url_re.finditer(sequence_elem.text):
-            article_url = match.group(1)
-
-            # Ensure url ends in slash
-            if article_url[-1] != '/':
-              article_url += '/'
-
-            if article_url.endswith(self.url):
-              article_index = index
-
-            articles.append(article_url)
-            index += 1
-
-          if article_index is not None:
-            try:
-              next = articles[article_index + 1]
-            except IndexError:
-              next = None
-            prev = articles[article_index - 1] if article_index > 0 else None
-
-            sequences[title] = {
-              'title': title,
-              'next': next,
-              'prev': prev,
-              'index': article_index
-            }
-      return {'sequences': sequences}
-
-    def _get_wiki_data(self):
-      """Retrieve cached wiki data or parse and cache"""
-      # TODO retrieve from cache or parse and cache
-      return self._parse_wiki_file()
-
     def get_sequences(self):
       """Return the article sequences extracted from the wiki export"""
-      wiki = self._get_wiki_data()
-      return wiki['sequences']
+      wiki_data = wiki._get_wiki_data(self.url)
+      return wiki_data['sequences']
 
     def get_sequence_names(self):
       """Returns the names of the sequences"""

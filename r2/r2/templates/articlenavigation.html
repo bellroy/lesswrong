@@ -1,5 +1,5 @@
 <%!
-  from r2.lib.utils import wiki_url_for_title
+  import r2.lib.wiki as wiki
   from r2.lib.template_helpers import add_sr
 %>
 <%
@@ -65,7 +65,7 @@
 </%def>
 
 <%def name="sequence(title)" buffered="True">
-  <a href="${wiki_url_for_title(title)}">${title}</a>
+  <a href="${wiki.url_for_title(title)}">${title}</a>
 </%def>
 
 <%def name="promoted()" buffered="True">
