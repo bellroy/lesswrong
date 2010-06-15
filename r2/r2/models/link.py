@@ -554,7 +554,6 @@ class Link(Thing, Printable):
     def get_sequence_names(self):
       """Returns the names of the sequences"""
       return Wiki().sequences_for_article_url(self.url).keys()
-      #return [seq['title'] for seq in .itervalues()]
 
     def _next_link_for_tag(self, tag, sort):
       """Returns a query navigation by tag using the supplied sort"""

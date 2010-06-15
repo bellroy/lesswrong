@@ -78,35 +78,44 @@ class Wiki(object):
 
   def sequences_for_article_url(self, url):
     """Return the article sequences extracted from the wiki export"""
+    if url is None:
+        return {}
+
+    from pylons import g
     all_sequences = self.data['sequences']
-    sequences = {}
     url = UrlParser(url)
+    cache_key = self.cache_key + url.path
 
-    for sequence in all_sequences:
-      articles = sequence['articles']
+    sequences = g.permacache.get(cache_key)
 
-      # Find the index of the given URL in the sequence's articles
-      try:
-        article_index = articles.index(url.path)
-      except ValueError:
-        article_index = None
+    if sequences is None:
+      sequences = {}
+      for sequence in all_sequences:
+        articles = sequence['articles']
 
-      if article_index is not None:
-        # The url passed is a part of the current sequence
+        # Find the index of the given URL in the sequence's articles
         try:
-          next_in_seq = articles[article_index + 1]
-        except IndexError:
-          next_in_seq = None
-        prev_in_seq = articles[article_index - 1] if article_index > 0 else None
+          article_index = articles.index(url.path)
+        except ValueError:
+          article_index = None
 
-        # Add the result
-        title = sequence['title']
-        sequences[title] = {
-          'title': title,
-          'next': next_in_seq,
-          'prev': prev_in_seq,   
-          'index': article_index
-        }
+        if article_index is not None:
+          # The url passed is a part of the current sequence
+          try:
+            next_in_seq = articles[article_index + 1]
+          except IndexError:
+            next_in_seq = None
+          prev_in_seq = articles[article_index - 1] if article_index > 0 else None
+
+          # Add the result
+          title = sequence['title']
+          sequences[title] = {
+            'title': title,
+            'next': next_in_seq,
+            'prev': prev_in_seq,
+            'index': article_index
+          }
+      g.permacache.set(cache_key, sequences)
 
     return sequences
 
