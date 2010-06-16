@@ -21,7 +21,7 @@ set :user, "www-data"            # defaults to the currently logged in user
 default_run_options[:pty] = true
 
 namespace :deploy do
-  after :update_code, :roles => [:web, :app] do
+  after "deploy:update_code", :roles => [:web, :app] do
     %w[files assets].each {|dir| link_shared_dir(dir) }
   end
 
