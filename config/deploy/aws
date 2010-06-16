@@ -4,9 +4,8 @@ set :application, "lesswrong.com"
 set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
 set :rails_env, "NA"
-set :branch, 'stable'
 
-set :hosts, lambda { AWS.elb_hosts('lesswrong') }
+set :hosts, lambda { AWS.elb_hosts('python') }
 role :app, *fetch(:hosts)
 role :web, *fetch(:hosts)
 role :db,  "db.aws.trike.com.au", :primary => true, :no_release => true
