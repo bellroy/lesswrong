@@ -5,6 +5,7 @@ set :stages, stages
 require 'capistrano/ext/multistage'
 load 'config/cap-tasks/common.rb'
 load 'config/cap-tasks/test.rb'
+load 'config/cap-tasks/console.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
@@ -16,9 +17,9 @@ set :engine, "paster"
 
 # Be sure to change these in your application-specific files
 set :branch, 'stable'
-
+set :rails_env, nil
 set :user, "www-data"            # defaults to the currently logged in user
-default_run_options[:pty] = true
+set :public_path, lambda { "#{current_path}/r2/r2/public" }
 
 namespace :deploy do
   after :update_code, :roles => [:web, :app] do
@@ -62,7 +63,6 @@ namespace :deploy do
 end
 
 before 'deploy:update_code', 'git:ensure_pushed'
-before 'deploy:update_code', 'git:ensure_deploy_branch'
 after "deploy:update_code", "deploy:setup_reddit"
 after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
