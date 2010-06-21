@@ -42,11 +42,6 @@ namespace :deploy do
     end
   end
 
-  desc 'Link to a robots.txt file stored on the server (/usr/local/etc/reddit/#{application}-robots.txt'
-  task :symlink_remote_robots_txt, :roles => :app do
-    run "ln -sf /usr/local/etc/reddit/#{application}-robots.txt #{release_path}/r2/r2/public/robots.txt"
-  end
-
   desc 'Run Reddit setup routine'
   task :setup_reddit, :roles => :app do
     sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
@@ -71,4 +66,3 @@ before 'deploy:update_code', 'git:ensure_deploy_branch'
 after "deploy:update_code", "deploy:setup_reddit"
 after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
-after "deploy:update_code", "deploy:symlink_remote_robots_txt"
