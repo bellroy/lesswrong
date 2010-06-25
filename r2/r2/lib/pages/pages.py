@@ -496,6 +496,7 @@ class LinkInfoPage(Reddit):
     
     create_reddit_box  = False
     extension_handling = False # No feed until comment feeds are implemented
+    robots             = None
 
     @staticmethod
     def comment_permalink_wrapper(comment, link):
@@ -526,6 +527,9 @@ class LinkInfoPage(Reddit):
         link_title = ((self.link.title) if hasattr(self.link, 'title') else '')
         if comment:
             title = comment.make_permalink_title(link)
+            
+            # Comment permalinks should not be indexed, there's too many of them
+            self.robots = 'noindex'
 
             if is_canonical == False:
                 self.canonical_link = comment.make_permalink(link)
@@ -537,7 +541,7 @@ class LinkInfoPage(Reddit):
                 # Not on the main page, so include a pointer to the canonical URL for this link
                 self.canonical_link = link.canonical_url
 
-        Reddit.__init__(self, title = title, body_class = 'post', *a, **kw)
+        Reddit.__init__(self, title = title, body_class = 'post', robots = self.robots, *a, **kw)
 
     def content(self):
         return self.content_stack(self.infobar, self.link_listing, self._content)
