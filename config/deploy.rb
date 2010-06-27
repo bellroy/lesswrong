@@ -1,5 +1,5 @@
-stages_glob = File.join(File.dirname(__FILE__), "deploy", "*")
-stages = Dir[stages_glob].collect {|f| File.basename(f) }.sort
+stages_glob = File.join(File.dirname(__FILE__), "deploy", "*.rb")
+stages = Dir[stages_glob].collect { |f| File.basename(f, ".rb") }.sort
 set :stages, stages
 
 require 'capistrano/ext/multistage'
