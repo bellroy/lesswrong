@@ -195,7 +195,8 @@ div.tools {
 	border-bottom: 2px solid #dedede;
 	line-height: 18px; /* Same height as vote circles */
 	margin: 12px 0 0;
-	padding: 5px 10px;
+	padding: 5px 10px 24px 5px;
+	position: relative;
 }
 body.post div.tools a {
 	color: #538d4d;
@@ -223,6 +224,7 @@ div.tools div.vote a.down {
 div.tools a.comment {
 	float: left;
 	margin-left: 10px;
+	margin-bottom: 1em;
 }
 body.post div.tools a.comment {
 	font-weight: bold;
@@ -261,9 +263,12 @@ div.tools div.tags a {
 	margin: 0 5px;
 }
 div.tools img.landscape {
+	bottom: 5px;
 	display: block;
 	float: right;
 	margin: 10px 0 0;
+	position: absolute;
+	right: 10px;
 }
 
 
@@ -495,4 +500,72 @@ div.sidebox select {
 }
 #side-tags li {
     display: inline;
+}
+
+/* Article Navigation
+----------------------------------------------------------------------------------------------------*/
+div.articlenavigation {
+	clear: both;
+	font-size: 11px;
+}
+div.articlenavigation h4 {
+	font-size: 12px;
+	margin: 0;
+}
+div.articlenavigation h4 a {
+	text-decoration: none;
+	background: url(/static/disclosure-triangle.gif) top left no-repeat;
+	padding-left: 18px;
+}
+div.articlenavigation h4 a.open {
+  background-position: 0 -16px;
+}
+div.articlenavigation ul {
+	border-top: 1px solid #DEDEDE;
+	clear: both;
+	float: none;
+	margin: 5px 0 0;
+	padding: 10px 0 0;
+}
+div.articlenavigation ul li {
+	border: none;
+	clear: both;
+	display: block;
+	line-height: 15px;
+	margin: 1px 0;
+	padding: 3px 5px;
+	width: 650px;
+}
+div.articlenavigation ul li:hover {
+	background-color: #eee;
+}
+div.articlenavigation ul li a.nav {
+	float: left;
+	padding: 1px 0 0;
+	width: 13px;
+}
+div.articlenavigation ul li a.nav img {
+	display: block;
+	float: left;
+}
+div.articlenavigation ul li img {
+	display: block;
+	float: left;
+}
+div.articlenavigation ul li span.place {
+	float: left;
+	display: block;
+	text-align: center;
+	width: 70px;
+}
+div.articlenavigation ul li span.type {
+	float: left;
+	margin: 0 0 0 10px;
+	width: 509px;
+}
+div.articlenavigation #article_nav_controls .loading {
+	padding-left: 18px;
+}
+div.articlenavigation #article_nav_controls .loading img {
+	padding-right: 5px;
 }

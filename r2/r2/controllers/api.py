@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -39,7 +40,8 @@ from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
-    RecentArticles, RecentComments, TagCloud, TopContributors
+    RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
+    ArticleNavigation
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -912,7 +914,7 @@ class ApiController(RedditController):
         res._update('img-status', innerHTML = _("Deleted"))
         res._update('status', innerHTML = "")
 
-    def render_cached(self, cache_key, render_cls, max_age, cache_time=0):
+    def render_cached(self, cache_key, render_cls, max_age, cache_time=0, *args, **kwargs):
         """Render content using client caching and server caching."""
 
         # Default the cache to be the same as our max age if not
@@ -925,7 +927,7 @@ class ApiController(RedditController):
             etag, content = hit
         else:
             # Generate and cache the content along with an etag.
-            content = render_cls().render()
+            content = render_cls(*args, **kwargs).render()
             etag = '"%s"' % datetime.utcnow().isoformat()
             g.rendercache.set(cache_key, (etag, content), time=cache_time)
 
@@ -981,6 +983,16 @@ class ApiController(RedditController):
         As above
         """
         return "nothing to see here."
+
+    @validate(link = VLink('article_id', redirect=False))
+    def GET_article_navigation(self, link, *a, **kw):
+      """Returns the article navigation fragment for the article specified"""
+      author = Account._byID(link.author_id, data=True) if link else None
+      return self.render_cached(
+        'article_navigation_%s' % (link._id36 if link else None),
+        ArticleNavigation, g.article_navigation_max_age,
+        link=link, author=author
+      )
 
     @validate(VModhash(),
               file = VLength('file', length=1024*500),

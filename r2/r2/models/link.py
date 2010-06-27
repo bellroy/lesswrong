@@ -30,9 +30,11 @@ import thing_changes as tc
 from r2.config import cache
 from r2.lib.memoize import memoize, clear_memo
 from r2.lib import utils
+from r2.lib.wiki import Wiki
 from mako.filters import url_escape
 from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
+from r2.lib.db import operators
 from r2.lib.filters import _force_unicode
 
 from pylons import c, g, request
@@ -548,6 +550,126 @@ class Link(Thing, Printable):
     def tag_names(self):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
+
+    def get_sequence_names(self):
+      """Returns the names of the sequences"""
+      return Wiki().sequences_for_article_url(self.url).keys()
+
+    def _next_link_for_tag(self, tag, sort):
+      """Returns a query navigation by tag using the supplied sort"""
+      from r2.lib.db import tdb_sql as tdb
+      import sqlalchemy as sa
+
+      # List of the subreddit ids this user has access to
+      sr = Subreddit.default()
+
+      # Get a reference to reddit_rel_linktag
+      linktag_type = tdb.rel_types_id[LinkTag._type_id]
+      linktag_thing_table = linktag_type.rel_table[0]
+
+      # Get a reference to the reddit_thing_link & reddit_data_link tables
+      link_type = tdb.types_id[Link._type_id]
+      link_data_table = link_type.data_table[0]
+      link_thing_table = link_type.thing_table
+
+      # Subreddit subquery aliased as link_sr
+      link_sr = sa.select([
+          link_data_table.c.thing_id,
+          sa.cast(link_data_table.c.value, sa.INT).label('sr_id')],
+          link_data_table.c.key == 'sr_id').alias('link_sr')
+
+      # Determine the date clause based on the sort order requested
+      if isinstance(sort, operators.desc):
+        date_clause = link_thing_table.c.date < self._date
+        sort = sa.desc(link_thing_table.c.date)
+      else:
+        date_clause = link_thing_table.c.date > self._date
+        sort = sa.asc(link_thing_table.c.date)
+
+      query = sa.select([linktag_thing_table.c.thing1_id],
+                        sa.and_(linktag_thing_table.c.thing2_id == tag._id,
+                                linktag_thing_table.c.thing1_id == link_sr.c.thing_id,
+                                linktag_thing_table.c.thing1_id == link_thing_table.c.thing_id,
+                                linktag_thing_table.c.name == 'tag',
+                                link_thing_table.c.spam == False,
+                                link_thing_table.c.deleted == False,
+                                date_clause,
+                                link_sr.c.sr_id == sr._id),
+                        order_by = sort,
+                        limit = 1)
+
+      row = query.execute().fetchone()
+      return Link._byID(row.thing1_id, data=True) if row else None
+
+    def _link_for_query(self, query):
+      """Returns a single Link result for the given query"""
+      results = list(query)
+      return results[0] if results else None
+
+    # TODO: These navigation methods might be better in their own module
+    def next_by_tag(self, tag):
+      return self._next_link_for_tag(tag, operators.asc('_t1_date'))
+      # TagNamesByTag.append(tag.name)
+      # IndexesByTag.append(nextIndexByTag);
+      # nextIndexByTag = nextIndexByTag + 1
+
+    def prev_by_tag(self, tag):
+      return self._next_link_for_tag(tag, operators.desc('_t1_date'))
+
+    def next_in_sequence(self, sequence_name):
+      sequence = Wiki().sequences_for_article_url(self.url).get(sequence_name)
+      return sequence['next'] if sequence else None
+
+    def prev_in_sequence(self, sequence_name):
+      sequence = Wiki().sequences_for_article_url(self.url).get(sequence_name)
+      return sequence['prev'] if sequence else None
+
+    def _nav_query_date_clause(self, sort):
+      if isinstance(sort, operators.desc):
+        date_clause = Link.c._date < self._date
+      else:
+        date_clause = Link.c._date > self._date
+      return date_clause
+
+    def _link_nav_query(self, clause = None, sort = None):
+      sr = Subreddit.default()
+
+      q = Link._query(self._nav_query_date_clause(sort), Link.c._deleted == False, Link.c._spam == False, Link.c.sr_id == sr._id, limit = 1, sort = sort, data = True)
+      if clause is not None:
+        q._filter(clause)
+      return q
+
+    def next_by_author(self):
+      q = self._link_nav_query(Link.c.author_id == self.author_id, operators.asc('_date'))
+      return self._link_for_query(q)
+
+    def prev_by_author(self):
+      q = self._link_nav_query(Link.c.author_id == self.author_id, operators.desc('_date'))
+      return self._link_for_query(q)
+
+    def next_in_top(self):
+      q = self._link_nav_query(Link.c.top_link == True, operators.asc('_date'))
+      return self._link_for_query(q)
+
+    def prev_in_top(self):
+      q = self._link_nav_query(Link.c.top_link == True, operators.desc('_date'))
+      return self._link_for_query(q)
+
+    def next_in_promoted(self):
+      q = self._link_nav_query(Link.c.blessed == True, operators.asc('_date'))
+      return self._link_for_query(q)
+
+    def prev_in_promoted(self):
+      q = self._link_nav_query(Link.c.blessed == True, operators.desc('_date'))
+      return self._link_for_query(q)
+
+    def next_link(self):
+      q = self._link_nav_query(sort = operators.asc('_date'))
+      return self._link_for_query(q)
+
+    def prev_link(self):
+      q = self._link_nav_query(sort = operators.desc('_date'))
+      return self._link_for_query(q)
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.

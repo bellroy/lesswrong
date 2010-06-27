@@ -25,7 +25,7 @@ from threading import local, Thread
 import Queue
 from copy import deepcopy
 import cPickle as pickle
-import re, datetime, math, random, string, os
+import re, datetime, math, random, string, os, yaml
 
 from datetime import datetime, timedelta
 from pylons.i18n import ungettext, _
@@ -1011,3 +1011,4 @@ def trace(fn):
                     % (fn,a,kw,ret))
         return ret
     return new_fn
+

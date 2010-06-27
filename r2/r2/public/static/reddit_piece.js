@@ -82,22 +82,52 @@ function init() {
     update_reddit_count();
 
     /* initiate ajax requests to populate the side bar */
+    /*populate_side_bar('side-wikilinks');*/
+    /*populate_side_bar('side-wikilinks', 'article_id=2');    */
     populate_side_bar('side-posts');
     populate_side_bar('side-comments');
     populate_side_bar('side-tags');
     populate_side_bar('side-contributors');
 }
 
-function populate_side_bar(id) {
+function populate_side_bar(id, args) {
     var node = $(id);
     if (node) {
         var path = '/api/' + id.replace('-', '_');
         new Ajax.Request(path, {
                 method: 'get',
+                parameters: args,
                 onSuccess: function(response) {
                     node.innerHTML = response.responseText;
                 }});
     }
+}
+
+function toggle_article_navigation(article_id) {
+  var elem = $('article_nav_controls');
+  var state = $('articlenavstate');
+  if(!(elem && article_id && state)) return;
+
+  if(!elem.style.display) {
+    // Already visible
+    hide(elem);
+    state.className = 'dsphead';
+  }
+  else {
+    if(elem.firstChild.className == 'loading') {
+      // Needs to be populated
+      new Ajax.Request('/api/article_navigation', {
+        method: 'get',
+        parameters: 'article_id=' + escape(article_id),
+        onSuccess: function(response) {
+          elem.innerHTML = response.responseText;
+        }
+      });
+    }
+
+    show(elem);
+    state.className = 'dsphead open';
+  }
 }
 
 function updateLinks(f) {

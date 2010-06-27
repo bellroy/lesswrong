@@ -181,7 +181,7 @@ class DomainMiddleware(object):
         auth_cnames = [x.strip() for x in auth_cnames.split(',')]
         # we are going to be matching with endswith, so make sure there
         # are no empty strings that have snuck in
-        self.auth_cnames = [x for x in auth_cnames if x]
+        self.auth_cnames = filter(None, auth_cnames)
 
     def is_auth_cname(self, domain):
         return any((domain == cname or domain.endswith('.' + cname))
@@ -371,6 +371,10 @@ class RequestLogMiddleware(object):
         return r
 
 class LimitUploadSize(object):
+    """
+    Middleware for restricting the size of uploaded files (such as
+    image files for the CSS editing capability).
+    """
     def __init__(self, app, max_size=1024*500):
         self.app = app
         self.max_size = max_size
@@ -404,7 +408,29 @@ class AbsoluteRedirectMiddleware(object):
 
         return self.app(environ, start_response_wrapper)
 
-#god this stuff is disorganized and confusing
+class CleanupMiddleware(object):
+    """
+    Put anything here that should be called after every other bit of
+    middleware. This currently includes the code for removing
+    duplicate headers (such as multiple cookie setting).  The behavior
+    here is to disregard all but the last record.
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        def custom_start_response(status, headers, exc_info = None):
+            fixed = []
+            seen = set()
+            for head, val in reversed(headers):
+                head = head.title()
+                if head not in seen:
+                    fixed.insert(0, (head, val))
+                    seen.add(head)
+            return start_response(status, fixed, exc_info)
+        return self.app(environ, custom_start_response)
+
+#god this shit is disorganized and confusing
 class RedditApp(PylonsBaseWSGIApp):
     def find_controller(self, controller):
         if controller in self.controller_classes:
@@ -479,11 +505,11 @@ def make_app(global_conf, full_stack=True, **app_conf):
     static_app = StaticURLParser(config['pylons.paths']['static_files'], cache_max_age=604800)
     app = Cascade([static_app, javascripts_app, app])
 
-    app = make_gzip_middleware(app, app_conf)
-
     app = AbsoluteRedirectMiddleware(app)
 
     #add the rewrite rules
     app = RewriteMiddleware(app)
+
+    app = CleanupMiddleware(app)
 
     return app

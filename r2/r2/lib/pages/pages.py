@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -906,6 +907,15 @@ class GoogleSearchForm(Wrapped):
     def __init__(self):
         Wrapped.__init__(self)
 
+class WikiPageList(Wrapped):
+    """Shows Wiki Page List box"""
+    def __init__(self, link):
+        if link:
+          self.articleurl = link.url
+        else:
+          self.articleurl = None
+        Wrapped.__init__(self)
+
 class GoogleSearchResultsFrame(Wrapped):
     """Shows Google Custom Search box"""
     def __init__(self):
@@ -922,6 +932,11 @@ class GoogleSearchResults(BoringPage):
       return self.content_stack(self._content)
         # return self.content_stack(self.infobar,
                                   # self.nav_menu, self._content)
+
+class ArticleNavigation(Wrapped):
+  """Generates article navigation fragment for the supplied link"""
+  def __init__(self, link, author):
+    Wrapped.__init__(self, article=link, author=author)
 
 class SearchBar(Wrapped):
     """More detailed search box for /search and /categories pages.
