@@ -21,8 +21,15 @@ function apply_kibitzing(){
   function ak_hide(n) { n.style.display = "none"; }
   function ak_show(n) { n.style.display = "inline"; }
 
-  var rules = document.styleSheets[1].cssRules;
-  if (!rules) rules = document.styleSheets[1].rules; // IE compatibility
+  // locate the AK stylesheet
+  var css;
+  for (var i=0; i < document.styleSheets.length; i++) {
+    if (document.styleSheets[i].href.indexOf("antikibitzer") > 0)
+      css = document.styleSheets[i];
+  }
+
+  var rules = css.cssRules;
+  if (!rules) rules = css.rules; // IE compatibility
 
   var nbRules = rules.length;
   for (var i=0; i < nbRules; i++) {
