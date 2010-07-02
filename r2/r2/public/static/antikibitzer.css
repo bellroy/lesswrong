@@ -7,6 +7,9 @@ div.meta span.votes {
 div.meta span.author a {
 	display:none;
 }
+div.comment div.parent span.author a {
+	display:none;
+}
 div.comment-meta span.comment-author a {
 	display:none;
 }
