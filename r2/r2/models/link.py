@@ -959,7 +959,9 @@ class Comment(Thing, Printable):
         return s
 
     def make_permalink(self, link, sr=None):
-        return link.make_permalink(sr) + self._id36
+        permalink = UrlParser(link.make_permalink(sr) + self._id36)
+        permalink.update_query(c = 1)
+        return permalink.unparse()
 
     def make_anchored_permalink(self, link=None, sr=None, context=1, anchor=None):
         if link:
