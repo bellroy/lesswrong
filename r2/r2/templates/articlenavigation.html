@@ -1,0 +1,85 @@
+<%!
+  from r2.lib.wiki import Wiki
+  from r2.lib.template_helpers import add_sr
+%>
+<%
+  article = thing.article
+  author = thing.author
+%>
+
+%if article is None:
+  <p>${_('Unable to retrieve navigation options for this article.')}</p>
+%else:
+  <ul class="clear">
+    ${unsafe(self.article_nav_item(article.prev_by_author(), article.next_by_author(), unsafe(self.author(thing.author)), _('by author')))}
+
+    %for sequence_name in article.get_sequence_names():
+    ${unsafe(self.article_nav_item(article.prev_in_sequence(sequence_name), article.next_in_sequence(sequence_name), unsafe(self.sequence(sequence_name)), _('in sequence')))}
+    %endfor
+
+    %if article.blessed:
+    ${unsafe(self.article_nav_item(article.prev_in_promoted(), article.next_in_promoted(), None, unsafe(self.promoted())))}
+    %endif
+
+    ${unsafe(self.article_nav_item(article.prev_link(), article.next_link(), None, unsafe(self.new())))}
+
+
+    %if hasattr(article, 'top_link') and article.top_link:
+    ${unsafe(self.article_nav_item(article.prev_in_top(), article.next_in_top(), None, unsafe(self.top())))}
+    %endif
+
+    %for tag in article.get_tags():
+    ${unsafe(self.article_nav_item(article.prev_by_tag(tag), article.next_by_tag(tag), unsafe(self.tag(tag)), _('by tag')))}
+    %endfor
+  </ul>
+%endif
+
+<%def name="article_nav_item(prev_link, next_link, navtype, place)">
+<li class="clear">
+%if prev_link:
+  <a class="nav" href="${prev_link.url if hasattr(prev_link, 'url') else prev_link}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
+%else:
+  <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
+%endif
+##  <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
+  <span class="place">${place}</span>
+%if next_link:
+  <a class="nav" href="${next_link.url if hasattr(next_link, 'url') else next_link}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
+%else:
+  <img src="/static/articlenav-next-grey.gif" alt="Next" />
+%endif
+## <span class="type">by tag &nbsp; <a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span>
+  %if navtype:
+  <span class="type">${navtype}</span>
+  %endif
+</li>
+</%def>
+
+<%def name="author(author)" buffered="True">
+  %if author is None:
+    ${_('Unknown')}
+  %else:
+    <% author_path = unsafe(add_sr("/user/%s/" % websafe(author.name), sr_path = False)) %>
+    <a href="${author_path}">${author.name}</a>
+  %endif
+</%def>
+
+<%def name="sequence(title)" buffered="True">
+  <a href="${Wiki().url_for_title(title)}">${title}</a>
+</%def>
+
+<%def name="promoted()" buffered="True">
+  <a href="/">${_('Promoted')}</a>
+</%def>
+
+<%def name="new()" buffered="True">
+  <a href="/new/">All Posts</a>
+</%def>
+
+<%def name="top()" buffered="True">
+  <a href="/top/">Top Posts</a>
+</%def>
+
+<%def name="tag(tag)" buffered="True">
+  <a href="${tag.path}">${tag.name}</a>
+</%def>

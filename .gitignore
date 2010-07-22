@@ -31,7 +31,12 @@ r2/count.pickle
 r2/srcount.pickle
 r2/myproduction.ini
 .DS_Store
+.fseventsd/*
 r2/r2.egg-info/**
 r2/lighttpd_access.log
 r2/lighttpd_error.log
 r2/paster.log
+r2/paster.pid
+config/deploy/aws-test.rb
+exporter/*
+notes/*

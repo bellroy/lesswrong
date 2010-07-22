@@ -46,6 +46,7 @@
 
   fullname = thing._fullname
 %>
+
 <div id="thingrow_${fullname}" class="${css_class}">
   <h${heading_size}><a href="${thing.url}">${self.title()}</a></h${heading_size}>
   <div class="meta clear">
@@ -58,6 +59,15 @@
     ${unsafe(self.author(friend = thing.friend))}
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
+##{_RL
+<!--
+<div>
+  <i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
+<br/>
+<br/>
+</div>
+-->
+##}_RL
   <div id="entry_${fullname}" class="content clear">
 ## The div below is a hack to get the space compressor to leave whitespace in articles alone
     <div class="md">
@@ -95,8 +105,18 @@
     </div>
     ## Each link has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
+    %if full_article:
+    <div class="articlenavigation">
+      <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
+      <div style="display: none;" class="dspcont" id="article_nav_controls">
+        <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
+        Loading&hellip;</span>
+      </div>
+    </div><!-- .articlenavigation -->
+    %endif
   </div><!-- .tools -->
 </div><!-- .post -->
+
 </%def>
 
 <%def name="title()">
