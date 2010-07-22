@@ -25,7 +25,7 @@ class Wiki(object):
   def cache_key(self):
     """Cache key for the wiki data"""
     statinfo = os.stat(self.pathname)
-    return self.filename + str(statinfo.st_mtime)
+    return (self.filename + str(statinfo.st_mtime)).encode('ascii', 'ignore')
 
   @property
   def data(self):
@@ -48,7 +48,7 @@ class Wiki(object):
           return None
 
       from pylons import g
-      cache_key = 'wiki_url_%s' % title
+      cache_key = ('wiki_url_%s' % title).encode('ascii', 'ignore')
       wiki_url = g.cache.get(cache_key)
       if wiki_url is None:
           # http://www.mediawiki.org/wiki/API:Query_-_Properties#info_.2F_in
@@ -84,7 +84,7 @@ class Wiki(object):
     from pylons import g
     all_sequences = self.data['sequences']
     url = UrlParser(url)
-    cache_key = self.cache_key + url.path
+    cache_key = (self.cache_key + url.path).encode('ascii', 'ignore')
 
     sequences = g.permacache.get(cache_key)
 
