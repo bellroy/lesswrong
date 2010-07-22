@@ -63,7 +63,7 @@ namespace :deploy do
 
   desc "Update crontab"
   task :crontab, :roles => :app do
-    sudo %Q{/bin/bash -c "cd #{release_path} && rake copy:cron"}
+    sudo %Q{/bin/bash -c "cd #{release_path} && rake cron:copy"}
   end
 end
 
