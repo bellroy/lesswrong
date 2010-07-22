@@ -60,9 +60,15 @@ namespace :deploy do
     run "cd #{current_path}/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
     run "cd #{current_path}/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
   end
+
+  desc "Update crontab"
+  task :crontab, :roles => :app do
+    sudo %Q{/bin/bash -c "cd #{release_path} && rake cron:copy"}
+  end
 end
 
 before 'deploy:update_code', 'git:ensure_pushed'
 after "deploy:update_code", "deploy:setup_reddit"
 after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
+after "deploy:update_code", "deploy:crontab"
