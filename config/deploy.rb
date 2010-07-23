@@ -43,32 +43,18 @@ namespace :deploy do
     end
   end
 
-  desc 'Run Reddit setup routine'
-  task :setup_reddit, :roles => :app do
-    sudo "/bin/bash -c \"cd #{release_path}/r2 && python ./setup.py install\""
-    sudo "/bin/bash -c \"cd #{release_path} && chown -R #{user} .\""
-  end
-
-  desc 'Compress and concetenate JS and generate MD5 files'
-  task :process_static_files, :roles => :app do
-    run "cd #{release_path}/r2 && ./compress_js.sh"
-  end
-
   desc "Restart the Application"
   task :restart, :roles => :app do
-    pid_file = "#{shared_path}/pids/paster.pid"
-    run "cd #{current_path}/r2 && paster serve --stop-daemon --pid-file #{pid_file} #{application}.ini || true"
-    run "cd #{current_path}/r2 && paster serve --daemon --pid-file #{pid_file} #{application}.ini"
+    run %{cd #{current_path} && rake --trace deploy:restart APPLICATION_USER="#{user}" APPLICATION="#{application}"}
   end
 
-  desc "Update crontab"
-  task :crontab, :roles => :app do
-    sudo %Q{/bin/bash -c "cd #{release_path} && rake cron:copy"}
+  desc "Run after update code rake task"
+  task :rake_after_update_code, :roles => :app do
+    sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code APPLICATION_USER=\"#{user}\" APPLICATION=\"#{application}\""}
   end
 end
 
 before 'deploy:update_code', 'git:ensure_pushed'
-after "deploy:update_code", "deploy:setup_reddit"
-after "deploy:update_code", "deploy:process_static_files"
 after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
-after "deploy:update_code", "deploy:crontab"
+after "deploy:update_code", "deploy:rake_after_update_code"
+
