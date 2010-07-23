@@ -43,9 +43,14 @@ namespace :deploy do
     end
   end
 
+  desc "Restart the Application"
+  task :restart, :roles => :app do
+    run %{cd #{current_path} && rake deploy:restart APPLICATION_USER="#{user}" APPLICATION="#{application}"}
+  end
+
   desc "Run after update code rake task"
   task :rake_after_update_code, :roles => :app do
-    sudo %Q{/bin/bash -c "cd #{release_path} && rake after_update_code"}
+    sudo %{cd #{release_path} && rake after_update_code APPLICATION_USER="#{user}" APPLICATION="#{application}"}
   end
 end
 
