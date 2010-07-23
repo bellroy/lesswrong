@@ -22,6 +22,7 @@ def sudo(command, options = {})
 end
 
 def run(command)
+  puts "running `#{command}'"
   unless system(command)
     raise RuntimeError.new("Error running command: '#{command}'")
   end
