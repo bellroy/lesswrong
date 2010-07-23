@@ -26,7 +26,7 @@ Click each of the following:
 Click on the first article, you should see the article and its comments
 Click "Vote up" on the article, the circle should become filled
 Refresh the page, the "Vote up" circle should still be filled
-
+Click the Article Navigation link, the navigation options for the article should load
 
 - Commenting
 --------------------------------------------------------------------------------
@@ -43,5 +43,6 @@ Click the "Create new article" button in the side bar.
   Enter a title and some body text
   Enter a tag of "test"
   Click Submit, you should see your article titled and tagged correctly.
+  Click Article Navigation, it should load the navigation options
   Click the "test" tag link, you should see a list of articles, including yours
   Click the "Log out" button in the sidebar, your article should no longer be visible
