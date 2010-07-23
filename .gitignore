@@ -19,7 +19,7 @@ public
 lighttpd.**
 development.ini
 development_*.ini
-production.ini
+lesswrong.com.ini
 r2/r2/public/static/frame.js
 r2/r2/public/static/reddit.js
 r2/r2/public/static/vote.js
