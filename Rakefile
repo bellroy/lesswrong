@@ -79,5 +79,5 @@ namespace :deploy do
 end
 
 desc "Hook for tasks that should run after code update"
-task :after_update_code => %w[deploy:setup, deploy:process_static_files, deploy:crontab]
+task :after_update_code => %w[deploy:setup deploy:process_static_files deploy:crontab]
 
