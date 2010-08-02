@@ -17,8 +17,8 @@ def sudo(command, options = {})
   user = options[:as] && "-u #{options.delete(:as)}"
 
   sudo_prompt_option = "-p 'sudo password: '"
-  sudo_command = ["sudo", sudo_prompt_option, user].compact.join(" ")
-  run command
+  sudo_command = ["sudo", sudo_prompt_option, user, command].compact.join(" ")
+  run sudo_command
 end
 
 def run(command)
