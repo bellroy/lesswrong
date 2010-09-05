@@ -30,6 +30,14 @@ namespace :deploy do
     %w[files assets].each {|dir| link_shared_dir(dir) }
   end
 
+  def rake_options
+    {
+      'APPLICATION' => application,
+      'APPLICATION_USER' => user,
+      'APPLICATION_ENV' => environment
+    }.map { |k, v| "#{k}=#{v}" }.join(" ")
+  end
+
   def link_shared_dir(dir)
     shared_subdir = "#{shared_path}/#{dir}"
     public_dir = "#{release_path}/public/#{dir}"
