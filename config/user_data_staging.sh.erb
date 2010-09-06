@@ -1,0 +1,20 @@
+#!/bin/bash
+/usr/local/sys_scripts/bin/git-update-hard /usr/local/sys_scripts master
+/usr/local/sys_scripts/bin/git-update-hard /etc/munin master
+
+/usr/local/sys_scripts/bin/aws-update_hosts 75.101.144.164 \
+  db.aws.trike.com.au \
+  sultana.trike.com.au \
+  memcache.aws.trike.com.au
+
+sudo -u www-data /usr/local/sys_scripts/bin/git-update-hard /srv/www/lesswrong.com/current stable
+cd /srv/www/lesswrong.com/current && rake after_update_code APPLICATION_ENV=staging APPLICATION=lesswrong.com APPLICATION_USER=www-data
+cd /srv/www/lesswrong.com/current && rake deploy:restart APPLICATION_ENV=staging APPLICATION=lesswrong.com APPLICATION_USER=www-data
+sudo -u www-data /srv/www/lesswrong.com/current/scripts/sync_wiki_export.sh
+
+<% if time_to_live > 0 %>
+# This server will self destruct in <%= time_to_live %> minutes
+# run shutdown -c to cancel
+shutdown -h +<%= time_to_live %> &
+<% end %>
+
