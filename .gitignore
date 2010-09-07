@@ -40,3 +40,4 @@ r2/paster.pid
 config/deploy/aws-test.rb
 exporter/*
 notes/*
+attic/*
