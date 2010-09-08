@@ -464,13 +464,21 @@ def chkuser(x):
     except UnicodeEncodeError:
         return None
 
+def whyuserbad(x):
+    if len(x)<3:
+        return errors.BAD_USERNAME_SHORT
+    if len(x)>20:
+        return errors.BAD_USERNAME_LONG
+    return errors.BAD_USERNAME_CHARS
+
 class VUname(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.BAD_USERNAME, *a, **kw)
     def run(self, user_name):
+        original_user_name = user_name;
         user_name = chkuser(user_name)
         if not user_name:
-            return self.error()
+            return self.error(whyuserbad(original_user_name))
         else:
             try:
                 a = Account._by_name(user_name, True)
