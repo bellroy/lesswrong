@@ -6,6 +6,9 @@ require 'capistrano/ext/multistage'
 load 'config/cap-tasks/common.rb'
 load 'config/cap-tasks/test.rb'
 load 'config/cap-tasks/console.rb'
+load 'config/cap-tasks/console.rb'
+load 'config/cap-tasks/rake.rb'
+load 'config/cap-tasks/postgresql_dump.rb'
 load 'config/db.rb'
 
 set :scm, 'git'
@@ -20,10 +23,19 @@ set :branch, 'stable'
 set :rails_env, nil
 set :user, "www-data"            # defaults to the currently logged in user
 set :public_path, lambda { "#{current_path}/r2/r2/public" }
+set :databases, %w[main change email query_queue]
 
 namespace :deploy do
   after "deploy:update_code", :roles => [:web, :app] do
     %w[files assets].each {|dir| link_shared_dir(dir) }
+  end
+
+  def rake_options
+    {
+      'APPLICATION' => application,
+      'APPLICATION_USER' => user,
+      'APPLICATION_ENV' => environment
+    }.map { |k, v| "#{k}=#{v}" }.join(" ")
   end
 
   def link_shared_dir(dir)
@@ -45,12 +57,14 @@ namespace :deploy do
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    run %{cd #{current_path} && rake --trace deploy:restart APPLICATION_USER="#{user}" APPLICATION="#{application}"}
+    #XXX: Change to use remote_rake
+    run %{cd #{current_path} && rake --trace deploy:restart #{rake_options}}
   end
 
   desc "Run after update code rake task"
   task :rake_after_update_code, :roles => :app do
-    sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code APPLICATION_USER=\"#{user}\" APPLICATION=\"#{application}\""}
+    #XXX: Change to use remote_rake
+    sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code #{rake_options.gsub('"', '\\"')}"}
   end
 end
 
