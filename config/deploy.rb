@@ -23,7 +23,7 @@ set :branch, 'stable'
 set :rails_env, nil
 set :user, "www-data"            # defaults to the currently logged in user
 set :public_path, lambda { "#{current_path}/r2/r2/public" }
-set :databases, %w[main comment vote change email query_queue]
+set :databases, %w[main change email query_queue]
 
 namespace :deploy do
   after "deploy:update_code", :roles => [:web, :app] do
