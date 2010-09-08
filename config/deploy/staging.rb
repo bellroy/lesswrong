@@ -11,8 +11,7 @@ set :security_group, 'webserver_python_staging'
 set :instance, lambda {
   AWS.find_or_start_host_for_security_group(
     security_group,
-    'ami-4446ac2d',
-    #AWS.auto_scaler_ami('python'),
+    AWS.auto_scaler_ami('python'),
     120,
     File.join('config', "user_data_#{environment}.sh.erb")
   )
