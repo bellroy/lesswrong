@@ -23,6 +23,7 @@ role :web, instance, :primary => true
 role :db,  "db.aws.trike.com.au", :primary => true, :no_release => true
 
 after 'multistage:ensure', :check_hostname
+after 'deploy:cleanup', :check_hostname
 
 task :check_hostname, :roles => :app, :only => :primary do
   hosts = AWS.security_group_hosts(security_group)
