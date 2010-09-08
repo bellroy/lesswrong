@@ -362,6 +362,12 @@ class ApiController(RedditController):
         res._update('status_' + op, innerHTML='')
         if res._chk_error(errors.BAD_USERNAME, op):
             res._focus('user_reg')
+        elif res._chk_error(errors.BAD_USERNAME_SHORT, op):
+            res._focus('user_reg')
+        elif res._chk_error(errors.BAD_USERNAME_LONG, op):
+            res._focus('user_reg')
+        elif res._chk_error(errors.BAD_USERNAME_CHARS, op):
+            res._focus('user_reg')
         elif res._chk_error(errors.USERNAME_TAKEN, op):
             res._focus('user_reg')
         elif res._chk_error(errors.BAD_PASSWORD, op):

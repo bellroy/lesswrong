@@ -63,6 +63,9 @@
                  type="text" maxlength="20"/>
           %if register:
             ${error_field("BAD_USERNAME_" + op, kind="span")}
+            ${error_field("BAD_USERNAME_CHARS_" + op, kind="span")}
+            ${error_field("BAD_USERNAME_SHORT_" + op, kind="span")}
+            ${error_field("BAD_USERNAME_LONG_" + op, kind="span")}
             ${error_field("USERNAME_TAKEN_" + op, kind="span")}
           %endif
         </li>
