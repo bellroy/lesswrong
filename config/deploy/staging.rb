@@ -11,8 +11,7 @@ set :security_group, 'webserver_python_staging'
 set :instance, lambda {
   AWS.find_or_start_host_for_security_group(
     security_group,
-    'ami-4446ac2d',
-    #AWS.auto_scaler_ami('python'),
+    AWS.auto_scaler_ami('python'),
     120,
     File.join('config', "user_data_#{environment}.sh.erb")
   )
@@ -23,6 +22,7 @@ role :web, instance, :primary => true
 role :db,  "db.aws.trike.com.au", :primary => true, :no_release => true
 
 after 'multistage:ensure', :check_hostname
+after 'deploy:cleanup', :check_hostname
 
 task :check_hostname, :roles => :app, :only => :primary do
   hosts = AWS.security_group_hosts(security_group)
