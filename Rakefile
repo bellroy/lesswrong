@@ -96,10 +96,16 @@ namespace :deploy do
     sudo "paster serve --daemon --pid-file #{pid_file} #{inifile}", :as => user
   end
 
-  desc "Copy the lesswrong crontab to /etc/cron.d. Requires root permissions"
+  desc "Copy the lesswrong crontab to /etc/cron.d in production. Requires root permissions"
   task :crontab do
     crontab = basepath + 'config' + 'crontab'
-    File.copy(crontab, "/etc/cron.d/lesswrong", true)
+    target = "/etc/cron.d/lesswrong"
+    if environment == "production"
+      File.copy(crontab, target, true)
+    else
+      # Don't want the cron jobs running in non-production environments
+      File.unlink target rescue nil
+    end
   end
 end
 
