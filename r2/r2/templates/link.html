@@ -48,7 +48,7 @@
 %>
 
 <div id="thingrow_${fullname}" class="${css_class}">
-  <h${heading_size}><a href="${thing.url}">${self.title()}</a></h${heading_size}>
+  <h${heading_size}><a href="${thing.url}">${self.title()}</a>${self.draft()}</h${heading_size}>
   <div class="meta clear">
 
     %if thing.hide_score:
@@ -120,7 +120,15 @@
 </%def>
 
 <%def name="title()">
-  ${thing.title}
+  ${thing.title} 
+</%def>
+
+<%def name="draft()">
+    %if thing.subreddit:
+        %if thing.subreddit.name.find("drafts")>0:
+            &nbsp;**DRAFT**
+        %endif
+    %endif
 </%def>
 
 <%def name="article()">
