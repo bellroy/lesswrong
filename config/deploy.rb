@@ -48,7 +48,8 @@ namespace :deploy do
 
   desc 'Symlink all the INI files into the release dir'
   task :symlink_remote_reddit_ini, :roles => :app do
-    remote_rake "deploy:symlink_ini #{rake_options}"
+    # Not using remote rake because need to cd to release path not current
+    run "cd #{release_path} && rake --trace deploy:symlink_ini #{rake_options}"
   end
 
   desc "Restart the Application"
