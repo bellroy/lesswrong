@@ -53,13 +53,11 @@ namespace :deploy do
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    #XXX: Change to use remote_rake
-    run %{cd #{current_path} && rake --trace deploy:restart #{rake_options}}
+    remote_rake "--trace deploy:restart #{rake_options}"
   end
 
   desc "Run after update code rake task"
   task :rake_after_update_code, :roles => :app do
-    #XXX: Change to use remote_rake
     sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code #{rake_options.gsub('"', '\\"')}"}
   end
 end
