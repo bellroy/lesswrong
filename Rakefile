@@ -82,6 +82,17 @@ namespace :deploy do
     run "chown -R #{user} ."
   end
 
+  desc "Symlink the INI files into the release path"
+  task :symlink_ini do
+    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
+      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
+        target = "#{r2_path}/#{$1}.ini"
+        puts "symlink #{ini} -> #{target}"
+        File.symlink(ini, target)
+      end
+    end
+  end
+
   desc 'Compress and concetenate JS and generate MD5 files'
   task :process_static_files do
     Dir.chdir r2_path

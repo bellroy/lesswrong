@@ -48,11 +48,7 @@ namespace :deploy do
 
   desc 'Symlink all the INI files into the release dir'
   task :symlink_remote_reddit_ini, :roles => :app do
-    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
-      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
-        File.symlink(ini, "#{release_path}/r2/#{$1}.ini")
-      end
-    end
+    remote_rake "deploy:symlink_ini #{rake_options}"
   end
 
   desc "Restart the Application"
