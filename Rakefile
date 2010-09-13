@@ -49,7 +49,7 @@ def db_dump_path
 end
 
 def inifile
-  ENV['INI'] || "/usr/local/etc/reddit/#{application}.#{environment}.ini"
+  ENV['INI'] || (r2_path + "#{environment}.ini").to_s
 end
 
 def user
@@ -80,6 +80,17 @@ namespace :deploy do
     run "python setup.py install"
     Dir.chdir basepath
     run "chown -R #{user} ."
+  end
+
+  desc "Symlink the INI files into the release path"
+  task :symlink_ini do
+    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
+      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
+        target = "#{r2_path}/#{$1}.ini"
+        puts "symlink #{ini} -> #{target}"
+        File.symlink(ini, target)
+      end
+    end
   end
 
   desc 'Compress and concetenate JS and generate MD5 files'
