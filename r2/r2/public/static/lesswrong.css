@@ -10,10 +10,15 @@
 	top: 0;
 	left: 0;
 }
+#siai {
+	position: absolute;
+	bottom: 84px;
+	right: 10px;
+}
 #fhi {
 	position: absolute;
-	bottom: 0;
-	right: 2px;
+	top: 86px;
+	right: 10px;
 }
 #content.clear.fullwidth {
     padding: 0 15px;
