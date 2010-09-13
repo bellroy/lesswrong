@@ -49,7 +49,7 @@ def db_dump_path
 end
 
 def inifile
-  ENV['INI'] || "/usr/local/etc/reddit/#{application}.#{environment}.ini"
+  ENV['INI'] || (r2_path + "#{environment}.ini").to_s
 end
 
 def user

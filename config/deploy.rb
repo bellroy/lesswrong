@@ -46,12 +46,12 @@ namespace :deploy do
     run "ln -sv #{shared_subdir} #{public_dir}"
   end
 
-  desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
+  desc 'Symlink all the INI files into the release dir'
   task :symlink_remote_reddit_ini, :roles => :app do
-    run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
-    if application == "lesswrong.com"
-      # for backwards compatibility
-      run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/lesswrong.org.ini"
+    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
+      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
+        File.symlink(ini, "#{release_path}/r2/#{$1}.ini")
+      end
     end
   end
 
