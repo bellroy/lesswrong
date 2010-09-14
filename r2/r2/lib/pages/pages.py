@@ -301,10 +301,8 @@ class RecentComments(RecentItems):
         return sr.get_comments('new', 'all')
 
     def init_builder(self):
-        sr = Subreddit._by_name(g.default_sr)
         return UnbannedCommentBuilder(
             self.query(),
-            [sr._id],
             num = 5,
             wrap = RecentItems.wrap_thing,
             skip = True

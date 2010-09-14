@@ -650,6 +650,7 @@ class MyredditsController(ListingController):
 
 class CommentsController(ListingController):
     title_text = _('Comments')
+    builder_cls = UnbannedCommentBuilder
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
