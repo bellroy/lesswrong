@@ -72,6 +72,9 @@ class ListingController(RedditController):
 
     _link_listings = None
 
+    # Robot (search engine) directives
+    robots = None
+
     @classmethod
     def link_listings(cls, key = None):
         # This is done to defer generation of the dictionary until after
@@ -107,6 +110,9 @@ class ListingController(RedditController):
         self.after = after
         self.reverse = reverse
 
+        if after is not None:
+            self.robots = "noindex,follow"
+
         self.query_obj = self.query()
         self.builder_obj = self.builder()
         self.listing_obj = self.listing()
@@ -116,6 +122,7 @@ class ListingController(RedditController):
                                nav_menus = self.menus, 
                                title = self.title(),
                                infotext = self.infotext,
+                               robots = self.robots,
                                **self.render_params).render()
         return res
 
