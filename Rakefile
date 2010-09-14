@@ -87,8 +87,7 @@ namespace :deploy do
     Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
       if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
         target = "#{r2_path}/#{$1}.ini"
-        puts "symlink #{ini} -> #{target}"
-        File.symlink(ini, target)
+        File.symlink(ini, target, :force => true, :verbose => true)
       end
     end
   end
@@ -121,7 +120,7 @@ namespace :deploy do
 end
 
 desc "Hook for tasks that should run after code update"
-task :after_update_code => %w[deploy:setup deploy:process_static_files deploy:crontab]
+task :after_update_code => %w[deploy:symlink_ini deploy:setup deploy:process_static_files deploy:crontab]
 
 # Set the databases variable in your local deploy configuration
 # expects an array of PostgreSQL database names
