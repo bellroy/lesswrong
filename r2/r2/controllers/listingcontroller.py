@@ -158,7 +158,7 @@ class ListingController(RedditController):
 
     def title(self):
         """Page <title>"""
-        return c.site.title + ": " + _(self.title_text)
+        return "%s - %s" % (self.title_text, c.site.title)
 
     def rightbox(self):
         """Contents of the right box when rendering"""
@@ -304,7 +304,7 @@ class RootController(ListingController):
 
 class NewController(ListingController):
     where = 'new'
-    title_text = _('Newest submissions')
+    title_text = _('Newest Submissions')
 
     def query(self):
         return c.site.get_links('new', 'all')
@@ -314,6 +314,7 @@ class NewController(ListingController):
 
 class RecentpostsController(NewController):
     where = 'recentposts'
+    title_text = _('Recent Posts')
 
     @staticmethod
     def builder_wrapper(thing):
@@ -334,7 +335,7 @@ class RecentpostsController(NewController):
 
 class TagController(ListingController):
     where = 'tag'
-    title_text = _('Articles tagged')
+    title_text = _('Articles Tagged')
 
     @property
     def menus(self):
@@ -355,7 +356,7 @@ class TagController(ListingController):
     def GET_listing(self, tag, sort, **env):
         self._tag = tag
         self.sort = sort
-        TagController.title_text = _('Articles tagged ' + tag.name)
+        TagController.title_text = _('Articles Tagged') + u' \N{LEFT SINGLE QUOTATION MARK}' + unicode(tag.name) + u'\N{RIGHT SINGLE QUOTATION MARK}'
         return ListingController.GET_listing(self, **env)
 
 class BrowseController(ListingController):
@@ -437,15 +438,15 @@ class UserController(ListingController):
     show_nums = False
 
     def title(self):
-        titles = {'overview': _("Overview for %(user)s"),
-                  'comments': _("Comments by %(user)s"),
-                  'submitted': _("Submitted by %(user)s"),
-                  'liked': _("Liked by %(user)s"),
-                  'disliked': _("Disliked by %(user)s"),
-                  'hidden': _("Hidden by %(user)s"),
-                  'drafts': _("Drafts for %(user)s")}
-        title = titles.get(self.where, _('Profile for %(user)s')) \
-            % dict(user = self.vuser.name, site = c.site.name)
+        titles = {'overview': _("Overview for %(user)s - %(site)s"),
+                  'comments': _("Comments by %(user)s - %(site)s"),
+                  'submitted': _("Submitted by %(user)s - %(site)s"),
+                  'liked': _("Liked by %(user)s - %(site)s"),
+                  'disliked': _("Disliked by %(user)s - %(site)s"),
+                  'hidden': _("Hidden by %(user)s - %(site)s"),
+                  'drafts': _("Drafts for %(user)s - %(site)s")}
+        title = titles.get(self.where, _('Profile for %(user)s - %(site)s')) \
+            % dict(user = self.vuser.name, site = c.site.title)
         return title
 
     def query(self):
@@ -514,8 +515,10 @@ class MessageController(ListingController):
     show_sidebar = True
     render_cls = MessagePage
 
-    def title(self):
-        return _('Messages') + ': ' + _(self.where)
+    def title(self, where = None):
+        if where is None:
+            where = self.where
+        return "%s: %s - %s" % (_('Messages'), _(where.title()), c.site.title)
 
     @staticmethod
     def builder_wrapper(thing):
@@ -563,7 +566,7 @@ class MessageController(ListingController):
                                  captcha = captcha, 
                                  message = message,
                                  success = success)
-        return MessagePage(content = content).render()
+        return MessagePage(content = content, title = self.title('compose')).render()
     
 class RedditsController(ListingController):
     render_cls = SubredditsPage

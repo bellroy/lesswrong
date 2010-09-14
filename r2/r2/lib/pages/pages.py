@@ -380,7 +380,7 @@ class PrefsPage(Reddit):
 
     def __init__(self, show_sidebar = True, *a, **kw):
         Reddit.__init__(self, show_sidebar = show_sidebar,
-                        title = "%s: %s" %(c.site.title, _("Preferences")),
+                        title = "%s - %s" % (_("Preferences"), c.site.title),
                         *a, **kw)
 
     def header_nav(self):
@@ -440,7 +440,7 @@ class BoringPage(Reddit):
     
     def __init__(self, pagename, **context):
         self.pagename = pagename
-        Reddit.__init__(self, title = "%s: %s" % (c.site.title, pagename),
+        Reddit.__init__(self, title = "%s - %s" % (pagename, c.site.title),
                         **context)
 
 class FormPage(BoringPage):
