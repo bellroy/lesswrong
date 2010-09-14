@@ -22,11 +22,16 @@
 
 <%!
    from r2.lib.filters import safemarkdown, clean_comment_html, format_linebreaks
+   from r2.lib.template_helpers import add_sr
+%>
+<%
+   url = add_sr(thing.permalink, force_hostname = True)
 %>
 
 <item>
   <title>${thing.author.name} ${_("on")} ${thing.link.title}</title>
-  <link>${thing.permalink}</link>
+  <link>${url}</link>
+  <guid isPermaLink="true">${url}</guid>
   <dc:date>${thing._date.isoformat()}</dc:date>
   <description>
     %if thing.is_html:
