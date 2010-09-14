@@ -518,3 +518,9 @@ div.comment div.parent {
 }
 .sr-toggle-button.add { background-image: url(/static/sr-add-button.png) }
 .sr-toggle-button.remove { background-image: url(/static/sr-remove-button.png)}
+
+/* Draft marker on post title */
+#content span.draft {
+  color: red
+}
+

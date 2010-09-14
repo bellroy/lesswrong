@@ -385,6 +385,8 @@ class Link(Thing, Printable):
             else:
                 item.nofollow = False
 
+            item.draft = True if item.subreddit.name == c.user.draft_sr_name else False
+
         if c.user_is_loggedin:
             incr_counts(wrapped)
 
