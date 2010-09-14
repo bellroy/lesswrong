@@ -30,17 +30,6 @@
     <title>${self.Title()}</title>        
     <link>${add_sr("/", force_hostname = True)}</link>
     <description>${c.site.description or ''}</description>
-    <image>
-      <%
-        if g.css_killswitch or not c.site.header:
-            header_img = DefaultSR.header
-        else:
-            header_img = c.site.header
-      %>
-      <url>http://${get_domain(subreddit = False, cname = c.cname)}${header_img}</url>
-      <title>${self.Title()}</title>
-      <link>${add_sr("/", force_hostname = True)}</link>
-    </image>
     ${next.body()}
   </channel>
 </rss>  
