@@ -978,7 +978,7 @@ class Comment(Thing, Printable):
 
     def make_permalink_title(self, link):
         author = Account._byID(self.author_id, data=True).name
-        params = {'author' : author, 'title' : _force_unicode(link.title)}
+        params = {'author' : author, 'title' : _force_unicode(link.title), 'site' : c.site.title}
         return strings.permalink_title % params
           
     @classmethod

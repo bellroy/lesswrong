@@ -523,7 +523,7 @@ class FrontController(RedditController):
         except NotFound:
             sr = None
 
-        return FormPage(_("Submit article"), 
+        return FormPage(_("Submit Article"),
                         content=NewLink(title=title or '',
                                         subreddits = srs,
                                         tags=tags,
