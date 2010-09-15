@@ -7,9 +7,13 @@
   sultana.trike.com.au \
   memcache.aws.trike.com.au
 
-sudo -u www-data /usr/local/sys_scripts/bin/git-update-hard /srv/www/lesswrong.com/current stable
-cd /srv/www/lesswrong.com/current && rake after_update_code APPLICATION_ENV=staging APPLICATION=lesswrong.com APPLICATION_USER=www-data
-cd /srv/www/lesswrong.com/current && rake deploy:restart APPLICATION_ENV=staging APPLICATION=lesswrong.com APPLICATION_USER=www-data
+APPLICATION=lesswrong.com
+APPLICATION_USER=www-data
+APPLICATION_ENV=staging
+
+sudo -u www-data /usr/local/sys_scripts/bin/git-update-hard /srv/www/lesswrong.com/current $APPLICATION_ENV
+cd /srv/www/lesswrong.com/current && rake after_update_code
+cd /srv/www/lesswrong.com/current && rake deploy:restart
 sudo -u www-data /srv/www/lesswrong.com/current/scripts/sync_wiki_export.sh
 
 <% if time_to_live > 0 %>
