@@ -87,7 +87,7 @@ namespace :deploy do
     Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
       if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
         target = "#{r2_path}/#{$1}.ini"
-        File.ln_sf(ini, target, :verbose => true)
+        FileUtils.ln_sf(ini, target, :verbose => true)
       end
     end
   end
