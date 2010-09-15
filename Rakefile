@@ -49,7 +49,7 @@ def db_dump_path
 end
 
 def inifile
-  ENV['INI'] || (r2_path + "#{environment}.ini").to_s
+  ENV['INI'] || (r2_path + "#{environment}.ini")
 end
 
 def user
@@ -71,8 +71,37 @@ def databases
   end
 end
 
+def app_server(action)
+  pidfile = shared_path + 'pids' + 'paster.pid'
+  Dir.chdir r2_path
+
+  if(action == :stop || action == :restart)
+    sudo "paster serve --stop-daemon --pid-file #{pidfile} #{inifile} || true", :as => user
+  end
+  if(action == :start || action == :restart)
+    sudo "paster serve --daemon --pid-file #{pidfile} #{inifile}", :as => user
+  end
+end
+
 # These tasks assume they are running as root and will change users if necessary.
 # They also assume there are running in a capistrano managed directory structure.
+namespace :app do
+  desc "Start the Application"
+  task :start do
+    app_server(:start)
+  end
+
+  desc "Stop the Application"
+  task :stop do
+    app_server(:stop)
+  end
+
+  desc "Restart the Application"
+  task :restart do
+    app_server(:restart)
+  end
+end
+
 namespace :deploy do
   desc 'Run Reddit setup routine'
   task :setup do
@@ -87,8 +116,7 @@ namespace :deploy do
     Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
       if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
         target = "#{r2_path}/#{$1}.ini"
-        puts "symlink #{ini} -> #{target}"
-        File.symlink(ini, target)
+        FileUtils.ln_sf(ini, target, :verbose => true)
       end
     end
   end
@@ -96,15 +124,13 @@ namespace :deploy do
   desc 'Compress and concetenate JS and generate MD5 files'
   task :process_static_files do
     Dir.chdir r2_path
-    run "./compress_js.sh"
+    sudo "./compress_js.sh", :as => user
   end
 
+  # For compatibilty
   desc "Restart the Application"
   task :restart do
-    pid_file = shared_path + 'pids' + 'paster.pid'
-    Dir.chdir r2_path
-    sudo "paster serve --stop-daemon --pid-file #{pid_file} #{inifile} || true", :as => user
-    sudo "paster serve --daemon --pid-file #{pid_file} #{inifile}", :as => user
+    Rake::Task['app:restart'].invoke
   end
 
   desc "Copy the lesswrong crontab to /etc/cron.d in production. Requires root permissions"
@@ -112,16 +138,29 @@ namespace :deploy do
     crontab = basepath + 'config' + 'crontab'
     target = "/etc/cron.d/lesswrong"
     if environment == "production"
-      File.copy(crontab, target, true)
+      File.copy(crontab, target, true) # true = verbose
     else
       # Don't want the cron jobs running in non-production environments
       File.unlink target rescue nil
     end
   end
+
+  desc "Copy the lesswrong init script to /etc/init.d/paster Requires root"
+  task :init_script do
+    init_script = basepath + 'scripts' + 'paster-init.sh'
+    target = "/etc/init.d/paster"
+    File.copy(init_script, target, true) # true = verbose
+  end
 end
 
 desc "Hook for tasks that should run after code update"
-task :after_update_code => %w[deploy:setup deploy:process_static_files deploy:crontab]
+task :after_update_code => %w[
+  deploy:symlink_ini
+  deploy:setup
+  deploy:process_static_files
+  deploy:crontab
+  deploy:init_script
+]
 
 # Set the databases variable in your local deploy configuration
 # expects an array of PostgreSQL database names
@@ -133,7 +172,7 @@ namespace :postgresql do
   def conf
     @conf ||= begin
       conf = {}
-      File.open(inifile) do |ini|
+      File.open(inifile.to_s) do |ini|
         ini.each_line do |line|
           next if line =~ /^\s*#/ # skip comments
           next if line =~ /^\s*\[[^\]]+\]/ # skip sections

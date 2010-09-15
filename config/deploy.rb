@@ -64,6 +64,5 @@ namespace :deploy do
 end
 
 before 'deploy:update_code', 'git:ensure_pushed'
-after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
 after "deploy:update_code", "deploy:rake_after_update_code"
 
