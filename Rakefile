@@ -138,16 +138,29 @@ namespace :deploy do
     crontab = basepath + 'config' + 'crontab'
     target = "/etc/cron.d/lesswrong"
     if environment == "production"
-      File.copy(crontab, target, true)
+      File.copy(crontab, target, true) # true = verbose
     else
       # Don't want the cron jobs running in non-production environments
       File.unlink target rescue nil
     end
   end
+
+  desc "Copy the lesswrong init script to /etc/init.d/paster Requires root"
+  task :init_script
+    init_script = basepath + 'scripts' + 'paster-init.sh'
+    target = "/etc/init.d/paster"
+    File.copy(init_script, target, true) # true = verbose
+  end
 end
 
 desc "Hook for tasks that should run after code update"
-task :after_update_code => %w[deploy:symlink_ini deploy:setup deploy:process_static_files deploy:crontab]
+task :after_update_code => %w[
+  deploy:symlink_ini
+  deploy:setup
+  deploy:process_static_files
+  deploy:crontab
+  deploy:init_script
+]
 
 # Set the databases variable in your local deploy configuration
 # expects an array of PostgreSQL database names
