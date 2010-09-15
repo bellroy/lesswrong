@@ -4,7 +4,7 @@ DIR="/srv/www/lesswrong.com/current"
 PIDFILE="/srv/www/lesswrong.com/shared/pids/paster.pid"
 
 # This aims to set environment variables, APPLICATION, APPLICATION_USER, APPLICATION_ENV
-eval $(curl http://169.254.169.254/latest/user-data | grep '^export')
+eval $(curl --silent http://169.254.169.254/latest/user-data | grep '^export')
 
 if [ ! -e $DIR ]; then
   echo "Directory $DIR does not exist"
