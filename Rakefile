@@ -49,7 +49,7 @@ def db_dump_path
 end
 
 def inifile
-  ENV['INI'] || (r2_path + "#{environment}.ini").to_s
+  ENV['INI'] || (r2_path + "#{environment}.ini")
 end
 
 def user
@@ -71,8 +71,37 @@ def databases
   end
 end
 
+def app_server(action)
+  pidfile = shared_path + 'pids' + 'paster.pid'
+  Dir.chdir r2_path
+
+  if(action == :stop || action == :restart)
+    sudo "paster serve --stop-daemon --pid-file #{pidfile} #{inifile} || true", :as => user
+  end
+  if(action == :start || action == :restart)
+    sudo "paster serve --daemon --pid-file #{pidfile} #{inifile}", :as => user
+  end
+end
+
 # These tasks assume they are running as root and will change users if necessary.
 # They also assume there are running in a capistrano managed directory structure.
+namespace :app do
+  desc "Start the Application"
+  task :start do
+    app_server(:start)
+  end
+
+  desc "Stop the Application"
+  task :stop do
+    app_server(:stop)
+  end
+
+  desc "Restart the Application"
+  task :restart do
+    app_server(:restart)
+  end
+end
+
 namespace :deploy do
   desc 'Run Reddit setup routine'
   task :setup do
@@ -98,12 +127,10 @@ namespace :deploy do
     sudo "./compress_js.sh", :as => user
   end
 
+  # For compatibilty
   desc "Restart the Application"
   task :restart do
-    pid_file = shared_path + 'pids' + 'paster.pid'
-    Dir.chdir r2_path
-    sudo "paster serve --stop-daemon --pid-file #{pid_file} #{inifile} || true", :as => user
-    sudo "paster serve --daemon --pid-file #{pid_file} #{inifile}", :as => user
+    Rake::Task['app:restart'].invoke
   end
 
   desc "Copy the lesswrong crontab to /etc/cron.d in production. Requires root permissions"
@@ -132,7 +159,7 @@ namespace :postgresql do
   def conf
     @conf ||= begin
       conf = {}
-      File.open(inifile) do |ini|
+      File.open(inifile.to_s) do |ini|
         ini.each_line do |line|
           next if line =~ /^\s*#/ # skip comments
           next if line =~ /^\s*\[[^\]]+\]/ # skip sections
