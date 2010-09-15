@@ -146,7 +146,7 @@ namespace :deploy do
   end
 
   desc "Copy the lesswrong init script to /etc/init.d/paster Requires root"
-  task :init_script
+  task :init_script do
     init_script = basepath + 'scripts' + 'paster-init.sh'
     target = "/etc/init.d/paster"
     File.copy(init_script, target, true) # true = verbose
