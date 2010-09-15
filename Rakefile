@@ -95,7 +95,7 @@ namespace :deploy do
   desc 'Compress and concetenate JS and generate MD5 files'
   task :process_static_files do
     Dir.chdir r2_path
-    run "./compress_js.sh"
+    sudo "./compress_js.sh", :as => user
   end
 
   desc "Restart the Application"
