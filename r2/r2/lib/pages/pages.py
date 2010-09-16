@@ -494,7 +494,6 @@ class LinkInfoPage(Reddit):
     """
     
     create_reddit_box  = False
-    extension_handling = False # No feed until comment feeds are implemented
     robots             = None
 
     @staticmethod
