@@ -158,6 +158,11 @@
 
 <%def name="navlist()">
   %if thing:
+  <%
+    from r2.models import Subreddit
+    sr = Subreddit._by_name('discussion')
+  %>
+
     <ul class="clear"
         ${"id='%s'" % thing._id if thing._id else ""}>
       %for i, option in enumerate(thing):
@@ -174,6 +179,7 @@
       %endfor
       <li class="right">${plain_link(_('About'), '/about-less-wrong', _sr_path=False)}</li>
       <li class="right">${plain_link(_('Sequences'), 'http://wiki.lesswrong.com/wiki/Sequences', _sr_path=False)}</li>
+      <li class="right">${plain_link(_('Discussion'), sr.path)}</li>
       <li class="right">${plain_link(_('Wiki'), 'http://wiki.lesswrong.com', _sr_path=False)}</li>
     </ul>
   %endif
