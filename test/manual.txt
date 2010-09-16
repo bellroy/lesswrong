@@ -43,6 +43,7 @@ Click the "Create new article" button in the side bar.
   Enter a title and some body text
   Enter a tag of "test"
   Click Submit, you should see your article titled and tagged correctly.
+  You should see a red Draft marker in the heading of the article
   Click Article Navigation, it should load the navigation options
   Click the "test" tag link, you should see a list of articles, including yours
   Click the "Log out" button in the sidebar, your article should no longer be visible
