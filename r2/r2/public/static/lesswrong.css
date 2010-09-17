@@ -495,6 +495,11 @@ div.comment div.parent {
     text-decoration: underline;
 }
 
+/* Subreddit box */
+#subreddit-info form {
+  display: inline;
+}
+
 /* Footer */
 #reddit-logo {
     float: right;
