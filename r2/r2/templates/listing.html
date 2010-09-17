@@ -24,7 +24,7 @@
 <%namespace file="utils.html" import="plain_link" />
 
 <%
-   _id = ("_%s" % thing.parent_name) if hasattr(thing, 'parent_name') else ''
+   _id = ("_%s" % thing.parent_name) if hasattr(thing, 'parent_name') else '_0'
  %>
 <div id="siteTable${_id}" class="sitetable">
   <div id="ajaxHook${_id}" class="ajaxhook">
