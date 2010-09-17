@@ -46,29 +46,23 @@ namespace :deploy do
     run "ln -sv #{shared_subdir} #{public_dir}"
   end
 
-  desc 'Link to a reddit ini file stored on the server (/usr/local/etc/reddit/#{application}.ini'
+  desc 'Symlink all the INI files into the release dir'
   task :symlink_remote_reddit_ini, :roles => :app do
-    run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/#{application}.ini"
-    if application == "lesswrong.com"
-      # for backwards compatibility
-      run "ln -sf /usr/local/etc/reddit/#{application}.ini #{release_path}/r2/lesswrong.org.ini"
-    end
+    # Not using remote rake because need to cd to release path not current
+    run "cd #{release_path} && rake --trace deploy:symlink_ini #{rake_options}"
   end
 
   desc "Restart the Application"
   task :restart, :roles => :app do
-    #XXX: Change to use remote_rake
-    run %{cd #{current_path} && rake --trace deploy:restart #{rake_options}}
+    remote_rake "--trace deploy:restart #{rake_options}"
   end
 
   desc "Run after update code rake task"
   task :rake_after_update_code, :roles => :app do
-    #XXX: Change to use remote_rake
     sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code #{rake_options.gsub('"', '\\"')}"}
   end
 end
 
 before 'deploy:update_code', 'git:ensure_pushed'
-after "deploy:update_code", "deploy:symlink_remote_reddit_ini"
 after "deploy:update_code", "deploy:rake_after_update_code"
 

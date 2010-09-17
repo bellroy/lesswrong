@@ -1,8 +1,10 @@
 #!/bin/bash
 
-DIR="/srv/www/lesswrong.com/current/r2"
-INIFILE="lesswrong.com.ini"
+DIR="/srv/www/lesswrong.com/current"
 PIDFILE="/srv/www/lesswrong.com/shared/pids/paster.pid"
+
+# This aims to set environment variables, APPLICATION, APPLICATION_USER, APPLICATION_ENV
+eval $(curl --silent http://169.254.169.254/latest/user-data | grep '^export')
 
 if [ ! -e $DIR ]; then
   echo "Directory $DIR does not exist"
@@ -14,19 +16,16 @@ if [ ! -e $DIR/$INIFILE ]; then
   exit 1
 fi
 
+
 do_start () {
   cd $DIR 
   echo "starting paster"
-  sudo -u www-data -H /usr/bin/paster serve --daemon --pid-file $PIDFILE $INIFILE
+  rake app:start
 }
 
 do_stop () {
-  if [ -e $PIDFILE ]; then 
-    PID=`cat $PIDFILE`
-    cd $DIR 
-    echo "stopping paster"
-    sudo -u www-data -H /usr/bin/paster serve --stop-daemon --pid-file $PIDFILE $INIFILE 
-  fi
+  echo "stopping paster"
+  rake app:stop
 }
 
 do_force_stop () {
@@ -34,6 +33,7 @@ do_force_stop () {
     PID=`cat $PIDFILE`
     echo "killing paster with pid $PID"
     kill -9 $PID
+    rm $PID
   fi
 }
 
@@ -44,8 +44,9 @@ do_force_restart () {
 }
 
 do_restart () {
-  do_stop
-  do_start
+  cd $DIR 
+  echo "restarting paster"
+  rake app:restart
 }
 
 case "$1" in
@@ -65,6 +66,7 @@ case "$1" in
   ;;
 
   restart)
+    do_restart
     exit 0
   ;;
 

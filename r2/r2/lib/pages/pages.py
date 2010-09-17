@@ -301,10 +301,8 @@ class RecentComments(RecentItems):
         return sr.get_comments('new', 'all')
 
     def init_builder(self):
-        sr = Subreddit._by_name(g.default_sr)
         return UnbannedCommentBuilder(
             self.query(),
-            [sr._id],
             num = 5,
             wrap = RecentItems.wrap_thing,
             skip = True
@@ -380,7 +378,7 @@ class PrefsPage(Reddit):
 
     def __init__(self, show_sidebar = True, *a, **kw):
         Reddit.__init__(self, show_sidebar = show_sidebar,
-                        title = "%s: %s" %(c.site.title, _("Preferences")),
+                        title = "%s - %s" % (_("Preferences"), c.site.title),
                         *a, **kw)
 
     def header_nav(self):
@@ -440,7 +438,7 @@ class BoringPage(Reddit):
     
     def __init__(self, pagename, **context):
         self.pagename = pagename
-        Reddit.__init__(self, title = "%s: %s" % (c.site.title, pagename),
+        Reddit.__init__(self, title = "%s - %s" % (pagename, c.site.title),
                         **context)
 
 class FormPage(BoringPage):
@@ -496,7 +494,6 @@ class LinkInfoPage(Reddit):
     """
     
     create_reddit_box  = False
-    extension_handling = False # No feed until comment feeds are implemented
     robots             = None
 
     @staticmethod

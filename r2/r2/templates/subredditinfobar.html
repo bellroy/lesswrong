@@ -38,7 +38,7 @@
               <input type="hidden" name="action" value="unsub"/>
               <input type="hidden" name="toggled_label"  
                      value="${_('Subscribe')}"/>
-              <a onclick="return toggle(this, 'subscribe');" href="#">
+              <a onclick="return toggle_setting(this, 'subscribe');" href="#">
                 ${_("Unsubscribe")}
               </a>
             %else:
@@ -46,7 +46,7 @@
               <input type="hidden" name="action" value="sub"/>
               <input type="hidden" name="toggled_label"  
                      value="${_('Unsubscribe')}"/>
-              <a onclick="return toggle(this, 'subscribe')" href="#">
+              <a onclick="return toggle_setting(this, 'subscribe')" href="#">
                 ${_("Subscribe")}</a>
             %endif
           </form>

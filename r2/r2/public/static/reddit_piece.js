@@ -228,7 +228,7 @@ function chklogin(form) {
     return true;
 }
 
-function toggle(a_tag, op) {
+function toggle_setting(a_tag, op) {
     var form = a_tag.parentNode;
     post_form(form, op, function() {return ''});
     var action = form.action.value;

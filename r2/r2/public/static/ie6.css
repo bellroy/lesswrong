@@ -6,7 +6,7 @@
 
 /* Header
 -------------------------------------------------------------------------------------- */
-#gradient, a#logo img, a#fhi img {
+#gradient, a#logo img, a#fhi img, a#siai img {
 	behavior: url(/iepngfix/iepngfix.htc);
 }
 

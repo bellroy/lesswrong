@@ -385,6 +385,11 @@ class Link(Thing, Printable):
             else:
                 item.nofollow = False
 
+            if c.user_is_loggedin and item.subreddit.name == c.user.draft_sr_name:
+              item.draft = True
+            else:
+              item.draft = False
+
         if c.user_is_loggedin:
             incr_counts(wrapped)
 
@@ -674,9 +679,11 @@ class Link(Thing, Printable):
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
-        Whenever a post is created we need to invalidate.  Also
-        invalidate when various post attributes are changed (such as
-        moving to a different subreddit).
+        Whenever a post is created we need to invalidate.  Also invalidate when
+        various post attributes are changed (such as moving to a different
+        subreddit). If the post cache is invalidated the comment one is too.
+        This is primarily for when a post is banned so that its comments
+        dissapear from the sidebar too.
         """
 
         should_invalidate = (not self._created or
@@ -686,6 +693,7 @@ class Link(Thing, Printable):
 
         if should_invalidate:
             g.rendercache.delete('side-posts')
+            g.rendercache.delete('side-comments')
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour
@@ -978,7 +986,7 @@ class Comment(Thing, Printable):
 
     def make_permalink_title(self, link):
         author = Account._byID(self.author_id, data=True).name
-        params = {'author' : author, 'title' : _force_unicode(link.title)}
+        params = {'author' : author, 'title' : _force_unicode(link.title), 'site' : c.site.title}
         return strings.permalink_title % params
           
     @classmethod

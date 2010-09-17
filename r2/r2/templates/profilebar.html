@@ -67,12 +67,12 @@
               <input type="hidden" name="action" value="remove"/>
               <input type="hidden" name="toggled_action" value="add"/>
               <input type="hidden" name="toggled_label" value="${_('Add to friends')}"/>
-              <a onclick="return toggle(this, 'friend');" href="#">${_("Remove from friends")}</a>
+              <a onclick="return toggle_setting(this, 'friend');" href="#">${_("Remove from friends")}</a>
             %else:
               <input type="hidden" name="toggled_action" value="remove"/>
               <input type="hidden" name="action" value="add"/>
               <input type="hidden" name="toggled_label"  value="${_('Remove from friends')}"/>
-              <a onclick="return toggle(this, 'friend')" href="#">${_("Add to friends")}</a>
+              <a onclick="return toggle_setting(this, 'friend')" href="#">${_("Add to friends")}</a>
             %endif
           </form>
         </li>
