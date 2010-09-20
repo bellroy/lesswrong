@@ -186,7 +186,8 @@
       <li class="right">${plain_link(_('About'), '/about-less-wrong', _sr_path=False)}</li>
       <li class="right">${plain_link(_('Sequences'), 'http://wiki.lesswrong.com/wiki/Sequences', _sr_path=False)}</li>
       %if sr:
-        <li class="right">${plain_link(_('Discussion'), sr.path)}</li>
+        <% class_name = "active" if c.site == sr else "" %>
+        <li class="right ${class_name}">${plain_link(_('Discussion'), sr.path)}</li>
       %endif
       <li class="right">${plain_link(_('Wiki'), 'http://wiki.lesswrong.com', _sr_path=False)}</li>
     </ul>
