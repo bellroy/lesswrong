@@ -89,7 +89,7 @@
   %if c.default_sr:
     var init_args = {};
   %else:
-    var init_args = {sr: "${c.site.name}"};
+    var init_args = {r: "${c.site.name}"};
   %endif
   window.onload = function() { init(init_args); };
   window.onpageshow = function(evt) {

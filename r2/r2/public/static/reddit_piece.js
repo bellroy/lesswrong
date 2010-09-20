@@ -92,7 +92,7 @@ function init(args) {
 
 function populate_side_bar(id, args) {
     var node = $(id);
-    var sr = args.sr;
+    var sr = args.r;
     var path_prefix = '';
     if(sr && sr.length > 0) {
       path_prefix = '/r/' + sr;
