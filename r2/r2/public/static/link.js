@@ -362,7 +362,7 @@ Listing.exists = function(id) {
 };
 
 Listing.attach = function(node) {
-    var id = /siteTable_(.*)/.exec(node.id);
+    var id = /siteTable_?(.*)/.exec(node.id);
     if (id) {
         var listing = new Listing(id[1]);
         if (listing.listing) {
