@@ -297,8 +297,7 @@ class RecentItems(SpaceCompressedWrapped):
 
 class RecentComments(RecentItems):
     def query(self):
-        sr = Subreddit._by_name(g.default_sr)
-        return sr.get_comments('new', 'all')
+        return c.current_or_default_sr.get_comments('new', 'all')
 
     def init_builder(self):
         return UnbannedCommentBuilder(
@@ -310,8 +309,7 @@ class RecentComments(RecentItems):
         
 class RecentArticles(RecentItems):
     def query(self):
-        sr = Subreddit._by_name(g.default_sr)
-        q = sr.get_links('new', 'all')
+        q = c.current_or_default_sr.get_links('new', 'all')
         q._limit = 10
         return q
 
@@ -337,11 +335,7 @@ class TagCloud(SpaceCompressedWrapped):
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        if c.default_sr:
-            sr = Subreddit._by_name(g.default_sr)
-        else:
-            sr = c.site
-        cloud = Tag.tag_cloud_for_subreddits([sr._id])
+        cloud = Tag.tag_cloud_for_subreddits([c.current_or_default_sr._id])
 
         buttons = []
         for tag, weight in cloud:

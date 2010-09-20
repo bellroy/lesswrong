@@ -248,6 +248,9 @@ def set_subreddit():
 
     if isinstance(c.site, FakeSubreddit):
         c.default_sr = True
+        c.current_or_default_sr = Subreddit._by_name(g.default_sr)
+    else:
+        c.current_or_default_sr = c.site
 
     # check that the site is available:
     if c.site._spam and not c.user_is_admin and not c.error_page:
