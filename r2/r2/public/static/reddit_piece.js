@@ -53,7 +53,7 @@ function open_choice(menu) {
 
 var global_cookies_allowed = true;
 
-function init() {
+function init(args) {
     /* temp strip off port for the ajax domain (which will need it to
      * make a request) */
     var i = ajax_domain.indexOf(':');
@@ -84,16 +84,21 @@ function init() {
     /* initiate ajax requests to populate the side bar */
     /*populate_side_bar('side-wikilinks');*/
     /*populate_side_bar('side-wikilinks', 'article_id=2');    */
-    populate_side_bar('side-posts');
-    populate_side_bar('side-comments');
-    populate_side_bar('side-tags');
-    populate_side_bar('side-contributors');
+    populate_side_bar('side-posts', args);
+    populate_side_bar('side-comments', args);
+    populate_side_bar('side-tags', args);
+    populate_side_bar('side-contributors', args);
 }
 
 function populate_side_bar(id, args) {
     var node = $(id);
+    var sr = args.sr;
+    var path_prefix = '';
+    if(sr && sr.length > 0) {
+      path_prefix = '/r/' + sr;
+    }
     if (node) {
-        var path = '/api/' + id.replace('-', '_');
+        var path = path_prefix + '/api/' + id.replace('-', '_');
         new Ajax.Request(path, {
                 method: 'get',
                 parameters: args,

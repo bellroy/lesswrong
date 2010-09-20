@@ -927,6 +927,10 @@ class ApiController(RedditController):
         # supplied.
         cache_time = cache_time or max_age
 
+        # Postfix the cache key with the subreddit name
+        # This scopes all the caches by subreddit
+        cache_key = cache_key + '-' + c.site.name
+
         # Get the etag and content from the cache.
         hit = g.rendercache.get(cache_key)
         if hit:

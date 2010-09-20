@@ -86,9 +86,14 @@
   %else:
     var cur_site = '';
   %endif
-  window.onload = init;
+  %if c.default_sr:
+    var init_args = {};
+  %else:
+    var init_args = {sr: "${c.site.name}"};
+  %endif
+  window.onload = function() { init(init_args); };
   window.onpageshow = function(evt) {
-    if (evt.persisted) init()
+    if (evt.persisted) init(init_args);
   };
   var _global_fetching_tag = "${_('Fetching title...')}";
   var _global_submitting_tag = "${_('Submitting...')}";
