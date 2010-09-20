@@ -221,7 +221,9 @@ class Reddit(Wrapped):
         """Navigation menu for the header"""
         # Ensure the default button is the first tab
         default_button_name = c.site.default_listing
-        button_names = ['blessed', 'new', 'top', 'comments']
+        button_names = ['new', 'top', 'comments']
+        if c.default_sr:
+            button_names.insert(0, 'blessed')
         button_names.remove(default_button_name)
         button_names.insert(0, default_button_name)
         
