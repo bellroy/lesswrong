@@ -189,7 +189,7 @@ class Reddit(Wrapped):
                                            nocname=not c.authorized_cname,
                                            target = "_self")]
 
-            buttons += [NamedButton('submit', False,
+            buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
