@@ -337,7 +337,10 @@ class TagCloud(SpaceCompressedWrapped):
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        sr = Subreddit._by_name(g.default_sr)
+        if c.default_sr:
+            sr = Subreddit._by_name(g.default_sr)
+        else:
+            sr = c.site
         cloud = Tag.tag_cloud_for_subreddits([sr._id])
 
         buttons = []
