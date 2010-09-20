@@ -49,7 +49,7 @@ class Globals(object):
                  'side_posts_max_age',
                  'side_tags_max_age',
                  'side_contributors_max_age',
-                 'post_karma_multiplier',
+                 #'post_karma_multiplier',
                  'article_navigation_max_age',
                  ]
     

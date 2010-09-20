@@ -52,7 +52,8 @@ class Subreddit(Thing, Printable):
                      valid_votes = 0,
                      show_media = False,
                      domain = None,
-                     default_listing = 'hot'
+                     default_listing = 'hot',
+                     post_karma_multiplier = 10
                      )
     sr_limit = 50
 
