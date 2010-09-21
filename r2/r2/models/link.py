@@ -36,6 +36,7 @@ from r2.lib.strings import strings, Score
 from r2.lib.db.operators import lower
 from r2.lib.db import operators
 from r2.lib.filters import _force_unicode
+from r2.models.subreddit import FakeSubreddit
 
 from pylons import c, g, request
 from pylons.i18n import ungettext
@@ -296,7 +297,7 @@ class Link(Thing, Printable):
     def make_permalink(self, sr, force_domain = False):
         from r2.lib.template_helpers import get_domain
         p = "lw/%s/%s/" % (self._id36, title_to_url(self.title))
-        if c.default_sr:
+        if isinstance(sr, FakeSubreddit):
             res = "/%s" % p
         elif not c.cname:
             res = "/r/%s/%s" % (sr.name, p)
