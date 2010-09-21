@@ -318,6 +318,8 @@ class Subreddit(Thing, Printable):
         if not c.over18:
             pop_reddits._filter(Subreddit.c.over_18 == False)
 
+        pop_reddits._filter(Subreddit.c.name != 'discussion')
+
         pop_reddits = list(pop_reddits)
 
         if not pop_reddits and lang != 'en':
