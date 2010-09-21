@@ -282,7 +282,7 @@ class NavButton(Styled):
 
     def is_selected(self):
         """Given the current request path, would the button be selected."""
-        if self.name == 'home':
+        if hasattr(self, 'name') and self.name == 'home':
             return False
         if self.opt:
             return request.params.get(self.opt, '') in self.aliases

@@ -32,7 +32,7 @@
 %>
 <div id="header">
   <img id="gradient" src="${static('black_trans.png')}" alt="Translucent gradient" />
-  ${img_link(c.site.name, header_img, '/', _id = "logo", img_id = 'header-img')}
+  ${img_link(c.site.title, header_img, '/', sr_path = True, _id = "logo", img_id = 'header-img')}
   <a id="siai" href="http://singinst.org/" target="_blank">
     <img src="${static('SIAI.png')}" alt="Singularity Institute for Artificial Intelligence" />
   </a>

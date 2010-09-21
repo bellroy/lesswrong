@@ -93,14 +93,14 @@ ${first_defined(kw[1:])}
 </script>
 </%def>
 
-<%def name="img_link(link_text, img, path, _id='', target='', img_id = None, **kw)">
+<%def name="img_link(link_text, img, path, _id='', target='', img_id = None, sr_path = False, **kw)">
   <% 
      if (not target or target == '_parent') and c.cname:
          target = '_top'
      if target:
          kw['target'] = target
 
-     path = add_sr(path, sr_path = False)
+     path = add_sr(path, sr_path = sr_path)
      kw['target'] = target
   %>
   <%call expr="_a(href=path, _id=_id, **kw)">
