@@ -8,6 +8,6 @@ def configure_discussion():
   s.infotext = u"""This part of the site is for the discussion of topics not
                    yet ready or not suitable for normal top-level posts.
                    Votes are only worth \N{PLUS-MINUS SIGN}1 point here. For
-                   more info, see [about Less Wrong](/about)."""
+                   more info, see [about Less Wrong](/about-less-wrong)."""
   s._commit()
 
