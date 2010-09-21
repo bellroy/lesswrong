@@ -118,7 +118,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      details      = _("Details"),
 
                      # reddits
-                     home         = _("Home"),
+                     home         = _("Back to Less Wrong"),
                      about        = _("About"),
                      edit         = _("Edit"),
                      banned       = _("Banned"),
@@ -282,6 +282,8 @@ class NavButton(Styled):
 
     def is_selected(self):
         """Given the current request path, would the button be selected."""
+        if self.name == 'home':
+            return False
         if self.opt:
             return request.params.get(self.opt, '') in self.aliases
         else:

@@ -237,6 +237,9 @@ class Reddit(Wrapped):
         if c.user_is_loggedin:
             main_buttons.append(NamedButton('saved', False))
 
+        if not c.default_sr:
+            main_buttons.insert(0, NamedButton('home', dest = '/', sr_path = False))
+
         return NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist')
 
     def build_toolbars(self):
