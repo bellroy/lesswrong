@@ -94,6 +94,8 @@ class Reddit(Wrapped):
         self.infobar = None
         if c.firsttime and c.site.firsttext and not infotext:
             infotext = c.site.firsttext
+        if not infotext and hasattr(c.site, 'infotext'):
+            infotext = c.site.infotext
         if infotext:
             self.infobar = InfoBar(message = infotext)
 
