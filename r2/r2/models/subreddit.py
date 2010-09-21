@@ -362,6 +362,15 @@ class Subreddit(Thing, Printable):
                               return_dict = False)
         srs = [s for s in srs if s.can_submit(user) or s.name == g.default_sr]
 
+        # Add the discussion subreddit manually. Need to do this because users
+        # are not subscribed to it.
+        try:
+            discussion_sr = Subreddit._by_name('discussion')
+            if discussion_sr._id not in sub_ids and discussion_sr.can_submit(user):
+                srs.insert(0, discussion_sr)
+        except NotFound:
+          pass
+
         srs.sort(key=lambda a:a.title)
         return srs
 
