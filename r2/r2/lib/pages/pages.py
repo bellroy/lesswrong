@@ -130,7 +130,7 @@ class Reddit(Wrapped):
             ps.append(GoogleSearchForm())
 
         #don't show the subreddit info bar on cnames
-        if not isinstance(c.site, FakeSubreddit) and not c.cname:
+        if c.user_is_admin and not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
 
         if self.extension_handling:
