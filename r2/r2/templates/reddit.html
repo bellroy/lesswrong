@@ -49,6 +49,10 @@
   <link rel="stylesheet" type="text/css" href="${static('ie6.css')}" />
   <![endif]-->
 
+  %if c.site.stylesheet:
+  <link rel="stylesheet" href="${static(c.site.stylesheet)}"
+        type="text/css" />
+  %endif
   %if c.site.stylesheet_contents:
   <link rel="stylesheet"
         href="http://${get_domain(cname=False, subreddit=True)}/stylesheet.css?v=${c.site.stylesheet_hash}"
