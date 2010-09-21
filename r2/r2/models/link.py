@@ -299,7 +299,7 @@ class Link(Thing, Printable):
         p = "lw/%s/%s/" % (self._id36, title_to_url(self.title))
         if isinstance(sr, FakeSubreddit):
             res = "/%s" % p
-        elif not c.cname:
+        elif sr and not c.cname:
             res = "/r/%s/%s" % (sr.name, p)
         elif sr != c.site or force_domain:
             res = "http://%s/%s" % (get_domain(cname = (c.cname and sr == c.site),
