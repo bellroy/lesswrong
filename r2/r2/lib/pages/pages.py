@@ -226,9 +226,7 @@ class Reddit(Wrapped):
         button_names = ['new', 'top', 'comments']
         if c.default_sr:
             button_names.insert(0, 'blessed')
-        button_names.remove(default_button_name)
-        button_names.insert(0, default_button_name)
-        
+
         main_buttons = []
         for name in button_names:
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
