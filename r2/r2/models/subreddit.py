@@ -507,7 +507,7 @@ class DefaultSR(FakeSubreddit):
     #notice the space before reddit.com
     name = g.default_sr
     path = '/'
-    header = 'http://static.reddit.com/reddit.com.header.png'
+    header = '/static/logo_trans.png'
 
     def get_links_sr_ids(self, sr_ids, sort, time, link_cls = None):
         from r2.lib.db import queries

@@ -21,10 +21,18 @@
 ################################################################################
 
 <% from r2.lib.template_helpers import static %>
+<% from r2.models.subreddit import DefaultSR %>
+<%namespace file="utils.html" import="img_link"/>
 <%page args="menu" />
+<%
+    if c.site.header and c.allow_styles:
+        header_img = c.site.header
+    else:
+        header_img = DefaultSR.header
+%>
 <div id="header">
   <img id="gradient" src="${static('black_trans.png')}" alt="Translucent gradient" />
-  <a id="logo" href="/"><img src="${static('logo_trans.png')}" alt="Lesswrong Logo" /></a>
+  ${img_link(c.site.name, header_img, '/', _id = "logo", img_id = 'header-img')}
   <a id="siai" href="http://singinst.org/" target="_blank">
     <img src="${static('SIAI.png')}" alt="Singularity Institute for Artificial Intelligence" />
   </a>
