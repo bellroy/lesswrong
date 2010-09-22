@@ -21,6 +21,6 @@
 ################################################################################
 
 <%!
-   from r2.lib.filters import safemarkdown
+   from r2.lib.filters import safemarkdown, _force_unicode
 %>
-<div class="infobar">${unsafe(safemarkdown(_(thing.message)))}</div>
+<div class="infobar">${unsafe(safemarkdown(_(_force_unicode(thing.message))))}</div>
