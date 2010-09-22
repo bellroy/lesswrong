@@ -358,7 +358,18 @@ class TagController(ListingController):
                       )
         q.prewrap_fn = lambda x: x._thing1
         return q
-    
+
+    def builder(self):
+        b = SubredditTagBuilder(self.query_obj,
+                                num = self.num,
+                                skip = self.skip,
+                                after = self.after,
+                                count = self.count,
+                                reverse = self.reverse,
+                                wrap = self.builder_wrapper,
+                                sr_ids = [c.current_or_default_sr._id])
+        return b
+
     @validate(tag = VTagByName('tag'), sort = VMenu('where', TagSortMenu))
     def GET_listing(self, tag, sort, **env):
         self._tag = tag
@@ -654,11 +665,24 @@ class CommentsController(ListingController):
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
+                           Comment.c.sr_id == c.current_or_default_sr._id,
                            sort = desc('_date'), data = True)
         if not c.user_is_admin:
             q._filter(Comment.c._spam == False)
 
         return q
+
+    def builder(self):
+        b = self.builder_cls(self.query_obj,
+                             num = self.num,
+                             skip = self.skip,
+                             after = self.after,
+                             count = self.count,
+                             reverse = self.reverse,
+                             wrap = self.builder_wrapper,
+                             sr_ids = [c.current_or_default_sr._id])
+        return b
+
 
     def content(self):
         ps = PaneStack()

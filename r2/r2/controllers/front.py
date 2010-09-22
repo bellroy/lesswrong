@@ -537,8 +537,10 @@ class FrontController(RedditController):
         author = Account._byID(article.author_id, data=True)
         subreddits = Subreddit.submit_sr(author) if c.default_sr else ()
         if c.user_is_admin:
-          # Add this admin subreddits to the list
-          subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
+            # Add this admin subreddits to the list
+            if not subreddits:
+                subreddits = (Subreddit._byID(article.sr_id),)
+            subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
         return FormPage(_("Edit article"), 
                       content=EditLink(article, subreddits=subreddits, tags=article.tag_names(), captcha=None)).render()
 

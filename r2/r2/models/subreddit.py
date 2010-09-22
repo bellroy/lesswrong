@@ -52,7 +52,9 @@ class Subreddit(Thing, Printable):
                      valid_votes = 0,
                      show_media = False,
                      domain = None,
-                     default_listing = 'hot'
+                     default_listing = 'hot',
+                     post_karma_multiplier = g.post_karma_multiplier,
+                     posts_per_page_multiplier = 1
                      )
     sr_limit = 50
 
@@ -317,6 +319,8 @@ class Subreddit(Thing, Printable):
         if not c.over18:
             pop_reddits._filter(Subreddit.c.over_18 == False)
 
+        pop_reddits._filter(Subreddit.c.name != 'discussion')
+
         pop_reddits = list(pop_reddits)
 
         if not pop_reddits and lang != 'en':
@@ -360,6 +364,15 @@ class Subreddit(Thing, Printable):
         srs = Subreddit._byID(sub_ids, True,
                               return_dict = False)
         srs = [s for s in srs if s.can_submit(user) or s.name == g.default_sr]
+
+        # Add the discussion subreddit manually. Need to do this because users
+        # are not subscribed to it.
+        try:
+            discussion_sr = Subreddit._by_name('discussion')
+            if discussion_sr._id not in sub_ids and discussion_sr.can_submit(user):
+                srs.insert(0, discussion_sr)
+        except NotFound:
+          pass
 
         srs.sort(key=lambda a:a.title)
         return srs
@@ -506,7 +519,7 @@ class DefaultSR(FakeSubreddit):
     #notice the space before reddit.com
     name = g.default_sr
     path = '/'
-    header = 'http://static.reddit.com/reddit.com.header.png'
+    header = '/static/logo_trans.png'
 
     def get_links_sr_ids(self, sr_ids, sort, time, link_cls = None):
         from r2.lib.db import queries

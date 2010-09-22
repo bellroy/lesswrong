@@ -47,3 +47,26 @@ Click the "Create new article" button in the side bar.
   Click Article Navigation, it should load the navigation options
   Click the "test" tag link, you should see a list of articles, including yours
   Click the "Log out" button in the sidebar, your article should no longer be visible
+
+
+- Discussion
+--------------------------------------------------------------------------------
+Click the Discussion link in the nav bar
+  Some info text introducing the discussion area should be visible
+  The logo should have changed to include 'discussion'
+  The 'discussion' link in the navbar should be highlighted
+  The list of recent comments should not include comments from the main site
+  There should be a 'back to less wrong' link at the beginning of the navbar
+    Check that it links to the root, NOT /r/discussion
+  Create an article, and go back to the main discussion area
+  The list of articles should be a simple list of titles and some meta data
+  Click on an article
+    It should show as a normal article, with comments
+    Make a comment
+Click the 'Back to Less Wrong' link
+  Click the create new article link
+  There should be an option to post to 'discussion' in the menu at the bottom
+  Post a new article, choosing to post to 'discussion'
+  You should be redirected to the discussion page
+  The article should be in the discussion area, but not on the main site
+

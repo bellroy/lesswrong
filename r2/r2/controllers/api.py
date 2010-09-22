@@ -318,7 +318,8 @@ class ApiController(RedditController):
           # cname.
           cname = c.cname
           c.cname = False
-          path = l.make_permalink_slow()
+          #path = l.make_permalink_slow()
+          path = l.make_permalink(sr, sr_path = not sr.name == g.default_sr)
           c.cname = cname
 
         res._redirect(path)
@@ -926,6 +927,10 @@ class ApiController(RedditController):
         # Default the cache to be the same as our max age if not
         # supplied.
         cache_time = cache_time or max_age
+
+        # Postfix the cache key with the subreddit name
+        # This scopes all the caches by subreddit
+        cache_key = cache_key + '-' + c.site.name
 
         # Get the etag and content from the cache.
         hit = g.rendercache.get(cache_key)
