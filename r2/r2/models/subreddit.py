@@ -53,7 +53,8 @@ class Subreddit(Thing, Printable):
                      show_media = False,
                      domain = None,
                      default_listing = 'hot',
-                     post_karma_multiplier = g.post_karma_multiplier
+                     post_karma_multiplier = g.post_karma_multiplier,
+                     posts_per_page_multiplier = 1
                      )
     sr_limit = 50
 

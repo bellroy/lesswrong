@@ -382,9 +382,13 @@ def base_listing(fn):
               after  = VByName('after'),
               before = VByName('before'),
               count  = VCount('count'))
-    def new_fn(self, before, **env):
+    def new_fn(self, before, num, **env):
         kw = self.build_arg_list(fn, env)
-        
+
+        # Multiply the number per page by the per page multiplier for the reddit
+        if num:
+            kw['num'] = c.site.posts_per_page_multiplier * num
+
         #turn before into after/reverse
         kw['reverse'] = False
         if before:

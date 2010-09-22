@@ -9,5 +9,7 @@ def configure_discussion():
                    yet ready or not suitable for normal top-level posts.
                    Votes are only worth \N{PLUS-MINUS SIGN}1 point here. For
                    more info, see [about Less Wrong](/about-less-wrong)."""
+
+  s.posts_per_page_multiplier = 4
   s._commit()
 
