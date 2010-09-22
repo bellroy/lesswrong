@@ -338,6 +338,18 @@ class UnbannedCommentBuilder(QueryBuilder):
 
         return True
 
+class SubredditTagBuilder(QueryBuilder):
+
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
+        QueryBuilder.__init__(self, query, **kw)
+
+    def keep_item(self, item):
+        if item.sr_id not in self.sr_ids:
+            return False
+
+        return True
+
 class IDBuilder(QueryBuilder):
     def init_query(self):
         names = self.names = list(tup(self.query))

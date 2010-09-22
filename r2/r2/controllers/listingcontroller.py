@@ -358,7 +358,18 @@ class TagController(ListingController):
                       )
         q.prewrap_fn = lambda x: x._thing1
         return q
-    
+
+    def builder(self):
+        b = SubredditTagBuilder(self.query_obj,
+                                num = self.num,
+                                skip = self.skip,
+                                after = self.after,
+                                count = self.count,
+                                reverse = self.reverse,
+                                wrap = self.builder_wrapper,
+                                sr_ids = [c.current_or_default_sr._id])
+        return b
+
     @validate(tag = VTagByName('tag'), sort = VMenu('where', TagSortMenu))
     def GET_listing(self, tag, sort, **env):
         self._tag = tag
