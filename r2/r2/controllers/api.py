@@ -319,7 +319,7 @@ class ApiController(RedditController):
           cname = c.cname
           c.cname = False
           #path = l.make_permalink_slow()
-          path = l.make_permalink(Default if sr.name == g.default_sr else sr)
+          path = l.make_permalink(sr, sr_path = not sr.name == g.default_sr)
           c.cname = cname
 
         res._redirect(path)

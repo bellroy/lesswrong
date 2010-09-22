@@ -294,10 +294,10 @@ class Link(Thing, Printable):
                                    c.bordercolor]))
         return s
 
-    def make_permalink(self, sr, force_domain = False):
+    def make_permalink(self, sr, force_domain = False, sr_path = False):
         from r2.lib.template_helpers import get_domain
         p = "lw/%s/%s/" % (self._id36, title_to_url(self.title))
-        if isinstance(sr, FakeSubreddit):
+        if c.default_sr and not sr_path:
             res = "/%s" % p
         elif sr and not c.cname:
             res = "/r/%s/%s" % (sr.name, p)
