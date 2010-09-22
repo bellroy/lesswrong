@@ -8,7 +8,7 @@ def configure_discussion():
   s.infotext = u"""This part of the site is for the discussion of topics not
                    yet ready or not suitable for normal top-level posts.
                    Votes are only worth \N{PLUS-MINUS SIGN}1 point here. For
-                   more info, see [about Less Wrong](/about-less-wrong)."""
+                   more information, see [About Less Wrong](/about-less-wrong)."""
 
   s.posts_per_page_multiplier = 4
   s._commit()
