@@ -309,7 +309,8 @@ class RecentComments(RecentItems):
             self.query(),
             num = 5,
             wrap = RecentItems.wrap_thing,
-            skip = True
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
         )
         
 class RecentArticles(RecentItems):

@@ -661,6 +661,18 @@ class CommentsController(ListingController):
 
         return q
 
+    def builder(self):
+        b = self.builder_cls(self.query_obj,
+                             num = self.num,
+                             skip = self.skip,
+                             after = self.after,
+                             count = self.count,
+                             reverse = self.reverse,
+                             wrap = self.builder_wrapper,
+                             sr_ids = [c.current_or_default_sr._id])
+        return b
+
+
     def content(self):
         ps = PaneStack()
         ps.append(CommentReplyBox())
