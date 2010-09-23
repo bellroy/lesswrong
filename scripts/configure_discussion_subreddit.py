@@ -11,5 +11,6 @@ def configure_discussion():
                    more information, see [About Less Wrong](/about-less-wrong)."""
 
   s.posts_per_page_multiplier = 4
+  s.post_karma_multiplier = 1
   s._commit()
 
