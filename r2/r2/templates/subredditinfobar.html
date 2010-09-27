@@ -27,8 +27,8 @@
    %>
 <%namespace file="printable.html" import="state_button"/>
 %if not isinstance(c.site, FakeSubreddit):
-  <div class="raisedbox subreddit-info">
-    <h3>${c.site.name}</h3>
+  <div id="subreddit-info" class="sidebox">
+    <h2>${c.site.title}</h2>
 
         %if c.user_is_loggedin:
           <form action="/post/subcribe" method="post" id="subscribe">
@@ -50,6 +50,7 @@
                 ${_("Subscribe")}</a>
             %endif
           </form>
+          &#32;
         %endif
         <span class="label">
           (${strings.person_label % dict(num = c.site._ups,

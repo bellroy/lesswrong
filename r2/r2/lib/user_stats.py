@@ -20,12 +20,31 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 import sqlalchemy as sa
-from r2.models import Account, Vote, Link
+from r2.models import Account, Vote, Link, Subreddit
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
 
 from pylons import g 
 cache = g.cache
+
+def subreddits_with_custom_karma_multiplier():
+    type = tdb.types_id[Subreddit._type_id]
+    tt, dt = type.thing_table, type.data_table[0]
+
+    aliases = tdb.alias_generator()
+    karma = dt.alias(aliases.next())
+
+    q = sa.select(
+        [tt.c.thing_id],
+        sa.and_(tt.c.spam == False,
+              tt.c.deleted == False,
+              karma.c.thing_id == tt.c.thing_id,
+              karma.c.key == 'post_karma_multiplier'),
+        group_by = [tt.c.thing_id],
+    )
+
+    sr_ids = [r.thing_id for r in q.execute().fetchall()]
+    return Subreddit._byID(sr_ids, True, return_dict = False)
 
 def top_users():
     type = tdb.types_id[Account._type_id]
@@ -33,6 +52,16 @@ def top_users():
 
     aliases = tdb.alias_generator()
     karma = dt.alias(aliases.next())
+
+    cases = [
+        (karma.c.key.like('%_link_karma'),
+            sa.cast(karma.c.value, sa.Integer) * g.post_karma_multiplier)
+    ]
+
+    for subreddit in subreddits_with_custom_karma_multiplier():
+        key = "%s_link_karma" % subreddit.name
+        cases.insert(0, (karma.c.key == key,
+            sa.cast(karma.c.value, sa.Integer) * subreddit.post_karma_multiplier))
 
     s = sa.select(
         [tt.c.thing_id],
@@ -42,11 +71,7 @@ def top_users():
               karma.c.key.like('%_karma')),
         group_by = [tt.c.thing_id],
         order_by = sa.desc(sa.func.sum(
-            sa.case(
-                [(karma.c.key.like('%_link_karma'),
-                    sa.cast(karma.c.value, sa.Integer) * g.post_karma_multiplier)],
-                else_ = sa.cast(karma.c.value, sa.Integer)
-            )
+            sa.case(cases, else_ = sa.cast(karma.c.value, sa.Integer))
         )),
         limit = 10)
     # Translation of query:

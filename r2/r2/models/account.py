@@ -70,6 +70,7 @@ class Account(Thing):
                      )
 
     def karma(self, kind, sr = None):
+        from subreddit import Subreddit
         suffix = '_' + kind + '_karma'
         
         #if no sr, return the sum
@@ -77,7 +78,16 @@ class Account(Thing):
             total = 0
             for k, v in self._t.iteritems():
                 if k.endswith(suffix):
-                    total += v
+                    if kind == 'link':
+                        try:
+                            karma_sr_name = k[0:k.rfind(suffix)]
+                            karma_sr = Subreddit._by_name(karma_sr_name)
+                            multiplier = karma_sr.post_karma_multiplier
+                        except NotFound:
+                            multiplier = 1
+                    else:
+                        multiplier = 1
+                    total += v * multiplier
             return total
         else:
             try:
@@ -100,7 +110,7 @@ class Account(Thing):
 
     @property
     def link_karma(self):
-        return self.karma('link') * g.post_karma_multiplier
+        return self.karma('link')
 
     @property
     def comment_karma(self):
@@ -146,8 +156,11 @@ class Account(Thing):
     def check_downvote(self, vote_kind):
         """Checks whether this account has enough karma to cast a downvote.
 
-        vote_kind is 'link' or 'comment' depenging on the type of vote that's
+        vote_kind is 'link' or 'comment' depending on the type of vote that's
         being cast.
+
+        This makes the assumption that the user can't cast a vote for something
+        on the non-current subreddit.
         """
         from r2.models.vote import Vote, Link, Comment
 
@@ -161,12 +174,12 @@ class Account(Thing):
                 g.cache.set(self.vote_cache_key(kind), downvotes)
             return downvotes
 
-        link_downvote_karma = get_cached_downvotes(Link) * g.post_karma_multiplier
+        link_downvote_karma = get_cached_downvotes(Link) * c.current_or_default_sr.post_karma_multiplier
         comment_downvote_karma = get_cached_downvotes(Comment)
         karma_spent = link_downvote_karma + comment_downvote_karma
 
         karma_balance = self.safe_karma * 4
-        vote_cost = g.post_karma_multiplier if vote_kind == 'link' else 1
+        vote_cost = c.current_or_default_sr.post_karma_multiplier if vote_kind == 'link' else 1
         if karma_spent + vote_cost > karma_balance:
             points_needed = abs(karma_balance - karma_spent - vote_cost)
             msg = strings.not_enough_downvote_karma % (points_needed, plurals.N_points(points_needed))

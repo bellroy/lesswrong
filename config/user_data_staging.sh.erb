@@ -1,6 +1,6 @@
 #!/bin/bash
-/usr/local/sys_scripts/bin/git-update-hard /usr/local/sys_scripts master
-/usr/local/sys_scripts/bin/git-update-hard /etc/munin master
+/usr/local/sys_scripts/bin/git-clone-update git@git.trike.com.au:sys_sripts.git /usr/local/sys_scripts --branch master
+/usr/local/sys_scripts/bin/git-clone-update git@git.trike.com.au:munin.git /etc/munin --branch master
 
 /usr/local/sys_scripts/bin/aws-update_hosts 75.101.144.164 \
   db.aws.trike.com.au \
@@ -10,9 +10,10 @@
 export APPLICATION=lesswrong.com
 export APPLICATION_USER=www-data
 export APPLICATION_ENV=staging
+APP_REPO='git://github.com/tricycle/lesswrong.git'
 APP_DIR=/srv/www/lesswrong.com
 
-sudo -u www-data /usr/local/sys_scripts/bin/git-update-hard $APP_DIR/current staging
+sudo -u www-data /usr/local/sys_scripts/bin/git-clone-update $APP_REPO $APP_DIR/current --branch staging
 cd $APP_DIR/current && rake after_update_code > $APP_DIR/shared/log/after_update_code.log 2>&1
 cd $APP_DIR/current && rake deploy:restart > $APP_DIR/shared/log/deploy-restart.log 2>&1
 sudo -u www-data $APP_DIR/current/scripts/sync_wiki_export.sh

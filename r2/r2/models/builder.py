@@ -324,12 +324,8 @@ class QueryBuilder(Builder):
 
 class UnbannedCommentBuilder(QueryBuilder):
 
-    def __init__(self, query, sr_ids = None, **kw):
-        if sr_ids is None:
-            sr = Subreddit._by_name(g.default_sr)
-            self.sr_ids = [sr._id]
-        else:
-            self.sr_ids = sr_ids
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
         QueryBuilder.__init__(self, query, **kw)
 
     def keep_item(self, item):
@@ -337,6 +333,18 @@ class UnbannedCommentBuilder(QueryBuilder):
         if link._spam:
             return False
 
+        if item.sr_id not in self.sr_ids:
+            return False
+
+        return True
+
+class SubredditTagBuilder(QueryBuilder):
+
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
+        QueryBuilder.__init__(self, query, **kw)
+
+    def keep_item(self, item):
         if item.sr_id not in self.sr_ids:
             return False
 

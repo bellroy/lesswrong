@@ -143,7 +143,7 @@ ${parent.midcol()}
             ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
           </li>
         %endif
-        %if c.user_is_loggedin and thing.author.name == c.user.name and not c.full_comment_listing:
+        %if c.user_is_loggedin and thing.author.name == c.user.name:
           <li>
             ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
           </li>

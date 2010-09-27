@@ -72,6 +72,8 @@ def make_map(global_conf={}, app_conf={}):
     mc('/lw/:article/:title/:comment', controller='front',
        action= 'comments', title=None, comment = None)
     mc('/edit/:article', controller='front', action="editarticle")
+
+    mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
     mc('/', controller='root', action='listing')
     

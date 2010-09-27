@@ -49,6 +49,17 @@
   <link rel="stylesheet" type="text/css" href="${static('ie6.css')}" />
   <![endif]-->
 
+  %if c.site.stylesheet:
+  <link rel="stylesheet" href="${static(c.site.stylesheet)}"
+        type="text/css" />
+  %endif
+  %if c.site.stylesheet_contents:
+  <link rel="stylesheet"
+        href="http://${get_domain(cname=False, subreddit=True)}/stylesheet.css?v=${c.site.stylesheet_hash}"
+        title="applied_subreddit_stylesheet"
+        type="text/css" />
+  %endif
+
   <link rel='shortcut icon' href="${static('favicon.ico')}"
         type="image/x-icon" />
   %if thing.extension_handling:
@@ -86,9 +97,14 @@
   %else:
     var cur_site = '';
   %endif
-  window.onload = init;
+  %if c.default_sr:
+    var init_args = {};
+  %else:
+    var init_args = {r: "${c.site.name}"};
+  %endif
+  window.onload = function() { init(init_args); };
   window.onpageshow = function(evt) {
-    if (evt.persisted) init()
+    if (evt.persisted) init(init_args);
   };
   var _global_fetching_tag = "${_('Fetching title...')}";
   var _global_submitting_tag = "${_('Submitting...')}";

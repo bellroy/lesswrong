@@ -94,6 +94,8 @@ class Reddit(Wrapped):
         self.infobar = None
         if c.firsttime and c.site.firsttext and not infotext:
             infotext = c.site.firsttext
+        if not infotext and hasattr(c.site, 'infotext'):
+            infotext = c.site.infotext
         if infotext:
             self.infobar = InfoBar(message = infotext)
 
@@ -128,7 +130,7 @@ class Reddit(Wrapped):
             ps.append(GoogleSearchForm())
 
         #don't show the subreddit info bar on cnames
-        if not isinstance(c.site, FakeSubreddit) and not c.cname:
+        if c.user_is_admin and not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
 
         if self.extension_handling:
@@ -189,7 +191,7 @@ class Reddit(Wrapped):
                                            nocname=not c.authorized_cname,
                                            target = "_self")]
 
-            buttons += [NamedButton('submit', False,
+            buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
@@ -221,10 +223,10 @@ class Reddit(Wrapped):
         """Navigation menu for the header"""
         # Ensure the default button is the first tab
         default_button_name = c.site.default_listing
-        button_names = ['blessed', 'new', 'top', 'comments']
-        button_names.remove(default_button_name)
-        button_names.insert(0, default_button_name)
-        
+        button_names = ['new', 'top', 'comments']
+        if c.default_sr:
+            button_names.insert(0, 'blessed')
+
         main_buttons = []
         for name in button_names:
           kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
@@ -232,6 +234,9 @@ class Reddit(Wrapped):
 
         if c.user_is_loggedin:
             main_buttons.append(NamedButton('saved', False))
+
+        if not c.default_sr:
+            main_buttons.insert(0, NamedButton('home', dest = '/', sr_path = False))
 
         return NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist')
 
@@ -297,21 +302,20 @@ class RecentItems(SpaceCompressedWrapped):
 
 class RecentComments(RecentItems):
     def query(self):
-        sr = Subreddit._by_name(g.default_sr)
-        return sr.get_comments('new', 'all')
+        return c.current_or_default_sr.get_comments('new', 'all')
 
     def init_builder(self):
         return UnbannedCommentBuilder(
             self.query(),
             num = 5,
             wrap = RecentItems.wrap_thing,
-            skip = True
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
         )
         
 class RecentArticles(RecentItems):
     def query(self):
-        sr = Subreddit._by_name(g.default_sr)
-        q = sr.get_links('new', 'all')
+        q = c.current_or_default_sr.get_links('new', 'all')
         q._limit = 10
         return q
 
@@ -337,8 +341,7 @@ class TagCloud(SpaceCompressedWrapped):
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
     
     def nav(self):
-        sr = Subreddit._by_name(g.default_sr)
-        cloud = Tag.tag_cloud_for_subreddits([sr._id])
+        cloud = Tag.tag_cloud_for_subreddits([c.current_or_default_sr._id])
 
         buttons = []
         for tag, weight in cloud:
