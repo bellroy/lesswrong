@@ -19,6 +19,7 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
+from pylons import c
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
