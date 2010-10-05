@@ -408,10 +408,17 @@ function _fire_and_hide(type) {
     };
 }
 
+function _fire_but_show(type) {
+    return function(fullname) {
+        redditRequest(type, {id: fullname, uh: modhash});
+    };
+}
+
 Listing.unhide = _fire_and_hide('unhide');
 Listing.hide   = _fire_and_hide('hide');
 Listing.report = _fire_and_hide('report');
 Listing.del    = _fire_and_hide('del');
+Listing.detach = _fire_but_show('detach');
 
 Listing.parse = function(r) {
     var links = [];

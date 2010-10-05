@@ -493,6 +493,24 @@ class ApiController(RedditController):
 
 
     @Json
+    @validate(VUser(),
+              VModhash(),
+              thing = VByNameIfAuthor('id'))
+    def POST_detach(self, res, thing):
+        '''used for making polls'''
+        thing._t['author_id']=14;
+        thing._commit();
+        # flag search indexer that something has changed
+        tc.changed(thing)
+
+        #expire the item from the sr cache
+        if isinstance(thing, Link):
+            sr = thing.subreddit_slow
+            expire_hot(sr)
+            if g.use_query_cache:
+                queries.new_link(thing)
+
+    @Json
     @validate(VUser('curpass', default = ''),
               VModhash(),
               curpass = nop('curpass'),

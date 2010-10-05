@@ -121,6 +121,18 @@ ${self.RenderPrintable()}
 %endif
 </%def>
 
+<%def name="detach_button()">
+<% fullname = thing._fullname %>
+%if c.user_is_loggedin:
+  %if (not thing.author or thing.author.name == c.user.name) and (thing.subreddit.name == c.user.draft_sr_name):
+    <li>
+      ${yes_no_button("detach", fullname, _("Detach"), \
+      "return deletetoggle(this, $ListClass.detach);",\
+      _("Detached"))}
+    </li>   
+  %endif
+%endif
+</%def>
 
 <%def name="ParentDiv()">
 </%def>
