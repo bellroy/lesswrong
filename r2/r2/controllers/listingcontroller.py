@@ -695,3 +695,16 @@ class CommentsController(ListingController):
         if not env.has_key('limit'):
             env['limit'] = 2 * c.user.pref_numsites
         return ListingController.GET_listing(self, **env)
+
+class TopcommentsController(CommentsController):
+	title_text = _('Top Comments')
+	builder_cls = UnbannedCommentBuilder
+	
+	def query(self):
+		q = Comment._query(Comment.c._spam == (True,False),
+				Comment.c.sr_id == c.current_or_default_sr._id,
+				sort = desc('_ups'), data = True)
+		if not c.user_is_admin:
+			q._filter(Comment.c._spam == False)
+	
+		return q
