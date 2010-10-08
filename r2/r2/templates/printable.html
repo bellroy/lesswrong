@@ -126,7 +126,7 @@ ${self.RenderPrintable()}
 %if c.user_is_loggedin:
   %if (not thing.author or thing.author.name == c.user.name) and (thing.subreddit.name == c.user.draft_sr_name):
     <li>
-      ${yes_no_button("detach", fullname, _("Detach"), \
+      ${yes_no_button("detach", fullname, _("Poll Option"), \
       "return deletetoggle(this, $ListClass.detach);",\
       _("Detached"))}
     </li>   
