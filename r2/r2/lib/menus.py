@@ -68,7 +68,8 @@ menu =   MenuHandler(hot          = _('Popular'),
                      drafts       = _('Drafts'),
                      blessed      = _('Promoted'),
                      comments     = _('Comments'),
-                                 
+                     topcomments     = _('Top Comments'),                                 
+
                      # time sort words
                      hour         = _('This hour'),
                      day          = _('Today'),
