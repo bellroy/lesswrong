@@ -379,6 +379,7 @@ div.comment-links ul li:last-child, div.message-links ul li:last-child {
 div.sidebox {
 	border-top: 2px solid #d6d5d6;
 	padding: 10px 15px;
+	clear:both;
 }
 div.sidebox form {
 	clear: both;
