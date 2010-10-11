@@ -135,7 +135,7 @@ class Reddit(Wrapped):
 
         if self.extension_handling:
             ps.append(FeedLinkBar())
-
+        ps.append(MeetupBox())
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
@@ -1323,6 +1323,8 @@ class PromoteLinkForm(Wrapped):
                          *a, **kw)
 
 class FeedLinkBar(Wrapped): pass
+
+class MeetupBox(Wrapped): pass
 
 class AboutBox(Wrapped): pass
 
