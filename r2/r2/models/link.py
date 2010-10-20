@@ -693,8 +693,8 @@ class Link(Thing, Printable):
         Thing._commit(self, *a, **kw)
 
         if should_invalidate:
-            g.rendercache.delete('side-posts')
-            g.rendercache.delete('side-comments')
+            g.rendercache.delete('side-posts' + '-' + c.site.name)
+            g.rendercache.delete('side-comments' + '-' + c.site.name)
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour
@@ -1065,7 +1065,7 @@ class Comment(Thing, Printable):
         Thing._commit(self, *a, **kw)
 
         if should_invalidate:
-            g.rendercache.delete('side-comments')
+            g.rendercache.delete('side-comments' + '-' + c.site.name)
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""
