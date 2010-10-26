@@ -35,7 +35,7 @@ def basepath
 end
 
 def shared_path
-   basepath.parent.parent + 'shared'
+  basepath.parent.parent + 'shared'
 end
 
 def r2_path
@@ -72,15 +72,8 @@ def databases
 end
 
 def app_server(action)
-  pidfile = shared_path + 'pids' + 'paster.pid'
-  Dir.chdir r2_path
-
-  if(action == :stop || action == :restart)
-    sudo "paster serve --stop-daemon --pid-file #{pidfile} #{inifile} || true", :as => user
-  end
-  if(action == :start || action == :restart)
-    sudo "paster serve --daemon --pid-file #{pidfile} #{inifile}", :as => user
-  end
+  return unless [:start, :stop, :restart].include?(action)
+  sudo "#{action} paster"
 end
 
 # These tasks assume they are running as root and will change users if necessary.
@@ -130,7 +123,8 @@ namespace :deploy do
   # For compatibilty
   desc "Restart the Application"
   task :restart do
-    Rake::Task['app:restart'].invoke
+    Rake::Task['app:stop'].invoke
+    Rake::Task['app:start'].invoke
   end
 
   desc "Copy the lesswrong crontab to /etc/cron.d in production. Requires root permissions"
@@ -145,12 +139,6 @@ namespace :deploy do
     end
   end
 
-  desc "Copy the lesswrong init script to /etc/init.d/paster Requires root"
-  task :init_script do
-    init_script = basepath + 'scripts' + 'paster-init.sh'
-    target = "/etc/init.d/paster"
-    File.copy(init_script, target, true) # true = verbose
-  end
 end
 
 desc "Hook for tasks that should run after code update"
@@ -159,7 +147,6 @@ task :after_update_code => %w[
   deploy:setup
   deploy:process_static_files
   deploy:crontab
-  deploy:init_script
 ]
 
 # Set the databases variable in your local deploy configuration
@@ -240,6 +227,4 @@ namespace :postgresql do
       end
     end
   end
-
 end
-
