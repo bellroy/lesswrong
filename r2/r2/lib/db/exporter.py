@@ -19,6 +19,10 @@ class Exporter:
         if os.path.exists(output_db):
             os.unlink(output_db)
         self.db = create_engine("sqlite:///%s" % output_db)
+
+        # Python's encoding handling is reallly annoying
+        # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
+        self.db.raw_connection().connection.text_factory = str
         self.init_db()
         pylons.g.cache = CacheChain((SelfEmptyingCache(max_size=1000), Memcache(pylons.g.memcaches)))
 
