@@ -538,7 +538,7 @@ class LinkInfoPage(Reddit):
             params = {'title':_force_unicode(link_title), 'site' : c.site.title}
             title = strings.link_info_title % params
 
-            if not c.default_sr:
+            if not (c.default_sr and is_canonical):
                 # Not on the main page, so include a pointer to the canonical URL for this link
                 self.canonical_link = link.canonical_url
 
