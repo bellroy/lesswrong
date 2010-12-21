@@ -424,7 +424,7 @@ class CleanupMiddleware(object):
             seen = set()
             for head, val in reversed(headers):
                 head = head.title()
-                if head.lower() == 'set-cookie' or head not in seen:
+                if head == 'Set-Cookie' or head not in seen:
                     fixed.insert(0, (head, val))
                     seen.add(head)
             return start_response(status, fixed, exc_info)
