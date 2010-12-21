@@ -412,7 +412,7 @@ class CleanupMiddleware(object):
     """
     Put anything here that should be called after every other bit of
     middleware. This currently includes the code for removing
-    duplicate headers (such as multiple cookie setting).  The behavior
+    duplicate headers (except multiple cookie setting).  The behavior
     here is to disregard all but the last record.
     """
     def __init__(self, app):
@@ -424,7 +424,7 @@ class CleanupMiddleware(object):
             seen = set()
             for head, val in reversed(headers):
                 head = head.title()
-                if head not in seen:
+                if head.lower() == 'set-cookie' or head not in seen:
                     fixed.insert(0, (head, val))
                     seen.add(head)
             return start_response(status, fixed, exc_info)
