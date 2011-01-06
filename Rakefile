@@ -76,8 +76,7 @@ def app_server(action)
   sudo "#{action} paster"
 end
 
-# These tasks assume they are running as root and will change users if necessary.
-# They also assume there are running in a capistrano managed directory structure.
+# These tasks assume they are running in a capistrano managed directory structure.
 namespace :app do
   desc "Start the Application"
   task :start do
@@ -99,9 +98,9 @@ namespace :deploy do
   desc 'Run Reddit setup routine'
   task :setup do
     Dir.chdir r2_path
-    run "python setup.py install"
+    sudo "python setup.py install"
     Dir.chdir basepath
-    run "chown -R #{user} ."
+    sudo "chown -R #{user} #{r2_path}"
   end
 
   desc "Symlink the INI files into the release path"
@@ -117,7 +116,7 @@ namespace :deploy do
   desc 'Compress and concetenate JS and generate MD5 files'
   task :process_static_files do
     Dir.chdir r2_path
-    sudo "./compress_js.sh", :as => user
+    run "./compress_js.sh"
   end
 
   # For compatibilty

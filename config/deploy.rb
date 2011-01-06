@@ -59,7 +59,7 @@ namespace :deploy do
 
   desc "Run after update code rake task"
   task :rake_after_update_code, :roles => :app do
-    sudo %{/bin/bash -c "cd #{release_path} && rake --trace after_update_code #{rake_options.gsub('"', '\\"')}"}
+    remote_rake "--trace after_update_code #{rake_options}", :path => release_path
   end
 end
 
