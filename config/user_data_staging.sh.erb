@@ -13,14 +13,13 @@ export APPLICATION_ENV=staging
 APP_REPO='git://github.com/tricycle/lesswrong.git'
 APP_DIR=/srv/www/lesswrong.com
 
-sudo -u www-data /usr/local/sys_scripts/bin/git-clone-update $APP_REPO $APP_DIR/current --branch staging
-cd $APP_DIR/current && rake after_update_code > $APP_DIR/shared/log/after_update_code.log 2>&1
-cd $APP_DIR/current && rake deploy:restart > $APP_DIR/shared/log/deploy-restart.log 2>&1
-sudo -u www-data $APP_DIR/current/scripts/sync_wiki_export.sh
+sudo -u $APPLICATION_USER /usr/local/sys_scripts/bin/git-clone-update $APP_REPO $APP_DIR/current --branch staging
+sudo -u $APPLICATION_USER cd $APP_DIR/current && rake after_update_code > $APP_DIR/shared/log/after_update_code.log 2>&1
+sudo -u $APPLICATION_USER cd $APP_DIR/current && rake deploy:restart > $APP_DIR/shared/log/deploy-restart.log 2>&1
+sudo -u $APPLICATION_USER $APP_DIR/current/scripts/sync_wiki_export.sh
 
 <% if time_to_live > 0 %>
 # This server will self destruct in <%= time_to_live %> minutes
 # run shutdown -c to cancel
 shutdown -h +<%= time_to_live %> &
 <% end %>
-

@@ -13,7 +13,8 @@ set :instance, lambda {
     security_group,
     AWS.auto_scaler_ami('python'),
     120,
-    File.join('config', "user_data_#{environment}.sh.erb")
+    File.join('config', "user_data_#{environment}.sh.erb"),
+    :instance_type => 'c1.medium'
   )
 }
 
