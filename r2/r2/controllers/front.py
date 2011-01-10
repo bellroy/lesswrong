@@ -514,7 +514,7 @@ class FrontController(RedditController):
             if redirect_link:
                 return self.redirect(redirect_link.already_submitted_link)
             
-        captcha = Captcha() if c.user.needs_captcha() else None
+        captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
 
         # Set the default sr to the user's draft when creating a new article

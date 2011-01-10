@@ -86,7 +86,11 @@
       </tr>
     %endif
     %if thing.captcha:
-      ${thing.captcha.render()}
+      <tr>
+        <td>
+          ${thing.captcha.render()}
+        </td>
+      </tr>
     %endif
     <tr>
       <td>
