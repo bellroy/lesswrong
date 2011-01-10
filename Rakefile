@@ -131,10 +131,10 @@ namespace :deploy do
     crontab = basepath + 'config' + 'crontab'
     target = "/etc/cron.d/lesswrong"
     if environment == "production"
-      File.copy(crontab, target, true) # true = verbose
+      sudo "/bin/cp #{crontab} #{target}"
     else
       # Don't want the cron jobs running in non-production environments
-      File.unlink target rescue nil
+      sudo "/bin/rm -f #{target}"
     end
   end
 
