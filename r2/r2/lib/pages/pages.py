@@ -840,10 +840,10 @@ class ResetPassword(Wrapped):
 
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""
-    def __init__(self, error=None):
+    def __init__(self, error=None, tabular=True, label=True):
         self.error = _('Try entering those letters again') if error else ""
         self.iden = get_captcha()
-        Wrapped.__init__(self)
+        Wrapped.__init__(self, tabular=tabular, label=label)
 
 class CommentReplyBox(Wrapped):
     """Used on LinkInfoPage to render the comment reply form at the
