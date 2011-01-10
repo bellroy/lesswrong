@@ -42,6 +42,7 @@ Click the "Create new article" button in the side bar.
   You should see the submit article form with a rich text editor
   Enter a title and some body text
   Enter a tag of "test"
+  You should see a captcha, fill it in.
   Click Submit, you should see your article titled and tagged correctly.
   You should see a red Draft marker in the heading of the article
   Click Article Navigation, it should load the navigation options
@@ -58,6 +59,7 @@ Click the Discussion link in the nav bar
   The list of recent comments should not include comments from the main site
   There should be a 'back to less wrong' link at the beginning of the navbar
     Check that it links to the root, NOT /r/discussion
+  Log in and ensure you're in the discussion area
   Create an article, and go back to the main discussion area
   The list of articles should be a simple list of titles and some meta data
   Click on an article
