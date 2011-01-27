@@ -173,7 +173,7 @@ class Subreddit(Thing, Printable):
             return True
         elif self.is_banned(user):
             return False
-        elif self == Subreddit._by_name('discussion') and user.safe_karma < g.discusion_karma_to_post:
+        elif self == Subreddit._by_name('discussion') and user.safe_karma < g.discussion_karma_to_post:
             return False
         elif self.type == 'public':
             return True
