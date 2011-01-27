@@ -180,46 +180,6 @@ class ApiController(RedditController):
         else:
             res._update('success', innerHTML='')
 
-
-    @validate(VUser(),
-              VSRSubmitPage(),
-              url = VRequired('url', None),
-              title = VRequired('title', None))
-    def GET_submit(self, url, title):
-        if url and not request.get.get('resubmit'):
-            listing = link_listing_by_url(url)
-            redirect_link = None
-            if listing.things:
-                if len(listing.things) == 1:
-                    redirect_link = listing.things[0]
-                else:
-                    subscribed = [l for l in listing.things
-                                  if c.user_is_loggedin 
-                                  and l.subreddit.is_subscriber_defaults(c.user)]
-                    
-                    #if there is only 1 link to be displayed, just go there
-                    if len(subscribed) == 1:
-                        redirect_link = subscribed[0]
-                    else:
-                        infotext = strings.multiple_submitted % \
-                                   listing.things[0].resubmit_link()
-                        res = BoringPage(_("Seen it"),
-                                         content = listing,
-                                         infotext = infotext).render()
-                        return res
-                        
-            if redirect_link:
-                return self.redirect(redirect_link.already_submitted_link)
-            
-        captcha = Captcha() if c.user.needs_captcha() else None
-        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
-
-        return FormPage(_("Submit"), 
-                        content=NewLink(url=url or '',
-                                        title=title or '',
-                                        subreddits = srs,
-                                        captcha=captcha)).render()
-
     @Json
     @validate(VAdmin(),
               link = VByName('id'))

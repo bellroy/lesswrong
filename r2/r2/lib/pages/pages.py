@@ -1340,3 +1340,6 @@ class SiteMeter(Wrapped):
     def __init__(self, codename, *a, **kw):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
+
+class NotEnoughKarmaToPost(Wrapped):
+	  pass

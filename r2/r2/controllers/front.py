@@ -479,12 +479,17 @@ class FrontController(RedditController):
 
 
     @validate(VUser(),
-              VSRSubmitPage(),
+              can_submit = VSRSubmitPage(),
               url = VRequired('url', None),
               title = VRequired('title', None),
               tags = VTags('tags'))
-    def GET_submit(self, url, title, tags):
+    def GET_submit(self, can_submit, url, title, tags):
         """Submit form."""
+        if not can_submit:
+            return BoringPage(_("Not Enough Karma"),
+                    infotext="You do not have enough karma to post.",
+                    content=NotEnoughKarmaToPost()).render()
+
         if url and not request.get.get('resubmit'):
             # check to see if the url has already been submitted
             listing = link_listing_by_url(url)
