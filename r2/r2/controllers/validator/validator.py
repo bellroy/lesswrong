@@ -397,9 +397,10 @@ class VSrSpecial(Validator):
 
 class VSRSubmitPage(Validator):
     def run(self):
-        if not (c.default_sr or c.user_is_loggedin and 
-                c.site.can_submit(c.user)):
-            abort(403, "forbidden")
+        if not (c.default_sr or c.user_is_loggedin and c.site.can_submit(c.user)):
+            return False
+        else:
+            return True
 
 class VSubmitParent(Validator):
     def run(self, fullname):
