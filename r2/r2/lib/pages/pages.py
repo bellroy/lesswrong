@@ -512,7 +512,7 @@ class LinkInfoPage(Reddit):
         
         # hide deleted/spam links from search engines
         if link._spam or link._deleted:
-            self.robots = 'noindex'
+            self.robots = 'noindex,nofollow'
         
         # TODO: temp hack until we find place for builder_wrapper
         from r2.controllers.listingcontroller import ListingController
