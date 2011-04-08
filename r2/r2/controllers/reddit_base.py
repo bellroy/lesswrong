@@ -248,7 +248,10 @@ def set_subreddit():
 
     if isinstance(c.site, FakeSubreddit):
         c.default_sr = True
-        c.current_or_default_sr = Subreddit._by_name(g.default_sr)
+        try:
+            c.current_or_default_sr = Subreddit._by_name(g.default_sr)
+        except NotFound:
+            c.current_or_default_sr = None
     else:
         c.current_or_default_sr = c.site
 
