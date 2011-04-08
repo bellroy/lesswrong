@@ -144,6 +144,10 @@ class Subreddit(Thing, Printable):
         return self.moderator_ids()
 
     @property
+    def editors(self):
+        return self.editor_ids()
+
+    @property
     def contributors(self):
         return self.contributor_ids()
 
@@ -177,7 +181,7 @@ class Subreddit(Thing, Printable):
             return False
         elif self.type == 'public':
             return True
-        elif self.is_moderator(user) or self.is_contributor(user):
+        elif self.is_moderator(user) or self.is_contributor(user) or self.is_editor(user):
             #restricted/private require contributorship
             return True
         elif self == Subreddit._by_name(g.default_sr) and user.safe_karma >= g.karma_to_post:
