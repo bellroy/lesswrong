@@ -264,6 +264,8 @@ class FrontController(RedditController):
             pane = CreateSubreddit(site = c.site, listings = ListingController.listing_names())
         elif location == 'moderators':
             pane = ModList(editable = is_moderator)
+        elif location == 'editors':
+            pane = EditorList(editable = c.user_is_admin)
         elif is_moderator and location == 'banned':
             pane = BannedList(editable = is_moderator)
         elif location == 'contributors' and c.site.type != 'public':

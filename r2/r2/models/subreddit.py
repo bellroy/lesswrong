@@ -619,6 +619,7 @@ Default = DefaultSR()
 
 class SRMember(Relation(Subreddit, Account)): pass
 Subreddit.__bases__ += (UserRel('moderator', SRMember),
+                        UserRel('editor', SRMember),
                         UserRel('contributor', SRMember),
                         UserRel('subscriber', SRMember),
                         UserRel('banned', SRMember))

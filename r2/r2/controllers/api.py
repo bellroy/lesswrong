@@ -38,7 +38,7 @@ from r2.controllers import ListingController
 from r2.lib.utils import get_title, sanitize_url, timeuntil, set_last_modified
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
-from r2.lib.pages import FriendList, ContributorList, ModList, \
+from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
     ArticleNavigation
@@ -409,7 +409,7 @@ class ApiController(RedditController):
               redirect = nop('redirect'),
               friend = VExistingUname('name'),
               container = VByName('container'),
-              type = VOneOf('type', ('friend', 'moderator', 'contributor', 'banned')))
+              type = VOneOf('type', ('friend', 'moderator', 'editor', 'contributor', 'banned')))
     def POST_friend(self, res, ip, friend, action, redirect, container, type):
         res._update('status', innerHTML='')
 
@@ -420,6 +420,8 @@ class ApiController(RedditController):
                  and not c.site.is_moderator(c.user))):
 
             abort(403,'forbidden')
+        elif type == 'editor' and not c.user_is_admin:
+            abort(403,'forbidden')
         elif action == 'add':
             if res._chk_errors((errors.USER_DOESNT_EXIST,
                                 errors.NO_USER)):
@@ -428,6 +430,7 @@ class ApiController(RedditController):
                 new = fn(friend)
                 cls = dict(friend=FriendList,
                            moderator=ModList,
+                           editor=EditorList,
                            contributor=ContributorList,
                            banned=BannedList).get(type)
                 res._update('name', value = '')

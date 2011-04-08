@@ -1248,6 +1248,21 @@ class ModList(UserList):
     def user_ids(self):
         return c.site.moderators
 
+class EditorList(UserList):
+    """Editor list for a reddit."""
+    type = 'editor'
+
+    @property
+    def form_title(self):
+        return _('Add editor')
+
+    @property
+    def table_title(self):
+        return _("Editors of %(reddit)s") % dict(reddit = c.site.name)
+
+    def user_ids(self):
+        return c.site.editors
+
 class BannedList(UserList):
     """List of users banned from a given reddit"""
     type = 'banned'
