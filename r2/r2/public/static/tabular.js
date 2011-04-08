@@ -12,7 +12,7 @@ UserTable.prototype  = {
             this.table.deleteRow(row.rowIndex);
         }
     },
-    
+
     _new_row: function(name, cellinnards, pos) {
         if(!pos) { pos = 0; }
         var row = this.table.insertRow(pos);
@@ -35,7 +35,7 @@ UserTable.findTable = function(rowname) {
 };
 
 UserTable.getUser = function(name) {
-    return name.split('_')[1];
+    return name.split('_').slice(1, -1).join('_');
 }
 
 UserTable.add = function(r) {

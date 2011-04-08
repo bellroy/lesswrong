@@ -840,10 +840,10 @@ class ResetPassword(Wrapped):
 
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""
-    def __init__(self, error=None):
+    def __init__(self, error=None, tabular=True, label=True):
         self.error = _('Try entering those letters again') if error else ""
         self.iden = get_captcha()
-        Wrapped.__init__(self)
+        Wrapped.__init__(self, tabular=tabular, label=label)
 
 class CommentReplyBox(Wrapped):
     """Used on LinkInfoPage to render the comment reply form at the
@@ -1248,6 +1248,21 @@ class ModList(UserList):
     def user_ids(self):
         return c.site.moderators
 
+class EditorList(UserList):
+    """Editor list for a reddit."""
+    type = 'editor'
+
+    @property
+    def form_title(self):
+        return _('Add editor')
+
+    @property
+    def table_title(self):
+        return _("Editors of %(reddit)s") % dict(reddit = c.site.name)
+
+    def user_ids(self):
+        return c.site.editors
+
 class BannedList(UserList):
     """List of users banned from a given reddit"""
     type = 'banned'
@@ -1340,3 +1355,6 @@ class SiteMeter(Wrapped):
     def __init__(self, codename, *a, **kw):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
+
+class NotEnoughKarmaToPost(Wrapped):
+	  pass

@@ -204,9 +204,7 @@ class Account(Thing):
         return id_time + ',' + hashlib.sha1(to_hash).hexdigest()
 
     def needs_captcha(self):
-        # TODO: decide on who/what/why needs a captcha
-        return False
-        # return self.link_karma < 1
+        return self.safe_karma < 1
 
     def modhash(self, rand=None, test=False):
         return modhash(self, rand = rand, test = test)

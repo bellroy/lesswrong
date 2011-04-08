@@ -264,6 +264,8 @@ class FrontController(RedditController):
             pane = CreateSubreddit(site = c.site, listings = ListingController.listing_names())
         elif location == 'moderators':
             pane = ModList(editable = is_moderator)
+        elif location == 'editors':
+            pane = EditorList(editable = c.user_is_admin)
         elif is_moderator and location == 'banned':
             pane = BannedList(editable = is_moderator)
         elif location == 'contributors' and c.site.type != 'public':
@@ -479,12 +481,17 @@ class FrontController(RedditController):
 
 
     @validate(VUser(),
-              VSRSubmitPage(),
+              can_submit = VSRSubmitPage(),
               url = VRequired('url', None),
               title = VRequired('title', None),
               tags = VTags('tags'))
-    def GET_submit(self, url, title, tags):
+    def GET_submit(self, can_submit, url, title, tags):
         """Submit form."""
+        if not can_submit:
+            return BoringPage(_("Not Enough Karma"),
+                    infotext="You do not have enough karma to post.",
+                    content=NotEnoughKarmaToPost()).render()
+
         if url and not request.get.get('resubmit'):
             # check to see if the url has already been submitted
             listing = link_listing_by_url(url)
@@ -514,7 +521,7 @@ class FrontController(RedditController):
             if redirect_link:
                 return self.redirect(redirect_link.already_submitted_link)
             
-        captcha = Captcha() if c.user.needs_captcha() else None
+        captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
 
         # Set the default sr to the user's draft when creating a new article

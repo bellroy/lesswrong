@@ -38,7 +38,7 @@ from r2.controllers import ListingController
 from r2.lib.utils import get_title, sanitize_url, timeuntil, set_last_modified
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
-from r2.lib.pages import FriendList, ContributorList, ModList, \
+from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
     ArticleNavigation
@@ -179,46 +179,6 @@ class ApiController(RedditController):
                 queries.new_message(m, inbox_rel)
         else:
             res._update('success', innerHTML='')
-
-
-    @validate(VUser(),
-              VSRSubmitPage(),
-              url = VRequired('url', None),
-              title = VRequired('title', None))
-    def GET_submit(self, url, title):
-        if url and not request.get.get('resubmit'):
-            listing = link_listing_by_url(url)
-            redirect_link = None
-            if listing.things:
-                if len(listing.things) == 1:
-                    redirect_link = listing.things[0]
-                else:
-                    subscribed = [l for l in listing.things
-                                  if c.user_is_loggedin 
-                                  and l.subreddit.is_subscriber_defaults(c.user)]
-                    
-                    #if there is only 1 link to be displayed, just go there
-                    if len(subscribed) == 1:
-                        redirect_link = subscribed[0]
-                    else:
-                        infotext = strings.multiple_submitted % \
-                                   listing.things[0].resubmit_link()
-                        res = BoringPage(_("Seen it"),
-                                         content = listing,
-                                         infotext = infotext).render()
-                        return res
-                        
-            if redirect_link:
-                return self.redirect(redirect_link.already_submitted_link)
-            
-        captcha = Captcha() if c.user.needs_captcha() else None
-        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
-
-        return FormPage(_("Submit"), 
-                        content=NewLink(url=url or '',
-                                        title=title or '',
-                                        subreddits = srs,
-                                        captcha=captcha)).render()
 
     @Json
     @validate(VAdmin(),
@@ -449,7 +409,7 @@ class ApiController(RedditController):
               redirect = nop('redirect'),
               friend = VExistingUname('name'),
               container = VByName('container'),
-              type = VOneOf('type', ('friend', 'moderator', 'contributor', 'banned')))
+              type = VOneOf('type', ('friend', 'moderator', 'editor', 'contributor', 'banned')))
     def POST_friend(self, res, ip, friend, action, redirect, container, type):
         res._update('status', innerHTML='')
 
@@ -460,6 +420,8 @@ class ApiController(RedditController):
                  and not c.site.is_moderator(c.user))):
 
             abort(403,'forbidden')
+        elif type == 'editor' and not c.user_is_admin:
+            abort(403,'forbidden')
         elif action == 'add':
             if res._chk_errors((errors.USER_DOESNT_EXIST,
                                 errors.NO_USER)):
@@ -468,6 +430,7 @@ class ApiController(RedditController):
                 new = fn(friend)
                 cls = dict(friend=FriendList,
                            moderator=ModList,
+                           editor=EditorList,
                            contributor=ContributorList,
                            banned=BannedList).get(type)
                 res._update('name', value = '')
