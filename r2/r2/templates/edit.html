@@ -15,8 +15,8 @@ from r2.lib.utils import prettytime
        class="message-content">
 	<h2><a href="${thing.link.url}">${thing.link.title}</a></h2>
     <div class="meta">
-      <span class="editor">Edited by&#32;${unsafe(self.author(author=thing.link_author))}</span>        
-      <span class="orig-author">(${unsafe(self.author())})</span>
+      <span class="editor">Edited by&#32;${unsafe(self.author())}</span>
+      <span class="orig-author">(${unsafe(self.author(author=thing.link_author))})</span>
     	<span class="date">${prettytime(thing._date)}</span>
 	</div>
     <div class="md">
