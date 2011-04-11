@@ -1,0 +1,16 @@
+<%!
+   from pylons.i18n import _, ungettext
+   from r2.lib.template_helpers import add_sr, get_domain
+   from r2.models import FakeSubreddit
+   from r2.lib.filters import cleanhtml
+   from r2.lib.utils import rfc822format
+%>
+<item>
+  <title>${thing.link.title}</title>
+  <pubDate>${rfc822format(thing._date)}</pubDate>
+  <description>
+	<% domain = get_domain(cname = c.cname, subreddit = False) %>
+    Edited by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    Original by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.link_author.name}&lt;/a&gt;
+  </description>
+</item>
