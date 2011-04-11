@@ -419,6 +419,11 @@ class RandomrisingController(ListingController):
 
         return links
 
+class EditsController(ListingController):
+    def query(self):
+        return Edit._query(sort = desc('_date'))
+    
+
 class ByIDController(ListingController):
     title_text = _('API')
 

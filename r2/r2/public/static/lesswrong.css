@@ -536,3 +536,40 @@ div.comment div.parent {
 .pretty-form.long-text #captcha {
   width: 250px;
 }
+
+/* Edit listing */
+.diff li {
+    list-style: none;
+    padding: 0 2px;
+}
+
+.diff {
+    padding: 0;
+    margin: 0 !important;
+    border: 1px solid #ccc;
+    clear: left;
+}
+.diff pre {
+    margin: 0;
+}
+.diff .new {
+    background-color: #dfd;
+}    
+.diff .del {
+    background-color: #fdd;
+}   
+.diff .context {
+    background-color: #eaf2f5;
+    color: #999;
+}
+.editor {
+    float: left;
+}
+.editor .author, .orig-author .author {
+    float: none;
+    display: inline;
+}
+
+.orig-author .author {
+    margin-right: 0;
+}

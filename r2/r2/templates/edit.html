@@ -1,0 +1,44 @@
+
+<%!
+from r2.lib.utils import prettytime
+ %>
+
+<%namespace file="utils.html" import="separator,plain_link"/>
+<%inherit file="printable.html"/>
+
+
+
+<%def name="entry()">
+<% fullname = thing._fullname %>
+<div  id="display_${fullname}">
+  <div id="body_${fullname}" \
+       class="message-content">
+	<h2><a href="${thing.link.url}">${thing.link.title}</a></h2>
+    <div class="meta">
+      <span class="editor">Edited by&#32;${unsafe(self.author(author=thing.link_author))}</span>        
+      <span class="orig-author">(${unsafe(self.author())})</span>
+    	<span class="date">${prettytime(thing._date)}</span>
+	</div>
+    <div class="md">
+    <ul class="diff">
+       %for l in thing.diff[2:]:
+        <% 
+           cl=""
+           if len(l)>0 and l[0]=='+':
+             cl="new"
+           elif len(l)>0 and l[0]=='-':
+             cl="del"
+           elif len(l)>0 and l[0]=='@':
+             cl="context"
+        %>
+		<li class="${cl}"><pre>${l}</pre></li>
+ 	   %endfor
+	</ul>
+	</div>
+  </div>
+</div>
+</%def>
+
+## disable voting arrows
+<%def name="midcol()">
+</%def>
