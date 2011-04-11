@@ -74,6 +74,7 @@ dbm.thing('link', main_engine, main_engine)
 dbm.thing('account', main_engine, main_engine)
 dbm.thing('message', main_engine, main_engine)
 dbm.thing('tag', main_engine, main_engine)
+dbm.thing('edit', main_engine, main_engine)
 
 dbm.relation('savehide', 'account', 'link', main_engine)
 dbm.relation('click', 'account', 'link', main_engine)
