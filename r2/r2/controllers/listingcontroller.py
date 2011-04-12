@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -48,7 +48,7 @@ class ListingController(RedditController):
     # toggle skipping of links based on the users' save/hide/vote preferences
     skip = True
 
-    # toggles showing numbers 
+    # toggles showing numbers
     show_nums = True
 
     # any text that should be shown on the top of the page
@@ -99,7 +99,7 @@ class ListingController(RedditController):
         """list of menus underneat the header (e.g., sort, time, kind,
         etc) to be displayed on this listing page"""
         return []
-    
+
     @base_listing
     def build_listing(self, num, after, reverse, count):
         """uses the query() method to define the contents of the
@@ -118,8 +118,8 @@ class ListingController(RedditController):
         self.listing_obj = self.listing()
         content = self.content()
         res =  self.render_cls(content = content,
-                               show_sidebar = self.show_sidebar, 
-                               nav_menus = self.menus, 
+                               show_sidebar = self.show_sidebar,
+                               nav_menus = self.menus,
                                title = self.title(),
                                infotext = self.infotext,
                                robots = self.robots,
@@ -130,7 +130,7 @@ class ListingController(RedditController):
     def content(self):
         """Renderable object which will end up as content of the render_cls"""
         return self.listing_obj
-        
+
     def query(self):
         """Query to execute to generate the listing"""
         raise NotImplementedError
@@ -206,7 +206,7 @@ class FixListing(object):
         if self.after and self.after._hot == 0:
             self.abort404()
 
-        #don't draw next/prev links for 
+        #don't draw next/prev links for
         if listing.things:
             if listing.things[-1]._hot == 0:
                 listing.next = None
@@ -315,7 +315,7 @@ class NewController(ListingController):
 
     def query(self):
         return c.site.get_links('new', 'all')
-        
+
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
@@ -383,7 +383,7 @@ class BrowseController(ListingController):
     @property
     def menus(self):
         return [TimeMenu(default = self.time)]
-    
+
     def query(self):
         return c.site.get_links(self.sort, self.time)
 
@@ -414,7 +414,7 @@ class RandomrisingController(ListingController):
             if isinstance(links, Query):
                 links._limit = 200
                 links = [x._fullname for x in links]
-        
+
         random.shuffle(links)
 
         return links
@@ -422,7 +422,7 @@ class RandomrisingController(ListingController):
 class EditsController(ListingController):
     def query(self):
         return Edit._query(sort = desc('_date'))
-    
+
 
 class ByIDController(ListingController):
     title_text = _('API')
@@ -441,14 +441,14 @@ class ByIDController(ListingController):
 class RecommendedController(ListingController):
     where = 'recommended'
     title_text = _('Recommended for you')
-    
+
     @property
     def menus(self):
         return [RecSortMenu(default = self.sort)]
-    
+
     def query(self):
         return get_recommended(c.user._id, sort = self.sort)
-        
+
     @validate(VUser(),
               sort = VMenu("controller", RecSortMenu))
     def GET_listing(self, sort, **env):
@@ -505,7 +505,7 @@ class UserController(ListingController):
         if q is None:
             return self.abort404()
 
-        return q 
+        return q
 
     @validate(vuser = VExistingUname('username'))
     def GET_listing(self, where, vuser, **env):
@@ -516,7 +516,7 @@ class UserController(ListingController):
             return self.abort404()
 
         # hide spammers profile pages
-        if (not c.user_is_loggedin or 
+        if (not c.user_is_loggedin or
             (c.user._id != vuser._id and not c.user_is_admin)) \
                and vuser._spam:
             return self.abort404()
@@ -526,7 +526,7 @@ class UserController(ListingController):
             return self.abort404()
 
         check_cheating('user')
-            
+
         self.vuser = vuser
         self.render_params = {'user' : vuser}
         c.profilepage = True
@@ -586,11 +586,11 @@ class MessageController(ListingController):
     def GET_compose(self, to, subject, message, success):
         captcha = Captcha() if c.user.needs_captcha() else None
         content = MessageCompose(to = to, subject = subject,
-                                 captcha = captcha, 
+                                 captcha = captcha,
                                  message = message,
                                  success = success)
         return MessagePage(content = content, title = self.title('compose')).render()
-    
+
 class RedditsController(ListingController):
     render_cls = SubredditsPage
 
@@ -611,7 +611,7 @@ class RedditsController(ListingController):
                 reddits._filter(Subreddit.c.lang == c.content_langs)
             if not c.over18:
                 reddits._filter(Subreddit.c.over_18 == False)
-                
+
         return reddits
     def GET_listing(self, where, **env):
         self.where = where
@@ -656,7 +656,7 @@ class MyredditsController(ListingController):
             stack.append(InfoBar(message=message))
 
         stack.append(self.listing_obj)
-        
+
         return stack
 
     @validate(VUser())
@@ -704,12 +704,12 @@ class CommentsController(ListingController):
 class TopcommentsController(CommentsController):
 	title_text = _('Top Comments')
 	builder_cls = UnbannedCommentBuilder
-	
+
 	def query(self):
 		q = Comment._query(Comment.c._spam == (True,False),
 				Comment.c.sr_id == c.current_or_default_sr._id,
 				sort = desc('_ups'), data = True)
 		if not c.user_is_admin:
 			q._filter(Comment.c._spam == False)
-	
+
 		return q
