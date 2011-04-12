@@ -257,7 +257,7 @@ class ApiController(RedditController):
         else:
           edit = None
           if c.user._id != l.author_id:
-            edit = Edit(l,c.user,new_content)
+            edit = Edit._new(l,c.user,new_content)
           old_url = l.url
           l.title = request.post.title
           l.article = new_content

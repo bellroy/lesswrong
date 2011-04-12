@@ -6,16 +6,17 @@ import difflib
 
 class Edit(Thing):
     """Used to track edits on Link"""
-    def __init__(self, link, user, new_content):
-        Thing.__init__(self,
-                       link_id = link._id, 
-                       author_id = user._id,
-                       diff = Edit.create_diff(link.article, new_content))
-        
-    @staticmethod               
+
+    @classmethod
+    def _new(cls, link, user, new_content):
+        return Edit(link_id = link._id,
+                    author_id = user._id,
+                    diff = Edit.create_diff(link.article, new_content))
+
+    @staticmethod
     def create_diff(old_content, new_content):
         return list(difflib.unified_diff(old_content.splitlines(), new_content.splitlines()))
-    
+
     @classmethod
     def add_props(cls, user, wrapped):
         for item in wrapped:
