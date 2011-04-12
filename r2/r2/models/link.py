@@ -755,27 +755,6 @@ class CommentPermalink(Link):
     """Exists to gain a different render_class in Wrapped"""
     _nodb = True
 
-class Edit(Thing):
-    """Used to track edits on Link"""
-    @classmethod
-    def add_props(cls, user, wrapped):
-        pass
-
-    @staticmethod
-    def cache_key(wrapped):
-        return False
-
-    def keep_item(self, wrapped):
-        return True
-        
-    @property
-    def link(self):
-        return Link._byID(self.link_id)
-        
-    @property
-    def link_author(self):
-        return Account._byID(self.link.author_id)
-                    
 class TagExists(Exception): pass
 
 class Tag(Thing):

@@ -65,8 +65,6 @@ from simplejson import dumps
 from datetime import datetime, timedelta
 from md5 import md5
 
-import difflib
-
 from r2.lib.promote import promote, unpromote, get_promoted
 
 def link_listing_by_url(url, count = None):
@@ -257,11 +255,9 @@ class ApiController(RedditController):
           if g.write_query_queue:
               queries.new_link(l)
         else:
-          edit = Edit(link_id = l._id, 
-                      author_id = c.user._id,
-                      diff = list(difflib.unified_diff(l.article.splitlines(), new_content.splitlines())))
-          edit._commit()
-
+          edit = None
+          if c.user._id != l.author_id:
+            edit = Edit(l,c.user,new_content)
           old_url = l.url
           l.title = request.post.title
           l.article = new_content
@@ -269,6 +265,8 @@ class ApiController(RedditController):
           l._commit()
           l.set_tags(tags)
           l.update_url_cache(old_url)
+          if edit:
+            edit._commit()
 
         #update the modified flags
         set_last_modified(c.user, 'overview')
