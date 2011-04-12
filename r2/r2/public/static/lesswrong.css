@@ -538,17 +538,17 @@ div.comment div.parent {
 }
 
 /* Edit listing */
+.edit .md {
+    clear: left;
+    margin-bottom: 1em;
+}
 .edit .diff {
     padding: 0;
     margin: 0 !important;
     border: 1px solid #ccc;
     clear: left;
 }
-.edit .diff li {
-    list-style: none;
-    padding: 0 2px;
-}
-.edit .diff pre {
+.edit .diff div {
     margin: 0;
 }
 .edit .diff .new {

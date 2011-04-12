@@ -12,8 +12,7 @@ from r2.models import Edit
 <%def name="entry()">
 <% fullname = thing._fullname %>
 <div  id="display_${fullname}">
-  <div id="body_${fullname}" \
-       class="message-content">
+  <div id="body_${fullname}">
 	<h2><a href="${thing.link.url}">${thing.link.title}</a></h2>
     <div class="meta">
       <span class="editor">Edited by&#32;${unsafe(self.author())}</span>
@@ -21,11 +20,11 @@ from r2.models import Edit
     	<span class="date">${prettytime(thing._date)}</span>
 	</div>
     <div class="md">
-    <ul class="diff">
-       %for l in thing.diff[2:]:
-		<li class="${Edit.diff_line_style(l)}"><pre>${l}</pre></li>
- 	   %endfor
-	</ul>
+    <pre class="diff">
+%for l in thing.diff[2:]:
+<div class="${Edit.diff_line_style(l)}">${l}</div>
+%endfor
+	</pre>
 	</div>
   </div>
 </div>
