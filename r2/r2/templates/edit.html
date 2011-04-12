@@ -23,16 +23,7 @@ from r2.models import Edit
     <div class="md">
     <ul class="diff">
        %for l in thing.diff[2:]:
-        <% 
-           cl=""
-           if len(l)>0 and l[0]=='+':
-             cl="new"
-           elif len(l)>0 and l[0]=='-':
-             cl="del"
-           elif len(l)>0 and l[0]=='@':
-             cl="context"
-        %>
-		<li class="${cl}"><pre>${l}</pre></li>
+		<li class="${Edit.diff_line_style(l)}"><pre>${l}</pre></li>
  	   %endfor
 	</ul>
 	</div>
