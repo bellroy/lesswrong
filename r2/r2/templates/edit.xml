@@ -4,11 +4,9 @@
    from r2.models import FakeSubreddit
    from r2.lib.filters import cleanhtml
    from r2.lib.utils import rfc822format
-   import cgi
+   from xml.sax import saxutils
 %>
-<%
-   url = add_sr(thing.permalink, force_hostname = True)
-%>
+<% url = add_sr(thing.permalink, force_hostname = True) %>
 <item>
   <title>${thing.link.title}</title>
   <link>${url}</link>
@@ -18,10 +16,9 @@
 	<% domain = get_domain(cname = c.cname, subreddit = False) %>
     Edited by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.author.name}&lt;/a&gt;
     Original by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.link_author.name}&lt;/a&gt;
+    <% entities = {"\n": "&#x0a;"} %>
     &lt;pre&gt;
-    %for l in thing.diff[2:]:
-		${cgi.escape((l))} &lt;br/&gt;
-    %endfor
+    ${saxutils.escape("\n".join(thing.diff[2:]), entities)}
     &lt;/pre&gt;
   </description>
 </item>
