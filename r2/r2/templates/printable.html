@@ -141,7 +141,7 @@ ${self.RenderPrintable()}
 </%def>
 
 <%def name="author(author = None, friend = False, gray = False, css_base='author', parent=False)" buffered="True">
-  <% author = thing.parent_author if parent else thing.author %>
+  <% author = thing.parent_author if parent else (author or thing.author) %>
   %if thing.deleted and not c.user_is_admin:
     [deleted]
   %else:
