@@ -420,6 +420,8 @@ class RandomrisingController(ListingController):
         return links
 
 class EditsController(ListingController):
+    title_text = _('Recent Edits')
+
     def query(self):
         return Edit._query(sort = desc('_date'))
 
