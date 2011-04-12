@@ -538,38 +538,36 @@ div.comment div.parent {
 }
 
 /* Edit listing */
-.diff li {
-    list-style: none;
-    padding: 0 2px;
-}
-
-.diff {
+.edit .diff {
     padding: 0;
     margin: 0 !important;
     border: 1px solid #ccc;
     clear: left;
 }
-.diff pre {
+.edit .diff li {
+    list-style: none;
+    padding: 0 2px;
+}
+.edit .diff pre {
     margin: 0;
 }
-.diff .new {
+.edit .diff .new {
     background-color: #dfd;
 }    
-.diff .del {
+.edit .diff .del {
     background-color: #fdd;
 }   
-.diff .context {
+.edit .diff .context {
     background-color: #eaf2f5;
     color: #999;
 }
-.editor {
+.edit .editor {
     float: left;
 }
-.editor .author, .orig-author .author {
+.edit .editor .author, .edit .orig-author .author {
     float: none;
     display: inline;
 }
-
-.orig-author .author {
+.edit .orig-author .author {
     margin-right: 0;
 }
