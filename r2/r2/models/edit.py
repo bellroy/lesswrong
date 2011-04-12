@@ -18,7 +18,8 @@ class Edit(Thing):
     
     @classmethod
     def add_props(cls, user, wrapped):
-        pass
+        for item in wrapped:
+            item.permalink = item.link.make_permalink_slow()
 
     @staticmethod
     def cache_key(wrapped):
