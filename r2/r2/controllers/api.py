@@ -7,16 +7,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -75,13 +75,13 @@ def link_listing_by_url(url, count = None):
             links = links[:count]
     except NotFound:
         links = ()
-        
+
     names = [l._fullname for l in links]
     builder = IDBuilder(names, num = 25)
     listing = LinkListing(builder).listing()
     return listing
 
-    
+
 class ApiController(RedditController):
     def response_func(self, **kw):
         return self.sendstring(dumps(kw))
@@ -91,7 +91,7 @@ class ApiController(RedditController):
         res._redirect("/login" + query_string(dict(dest=dest)))
 
     def link_exists(self, url, sr, message = False):
-        try:    
+        try:
             l = Link._by_url(url, sr)
             if message:
                 return l.already_submitted_link()
@@ -167,7 +167,7 @@ class ApiController(RedditController):
             spam = (c.user._spam or
                     errors.BANNED_IP in c.errors or
                     errors.BANNED_DOMAIN in c.errors)
-            
+
             m, inbox_rel = Message._new(c.user, to, subject, body, ip, spam)
             res._update('success',
                         innerHTML=_("Your message has been delivered"))
@@ -207,7 +207,7 @@ class ApiController(RedditController):
     def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
-        
+
         #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
@@ -234,7 +234,7 @@ class ApiController(RedditController):
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.BANNED_DOMAIN in c.errors)
-        
+
         if not new_content:
             new_content = ''
 
@@ -271,10 +271,10 @@ class ApiController(RedditController):
         #update the modified flags
         set_last_modified(c.user, 'overview')
         set_last_modified(c.user, 'submitted')
-        
+
         # flag search indexer that something has changed
         tc.changed(l)
-        
+
         if continue_editing:
           path = "/edit/%s" % l._id36
         else:
@@ -367,7 +367,7 @@ class ApiController(RedditController):
 
         d = c.user._dirties.copy()
         user._commit()
-            
+
         c.user = user
 
         # Create a drafts subredit for this user
@@ -392,7 +392,7 @@ class ApiController(RedditController):
                     self._subscribe(sr, sub)
 
         self._login(res, user, dest, rem)
-    
+
 
     @Json
     @validate(VUser(),
@@ -439,7 +439,7 @@ class ApiController(RedditController):
                            contributor=ContributorList,
                            banned=BannedList).get(type)
                 res._update('name', value = '')
-                
+
                 #subscribing doesn't need a response
                 if new and cls:
                     res.object = cls().ajax_user(friend).for_ajax('add')
@@ -450,7 +450,7 @@ class ApiController(RedditController):
                         if msg and subj and friend.name != c.user.name:
                             # fullpath with domain needed or the markdown link
                             # will break
-                            d = dict(url = container.path, 
+                            d = dict(url = container.path,
                                      title = container.title)
                             msg = msg % d
                             subj = subj % d
@@ -473,7 +473,7 @@ class ApiController(RedditController):
         if res._chk_error(errors.WRONG_PASSWORD):
             res._focus('curpass')
             res._update('curpass', value='')
-            return 
+            return
         updated = False
         if res._chk_error(errors.BAD_EMAILS):
             res._focus('email')
@@ -481,10 +481,10 @@ class ApiController(RedditController):
                         or c.user.email != email):
             c.user.email = email
             c.user._commit()
-            res._update('status', 
+            res._update('status',
                         innerHTML=_('Your email has been updated'))
             updated = True
-            
+
         if newpass or verpass:
             if res._chk_error(errors.BAD_PASSWORD):
                 res._focus('newpass')
@@ -494,10 +494,10 @@ class ApiController(RedditController):
             else:
                 change_password(c.user, password)
                 if updated:
-                    res._update('status', 
+                    res._update('status',
                                 innerHTML=_('Your email and password have been updated'))
                 else:
-                    res._update('status', 
+                    res._update('status',
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
 
@@ -512,7 +512,7 @@ class ApiController(RedditController):
             c.user.delete()
             res._redirect('/?deleted=true')
         else:
-            res._update('status', 
+            res._update('status',
                         innerHTML = _("See? you don't really want to leave"))
 
     @Json
@@ -610,13 +610,13 @@ class ApiController(RedditController):
         if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT),
                           parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
-            return 
+            return
         res._show('reply_' + parent._fullname)
         res._update("comment_reply_" + parent._fullname, rows = 2)
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)
-        
+
         if is_message:
             to = Account._byID(parent.author_id)
             subject = parent.subject
@@ -629,7 +629,7 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
-            res._update("comment_reply_" + parent._fullname, 
+            res._update("comment_reply_" + parent._fullname,
                         innerHTML='', value='')
             res._send_things(item)
             res._hide('noresults')
@@ -654,8 +654,8 @@ class ApiController(RedditController):
                          prefix = "rate_share_"),
               share_from = VLength('share_from', length = 100),
               emails = ValidEmails("share_to"),
-              reply_to = ValidEmails("replyto", num = 1), 
-              message = VLength("message", length = 1000), 
+              reply_to = ValidEmails("replyto", num = 1),
+              message = VLength("message", length = 1000),
               thing = VByName('id'))
     def POST_share(self, res, emails, thing, share_from, reply_to,
                    message):
@@ -696,7 +696,7 @@ class ApiController(RedditController):
                         innerHTML=_('Shared'))
 
             res._update("sharelink_" + thing._fullname,
-                        innerHTML=("<div class='clearleft'></div><p class='error'>%s</p>" % 
+                        innerHTML=("<div class='clearleft'></div><p class='error'>%s</p>" %
                                    _("Your link has been shared.")))
 
             emailer.share(thing, emails, from_name = share_from or "",
@@ -768,7 +768,7 @@ class ApiController(RedditController):
         if report.errors:
             error_items = [ CssError(x).render(style='html')
                             for x in sorted(report.errors) ]
-                                               
+
             res._update('status', innerHTML = _('Validation errors'))
             res._update('validation-errors', innerHTML = ''.join(error_items))
             res._show('error-header')
@@ -1019,7 +1019,7 @@ class ApiController(RedditController):
 
         if any(errors.values()):
             return  UploadedImage("", "", "", errors = errors).render()
-        else: 
+        else:
             # with the image num, save the image an upload to s3.  the
             # header image will be of the form "${c.site._fullname}.png"
             # while any other image will be ${c.site._fullname}_${num}.png
@@ -1027,10 +1027,10 @@ class ApiController(RedditController):
             if header:
                 c.site.header = new_url
                 c.site._commit()
-    
-            return UploadedImage(_('Saved'), new_url, name, 
+
+            return UploadedImage(_('Saved'), new_url, name,
                                  errors = errors).render()
-    
+
 
     @validate(VModhash(),
               link = VLink('article_id'),
@@ -1142,12 +1142,12 @@ class ApiController(RedditController):
         #editting an existing reddit
         elif sr.is_moderator(c.user) or c.user_is_admin:
             #assume sr existed, or was just built
-            clear_memo('subreddit._by_domain', 
+            clear_memo('subreddit._by_domain',
                        Subreddit, _force_unicode(sr.domain))
             for k, v in kw.iteritems():
                 setattr(sr, k, v)
             sr._commit()
-            clear_memo('subreddit._by_domain', 
+            clear_memo('subreddit._by_domain',
                        Subreddit, _force_unicode(sr.domain))
 
             # flag search indexer that something has changed
@@ -1243,7 +1243,7 @@ class ApiController(RedditController):
                             cm.child = None
                         else:
                             items.append(cm.child)
-                        
+
                 return items
             # assumes there is at least one child
 #            a = _children(items[0].child.things)
@@ -1254,7 +1254,7 @@ class ApiController(RedditController):
                     a.extend(_children(item.child.things))
                     item.child = None
 
-            # the result is not always sufficient to replace the 
+            # the result is not always sufficient to replace the
             # morechildren link
             if mc_id not in [x._fullname for x in a]:
                 res._hide('thingrow_' + str(mc_id))
@@ -1284,7 +1284,7 @@ class ApiController(RedditController):
             Subreddit.load_subreddits(links, return_dict = False)
             user = c.user if c.user_is_loggedin else None
             links = [l for l in links if l.subreddit_slow.can_view(user)]
-    
+
             if links:
                 if action in ['like', 'dislike']:
                     #vote up all of the links
@@ -1312,7 +1312,7 @@ class ApiController(RedditController):
         else:
             emailer.password_email(user)
             res._success()
-            
+
     @Json
     @validate(user = VCacheKey('reset', ('key', 'name')),
               key= nop('key'),
@@ -1377,7 +1377,7 @@ class ApiController(RedditController):
               sr = VByName('sr'))
     def POST_subscribe(self, res, action, sr):
         self._subscribe(sr, action == 'sub')
-    
+
     def _subscribe(self, sr, sub):
         Subreddit.subscribe_defaults(c.user)
 
@@ -1397,7 +1397,7 @@ class ApiController(RedditController):
         if lang and Translator.exists(lang):
             tr = Translator(locale = lang)
             tr._is_enabled = False
-        
+
 
     @Json
     @validate(VAdmin(),
@@ -1514,7 +1514,7 @@ class ApiController(RedditController):
             promote(l, subscribers_only = subscribers_only,
                     promote_until = promote_until,
                     disable_comments = disable_comments)
-            
+
             res._redirect('/promote/edit_promo/%s' % to36(l._id))
 
     def GET_link_thumb(self, *a, **kw):
@@ -1540,7 +1540,7 @@ class ApiController(RedditController):
         else:
             return UploadedImage(_('Saved'), thumbnail_url(link), "upload",
                                  errors = errors).render()
-    
+
 
     @Json
     @validate(ids = VLinkFullnames('ids'))

@@ -28,11 +28,11 @@ class Edit(Thing):
 
     def keep_item(self, wrapped):
         return True
-        
+
     @property
     def link(self):
         return Link._byID(self.link_id, data=True)
-        
+
     @property
     def link_author(self):
         return Account._byID(self.link.author_id, data=True)
@@ -48,4 +48,4 @@ class Edit(Thing):
         """Used in the template to find the css class for each diff line"""
         if len(line)<=0: return ""
         return Edit.diff_marker_to_class.get(line[0],"")
-                    
+
