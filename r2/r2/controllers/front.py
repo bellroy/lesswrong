@@ -522,7 +522,7 @@ class FrontController(RedditController):
                 return self.redirect(redirect_link.already_submitted_link)
             
         captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
-        srs = Subreddit.submit_sr(c.user) if c.default_sr else ()
+        srs = Subreddit.submit_sr(c.user)
 
         # Set the default sr to the user's draft when creating a new article
         try:
@@ -542,7 +542,7 @@ class FrontController(RedditController):
               article = VSubmitLink('article'))
     def GET_editarticle(self, article):
         author = Account._byID(article.author_id, data=True)
-        subreddits = Subreddit.submit_sr(author) if c.default_sr else ()
+        subreddits = Subreddit.submit_sr(author)
         if c.user_is_admin:
             # Add this admin subreddits to the list
             if not subreddits:
