@@ -42,3 +42,4 @@ config/deploy/aws-test.rb
 exporter/*
 notes/*
 attic/*
+.dir-locals.el
