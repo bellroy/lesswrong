@@ -73,6 +73,8 @@ def make_map(global_conf={}, app_conf={}):
        action= 'comments', title=None, comment = None)
     mc('/edit/:article', controller='front', action="editarticle")
 
+    map.resource('meetup', 'meetups')
+
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
     mc('/', controller='root', action='listing')

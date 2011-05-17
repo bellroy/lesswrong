@@ -571,3 +571,9 @@ div.comment div.parent {
 .edit .orig-author .author {
     margin-right: 0;
 }
+/* Meetups */
+#map {
+  width: 640px;
+  height: 480px;
+}
+

@@ -131,6 +131,22 @@ class VLink(Validator):
                 else:
                     return None
 
+class VMeetup(Validator):
+    def __init__(self, param, redirect = True, *a, **kw):
+        Validator.__init__(self, param, *a, **kw)
+        self.redirect = redirect
+
+    def run(self, meetup_id36):
+        if meetup_id36:
+            try:
+                meetup_id = int(meetup_id36, 36)
+                return Meetup._byID(meetup_id, True)
+            except (NotFound, ValueError):
+                if self.redirect:
+                    abort(404, 'page not found')
+                else:
+                    return None
+
 class VTagByName(Validator):
     def __init__(self, param, *a, **kw):
         Validator.__init__(self, param, *a, **kw)

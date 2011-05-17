@@ -1358,3 +1358,11 @@ class SiteMeter(Wrapped):
 
 class NotEnoughKarmaToPost(Wrapped):
 	  pass
+
+class ShowMeetup(Wrapped):
+    """docstring for ShowMeetup"""
+    def __init__(self, meetup):
+        # title_params = {'title':_force_unicode(meetup.title), 'site' : c.site.title}
+        # title = strings.show_meetup_title % title_params
+        Wrapped.__init__(self, meetup = meetup)
+

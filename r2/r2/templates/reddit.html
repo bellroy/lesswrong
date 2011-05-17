@@ -111,6 +111,13 @@
   var _global_loading_tag = "${_('Loading...')}";
   
   google.load("feeds", "1");
+  /* Defer loading of Maps until its needed */
+  function loadMaps(callback) {
+    google.load("maps", "3", {
+      "callback" : callback,
+      "other_params": "sensor=false"
+    });
+  }
 </%def>
 
 <%def name="bodyHTML()">

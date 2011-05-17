@@ -51,6 +51,7 @@ from post import PostController
 from toolbar import ToolbarController
 from i18n import I18nController
 from promotecontroller import PromoteController
+from meetupscontroller import MeetupsController
 
 from querycontroller import QueryController
 
