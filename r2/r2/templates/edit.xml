@@ -1,0 +1,21 @@
+<%!
+   from r2.lib.template_helpers import add_sr, get_domain
+   from r2.lib.utils import rfc822format
+   from xml.sax import saxutils
+%>
+<% url = add_sr(thing.permalink, force_hostname = True) %>
+<item>
+  <title>${thing.link.title}</title>
+  <link>${url}</link>
+  <guid isPermaLink="false">${thing._fullname}</guid>
+  <pubDate>${rfc822format(thing._date)}</pubDate>
+  <description>
+	<% domain = get_domain(cname = c.cname, subreddit = False) %>
+    Edited by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    Original by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.link_author.name}&lt;/a&gt;
+    <% entities = {"\n": "&#x0a;"} %>
+    &lt;pre&gt;
+    ${saxutils.escape("\n".join(thing.diff[2:]), entities)}
+    &lt;/pre&gt;
+  </description>
+</item>

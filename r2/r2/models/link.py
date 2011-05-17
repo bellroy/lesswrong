@@ -98,19 +98,23 @@ class Link(Thing, Printable):
                 return links
 
         raise NotFound, 'Link "%s"' % url
-        
+
 
     def can_submit(self, user):
         if c.user_is_admin:
             return True
-        elif self.author_id == c.user._id:
-            # They can submit if they are the author and still have access
-            # to the subreddit of the article
-            sr = Subreddit._byID(self.sr_id, data=True)
-            return sr.can_submit(user)
         else:
-            return False
-            
+            sr = Subreddit._byID(self.sr_id, data=True)
+
+            if sr.is_editor(c.user):
+                return True
+            elif self.author_id == c.user._id:
+                # They can submit if they are the author and still have access
+                # to the subreddit of the article
+                return sr.can_submit(user)
+            else:
+                return False
+
     def is_blessed(self):
         return self.blessed
 
@@ -751,7 +755,6 @@ class CommentPermalink(Link):
     """Exists to gain a different render_class in Wrapped"""
     _nodb = True
 
-
 class TagExists(Exception): pass
 
 class Tag(Thing):
@@ -862,7 +865,6 @@ class Tag(Thing):
 
 class LinkTag(Relation(Link, Tag)):
     pass
-
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)

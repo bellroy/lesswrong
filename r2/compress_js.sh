@@ -45,10 +45,6 @@ done;
 sed 's/\$/ \$/g' $redditjs.tmp > $redditjs
 
 echo "Droppping md5s..."
-for file in *.js; do
-    cat $file | openssl md5  > $file.md5
-done
-for file in *.css
-do
+for file in *.{js,css,gif,png,jpg}; do
     cat $file | openssl md5  > $file.md5
 done

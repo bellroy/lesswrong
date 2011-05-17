@@ -77,7 +77,7 @@ def make_map(global_conf={}, app_conf={}):
     
     mc('/', controller='root', action='listing')
     
-    listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts"
+    listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits"
 
     mc('/:controller', action='listing',
        requirements=dict(controller=listing_controllers))

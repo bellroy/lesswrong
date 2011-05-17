@@ -1,0 +1,35 @@
+
+<%!
+from r2.lib.utils import prettytime
+from r2.models import Edit
+ %>
+
+<%namespace file="utils.html" import="separator,plain_link"/>
+<%inherit file="printable.html"/>
+
+
+
+<%def name="entry()">
+<% fullname = thing._fullname %>
+<div  id="display_${fullname}">
+  <div id="body_${fullname}">
+    <h2><a href="${thing.link.url}">${thing.link.title}</a></h2>
+    <div class="meta">
+      <span class="editor">Edited by&#32;${unsafe(self.author())}</span>
+      <span class="orig-author">(${unsafe(self.author(author=thing.link_author))})</span>
+      <span class="date">${prettytime(thing._date)}</span>
+    </div>
+    <div class="md">
+      <pre class="diff">
+%for l in thing.diff[2:]:
+<% style = Edit.diff_line_style(l) %><div class="${style}"><span class="${style}">${l}</span></div>
+%endfor
+      </pre>
+    </div>
+  </div>
+</div>
+</%def>
+
+## disable voting arrows
+<%def name="midcol()">
+</%def>
