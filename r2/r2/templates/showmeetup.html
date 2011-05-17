@@ -12,13 +12,16 @@
 </div><!-- .meta -->
 <div id="" class="content clear">
   ${unsafe(safemarkdown(thing.meetup.description))}
+  <strong>Where:</strong>
+  <span class="address">
+    ${thing.meetup.location}
+  </span>
   <div id="map"></div>
 </div><!-- .content -->
 <script type="text/javascript" charset="utf-8">
   document.observe("dom:loaded", function() {
-    return;
     loadMaps(function() {
-      var latlng = new google.maps.LatLng(-34.397, 150.644);
+      var latlng = new google.maps.LatLng(${thing.meetup.latitude}, ${thing.meetup.longitude});
       var myOptions = {
         zoom: 8,
         center: latlng,
@@ -30,7 +33,8 @@
         map: map,
         draggable: false,
         animation: google.maps.Animation.DROP,
-        position: latlng
+        position: latlng,
+        title: "${thing.meetup.title}"
       });
     });
   });
