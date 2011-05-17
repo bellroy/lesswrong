@@ -1,22 +1,17 @@
+<%!
+  from routes.util import url_for
+  from r2.lib.filters import safemarkdown
+  from r2.lib.utils import prettytime
+%>
 <h1>
-  <a href="/lw/5n4/buenos_aires_meetup_saturday_may_14th_3pm/">${thing.meetup.title}</a>
+  <a href="${url_for('meetup', id=thing.meetup._id)}">${thing.meetup.title}</a>
 </h1>
 <div class="meta clear">
-  <!--<span class="author"><a id="author_t3_5n4" href="http://lesswrong.com/user/benthamite/" name="author_t3_5n4">benthamite</a></span>-->
-  <span class="date">13 May 2011 09:15PM</span>
+##  ${unsafe(self.author(friend = thing.friend))}
+  <span class="date">${prettytime(thing.meetup._date)}</span>
 </div><!-- .meta -->
 <div id="" class="content clear">
-  <div class="md">
-    <div>
-      <p>
-        <strong>Where</strong>: <a href="http://goo.gl/AwKgD">Starbucks Coffe, Florida 1</a>,&nbsp;upstairs. &nbsp;(A copy of Greg Egan's book <em>Diaspora</em> will be displayed on our table.)
-      </p>
-      <p>
-        This will be the first Buenos Aires LessWrong meetup. &nbsp;Our nominal discussion topic will be <a href="http://wiki.lesswrong.com/wiki/Cognitive_biases">cognitive biases</a>, though we'll keep things flexible so that the conversation can move naturally towards other topics of interest and relevance. &nbsp;If you read and like this blog. and live in BA or just happen to be visiting the city, do join us. &nbsp;It will be a great opportunity to meet like-minded folks in the area.
-      </p>
-    </div>
-  </div>
-
+  ${unsafe(safemarkdown(thing.meetup.description))}
   <div id="map"></div>
 </div><!-- .content -->
 <script type="text/javascript" charset="utf-8">
