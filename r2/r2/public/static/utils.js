@@ -86,10 +86,13 @@ function buildParams(parameters) {
     return parameters;
 }
 
-var api_loc = '/api/';
-function redditRequest(op, parameters, worker_in, block) {
+function redditRequest(op, parameters, worker_in, block, api_loc) {
     var action = op;
     var worker = worker_in;
+    if (!api_loc) {
+      api_loc = '/api/';
+    }
+
     if (!parameters) {
         parameters = {};
     }
@@ -518,7 +521,7 @@ function change_state(link, type) {
     return false;
 }
 
-function post_form(form, where, statusfunc, nametransformfunc, block) {
+function post_form(form, where, statusfunc, nametransformfunc, block, api_loc) {
     var p = {uh: modhash};
     var id = _id(form);
     var status = $("status");
@@ -543,7 +546,7 @@ function post_form(form, where, statusfunc, nametransformfunc, block) {
             }
         }
     }
-    redditRequest(where, p, null, block); 
+    redditRequest(where, p, null, block, api_loc);
     return false;
 }
 

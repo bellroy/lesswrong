@@ -193,6 +193,8 @@ class Reddit(Wrapped):
 
             buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
+            buttons += [NamedButton('meetups/new', sr_path = not c.default_sr,
+                                    nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
             buttons += [NamedButton("logout", False,
@@ -1365,4 +1367,8 @@ class ShowMeetup(Wrapped):
         # title_params = {'title':_force_unicode(meetup.title), 'site' : c.site.title}
         # title = strings.show_meetup_title % title_params
         Wrapped.__init__(self, meetup = meetup)
+
+class NewMeetup(Wrapped):
+    def __init__(self, title= '', location = '', description = '', date = ''):
+        Wrapped.__init__(self, title = title, location = location, description = description, date = date)
 

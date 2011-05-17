@@ -88,6 +88,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      prefs        = _("Preferences"), 
                      stats        = _("Stats"), 
                      submit       = _("Create new article"),
+                     meetupsnew   = _("Create new meetup"),
                      help         = _("Help"),
                      blog         = _("Blog"),
                      logout       = _("Log out"),
@@ -319,7 +320,7 @@ class NamedButton(NavButton):
     separately)."""
     
     def __init__(self, name, sr_path = True, nocname=False, dest = None, **kw):
-        self.name = name.strip('/')
+        self.name = name.replace('/', '')
         NavButton.__init__(self, menu[self.name], name if dest is None else dest,
                            sr_path = sr_path, nocname=nocname, **kw)
 
