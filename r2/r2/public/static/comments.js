@@ -138,15 +138,28 @@ Comment.prototype.uncollapse = function() {
     hide(this.get('collapsed'));
 };
     
+function all_morechildren(elem) {
+  $$('.morechildren a').each(function(ahref, i) {
+    ahref.simulate('click');
+  });
+  return false;
+};
 
 function morechildren(form, link_id, children, depth) {
     var id = _id(form);
+    //console.log("id="+id+" form="+form+" link_id="+link_id+" children="+children+" depth="+depth);
     form.innerHTML = _global_loading_tag;
     form.style.color="red";
     redditRequest('morechildren', {link_id: link_id,
                 children: children, depth: depth, id: id});
     return false;
-}
+};
+
+// Display the 'load all comments' if there any to be loaded
+Event.observe(window, 'load', function() {
+  if ($$('.morechildren a').length > 0)
+    $$('#loadAllComments')[0].show();
+});
 
 
 function editcomment(id)  {

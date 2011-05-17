@@ -6,6 +6,9 @@
         ${menu.render()}
       </span>
     %endfor
+    <div id="loadAllComments" style="display: none;">
+      <a style="font-size: smaller; font-weight: bold; display: block; float: right;" href="javascript:void()" onclick="return all_morechildren(this)">Load all comments</a>
+    </div>
   </div>
   ${thing.content.render()}
 </div>
