@@ -43,3 +43,4 @@ exporter/*
 notes/*
 attic/*
 .dir-locals.el
+.Trashes/*
