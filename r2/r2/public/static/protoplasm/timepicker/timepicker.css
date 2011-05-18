@@ -1,0 +1,54 @@
+._pp_timepicker {
+	font-size: 16px;
+}
+._pp_timepicker td {
+	vertical-align: middle;
+}
+._pp_timepicker_input[type=text] {
+	border: 1px solid #999;
+	font-size: 16px;
+	width: 30px;
+	margin: 0 1px;
+	padding: 0;
+	text-align: center;
+}
+._pp_timepicker_down,
+._pp_timepicker_up {
+	cursor: pointer;
+	margin: 0 1px;
+	border: 1px solid #999;
+	background-position: center center;
+	background-repeat: no-repeat;
+	width: 30px;
+	height: 10px;
+}
+._pp_timepicker_up {
+	border-bottom: 0;
+	border-radius: 4px 4px 0 0;
+	-moz-border-radius: 4px 4px 0 0;
+	-webkit-border-radius: 4px 4px 0 0;
+	background-image: url(arrow-up.gif);
+}
+._pp_timepicker_down {
+	border-top: 0;
+	border-radius: 0 0 4px 4px;
+	-moz-border-radius: 0 0 4px 4px;
+	-webkit-border-radius: 0 0 4px 4px;
+	background-image: url(arrow-down.gif);
+}
+._pp_timepicker_ampm {
+	border: 1px solid #999;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	font-size: 11px;
+	margin: 2px;
+	padding: 3px;
+	cursor: pointer;
+	font-weight: bold;
+}
+._pp_timepicker_active {
+	background-color: #999;
+	border-color: #666;
+	color: #FFF;
+}

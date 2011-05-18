@@ -1,0 +1,53 @@
+ul._pp_treelist {
+	list-style: none;
+	padding: 0 0 2px 0;
+	margin: 0;
+	cursor: default;
+}
+
+ul._pp_treelist ul {
+	list-style: none;
+	margin: 0 0 0 10px;
+	padding: 0;
+}
+
+ul._pp_treelist li {
+	position: relative;
+	margin: 0 0 0 10px;
+	padding: 2px;
+}
+
+ul._pp_treelist li._pp_treelist_expandable {
+	padding-left: 0;
+}
+
+div._pp_treelist_icon {
+	width: 10px;
+	height: 10px;
+	background-image: url(collapsed.png);
+	position: absolute;
+	top: 5px;
+	left: -10px;
+}
+
+div._pp_treelist_icon:hover {
+	background-image: url(collapsed-hover.png);
+}
+
+div._pp_treelist_icon_expanded {
+	background-image: url(expanded.png);
+}
+
+div._pp_treelist_icon_expanded:hover {
+	background-image: url(expanded-hover.png);
+}
+
+._pp_treelist_selectable {
+	padding: 1px 3px;
+}
+
+ul._pp_treelist li._pp_treelist_loading {
+	font-style: italic;
+	padding-left: 20px;
+	background: left center no-repeat url(loading.gif);
+}

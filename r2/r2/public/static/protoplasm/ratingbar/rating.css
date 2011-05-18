@@ -1,0 +1,21 @@
+.rating_star {
+	float: left;
+	height: 20px;
+	width: 20px;
+	background: url(rating-star.png) no-repeat 0px 0px;
+}
+.rating_hover {
+	background: url(rating-star.png) no-repeat 0px -20px;
+}
+.rating_on {
+	background: url(rating-star.png) no-repeat 0px -40px;
+}
+.rating_half {
+	background: url(rating-star.png) no-repeat 0px -60px;
+}
+.rating_loading {
+	background: url(rating-loading.gif) no-repeat 2px 2px;
+	height: 20px;
+	width: 20px;
+	float: left;
+}

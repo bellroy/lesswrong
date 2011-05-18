@@ -1,0 +1,95 @@
+._pp_upload_input {
+	height: 16px;
+	width: 100px;
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 5px;
+}
+
+._pp_upload_input:hover {
+	background-color: #EEE;
+}
+
+ul._pp_upload_files li input,
+._pp_upload_input input {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 460px;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+ul._pp_upload_files {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+ul._pp_upload_files li {
+	margin-top: 2px;
+	border: 1px solid #999;
+	background-color: #EEE;
+	position: relative;
+	overflow: hidden;
+	min-width: 200px;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+ul._pp_upload_files li._pp_upload_success {
+	background-color: #CCFFCC;
+}
+ul._pp_upload_files li._pp_upload_error {
+	background-color: #FFCCCC;
+}
+
+._pp_upload_label {
+	position: relative;
+	padding: 3px;
+	margin: 0 3px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+._pp_upload_loading {
+	padding-left: 18px;
+	background: url('loading.gif') left 3px no-repeat;
+}
+
+._pp_upload_complete {
+	padding-left: 18px;
+	background: url('ok.png') left 3px no-repeat;
+	padding-right: 21px;
+}
+
+._pp_upload_failed {
+	padding-left: 18px;
+	background: url('warning.png') left 3px no-repeat;
+	padding-right: 21px;
+}
+
+._pp_upload_progress {
+	position: absolute;
+	background: #CCCCFF;
+	height: 100px;
+	top: 0;
+	left: 0;
+	width: 0;
+}
+
+._pp_upload_change {
+	position: relative;
+	float: right;
+	padding: 3px;
+	z-index: 2;
+}
+
+._pp_upload_complete ._pp_upload_change {
+	display: none;
+}
+
+._pp_upload_iframe {
+	display: none;
+}

@@ -1,0 +1,60 @@
+.treeselect {
+	position: relative;
+}
+
+.treeselect input[type=text],
+.treeselect div {
+	border: 1px solid #999;
+	width: 150px;
+	height: 18px;
+	padding: 1px;
+	margin: 1px 0;
+}
+
+.treeselect ul {
+	font-size: 10pt;
+	top: 0;
+	left: 168px;
+	width: 171px;
+	position: absolute;
+	display: none;
+	border-right: 1px solid #999;
+	border-bottom: 1px solid #999;
+	border-left: 1px solid #999;
+	list-style: none;
+	background-color: #FFF;
+	margin: 1px;
+	padding: 0;
+	border-collapse: collapse;
+}
+
+.treeselect > ul {
+	top: 21px;
+	left: -1px;
+}
+
+.treeselect li {
+	text-indent: 3px;
+	position: relative;
+	padding-top: 2px;
+	border-top: 1px solid #999;
+	background-color: #FFF;
+}
+
+.treeselect li.submenu {
+	background: url(/images/right_arrow_outline.gif) right center no-repeat;
+}
+
+.treeselect li:hover {
+	background-color: #EEE;
+	cursor: pointer;
+}
+
+.treeselect li.active {
+	background: url(/images/right_arrow_filled.gif) right center no-repeat;
+}
+
+.treeselect li.active:hover {
+	background: #EEE url(/images/right_arrow_filled.gif) right center no-repeat;
+}
+

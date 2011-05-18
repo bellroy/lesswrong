@@ -1,0 +1,29 @@
+#livegrid_header {
+	width: 600px;
+	background-color: #003366;
+}
+#livegrid_header th {
+	padding: 2px;
+	text-align: left;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+#livegrid {
+	width: 600px;
+}
+#livegrid tr, #livegrid tr.odd {
+	background-color: #EEEEEE;
+}
+#livegrid tr.even {
+	background-color: #FFFFFF;
+}
+#livegrid tr.selected {
+	background-color: #EBC2C0;
+}
+#livegrid td {
+	padding: 2px;
+	border-bottom: 1px solid #CCCCCC;
+	cursor: default;
+	overflow: hidden;
+	white-space: nowrap;
+}

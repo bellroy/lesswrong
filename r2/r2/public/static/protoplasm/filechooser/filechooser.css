@@ -1,0 +1,32 @@
+/*
+ * Styles for FileChooser
+ */
+
+._pp_filechooser {
+	padding:			3px;
+}
+
+._pp_filechooser,
+._pp_filechooser td,
+._pp_filechooser input {
+	font-size:			11px;
+}
+
+._pp_filechooser input[type=text] {
+	border:				1px solid #DDD;
+}
+
+._pp_filechooser_directoryheader {
+	border:				1px solid #CCCCCC;
+	background-color:	#FFFFFF;
+	padding:			2px;
+}
+
+._pp_filechooser_preview {
+	background-color:	#EEEEEE;
+}
+
+._pp_filechooser_filerow {
+	padding:			3px;
+	cursor:				default;
+}

@@ -1,0 +1,133 @@
+.rteToolbar {
+	background-color:			#EEEEEE;
+	border-top:					1px solid #FFFFFF;
+	border-right:				1px solid #CCCCCC;
+	border-bottom:				1px solid #CCCCCC;
+	padding:					2px;
+}
+
+.rteToolbarDisabled {
+	background-color:			#DDDDDD;
+}
+
+.rteVertSep {
+	margin-bottom:				3px;
+	margin-top:					3px;
+	margin-left:				4px;
+	margin-right:				4px;
+}
+
+hr.rteHorizSep {
+	color:				#CCCCCC;
+	background-color:	#CCCCCC;
+	height:				1px;
+	border:				0;
+	margin-top:			3px;
+	margin-bottom:		3px;
+	padding:			0;
+}
+
+.rteButton {
+	border:						1px solid #EEEEEE;
+	cursor:						default;
+}
+
+.rteToolbarDisabled .rteButton {
+	border:						1px solid #DDDDDD;
+}
+
+.rteButtonActive {
+	background-color:			#DDDDDD;
+	border-left:				1px solid #999999;
+	border-top:					1px solid #999999;
+	border-right:				1px solid #FFFFFF;
+	border-bottom:				1px solid #FFFFFF;
+}
+
+.rteButtonHover {
+	border:						1px solid #CCCCCC;
+	border-right:				1px solid #999999;
+	border-bottom:				1px solid #999999;
+	border-left:				1px solid #FFFFFF;
+	border-top:					1px solid #FFFFFF;
+}
+
+.rteEditor {
+	border-left:				1px solid #999999;
+	border-right:				1px solid #999999;
+	overflow:					auto;
+}
+
+.rteFooter {
+	background-color:			#EEEEEE;
+	border-top:					1px solid #FFFFFF;
+	border-bottom:				1px solid #CCCCCC;
+	border-right:				1px solid #CCCCCC;
+	padding:					2px;
+	font-size:					10pt;
+}
+
+.rteDialog {
+	background-color:			#EEEEEE;
+	border-bottom:				2px solid #CCCCCC;
+	border-top:					1px solid #DDDDDD;
+	border-right:				2px solid #CCCCCC;
+	border-left:				1px solid #DDDDDD;
+	font-size:					8pt;
+	padding:					5px;
+}
+
+.rteDialog td, .rteDialog input, .rteDialog select {
+	font-size:					8pt;
+}
+
+input.rteInput {
+	border:				1px solid gray;
+}
+
+.rteFileChooser, .rteFileChooser td, .rteFileChooser input, .rteFileChooser select {
+	font-size:			8pt;
+}
+
+.rteFileChooser input {
+	border:				1px solid gray;
+}
+
+.rteFileChooser .directoryheader {
+	border:				1px solid #CCCCCC;
+	background-color:	#FFFFFF;
+	padding:			2px;
+}
+
+.rteFileChooser .filelist {
+	background-color:	#FFFFFF;
+	border-top:			1px solid #CCCCCC;
+	border-left:		1px solid #CCCCCC;
+}
+
+.rteFileChooser .filepreview {
+	background-color:	#EEEEEE;
+	border-top:			1px solid #CCCCCC;
+	border-left:		1px solid #CCCCCC;
+	border-bottom:		1px solid #FFFFFF;
+	border-right:		1px solid #FFFFFF;
+}
+
+.rteFileChooser .filerow {
+	padding:			3px;
+	cursor:				default;
+}
+
+.rteFileChooser .selected, .rteFileChooser .selected td {
+	background-color:	#333399;
+	color:				#FFFFFF;
+}
+
+.rteFileChooser .prompt {
+	background-color:			#EEEEEE;
+	border-bottom:				1px solid #999999;
+	border-top:					10px solid #C0D8EA;
+	border-right:				1px solid #999999;
+	border-left:				1px solid #999999;
+	padding:					5px;
+}

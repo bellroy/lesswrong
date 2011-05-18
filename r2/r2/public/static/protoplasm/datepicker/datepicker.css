@@ -1,0 +1,103 @@
+/**
+ * Styles for DatePicker
+ */
+
+._pp_datepicker {
+	line-height: 15px;
+	display: inline-block;
+}
+
+._pp_datepicker_navigation {
+	text-align: center;
+	width: 180px;
+	margin: auto;
+}
+._pp_datepicker_today:hover,
+._pp_datepicker_next:hover,
+._pp_datepicker_previous:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+._pp_datepicker_next {
+	float: right;
+	width: 25px;
+}
+._pp_datepicker_previous {
+	float: left;
+	width: 25px;
+}
+
+._pp_datepicker_table {
+	border-collapse: collapse;
+	width: 180px;
+}
+._pp_datepicker_table th,
+._pp_datepicker_table td {
+	text-align: center;
+	padding: 1px;
+}
+
+._pp_datepicker td.day,
+._pp_datepicker td.dayothermonth {
+	cursor: pointer;
+	background-color: #FFFFFF;
+	border: 1px solid #EEEEEE;
+	width: 2em;
+}
+
+._pp_datepicker td.dayothermonth {
+	color: #999999;
+	font-style: italic;
+}
+
+._pp_datepicker td.day:hover {
+	background-color: #EBE4C0;
+} 
+
+._pp_datepicker td.weekend {
+	background-color: #CCCCCC;
+	font-style: italic;
+}
+
+._pp_datepicker td.today {
+	font-weight: bold;
+}
+
+._pp_datepicker td.current,
+._pp_datepicker td.current:hover {
+	font-weight: bold;
+	background-color: #EBC2C0;
+}
+._pp_datepicker td.rightrange {
+	background: url(right-range.png) #EBC2C0 right center no-repeat;
+}
+._pp_datepicker td.leftrange {
+	background: url(left-range.png) #EBC2C0 left center no-repeat;
+}
+._pp_datepicker td.singlerange {
+	background: url(single-range.png) #EBC2C0 center center no-repeat;
+}
+._pp_datepicker_weekselect {
+	width: 3px;
+	background-color: #999;
+	cursor: pointer;
+	border-radius: 5px 0 0 5px;
+	-moz-border-radius: 5px 0 0 5px;
+	-webkit-border-radius: 5px 0 0 5px;
+}
+
+._pp_datepicker button {
+	display: block;
+	width: 174px;
+	margin: 3px auto;
+	font-size: 11px;
+}
+._pp_datepicker td.currenthint {
+	background-color: #f2e0df;
+}
+._pp_datepicker td.disabled,
+._pp_datepicker td.disabled:hover {
+	background-color: #EEE;
+	color: #999999;
+	cursor: default;
+}
