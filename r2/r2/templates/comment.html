@@ -22,7 +22,7 @@
 
 <%!
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, clean_comment_html, unsafe_wrap_md, format_linebreaks
-   from r2.lib.utils import to36, prettytime
+   from r2.lib.utils import to36, prettytime, epochtime
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -73,7 +73,7 @@ ${parent.collapsed()}
     ${_("comment score below threshold")}
   %else:
     ##${thing.timesince} ${_("ago")}
-    <span class="comment-date">
+    <span class="comment-date" time="${epochtime(thing._date)}">
       ${prettytime(thing._date, seconds = True)}
       %if thing.editted:
         <em>*</em>&nbsp;

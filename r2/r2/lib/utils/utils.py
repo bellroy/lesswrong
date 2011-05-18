@@ -416,6 +416,12 @@ def timeuntil(d, resultion = 1, bare = True):
     from pylons import g
     return timetext(d - datetime.now(g.tz))
 
+def epochtime(date):
+    if not date:
+        return "0"
+    else:
+        return date.strftime("%s")
+
 def prettytime(date, seconds = False):
     return date.strftime('%d %B %Y %I:%M:%S%p' if seconds else '%d %B %Y %I:%M%p')
 
