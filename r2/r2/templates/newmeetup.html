@@ -5,54 +5,38 @@
 
 <h1>New Meetup</h1>
 
-<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup">
-<table>
-  <tr>
-    <th>
-      <label for="title">${_("Title")}:</label>
-    </th>
-    <td>
-      <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
-      ${error_field("NO_TITLE", "span")}
-      ${error_field("TITLE_TOO_LONG", "span")}
-    </td>
-  </tr>
-  <tr>
-    <th>
-      <label for="location">${_("Location")}:</label>
-    </th>
-    <td>
-      <input id="location" name="location" value="${thing.location}" type="text" />
-      ${error_field("NO_LOCATION", "span")}
-    </td>
-  </tr>
-  <tr>
-    <th>
-      <label for="description">${_("Description")}:</label>
-    </th>
-    <td>
-      <input id="description" name="description" value="${thing.description}" type="text" />
-      ${error_field("NO_DESCRIPTION", "span")}
-    </td>
-  </tr>
-  <tr>
-    <th>
-      <label for="date">${_("Date")}:</label>
-    </th>
-    <td>
-      <input id="date" name="date" value="${thing.date}" type="text" />
-      ${error_field("NO_DATE", "span")}
-    </td>
-  </tr>
-  <tr>
-    <td>
-    </td>
-    <td>
-      <button class="btn" type="submit">${_("Create Meetup")}</button>
-      <span id="status" class="error"></span>
-    </td>
-  </tr>
-</table>
+<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup">
+<fieldset>
+  <label for="title">${_("Title")}:</label>
+  <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
+  ${error_field("NO_TITLE", "span")}
+  ${error_field("TITLE_TOO_LONG", "span")}
+</fieldset>
 
+<fieldset>
+  <label for="location">${_("Location")}:</label>
+  <input id="location" name="location" value="${thing.location}" type="text" />
+  ${error_field("NO_LOCATION", "span")}
+</fieldset>
+
+<fieldset>
+  <label for="date">${_("Date")}:</label>
+  <input id="date" class="date" name="date" value="${thing.date}" type="text" />
+  ${error_field("NO_DATE", "span")}
+</fieldset>
+
+<fieldset>
+  <label for="description">${_("Description")}:</label>
+  <textarea id="description" name="description" rows="5" cols="35">
+  </textarea>
+  ${error_field("NO_DESCRIPTION", "span")}
+</fieldset>
+
+<button class="btn" type="submit">${_("Create Meetup")}</button>
+<span id="status" class="error"></span>
 </%utils:submit_form>
 
+<script type="text/javascript">
+  Protoplasm.use('timepicker'); /* Used by datepicker below */
+  Protoplasm.use('datepicker').transform('input.date', {epoch: true, timePicker: true});
+</script>
