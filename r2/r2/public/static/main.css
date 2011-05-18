@@ -313,6 +313,9 @@ div.message div.message div.message div.message div.message div.message div.mess
 div.message div.message div.message div.message div.message div.message div.message div.message div.message {
 	background-color: #f7f7f8;
 }
+.new-comment {
+    border: 2px solid red !important;
+}
 div.comment-meta {
 	padding: 0 5px;
 }
