@@ -721,7 +721,7 @@ class TopcommentsController(CommentsController):
 
 	@property
 	def menus(self):
-		return [TimeMenu(default = self.time)]
+		return [TimeMenu(default = self.time, title = _('Comments from'))]
 
 	@validate(time = VMenu('where', TimeMenu))
 	def GET_listing(self, time, **env):
