@@ -219,7 +219,16 @@ class Link(Thing, Printable):
         return cls._somethinged(Click, user, link, 'click')
 
     def _click(self, user):
-        return self._something(Click, user, self._clicked, 'click')
+        try:
+            saved = Click(user, self, name='click')
+            saved._commit()
+            return saved
+        except CreationError, e:
+            c = Link._clicked(user,self)
+            obj = c[(user,self,'click')]
+            obj._date = datetime.now(g.tz)
+            obj._commit()
+            return c
 
     @classmethod
     def _hidden(cls, user, link):
@@ -329,8 +338,8 @@ class Link(Thing, Printable):
 
         saved = Link._saved(user, wrapped) if user else {}
         hidden = Link._hidden(user, wrapped) if user else {}
-        #clicked = Link._clicked(user, wrapped) if user else {}
-        clicked = {}
+        clicked = Link._clicked(user, wrapped) if user else {}
+        #clicked = {}
 
         for item in wrapped:
             show_media = False
@@ -359,7 +368,7 @@ class Link(Thing, Printable):
             item.urlprefix = ''
             item.saved = bool(saved.get((user, item, 'save')))
             item.hidden = bool(hidden.get((user, item, 'hide')))
-            item.clicked = bool(clicked.get((user, item, 'click')))
+            item.clicked = clicked.get((user, item, 'click'))
             item.num = None
             item.score_fmt = Score.signed_number
             item.permalink = item.make_permalink(item.subreddit)

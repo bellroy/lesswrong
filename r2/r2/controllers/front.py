@@ -209,6 +209,9 @@ class FrontController(RedditController):
                            content = content, 
                            infotext = infotext,
                            is_canonical = bool(not request.GET)).render()
+
+        article._click(c.user)
+
         return res
 
     @validate(VUser(),
