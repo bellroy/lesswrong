@@ -714,4 +714,16 @@ class TopcommentsController(CommentsController):
 		if not c.user_is_admin:
 			q._filter(Comment.c._spam == False)
 
+		if self.time != 'all':
+			q._filter(queries.db_times[self.time])
+
 		return q
+
+	@property
+	def menus(self):
+		return [TimeMenu(default = self.time)]
+
+	@validate(time = VMenu('where', TimeMenu))
+	def GET_listing(self, time, **env):
+		self.time = time
+		return CommentsController.GET_listing(self, **env)
