@@ -155,10 +155,28 @@ function morechildren(form, link_id, children, depth) {
     return false;
 };
 
+function getAttrTime(e) { return parseInt(e.readAttribute('time')); }
+
+function highlightNewComments() {
+  var last = getAttrTime($$('#lastViewed')[0]);
+  console.log(last);
+  var n=0;
+  $$('div.comment').each(function(div, i) {
+    var t = getAttrTime(div.select('.comment-date')[0]);
+    if (last<t) {
+      div.addClasName('new-comment')
+      n++;
+    }
+  });
+  console.log("new = "+n);
+}
+
 // Display the 'load all comments' if there any to be loaded
 Event.observe(window, 'load', function() {
   if ($$('.morechildren a').length > 0)
     $$('#loadAllComments')[0].show();
+
+  highlightNewComments();
 });
 
 

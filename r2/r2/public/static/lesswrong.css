@@ -577,3 +577,6 @@ div.comment div.parent {
   height: 480px;
 }
 
+.new-comment {
+  background-color: orange;
+}
