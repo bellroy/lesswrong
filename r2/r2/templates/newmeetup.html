@@ -1,11 +1,12 @@
 <%!
+  from r2.lib.template_helpers import static
   from routes.util import url_for
 %>
 <%namespace name="utils" file="utils.html" import="error_field, submit_form"/>
 
 <h1>New Meetup</h1>
 
-<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0">
+<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0" latitude="0" longitude="0">
 <fieldset>
   <label for="title">${_("Title")}:</label>
   <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
@@ -16,6 +17,8 @@
 <fieldset>
   <label for="location">${_("Location")}:</label>
   <input id="location" name="location" value="${thing.location}" type="text" />
+  <img id="geocode_status" src="${static('spinner.gif')}" alt="status" style="display: none;" />
+  <div id="geocoded_location">Enter the meetup address above</div>
   ${error_field("NO_LOCATION", "span")}
 </fieldset>
 
@@ -37,13 +40,4 @@
 <span id="status" class="error"></span>
 </%utils:submit_form>
 
-<script type="text/javascript">
-  function updateTimezone(date) {
-    $$('input[name="tzoffset"]').each(function(el) {
-      el.setValue(date.getTimezoneOffset() / -60)
-    });
-  }
-
-  Protoplasm.use('timepicker'); /* Used by datepicker below */
-  Protoplasm.use('datepicker').transform('input.date', {epoch: true, timePicker: true, onSelect: updateTimezone});
-</script>
+<script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>

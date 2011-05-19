@@ -2,40 +2,22 @@
   from routes.util import url_for
   from r2.lib.filters import safemarkdown
   from r2.lib.utils import prettytime
+  from r2.lib.template_helpers import static
 %>
+<% meetup = thing.meetup %>
 <h1>
-  <a href="${url_for('meetup', id=thing.meetup._id)}">${thing.meetup.title}</a>
+  <a href="${url_for('meetup', id=meetup._id)}">${meetup.title}</a>
 </h1>
 <div class="meta clear">
 ##  ${unsafe(self.author(friend = thing.friend))}
-  <span class="date">${prettytime(thing.meetup.datetime())}</span>
+  <span class="date">${prettytime(meetup.datetime())}</span>
 </div><!-- .meta -->
 <div id="" class="content clear">
-  ${unsafe(safemarkdown(thing.meetup.description))}
+  ${unsafe(safemarkdown(meetup.description))}
   <strong>Where:</strong>
   <span class="address">
-    ${thing.meetup.location}
+    ${meetup.location}
   </span>
-  <div id="map"></div>
+  <div id="map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
 </div><!-- .content -->
-<script type="text/javascript" charset="utf-8">
-  document.observe("dom:loaded", function() {
-    loadMaps(function() {
-      var latlng = new google.maps.LatLng(${thing.meetup.latitude}, ${thing.meetup.longitude});
-      var myOptions = {
-        zoom: 8,
-        center: latlng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-
-      var map = new google.maps.Map($("map"), myOptions);
-      var marker = new google.maps.Marker({
-        map: map,
-        draggable: false,
-        animation: google.maps.Animation.DROP,
-        position: latlng,
-        title: "${thing.meetup.title}"
-      });
-    });
-  });
-</script>
+<script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>

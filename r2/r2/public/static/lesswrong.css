@@ -576,7 +576,6 @@ div.comment div.parent {
   width: 640px;
   height: 480px;
 }
-
 .pretty-form.meetup label {
   font-weight: bold;
   float: left;
@@ -585,6 +584,7 @@ div.comment div.parent {
 .pretty-form.meetup input,
 .pretty-form.meetup textarea {
   width: 400px;
+  float: left;
 }
 .pretty-form.meetup input.date {
   width: 142px;
@@ -601,4 +601,14 @@ div.comment div.parent {
 .pretty-form.meetup #NO_DESCRIPTION {
   margin: 0 0 5px 106px;
   display: block;
+}
+.pretty-form.meetup #geocoded_location {
+  margin-left: 106px;
+  clear: left;
+}
+.pretty-form.meetup #geocode_status {
+  display: block;
+  width: 16px;
+  height: 16px;
+  padding: 4px 0;
 }

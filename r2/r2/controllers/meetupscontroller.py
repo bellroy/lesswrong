@@ -27,9 +27,11 @@ class MeetupsController(RedditController):
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),
             location = VRequired('location', errors.NO_LOCATION),
+            latitude = VFloat('latitude', error=errors.NO_LOCATION),
+            longitude = VFloat('longitude', error=errors.NO_LOCATION),
             timestamp = VFloat('timestamp', error=errors.INVALID_DATE),
             tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
-  def POST_create(self, res, title, description, location, timestamp, tzoffset):
+  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset):
     if res._chk_error(errors.NO_TITLE):
       res._chk_error(errors.TITLE_TOO_LONG)
       res._focus('title')
@@ -47,8 +49,8 @@ class MeetupsController(RedditController):
 
     # TODO: Geocode
     meetup.location = location
-    meetup.latitude = -37.808987
-    meetup.longitude = 144.951864
+    meetup.latitude = latitude
+    meetup.longitude = longitude
 
     meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
     meetup.tzoffset = tzoffset
