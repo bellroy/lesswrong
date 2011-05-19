@@ -6,6 +6,6 @@ from r2.lib.utils import FixedOffset
 
 class Meetup(Thing):
   def datetime(self):
-    utc_timestamp = datetime.fromtimestamp(self.timestamp, pytz.timezone('utc'))
+    utc_timestamp = datetime.fromtimestamp(self.timestamp, pytz.utc)
     tz = FixedOffset(self.tzoffset, None)
-    return utc_timestamp.astimezone( tz )
+    return utc_timestamp.astimezone(tz)
