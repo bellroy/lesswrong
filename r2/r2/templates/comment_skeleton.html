@@ -53,12 +53,12 @@ ${self.tagline(True)}
        ${(not collapse and "style='display:none'" or "")}>
     ${self.collapsed()}
   </div>
-  <div id="display_${fullname}" class="${focal} ${retractedClass}"
+  <div id="display_${fullname}" class="${focal}"
        ${(collapse and "style='display:none'" or "")}>
     <div class="comment-meta clear">
       ${self.tagline()}
     </div>
-    <div id="body_${fullname}" class="comment-content">
+    <div id="body_${fullname}" class="comment-content ${retractedClass}">
       ${self.commentBody()}
     </div>
     <div style="display: none;" \
