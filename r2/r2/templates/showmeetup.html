@@ -8,7 +8,7 @@
 </h1>
 <div class="meta clear">
 ##  ${unsafe(self.author(friend = thing.friend))}
-  <span class="date">${prettytime(thing.meetup._date)}</span>
+  <span class="date">${prettytime(thing.meetup.datetime())}</span>
 </div><!-- .meta -->
 <div id="" class="content clear">
   ${unsafe(safemarkdown(thing.meetup.description))}

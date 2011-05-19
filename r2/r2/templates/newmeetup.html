@@ -5,7 +5,7 @@
 
 <h1>New Meetup</h1>
 
-<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup">
+<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0">
 <fieldset>
   <label for="title">${_("Title")}:</label>
   <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
@@ -20,16 +20,17 @@
 </fieldset>
 
 <fieldset>
-  <label for="date">${_("Date")}:</label>
-  <input id="date" class="date" name="date" value="${thing.date}" type="text" />
-  ${error_field("NO_DATE", "span")}
-</fieldset>
-
-<fieldset>
   <label for="description">${_("Description")}:</label>
   <textarea id="description" name="description" rows="5" cols="35">
   </textarea>
   ${error_field("NO_DESCRIPTION", "span")}
+</fieldset>
+
+<fieldset>
+  <label for="date">${_("Date")}:</label>
+  <input id="date" class="date" name="timestamp" value="${thing.date}" type="text" />
+  ${error_field("NO_DATE", "span")}
+  ${error_field("INVALID_DATE", "span")}
 </fieldset>
 
 <button class="btn" type="submit">${_("Create Meetup")}</button>
@@ -37,6 +38,12 @@
 </%utils:submit_form>
 
 <script type="text/javascript">
+  function updateTimezone(date) {
+    $$('input[name="tzoffset"]').each(function(el) {
+      el.setValue(date.getTimezoneOffset() / -60)
+    });
+  }
+
   Protoplasm.use('timepicker'); /* Used by datepicker below */
-  Protoplasm.use('datepicker').transform('input.date', {epoch: true, timePicker: true});
+  Protoplasm.use('datepicker').transform('input.date', {epoch: true, timePicker: true, onSelect: updateTimezone});
 </script>
