@@ -72,7 +72,8 @@ error_list = dict((
         ('NO_EMAILS', _('Please enter at least one email address')),
         ('TOO_MANY_EMAILS', _('Please only share to %(num)s emails at a time.')),
         ('NO_LOCATION', _('You must supply a location')),
-        ('NO_DATE', _('You must supply a date')),
+        ('NO_DATE', _('The time and date of the meetup is required')),
+        ('INVALID_DATE', _('Must be a valid date and time')),
         ('NO_DESCRIPTION', _('You must supply a description')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
