@@ -542,6 +542,20 @@ class ApiController(RedditController):
                 queries.new_comment(thing, None)
 
     @Json
+    @validate(VUser(),
+              VModhash(),
+              thing = VByNameIfAuthor('id'))
+    def POST_retract(self, res, thing):
+        '''for retracting comments'''
+
+        if isinstance(thing, Comment):
+            thing.retracted = True
+            thing._commit()
+            if g.use_query_cache:
+                queries.new_comment(thing, None)
+
+
+    @Json
     @validate(VUser(), VModhash(),
               thing = VByName('id'))
     def POST_report(self, res, thing):
@@ -726,7 +740,8 @@ class ApiController(RedditController):
                else None)
 
         # Ensure authors can't vote on their own posts / comments
-        if thing and thing.author_id != c.user._id:
+        # Cannot vote on retracted items
+        if thing and thing.author_id != c.user._id and not thing.retracted:
             try:
                 organic = vote_type == 'organic'
                 v = Vote.vote(user, thing, dir, ip, spam, organic)
