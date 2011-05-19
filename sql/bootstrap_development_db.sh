@@ -7,5 +7,5 @@ for db in $dbs; do
     sudo -u postgres createdb -E utf8 $db
 done
 
-psql -U reddit -W < sql/functions.sql
-psql -U reddit -d reddit_test -W < sql/functions.sql
+psql -h localhost -U reddit -d reddit < sql/functions.sql
+psql -h localhost -U reddit -d reddit_test < sql/functions.sql
