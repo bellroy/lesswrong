@@ -24,6 +24,7 @@ import random, string
 from r2.config import cache
 from Captcha.Base import randomIdentifier
 from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha
+from pylons import g
 
 IDEN_LENGTH = 32
 SOL_LENGTH = 6
@@ -52,10 +53,12 @@ def get_image(iden):
     if not solution:
         solution = make_solution()
         cache.set(str(iden), solution, time = 300)
-    g = RandCaptcha(solution=solution)
-    return g.render()
+    r = RandCaptcha(solution=solution)
+    return r.render()
 
 def valid_solution(iden, solution):
+    if getattr(g,'disable_captcha', False):
+        return True
     if (not iden
         or not solution
         or len(iden) != IDEN_LENGTH
