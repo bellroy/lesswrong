@@ -580,19 +580,25 @@ div.comment div.parent {
 .pretty-form.meetup label {
   font-weight: bold;
   float: left;
-  line-height: 14px;
   width: 100px;
 }
 .pretty-form.meetup input,
 .pretty-form.meetup textarea {
-  width: 450px;
+  width: 400px;
 }
 .pretty-form.meetup input.date {
-  width: 432px;
+  width: 142px;
   padding-right: 20px;
 }
 .pretty-form fieldset {
   border: none;
   margin: 0;
   padding: 0;
+}
+.pretty-form.meetup button.btn {
+  margin-left: 0;
+}
+.pretty-form.meetup #NO_DESCRIPTION {
+  margin: 0 0 5px 106px;
+  display: block;
 }
