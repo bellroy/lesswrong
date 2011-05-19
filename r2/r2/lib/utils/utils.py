@@ -27,7 +27,7 @@ from copy import deepcopy
 import cPickle as pickle
 import re, datetime, math, random, string, os, yaml
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from pylons.i18n import ungettext, _
 from r2.lib.filters import _force_unicode
 from mako.filters import url_escape, url_unescape
@@ -1017,4 +1017,21 @@ def trace(fn):
                     % (fn,a,kw,ret))
         return ret
     return new_fn
+
+# A class building tzinfo objects for a fixed offset.
+class FixedOffset(tzinfo):
+    """Fixed offset in hours east from UTC. name may be None"""
+    def __init__(self, offset, name):
+        self.offset = timedelta(hours = offset)
+        self.name = name
+        # tzinfo.__init__(self, name)
+
+    def utcoffset(self, dt):
+        return self.offset
+
+    def tzname(self, dt):
+        return self.name
+
+    def dst(self, dt):
+        return timedelta(0)
 
