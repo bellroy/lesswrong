@@ -517,6 +517,10 @@ class UserController(ListingController):
         if not vuser:
             return self.abort404()
 
+        # pretend deleted users don't exist (although they are in the db still)
+        if vuser._deleted:
+            return self.abort404()
+
         # hide spammers profile pages
         if (not c.user_is_loggedin or
             (c.user._id != vuser._id and not c.user_is_admin)) \
