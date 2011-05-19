@@ -108,6 +108,21 @@ describe 'Lesswrong' do
     # This find will wait for the ajax to complete before our 'all' assertion below
     find('#article_nav_controls li')
     all('#article_nav_controls li').size.should >1
+    click_on 'Log out'
+  end
+
+  it 'can delete user' do
+    login('test_user')
+    click_on 'Preferences'
+    click_link 'Delete'
+
+    all("input[value=Yes]").each do |s|
+      s.select_option
+    end
+    click_button 'Delete'
+
+    visit(@home+'/user/test_user')
+    page.should have_content('The page you requested does not exist')
   end
 
   xit 'should have a "load all comments" link' do
