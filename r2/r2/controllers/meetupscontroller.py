@@ -50,7 +50,7 @@ class MeetupsController(RedditController):
     meetup.latitude = -37.808987
     meetup.longitude = 144.951864
 
-    meetup.timestamp = timestamp # In UTC
+    meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
     meetup.tzoffset = tzoffset
 
     meetup._commit()
