@@ -616,6 +616,28 @@ class VInt(Validator):
         except ValueError:
             c.errors.add(errors.BAD_NUMBER)
 
+class VFloat(Validator):
+    def __init__(self, param, min=None, max=None, error=errors.BAD_NUMBER, *a, **kw):
+        self.min = min
+        self.max = max
+        self.error = error
+        Validator.__init__(self, param, *a, **kw)
+
+    def run(self, val):
+        if not val:
+            c.errors.add(self.error)
+            return
+
+        try:
+            val = float(val)
+            if self.min is not None and val < self.min:
+                val = self.min
+            elif self.max is not None and val > self.max:
+                val = self.max
+            return val
+        except ValueError:
+            c.errors.add(self.error)
+
 class VCssName(Validator):
     """
     returns a name iff it consists of alphanumeric characters and
