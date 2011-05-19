@@ -508,7 +508,7 @@ class ApiController(RedditController):
               areyousure2 = nop('areyousure2'),
               areyousure3 = nop('areyousure3'))
     def POST_delete_user(self, res, areyousure1, areyousure2, areyousure3):
-        if areyousure1 == areyousure2 == areyousure3 == 'yes':
+        if areyousure1 == areyousure2 == areyousure3 == 'Yes':
             c.user.delete()
             res._redirect('/?deleted=true')
         else:
