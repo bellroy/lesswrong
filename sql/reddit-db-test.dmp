@@ -1,0 +1,4945 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+SET search_path = public, pg_catalog;
+
+--
+-- Name: base_url(text); Type: FUNCTION; Schema: public; Owner: reddit
+--
+
+CREATE FUNCTION base_url(url text) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+    select substring($1 from E'(?i)(?:.+?://)?(?:www[\\d]*\\.)?([^#]*[^#/])/?')
+$_$;
+
+
+ALTER FUNCTION public.base_url(url text) OWNER TO reddit;
+
+--
+-- Name: controversy(integer, integer); Type: FUNCTION; Schema: public; Owner: reddit
+--
+
+CREATE FUNCTION controversy(ups integer, downs integer) RETURNS double precision
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+    select cast(($1 + $2) as float)/(abs($1 - $2)+1)
+$_$;
+
+
+ALTER FUNCTION public.controversy(ups integer, downs integer) OWNER TO reddit;
+
+--
+-- Name: hot(integer, integer, timestamp with time zone); Type: FUNCTION; Schema: public; Owner: reddit
+--
+
+CREATE FUNCTION hot(ups integer, downs integer, date timestamp with time zone) RETURNS numeric
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+    select round(cast(log(greatest(abs($1 - $2), 1)) + sign($1 - $2) * (date_part('epoch', $3) - 1134028003) / 45000.0 as numeric), 7)
+$_$;
+
+
+ALTER FUNCTION public.hot(ups integer, downs integer, date timestamp with time zone) OWNER TO reddit;
+
+--
+-- Name: ip_network(text); Type: FUNCTION; Schema: public; Owner: reddit
+--
+
+CREATE FUNCTION ip_network(ip text) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+    select substring($1 from E'[\\d]+\.[\\d]+\.[\\d]+')
+$_$;
+
+
+ALTER FUNCTION public.ip_network(ip text) OWNER TO reddit;
+
+--
+-- Name: score(integer, integer); Type: FUNCTION; Schema: public; Owner: reddit
+--
+
+CREATE FUNCTION score(ups integer, downs integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+    select $1 - $2
+$_$;
+
+
+ALTER FUNCTION public.score(ups integer, downs integer) OWNER TO reddit;
+
+--
+-- Name: active; Type: VIEW; Schema: public; Owner: reddit
+--
+
+CREATE VIEW active AS
+    SELECT pg_stat_activity.procpid, (now() - pg_stat_activity.query_start) AS t, pg_stat_activity.current_query FROM pg_stat_activity WHERE (pg_stat_activity.current_query <> '<IDLE>'::text) ORDER BY (now() - pg_stat_activity.query_start);
+
+
+ALTER TABLE public.active OWNER TO reddit;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: reddit_data_account; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_account (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_account OWNER TO reddit;
+
+--
+-- Name: reddit_data_account_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_account_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_account_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_account_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_account_thing_id_seq OWNED BY reddit_data_account.thing_id;
+
+
+--
+-- Name: reddit_data_account_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_account_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_comment (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_comment OWNER TO reddit;
+
+--
+-- Name: reddit_data_comment_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_comment_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_comment_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_comment_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_comment_thing_id_seq OWNED BY reddit_data_comment.thing_id;
+
+
+--
+-- Name: reddit_data_comment_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_comment_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_edit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_edit (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_edit OWNER TO reddit;
+
+--
+-- Name: reddit_data_edit_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_edit_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_edit_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_edit_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_edit_thing_id_seq OWNED BY reddit_data_edit.thing_id;
+
+
+--
+-- Name: reddit_data_edit_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_edit_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_link (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_link OWNER TO reddit;
+
+--
+-- Name: reddit_data_link_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_link_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_link_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_link_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_link_thing_id_seq OWNED BY reddit_data_link.thing_id;
+
+
+--
+-- Name: reddit_data_link_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_link_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_meetup; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_meetup (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_meetup OWNER TO reddit;
+
+--
+-- Name: reddit_data_meetup_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_meetup_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_meetup_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_meetup_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_meetup_thing_id_seq OWNED BY reddit_data_meetup.thing_id;
+
+
+--
+-- Name: reddit_data_meetup_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_meetup_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_message (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_message OWNER TO reddit;
+
+--
+-- Name: reddit_data_message_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_message_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_message_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_message_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_message_thing_id_seq OWNED BY reddit_data_message.thing_id;
+
+
+--
+-- Name: reddit_data_message_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_message_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_click; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_click (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_click OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_click_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_click_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_click_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_click_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_click_thing_id_seq OWNED BY reddit_data_rel_click.thing_id;
+
+
+--
+-- Name: reddit_data_rel_click_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_click_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_friend; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_friend (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_friend OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_friend_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_friend_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_friend_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_friend_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_friend_thing_id_seq OWNED BY reddit_data_rel_friend.thing_id;
+
+
+--
+-- Name: reddit_data_rel_friend_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_friend_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_inbox_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_inbox_account_comment (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_inbox_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_inbox_account_comment_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_inbox_account_comment_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_inbox_account_comment_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_inbox_account_comment_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_inbox_account_comment_thing_id_seq OWNED BY reddit_data_rel_inbox_account_comment.thing_id;
+
+
+--
+-- Name: reddit_data_rel_inbox_account_comment_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_inbox_account_comment_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_inbox_account_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_inbox_account_message (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_inbox_account_message OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_inbox_account_message_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_inbox_account_message_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_inbox_account_message_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_inbox_account_message_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_inbox_account_message_thing_id_seq OWNED BY reddit_data_rel_inbox_account_message.thing_id;
+
+
+--
+-- Name: reddit_data_rel_inbox_account_message_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_inbox_account_message_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_linktag; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_linktag (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_linktag OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_linktag_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_linktag_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_linktag_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_linktag_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_linktag_thing_id_seq OWNED BY reddit_data_rel_linktag.thing_id;
+
+
+--
+-- Name: reddit_data_rel_linktag_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_linktag_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_report_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_report_account_comment (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_report_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_comment_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_report_account_comment_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_report_account_comment_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_comment_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_report_account_comment_thing_id_seq OWNED BY reddit_data_rel_report_account_comment.thing_id;
+
+
+--
+-- Name: reddit_data_rel_report_account_comment_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_report_account_comment_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_report_account_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_report_account_link (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_report_account_link OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_link_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_report_account_link_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_report_account_link_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_link_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_report_account_link_thing_id_seq OWNED BY reddit_data_rel_report_account_link.thing_id;
+
+
+--
+-- Name: reddit_data_rel_report_account_link_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_report_account_link_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_report_account_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_report_account_message (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_report_account_message OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_message_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_report_account_message_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_report_account_message_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_message_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_report_account_message_thing_id_seq OWNED BY reddit_data_rel_report_account_message.thing_id;
+
+
+--
+-- Name: reddit_data_rel_report_account_message_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_report_account_message_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_report_account_subreddit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_report_account_subreddit (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_report_account_subreddit OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_subreddit_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_report_account_subreddit_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_report_account_subreddit_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_report_account_subreddit_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_report_account_subreddit_thing_id_seq OWNED BY reddit_data_rel_report_account_subreddit.thing_id;
+
+
+--
+-- Name: reddit_data_rel_report_account_subreddit_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_report_account_subreddit_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_savehide; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_savehide (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_savehide OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_savehide_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_savehide_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_savehide_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_savehide_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_savehide_thing_id_seq OWNED BY reddit_data_rel_savehide.thing_id;
+
+
+--
+-- Name: reddit_data_rel_savehide_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_savehide_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_srmember; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_srmember (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_srmember OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_srmember_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_srmember_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_srmember_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_srmember_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_srmember_thing_id_seq OWNED BY reddit_data_rel_srmember.thing_id;
+
+
+--
+-- Name: reddit_data_rel_srmember_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_srmember_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_vote_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_vote_account_comment (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_vote_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_vote_account_comment_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_vote_account_comment_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_vote_account_comment_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_vote_account_comment_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_vote_account_comment_thing_id_seq OWNED BY reddit_data_rel_vote_account_comment.thing_id;
+
+
+--
+-- Name: reddit_data_rel_vote_account_comment_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_vote_account_comment_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_rel_vote_account_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_rel_vote_account_link (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_rel_vote_account_link OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_vote_account_link_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_rel_vote_account_link_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_rel_vote_account_link_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_rel_vote_account_link_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_rel_vote_account_link_thing_id_seq OWNED BY reddit_data_rel_vote_account_link.thing_id;
+
+
+--
+-- Name: reddit_data_rel_vote_account_link_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_rel_vote_account_link_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_subreddit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_subreddit (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_subreddit OWNER TO reddit;
+
+--
+-- Name: reddit_data_subreddit_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_subreddit_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_subreddit_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_subreddit_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_subreddit_thing_id_seq OWNED BY reddit_data_subreddit.thing_id;
+
+
+--
+-- Name: reddit_data_subreddit_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_subreddit_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_data_tag; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_data_tag (
+    thing_id bigint NOT NULL,
+    key text NOT NULL,
+    value text,
+    kind text
+);
+
+
+ALTER TABLE public.reddit_data_tag OWNER TO reddit;
+
+--
+-- Name: reddit_data_tag_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_data_tag_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_data_tag_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_data_tag_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_data_tag_thing_id_seq OWNED BY reddit_data_tag.thing_id;
+
+
+--
+-- Name: reddit_data_tag_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_data_tag_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_click; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_click (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_click OWNER TO reddit;
+
+--
+-- Name: reddit_rel_click_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_click_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_click_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_click_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_click_rel_id_seq OWNED BY reddit_rel_click.rel_id;
+
+
+--
+-- Name: reddit_rel_click_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_click_rel_id_seq', 1, true);
+
+
+--
+-- Name: reddit_rel_friend; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_friend (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_friend OWNER TO reddit;
+
+--
+-- Name: reddit_rel_friend_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_friend_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_friend_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_friend_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_friend_rel_id_seq OWNED BY reddit_rel_friend.rel_id;
+
+
+--
+-- Name: reddit_rel_friend_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_friend_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_inbox_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_inbox_account_comment (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_inbox_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_rel_inbox_account_comment_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_inbox_account_comment_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_inbox_account_comment_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_inbox_account_comment_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_inbox_account_comment_rel_id_seq OWNED BY reddit_rel_inbox_account_comment.rel_id;
+
+
+--
+-- Name: reddit_rel_inbox_account_comment_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_inbox_account_comment_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_inbox_account_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_inbox_account_message (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_inbox_account_message OWNER TO reddit;
+
+--
+-- Name: reddit_rel_inbox_account_message_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_inbox_account_message_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_inbox_account_message_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_inbox_account_message_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_inbox_account_message_rel_id_seq OWNED BY reddit_rel_inbox_account_message.rel_id;
+
+
+--
+-- Name: reddit_rel_inbox_account_message_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_inbox_account_message_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_linktag; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_linktag (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_linktag OWNER TO reddit;
+
+--
+-- Name: reddit_rel_linktag_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_linktag_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_linktag_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_linktag_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_linktag_rel_id_seq OWNED BY reddit_rel_linktag.rel_id;
+
+
+--
+-- Name: reddit_rel_linktag_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_linktag_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_report_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_report_account_comment (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_report_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_comment_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_report_account_comment_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_report_account_comment_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_comment_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_report_account_comment_rel_id_seq OWNED BY reddit_rel_report_account_comment.rel_id;
+
+
+--
+-- Name: reddit_rel_report_account_comment_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_report_account_comment_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_report_account_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_report_account_link (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_report_account_link OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_link_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_report_account_link_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_report_account_link_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_link_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_report_account_link_rel_id_seq OWNED BY reddit_rel_report_account_link.rel_id;
+
+
+--
+-- Name: reddit_rel_report_account_link_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_report_account_link_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_report_account_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_report_account_message (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_report_account_message OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_message_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_report_account_message_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_report_account_message_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_message_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_report_account_message_rel_id_seq OWNED BY reddit_rel_report_account_message.rel_id;
+
+
+--
+-- Name: reddit_rel_report_account_message_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_report_account_message_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_report_account_subreddit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_report_account_subreddit (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_report_account_subreddit OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_subreddit_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_report_account_subreddit_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_report_account_subreddit_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_report_account_subreddit_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_report_account_subreddit_rel_id_seq OWNED BY reddit_rel_report_account_subreddit.rel_id;
+
+
+--
+-- Name: reddit_rel_report_account_subreddit_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_report_account_subreddit_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_savehide; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_savehide (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_savehide OWNER TO reddit;
+
+--
+-- Name: reddit_rel_savehide_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_savehide_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_savehide_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_savehide_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_savehide_rel_id_seq OWNED BY reddit_rel_savehide.rel_id;
+
+
+--
+-- Name: reddit_rel_savehide_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_savehide_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_srmember; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_srmember (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_srmember OWNER TO reddit;
+
+--
+-- Name: reddit_rel_srmember_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_srmember_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_srmember_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_srmember_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_srmember_rel_id_seq OWNED BY reddit_rel_srmember.rel_id;
+
+
+--
+-- Name: reddit_rel_srmember_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_srmember_rel_id_seq', 9, true);
+
+
+--
+-- Name: reddit_rel_vote_account_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_vote_account_comment (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_vote_account_comment OWNER TO reddit;
+
+--
+-- Name: reddit_rel_vote_account_comment_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_vote_account_comment_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_vote_account_comment_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_vote_account_comment_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_vote_account_comment_rel_id_seq OWNED BY reddit_rel_vote_account_comment.rel_id;
+
+
+--
+-- Name: reddit_rel_vote_account_comment_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_vote_account_comment_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_rel_vote_account_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_rel_vote_account_link (
+    rel_id bigint NOT NULL,
+    thing1_id bigint NOT NULL,
+    thing2_id bigint NOT NULL,
+    name text NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_rel_vote_account_link OWNER TO reddit;
+
+--
+-- Name: reddit_rel_vote_account_link_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_rel_vote_account_link_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_rel_vote_account_link_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_rel_vote_account_link_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_rel_vote_account_link_rel_id_seq OWNED BY reddit_rel_vote_account_link.rel_id;
+
+
+--
+-- Name: reddit_rel_vote_account_link_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_rel_vote_account_link_rel_id_seq', 1, false);
+
+
+--
+-- Name: reddit_thing_account; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_account (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_account OWNER TO reddit;
+
+--
+-- Name: reddit_thing_account_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_account_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_account_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_account_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_account_thing_id_seq OWNED BY reddit_thing_account.thing_id;
+
+
+--
+-- Name: reddit_thing_account_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_account_thing_id_seq', 1, true);
+
+
+--
+-- Name: reddit_thing_comment; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_comment (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_comment OWNER TO reddit;
+
+--
+-- Name: reddit_thing_comment_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_comment_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_comment_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_comment_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_comment_thing_id_seq OWNED BY reddit_thing_comment.thing_id;
+
+
+--
+-- Name: reddit_thing_comment_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_comment_thing_id_seq', 1, true);
+
+
+--
+-- Name: reddit_thing_edit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_edit (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_edit OWNER TO reddit;
+
+--
+-- Name: reddit_thing_edit_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_edit_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_edit_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_edit_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_edit_thing_id_seq OWNED BY reddit_thing_edit.thing_id;
+
+
+--
+-- Name: reddit_thing_edit_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_edit_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_thing_link; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_link (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_link OWNER TO reddit;
+
+--
+-- Name: reddit_thing_link_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_link_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_link_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_link_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_link_thing_id_seq OWNED BY reddit_thing_link.thing_id;
+
+
+--
+-- Name: reddit_thing_link_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_link_thing_id_seq', 1, true);
+
+
+--
+-- Name: reddit_thing_meetup; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_meetup (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_meetup OWNER TO reddit;
+
+--
+-- Name: reddit_thing_meetup_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_meetup_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_meetup_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_meetup_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_meetup_thing_id_seq OWNED BY reddit_thing_meetup.thing_id;
+
+
+--
+-- Name: reddit_thing_meetup_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_meetup_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_thing_message; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_message (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_message OWNER TO reddit;
+
+--
+-- Name: reddit_thing_message_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_message_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_message_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_message_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_message_thing_id_seq OWNED BY reddit_thing_message.thing_id;
+
+
+--
+-- Name: reddit_thing_message_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_message_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_thing_subreddit; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_subreddit (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_subreddit OWNER TO reddit;
+
+--
+-- Name: reddit_thing_subreddit_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_subreddit_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_subreddit_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_subreddit_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_subreddit_thing_id_seq OWNED BY reddit_thing_subreddit.thing_id;
+
+
+--
+-- Name: reddit_thing_subreddit_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_subreddit_thing_id_seq', 3, true);
+
+
+--
+-- Name: reddit_thing_tag; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_thing_tag (
+    thing_id bigint NOT NULL,
+    ups integer NOT NULL,
+    downs integer NOT NULL,
+    deleted boolean NOT NULL,
+    spam boolean NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.reddit_thing_tag OWNER TO reddit;
+
+--
+-- Name: reddit_thing_tag_thing_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_thing_tag_thing_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_thing_tag_thing_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_thing_tag_thing_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_thing_tag_thing_id_seq OWNED BY reddit_thing_tag.thing_id;
+
+
+--
+-- Name: reddit_thing_tag_thing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_thing_tag_thing_id_seq', 1, false);
+
+
+--
+-- Name: reddit_type; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_type (
+    id integer NOT NULL,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public.reddit_type OWNER TO reddit;
+
+--
+-- Name: reddit_type_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_type_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_type_id_seq OWNED BY reddit_type.id;
+
+
+--
+-- Name: reddit_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_type_id_seq', 8, true);
+
+
+--
+-- Name: reddit_type_rel; Type: TABLE; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE TABLE reddit_type_rel (
+    id integer NOT NULL,
+    type1_id integer NOT NULL,
+    type2_id integer NOT NULL,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public.reddit_type_rel OWNER TO reddit;
+
+--
+-- Name: reddit_type_rel_id_seq; Type: SEQUENCE; Schema: public; Owner: reddit
+--
+
+CREATE SEQUENCE reddit_type_rel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reddit_type_rel_id_seq OWNER TO reddit;
+
+--
+-- Name: reddit_type_rel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reddit
+--
+
+ALTER SEQUENCE reddit_type_rel_id_seq OWNED BY reddit_type_rel.id;
+
+
+--
+-- Name: reddit_type_rel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reddit
+--
+
+SELECT pg_catalog.setval('reddit_type_rel_id_seq', 13, true);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_account ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_account_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_comment ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_comment_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_edit ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_edit_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_link ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_link_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_meetup ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_meetup_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_message ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_message_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_click ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_click_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_friend ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_friend_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_inbox_account_comment ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_inbox_account_comment_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_inbox_account_message ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_inbox_account_message_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_linktag ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_linktag_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_report_account_comment ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_report_account_comment_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_report_account_link ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_report_account_link_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_report_account_message ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_report_account_message_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_report_account_subreddit ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_report_account_subreddit_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_savehide ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_savehide_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_srmember ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_srmember_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_vote_account_comment ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_vote_account_comment_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_rel_vote_account_link ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_rel_vote_account_link_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_subreddit ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_subreddit_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_data_tag ALTER COLUMN thing_id SET DEFAULT nextval('reddit_data_tag_thing_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_click ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_click_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_friend ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_friend_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_inbox_account_comment ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_inbox_account_comment_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_inbox_account_message ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_inbox_account_message_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_linktag ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_linktag_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_report_account_comment ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_report_account_comment_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_report_account_link ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_report_account_link_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_report_account_message ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_report_account_message_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_report_account_subreddit ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_report_account_subreddit_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_savehide ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_savehide_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_srmember ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_srmember_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_vote_account_comment ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_vote_account_comment_rel_id_seq'::regclass);
+
+
+--
+-- Name: rel_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_rel_vote_account_link ALTER COLUMN rel_id SET DEFAULT nextval('reddit_rel_vote_account_link_rel_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_account ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_account_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_comment ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_comment_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_edit ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_edit_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_link ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_link_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_meetup ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_meetup_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_message ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_message_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_subreddit ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_subreddit_thing_id_seq'::regclass);
+
+
+--
+-- Name: thing_id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_thing_tag ALTER COLUMN thing_id SET DEFAULT nextval('reddit_thing_tag_thing_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_type ALTER COLUMN id SET DEFAULT nextval('reddit_type_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: reddit
+--
+
+ALTER TABLE reddit_type_rel ALTER COLUMN id SET DEFAULT nextval('reddit_type_rel_id_seq'::regclass);
+
+
+--
+-- Data for Name: reddit_data_account; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_account (thing_id, key, value, kind) FROM stdin;
+1	password	icbf2b2846905494ed42a81c40ebd14f6ac6b0bfd87	str
+1	name	admin	str
+1	pref_content_langs	(S'en'\np1\nS'en-US'\np2\ntp3\n.	pickle
+1	pref_lang	en-US	str
+1	has_subscribed	t	bool
+1	last_submitted	cdatetime\ndatetime\np1\n(S'\\x07\\xdb\\x05\\x13\\x03\\x0e;\\x00\\x00\\x00'\ncpytz\n_p\np2\n(S'GMT'\np3\ntRp4\ntRp5\n.	pickle
+1	sort_options	(dp1\nVfront_all\np2\nS'false'\np3\nsVfront_sort\np4\nS'hot'\np5\ns.	pickle
+1	last_overview	cdatetime\ndatetime\np1\n(S'\\x07\\xdb\\x05\\x13\\x03\\x0f\\t\\x00\\x00\\x00'\ncpytz\n_p\np2\n(S'GMT'\np3\ntRp4\ntRp5\n.	pickle
+1	last_commented	cdatetime\ndatetime\np1\n(S'\\x07\\xdb\\x05\\x13\\x03\\x0f\\t\\x00\\x00\\x00'\ncpytz\n_p\np2\n(S'GMT'\np3\ntRp4\ntRp5\n.	pickle
+\.
+
+
+--
+-- Data for Name: reddit_data_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_comment (thing_id, key, value, kind) FROM stdin;
+1	body	Commenting on my own post	str
+1	ip	192.168.56.1	str
+1	author_id	1	num
+1	sr_id	2	num
+1	link_id	1	num
+\.
+
+
+--
+-- Data for Name: reddit_data_edit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_edit (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_link (thing_id, key, value, kind) FROM stdin;
+1	lang	en	str
+1	title	Lorem ipsum	str
+1	ip	192.168.56.1	str
+1	sr_id	2	num
+1	article	<p><span style="font-family: Arial, Helvetica, sans; font-size: 11px;">\n<div id="lipsum" style="font-size: 11px; font-family: Arial, Helvetica, sans; text-align: justify; margin: 0px;">\n<p style="text-align: justify; font-size: 11px; line-height: 14px; margin-top: 0px; margin-right: 0px; margin-bottom: 14px; margin-left: 0px; padding: 0px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse nec tellus lacus. Phasellus et purus quis ipsum vehicula accumsan eget in augue. Integer tincidunt sodales est at interdum. Suspendisse risus risus, dictum vel volutpat at, rhoncus sed velit. Duis purus lectus, consectetur non feugiat a, tristique at quam. Aenean non risus magna, sit amet consequat augue. Nulla id ligula quis augue ullamcorper tristique nec non nisi. Aenean ullamcorper convallis magna ultricies blandit. In in dictum lectus. Quisque convallis massa non neque vehicula nec egestas tellus pulvinar. Sed vel viverra tortor. Nam in arcu vel lectus aliquet vehicula sit amet quis sapien.</p>\n<p style="text-align: justify; font-size: 11px; line-height: 14px; margin-top: 0px; margin-right: 0px; margin-bottom: 14px; margin-left: 0px; padding: 0px;">Etiam eget ante et sapien tincidunt fringilla. Fusce a orci sapien, quis convallis turpis. Proin sed lacus a orci consequat adipiscing. Mauris enim mi, fermentum eget elementum eget, adipiscing eget erat. Pellentesque tempor lobortis enim, vitae ultrices sem adipiscing sit amet. Vivamus faucibus aliquet metus et malesuada. In hac habitasse platea dictumst. Suspendisse in massa sem, et consequat eros. Curabitur ut scelerisque arcu. Fusce at metus ante, eu vehicula enim. Nam tincidunt sagittis leo sed euismod. Phasellus aliquam justo non metus adipiscing non consequat odio pellentesque.</p>\n<p style="text-align: justify; font-size: 11px; line-height: 14px; margin-top: 0px; margin-right: 0px; margin-bottom: 14px; margin-left: 0px; padding: 0px;">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Pellentesque pharetra, turpis id adipiscing accumsan, metus arcu auctor velit, vitae tempor libero nulla non mauris. Cras turpis ante, feugiat non sagittis ac, commodo eu dolor. Donec non enim libero, ut euismod orci. Proin quis velit id libero vestibulum imperdiet sit amet aliquet ipsum. Sed suscipit rutrum tortor, ut lobortis orci laoreet posuere. Suspendisse id justo a dolor pellentesque euismod sit amet a felis. Cras a fermentum quam. Duis faucibus consequat massa, sit amet ultrices tellus vestibulum ac. Aliquam varius ante vel dolor pretium egestas. Sed tincidunt lacinia risus sed dapibus. Proin quis orci justo. Praesent cursus dapibus rutrum. Nulla aliquam, libero ut mollis tristique, sapien ipsum pellentesque orci, a malesuada ante eros sit amet eros. Pellentesque faucibus, massa nec tincidunt rhoncus, felis dui fermentum dui, at lobortis ante nisl id nulla. Aenean justo quam, eleifend et lobortis eu, vulputate sit amet ante.</p>\n<p style="text-align: justify; font-size: 11px; line-height: 14px; margin-top: 0px; margin-right: 0px; margin-bottom: 14px; margin-left: 0px; padding: 0px;">Suspendisse tempus dui a sapien elementum ultrices. In aliquam luctus nisi, at mollis tortor molestie nec. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus ultricies egestas sagittis. Vivamus ultricies enim quis nunc pellentesque sit amet tristique felis scelerisque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec dapibus, tellus eget bibendum dignissim, augue arcu facilisis dui, vel pretium mi nisi sed risus. Aenean hendrerit eleifend adipiscing. Nulla facilisi. Pellentesque tempor venenatis ligula ac semper. Etiam ligula nibh, varius non lacinia id, viverra non dui. In non diam et tortor sagittis tristique et ac felis. Vivamus vel urna orci. Etiam ac dui erat. In hac habitasse platea dictumst. Etiam porttitor egestas libero, et dignissim dui imperdiet id.</p>\n<p style="text-align: justify; font-size: 11px; line-height: 14px; margin-top: 0px; margin-right: 0px; margin-bottom: 14px; margin-left: 0px; padding: 0px;">Etiam suscipit placerat molestie. Donec sed iaculis ligula. Sed magna sem, fermentum ut vestibulum lobortis, cursus at justo. In vel libero sapien. Donec lobortis adipiscing turpis. Duis lobortis fringilla purus, vel sollicitudin risus euismod et. Mauris eget quam sem, sed dignissim velit. Curabitur eu sem at tortor convallis pellentesque sed sit amet mi. Nullam tempus aliquet turpis, nec fringilla odio dictum vel. Pellentesque tempus imperdiet sollicitudin. Sed arcu sapien, vulputate in sodales et, fringilla sit amet libero. Quisque porta lacus sed nibh interdum sit amet cursus odio rutrum. Aenean mauris turpis, posuere a ullamcorper a, pretium sit amet mi. Fusce ac sem ac lorem hendrerit molestie. Morbi dignissim elit quam. Maecenas suscipit sapien nec velit commodo hendrerit. Ut nulla velit, pulvinar a suscipit rhoncus, porttitor ut sapien. Donec eros massa, dignissim et pellentesque et, laoreet quis elit. Aliquam cursus imperdiet ante. Nam rhoncus tempor mi ac aliquam.</p>\n<div><br /></div>\n</div>\n</span></p>	str
+1	author_id	1	num
+1	url	/lw/1/lorem_ipsum/	str
+1	is_self	t	bool
+1	num_comments	1	num
+1	last_comments	cdatetime\ndatetime\np1\n(S'\\x07\\xdb\\x05\\x13\\x03\\x0f\\t\\x00\\x00\\x00'\ncpytz\n_p\np2\n(S'GMT'\np3\ntRp4\ntRp5\n.	pickle
+\.
+
+
+--
+-- Data for Name: reddit_data_meetup; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_meetup (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_message (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_click; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_click (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_friend; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_friend (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_inbox_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_inbox_account_comment (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_inbox_account_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_inbox_account_message (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_linktag; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_linktag (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_report_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_report_account_comment (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_report_account_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_report_account_link (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_report_account_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_report_account_message (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_report_account_subreddit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_report_account_subreddit (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_savehide; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_savehide (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_srmember; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_srmember (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_vote_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_vote_account_comment (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_rel_vote_account_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_rel_vote_account_link (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_data_subreddit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_subreddit (thing_id, key, value, kind) FROM stdin;
+1	lang	en	str
+1	name	admin-drafts	str
+1	title	Drafts for admin	str
+1	over_18	f	bool
+1	type	private	str
+1	default_listing	new	str
+2	lang	en	str
+2	name	lesswrong	str
+2	title	Less Wrong	str
+2	over_18	f	bool
+2	type	restricted	str
+2	default_listing	blessed	str
+3	lang	en	str
+3	name	discussion	str
+3	title	Less Wrong Discussion	str
+3	over_18	f	bool
+3	type	public	str
+3	default_listing	new	str
+3	header	/static/logo-discussion.png	str
+3	stylesheet	/static/discussion.css	str
+3	posts_per_page_multiplier	4	num
+3	post_karma_multiplier	1	num
+3	infotext	This part of the site is for the discussion of topics not\n                   yet ready or not suitable for normal top-level posts.\n                   Votes are only worth ±1 point here. For\n                   more information, see [About Less Wrong](/about-less-wrong).	str
+\.
+
+
+--
+-- Data for Name: reddit_data_tag; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_data_tag (thing_id, key, value, kind) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_click; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_click (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+1	1	1	click	2011-05-19 13:15:00.412552+10
+\.
+
+
+--
+-- Data for Name: reddit_rel_friend; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_friend (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_inbox_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_inbox_account_comment (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_inbox_account_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_inbox_account_message (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_linktag; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_linktag (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_report_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_report_account_comment (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_report_account_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_report_account_link (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_report_account_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_report_account_message (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_report_account_subreddit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_report_account_subreddit (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_savehide; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_savehide (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_srmember; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_srmember (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+1	1	1	subscriber	2011-05-19 11:11:44.286623+10
+2	1	1	moderator	2011-05-19 11:11:44.327624+10
+3	1	1	contributor	2011-05-19 11:11:44.340689+10
+4	2	1	subscriber	2011-05-19 11:12:19.275019+10
+5	2	1	moderator	2011-05-19 11:12:19.290308+10
+6	2	1	contributor	2011-05-19 11:12:19.300675+10
+7	3	1	subscriber	2011-05-19 11:12:43.455134+10
+8	3	1	moderator	2011-05-19 11:12:43.475329+10
+9	3	1	contributor	2011-05-19 11:12:43.485891+10
+\.
+
+
+--
+-- Data for Name: reddit_rel_vote_account_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_vote_account_comment (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_rel_vote_account_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_rel_vote_account_link (rel_id, thing1_id, thing2_id, name, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_thing_account; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_account (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+1	0	0	f	f	2011-05-19 11:11:44.145028+10
+\.
+
+
+--
+-- Data for Name: reddit_thing_comment; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_comment (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+1	0	0	f	f	2011-05-19 13:15:08.967156+10
+\.
+
+
+--
+-- Data for Name: reddit_thing_edit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_edit (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_thing_link; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_link (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+1	0	0	f	f	2011-05-19 13:14:59.832594+10
+\.
+
+
+--
+-- Data for Name: reddit_thing_meetup; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_meetup (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_thing_message; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_message (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_thing_subreddit; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_subreddit (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+1	1	0	f	f	2011-05-19 11:11:44.244717+10
+2	1	0	f	f	2011-05-19 11:12:19.188588+10
+3	1	0	f	f	2011-05-19 11:12:43.425203+10
+\.
+
+
+--
+-- Data for Name: reddit_thing_tag; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_thing_tag (thing_id, ups, downs, deleted, spam, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reddit_type; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_type (id, name) FROM stdin;
+1	comment
+2	account
+3	edit
+4	subreddit
+5	meetup
+6	tag
+7	link
+8	message
+\.
+
+
+--
+-- Data for Name: reddit_type_rel; Type: TABLE DATA; Schema: public; Owner: reddit
+--
+
+COPY reddit_type_rel (id, type1_id, type2_id, name) FROM stdin;
+1	2	4	report_account_subreddit
+2	2	1	inbox_account_comment
+3	7	6	linktag
+4	4	2	srmember
+5	2	8	inbox_account_message
+6	2	7	report_account_link
+7	2	1	report_account_comment
+8	2	1	vote_account_comment
+9	2	7	vote_account_link
+10	2	8	report_account_message
+11	2	7	click
+12	2	2	friend
+13	2	7	savehide
+\.
+
+
+--
+-- Name: reddit_data_account_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_account
+    ADD CONSTRAINT reddit_data_account_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_comment
+    ADD CONSTRAINT reddit_data_comment_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_edit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_edit
+    ADD CONSTRAINT reddit_data_edit_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_link
+    ADD CONSTRAINT reddit_data_link_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_meetup_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_meetup
+    ADD CONSTRAINT reddit_data_meetup_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_message
+    ADD CONSTRAINT reddit_data_message_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_click_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_click
+    ADD CONSTRAINT reddit_data_rel_click_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_friend_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_friend
+    ADD CONSTRAINT reddit_data_rel_friend_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_inbox_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_inbox_account_comment
+    ADD CONSTRAINT reddit_data_rel_inbox_account_comment_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_inbox_account_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_inbox_account_message
+    ADD CONSTRAINT reddit_data_rel_inbox_account_message_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_linktag_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_linktag
+    ADD CONSTRAINT reddit_data_rel_linktag_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_report_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_report_account_comment
+    ADD CONSTRAINT reddit_data_rel_report_account_comment_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_report_account_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_report_account_link
+    ADD CONSTRAINT reddit_data_rel_report_account_link_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_report_account_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_report_account_message
+    ADD CONSTRAINT reddit_data_rel_report_account_message_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_report_account_subreddit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_report_account_subreddit
+    ADD CONSTRAINT reddit_data_rel_report_account_subreddit_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_savehide_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_savehide
+    ADD CONSTRAINT reddit_data_rel_savehide_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_srmember_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_srmember
+    ADD CONSTRAINT reddit_data_rel_srmember_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_vote_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_vote_account_comment
+    ADD CONSTRAINT reddit_data_rel_vote_account_comment_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_rel_vote_account_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_rel_vote_account_link
+    ADD CONSTRAINT reddit_data_rel_vote_account_link_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_subreddit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_subreddit
+    ADD CONSTRAINT reddit_data_subreddit_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_data_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_data_tag
+    ADD CONSTRAINT reddit_data_tag_pkey PRIMARY KEY (thing_id, key);
+
+
+--
+-- Name: reddit_rel_click_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_click
+    ADD CONSTRAINT reddit_rel_click_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_click_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_click
+    ADD CONSTRAINT reddit_rel_click_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_friend_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_friend
+    ADD CONSTRAINT reddit_rel_friend_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_friend_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_friend
+    ADD CONSTRAINT reddit_rel_friend_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_inbox_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_inbox_account_comment
+    ADD CONSTRAINT reddit_rel_inbox_account_comment_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_inbox_account_comment_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_inbox_account_comment
+    ADD CONSTRAINT reddit_rel_inbox_account_comment_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_inbox_account_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_inbox_account_message
+    ADD CONSTRAINT reddit_rel_inbox_account_message_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_inbox_account_message_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_inbox_account_message
+    ADD CONSTRAINT reddit_rel_inbox_account_message_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_linktag_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_linktag
+    ADD CONSTRAINT reddit_rel_linktag_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_linktag_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_linktag
+    ADD CONSTRAINT reddit_rel_linktag_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_report_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_comment
+    ADD CONSTRAINT reddit_rel_report_account_comment_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_report_account_comment_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_comment
+    ADD CONSTRAINT reddit_rel_report_account_comment_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_report_account_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_link
+    ADD CONSTRAINT reddit_rel_report_account_link_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_report_account_link_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_link
+    ADD CONSTRAINT reddit_rel_report_account_link_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_report_account_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_message
+    ADD CONSTRAINT reddit_rel_report_account_message_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_report_account_message_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_message
+    ADD CONSTRAINT reddit_rel_report_account_message_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_report_account_subreddit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_subreddit
+    ADD CONSTRAINT reddit_rel_report_account_subreddit_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_report_account_subreddit_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_report_account_subreddit
+    ADD CONSTRAINT reddit_rel_report_account_subreddit_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_savehide_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_savehide
+    ADD CONSTRAINT reddit_rel_savehide_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_savehide_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_savehide
+    ADD CONSTRAINT reddit_rel_savehide_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_srmember_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_srmember
+    ADD CONSTRAINT reddit_rel_srmember_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_srmember_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_srmember
+    ADD CONSTRAINT reddit_rel_srmember_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_vote_account_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_vote_account_comment
+    ADD CONSTRAINT reddit_rel_vote_account_comment_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_vote_account_comment_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_vote_account_comment
+    ADD CONSTRAINT reddit_rel_vote_account_comment_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_rel_vote_account_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_vote_account_link
+    ADD CONSTRAINT reddit_rel_vote_account_link_pkey PRIMARY KEY (rel_id);
+
+
+--
+-- Name: reddit_rel_vote_account_link_thing1_id_key; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_rel_vote_account_link
+    ADD CONSTRAINT reddit_rel_vote_account_link_thing1_id_key UNIQUE (thing1_id, thing2_id, name);
+
+
+--
+-- Name: reddit_thing_account_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_account
+    ADD CONSTRAINT reddit_thing_account_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_comment_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_comment
+    ADD CONSTRAINT reddit_thing_comment_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_edit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_edit
+    ADD CONSTRAINT reddit_thing_edit_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_link_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_link
+    ADD CONSTRAINT reddit_thing_link_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_meetup_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_meetup
+    ADD CONSTRAINT reddit_thing_meetup_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_message_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_message
+    ADD CONSTRAINT reddit_thing_message_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_subreddit_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_subreddit
+    ADD CONSTRAINT reddit_thing_subreddit_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_thing_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_thing_tag
+    ADD CONSTRAINT reddit_thing_tag_pkey PRIMARY KEY (thing_id);
+
+
+--
+-- Name: reddit_type_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_type
+    ADD CONSTRAINT reddit_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reddit_type_rel_pkey; Type: CONSTRAINT; Schema: public; Owner: reddit; Tablespace: 
+--
+
+ALTER TABLE ONLY reddit_type_rel
+    ADD CONSTRAINT reddit_type_rel_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_base_url_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_account ON reddit_data_account USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_comment ON reddit_data_comment USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_edit ON reddit_data_edit USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_link ON reddit_data_link USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_meetup ON reddit_data_meetup USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_message ON reddit_data_message USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_click ON reddit_data_rel_click USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_subreddit ON reddit_data_subreddit USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_base_url_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_base_url_reddit_data_tag ON reddit_data_tag USING btree (base_url(lower(value))) WHERE (key = 'url'::text);
+
+
+--
+-- Name: idx_controversy_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_account ON reddit_thing_account USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_comment ON reddit_thing_comment USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_edit ON reddit_thing_edit USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_link ON reddit_thing_link USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_meetup ON reddit_thing_meetup USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_message ON reddit_thing_message USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_controversy_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_controversy_reddit_thing_tag ON reddit_thing_tag USING btree (controversy(ups, downs), date);
+
+
+--
+-- Name: idx_date_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_click ON reddit_rel_click USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_friend ON reddit_rel_friend USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_linktag ON reddit_rel_linktag USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_savehide ON reddit_rel_savehide USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_srmember ON reddit_rel_srmember USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_account ON reddit_thing_account USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_comment ON reddit_thing_comment USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_edit ON reddit_thing_edit USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_link ON reddit_thing_link USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_meetup ON reddit_thing_meetup USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_message ON reddit_thing_message USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (date);
+
+
+--
+-- Name: idx_date_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_date_reddit_thing_tag ON reddit_thing_tag USING btree (date);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_account ON reddit_thing_account USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_comment ON reddit_thing_comment USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_edit ON reddit_thing_edit USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_link ON reddit_thing_link USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_meetup ON reddit_thing_meetup USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_message ON reddit_thing_message USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (deleted, spam);
+
+
+--
+-- Name: idx_deleted_spam_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_deleted_spam_reddit_thing_tag ON reddit_thing_tag USING btree (deleted, spam);
+
+
+--
+-- Name: idx_hot_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_account ON reddit_thing_account USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_comment ON reddit_thing_comment USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_edit ON reddit_thing_edit USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_link ON reddit_thing_link USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_meetup ON reddit_thing_meetup USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_message ON reddit_thing_message USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_hot_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_hot_reddit_thing_tag ON reddit_thing_tag USING btree (hot(ups, downs, date), date);
+
+
+--
+-- Name: idx_id_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_account ON reddit_data_account USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_comment ON reddit_data_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_edit ON reddit_data_edit USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_link ON reddit_data_link USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_meetup ON reddit_data_meetup USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_message ON reddit_data_message USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_click ON reddit_data_rel_click USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_subreddit ON reddit_data_subreddit USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_data_tag ON reddit_data_tag USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_account ON reddit_thing_account USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_comment ON reddit_thing_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_edit ON reddit_thing_edit USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_link ON reddit_thing_link USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_meetup ON reddit_thing_meetup USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_message ON reddit_thing_message USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (thing_id);
+
+
+--
+-- Name: idx_id_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_id_reddit_thing_tag ON reddit_thing_tag USING btree (thing_id);
+
+
+--
+-- Name: idx_ip_network_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_account ON reddit_data_account USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_comment ON reddit_data_comment USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_edit ON reddit_data_edit USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_link ON reddit_data_link USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_meetup ON reddit_data_meetup USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_message ON reddit_data_message USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_click ON reddit_data_rel_click USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_subreddit ON reddit_data_subreddit USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_ip_network_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_ip_network_reddit_data_tag ON reddit_data_tag USING btree (ip_network(value)) WHERE (key = 'ip'::text);
+
+
+--
+-- Name: idx_key_value_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_account ON reddit_data_account USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_comment ON reddit_data_comment USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_edit ON reddit_data_edit USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_link ON reddit_data_link USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_meetup ON reddit_data_meetup USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_message ON reddit_data_message USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_click ON reddit_data_rel_click USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_subreddit ON reddit_data_subreddit USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_key_value_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_key_value_reddit_data_tag ON reddit_data_tag USING btree (key, "substring"(value, 1, 1000));
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_account ON reddit_data_account USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_comment ON reddit_data_comment USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_edit ON reddit_data_edit USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_link ON reddit_data_link USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_meetup ON reddit_data_meetup USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_message ON reddit_data_message USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_click ON reddit_data_rel_click USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_subreddit ON reddit_data_subreddit USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_lower_key_value_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_lower_key_value_reddit_data_tag ON reddit_data_tag USING btree (key, lower(value)) WHERE (key = 'name'::text);
+
+
+--
+-- Name: idx_name_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_click ON reddit_rel_click USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_friend ON reddit_rel_friend USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_linktag ON reddit_rel_linktag USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_savehide ON reddit_rel_savehide USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_srmember ON reddit_rel_srmember USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (name);
+
+
+--
+-- Name: idx_name_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_name_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (name);
+
+
+--
+-- Name: idx_score_reddit_thing_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_account ON reddit_thing_account USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_comment ON reddit_thing_comment USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_edit ON reddit_thing_edit USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_link ON reddit_thing_link USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_meetup ON reddit_thing_meetup USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_message ON reddit_thing_message USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_subreddit ON reddit_thing_subreddit USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_score_reddit_thing_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_score_reddit_thing_tag ON reddit_thing_tag USING btree (score(ups, downs), date);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_click ON reddit_rel_click USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_friend ON reddit_rel_friend USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_linktag ON reddit_rel_linktag USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_savehide ON reddit_rel_savehide USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_srmember ON reddit_rel_srmember USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_id_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_id_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (thing1_id);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_click ON reddit_rel_click USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_friend ON reddit_rel_friend USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_linktag ON reddit_rel_linktag USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_savehide ON reddit_rel_savehide USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_srmember ON reddit_rel_srmember USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing1_name_date_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing1_name_date_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (thing1_id, name, date);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_click ON reddit_rel_click USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_friend ON reddit_rel_friend USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_linktag ON reddit_rel_linktag USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_savehide ON reddit_rel_savehide USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_srmember ON reddit_rel_srmember USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_id_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_id_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (thing2_id);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_click ON reddit_rel_click USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_friend ON reddit_rel_friend USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_inbox_account_comment ON reddit_rel_inbox_account_comment USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_inbox_account_message ON reddit_rel_inbox_account_message USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_linktag ON reddit_rel_linktag USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_report_account_comment ON reddit_rel_report_account_comment USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_report_account_link ON reddit_rel_report_account_link USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_report_account_message ON reddit_rel_report_account_message USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_report_account_subreddit ON reddit_rel_report_account_subreddit USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_savehide ON reddit_rel_savehide USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_srmember ON reddit_rel_srmember USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_vote_account_comment ON reddit_rel_vote_account_comment USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing2_name_date_reddit_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing2_name_date_reddit_rel_vote_account_link ON reddit_rel_vote_account_link USING btree (thing2_id, name, date);
+
+
+--
+-- Name: idx_thing_id_reddit_data_account; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_account ON reddit_data_account USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_comment ON reddit_data_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_edit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_edit ON reddit_data_edit USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_link ON reddit_data_link USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_meetup; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_meetup ON reddit_data_meetup USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_message ON reddit_data_message USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_click; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_click ON reddit_data_rel_click USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_friend; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_friend ON reddit_data_rel_friend USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_inbox_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_inbox_account_comment ON reddit_data_rel_inbox_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_inbox_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_inbox_account_message ON reddit_data_rel_inbox_account_message USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_linktag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_linktag ON reddit_data_rel_linktag USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_report_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_report_account_comment ON reddit_data_rel_report_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_report_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_report_account_link ON reddit_data_rel_report_account_link USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_report_account_message; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_report_account_message ON reddit_data_rel_report_account_message USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_report_account_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_report_account_subreddit ON reddit_data_rel_report_account_subreddit USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_savehide; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_savehide ON reddit_data_rel_savehide USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_srmember; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_srmember ON reddit_data_rel_srmember USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_vote_account_comment; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_vote_account_comment ON reddit_data_rel_vote_account_comment USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_rel_vote_account_link; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_rel_vote_account_link ON reddit_data_rel_vote_account_link USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_subreddit; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_subreddit ON reddit_data_subreddit USING btree (thing_id);
+
+
+--
+-- Name: idx_thing_id_reddit_data_tag; Type: INDEX; Schema: public; Owner: reddit; Tablespace: 
+--
+
+CREATE INDEX idx_thing_id_reddit_data_tag ON reddit_data_tag USING btree (thing_id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
