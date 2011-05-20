@@ -84,6 +84,15 @@ def make_map(global_conf={}, app_conf={}):
     mc('/:controller', action='listing',
        requirements=dict(controller=listing_controllers))
 
+    # Can't use map.resource because the version of the Routing module we're
+    # using doesn't support the controller_action kw arg
+    #map.resource('meetup', 'meetups', collection_actions=['create', 'new'])
+
+    mc('/meetups/create', action='create', controller='meetups')
+    mc('/meetups', action='listing', controller='meetupslisting')
+    mc('/meetups/new', action='new', controller='meetups')
+    mc('/meetups/:id', action='show', controller='meetups')
+
     mc('/tag/:tag', controller='tag', action='listing', where='tag')
 
     mc('/by_id/:names', controller='byId', action='listing')
