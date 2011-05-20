@@ -1362,7 +1362,7 @@ class SiteMeter(Wrapped):
 
 class MeetupBox(Wrapped):
     def __init__(self, *a, **kw):
-        meetups = list(Meetup._query())
+        meetups = Meetup._query(sort = desc('_date'), limit = 5)
         Wrapped.__init__(self, meetups=meetups, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
