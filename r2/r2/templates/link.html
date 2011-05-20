@@ -81,7 +81,9 @@
   </div><!-- .content -->
   <div class="tools clear">
     ${parent.midcol(thing.votable)}
-    <div style="display: none;" id='lastViewed' time="${ epochtime(thing.clicked._date if thing.clicked else None) }"></div>
+    %if c.user_is_loggedin:
+      <div style="display: none;" id='lastViewed' time="${ epochtime(thing.clicked._date if thing.clicked else None) }"></div>
+    %endif
     %if thing.comments_enabled:
       <%
           num_comments = 0 if not thing.num_comments else thing.num_comments
