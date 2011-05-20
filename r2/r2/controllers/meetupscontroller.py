@@ -57,10 +57,7 @@ class MeetupsController(RedditController):
 
     meetup._commit()
 
-    res._redirect(url_for('meetup', id=meetup._id36))
-
-  def GET_index(self):
-    pass
+    res._redirect(url_for(action='show', id=meetup._id36))
 
   @validate(meetup = VMeetup('id'))
   def GET_show(self, meetup):

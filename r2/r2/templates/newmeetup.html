@@ -6,7 +6,7 @@
 
 <h1>New Meetup</h1>
 
-<%utils:submit_form action="/meetups" onsubmit="return post_form(this, 'meetups', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0" latitude="0" longitude="0">
+<%utils:submit_form action="/meetups/create" onsubmit="return post_form(this, 'meetups/create', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0" latitude="0" longitude="0">
 <fieldset>
   <label for="title">${_("Title")}:</label>
   <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
