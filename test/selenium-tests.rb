@@ -26,6 +26,9 @@ describe 'Lesswrong' do
     fill_in "username", :with => user
     fill_in "password", :with => user
     click_on "Login"
+
+    # Wait for the ajax login to reload the page
+    page.should have_content('Log out')
   end
 
   def fill_tinymce(input_id,value)
