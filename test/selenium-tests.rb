@@ -11,14 +11,14 @@ end
 require 'selenium-webdriver'
 Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
 
-def get_title(page)
-  page.find(:xpath, "//title").text
-end
-
 describe 'Lesswrong' do
-  before do
+  before(:all) do
     @home = 'http://lesswrong.local:8080'
     @admin_user = 'admin'
+  end
+
+  def get_title
+    find(:xpath, "//title").text
   end
 
   def login(user)
@@ -39,76 +39,127 @@ describe 'Lesswrong' do
 
   it "login admin user" do
     login(@admin_user)
-    get_title(page).should == "Less Wrong"
+    get_title.should == "Less Wrong"
     click_on "Turn admin on"
     click_on "Turn admin off"
     click_on 'Log out'
   end
 
-  xit 'can create article' do
-    login(@admin_user)
-    click_on 'Create new article'
-    fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
-    fill_in 'title', :with => 'A test article'
-    click_button 'Submit'
+  describe 'can create article' do
+    before(:all) do
+      login(@admin_user)
+    end
 
-    find('a.comment')   # Wait for page to load
-    page.should have_content('A test article Draft')
-    page.should have_content('hovercraft')
-    page.should have_content('Comments (0)')
+    after(:all) do
+      click_on 'Log out'
+    end
 
-    # Now edit it, and put it in the 'Less Wrong' subreddit
-    click_link 'Edit'
-    select 'Less Wrong', :from => 'sr'
-    click_button 'Submit'
-    find('a.comment')   # Wait for page to load
+    it 'create draft' do
+      click_on 'Create new article'
 
-    click_on 'Top'
-    page.should have_content('hovercraft')
+      # Must simulate focus on the title because it changes the field colour which would
+      # otherwise cause the field value to be ignored.  But using the 'focus' event seems flakey,
+      # so explicity call the js method
+      page.evaluate_script('clearTitle($("title"))')
+      fill_in 'title', :with => 'A test article'
+      fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
+      click_button 'Submit'
 
-    click_on 'Log out'
+      find('a.comment')   # Wait for page to load
+      page.should have_content('A test article Draft')
+      page.should have_content('hovercraft')
+      page.should have_content('Comments (0)')
+    end
+
+    it 'move it to Less Wrong subreddit' do
+      # Now edit it, and put it in the 'Less Wrong' subreddit
+      click_link 'Edit'
+      select 'Less Wrong', :from => 'sr'
+      click_button 'Submit'
+      find('a.comment')   # Wait for page to load
+
+      click_on 'Top'
+      page.should have_content('hovercraft')
+    end
   end
 
-  it "should register user" do
-    username = 'test_user'
-    visit @home
-    click_on 'Register'
-    fill_in 'user_reg', :with => username
-    fill_in 'passwd_reg', :with => username
-    fill_in 'passwd2_reg', :with => username
-    click_on 'Create account'
-    page.should have_content(username)
-    within "#sidebar" do
-      page.should have_no_content('Nowhere Land')
+  describe 'new user' do
+    before(:all) do
+      visit @home
     end
-    click_on 'Preferences'
-    fill_in 'location', :with => 'Nowhere Land'
-    click_on 'Save options'
-    page.should have_content('Your preferences have been updated')
-    within "#sidebar" do
-      page.should have_content('Nowhere Land')
+
+    after(:all) do
+      click_on 'Log out'
     end
-    click_on 'Log out'
+
+    it 'should register' do
+      username = 'test_user'
+      click_on 'Register'
+      fill_in 'user_reg', :with => username
+      fill_in 'passwd_reg', :with => username
+      fill_in 'passwd2_reg', :with => username
+      click_on 'Create account'
+      page.should have_content(username)
+    end
+
+    it 'should be able to edit preferences' do
+      within "#sidebar" do
+        page.should have_no_content('Nowhere Land')
+      end
+      click_on 'Preferences'
+      fill_in 'location', :with => 'Nowhere Land'
+      click_on 'Save options'
+      page.should have_content('Your preferences have been updated')
+      within "#sidebar" do
+        page.should have_content('Nowhere Land')
+      end
+    end
   end
 
-  it 'should allow browsing' do
-    find('#logo').click
-    login('test_user')
-    %w(New Comments Promoted Top).each do |l|
-      click_link l
+  describe 'should allow browsing' do
+    before(:all) do
+      visit @home
+      login('test_user')
     end
-    find('.post a').click
-    # TODO: Check on article page?
-    find('.vote a.up').click
-    # TODO: Check background position changed to : 0 -36px
-    # TODO: reload, check button still filled
+    after(:all) do
+      click_on 'Log out'
+    end
 
-    click_link 'Article Navigation'
+    it 'should have browsable pages' do
+      find('#logo').click
+      { 'New' => 'Newest Submissions',
+        'Comments' => 'Comments',
+        'Promoted' => 'Less Wrong',
+        'Top' => 'Top scoring articles'}.each do |link,title|
+        click_link link
+        get_title.should match(title)
+      end
+    end
 
-    # This find will wait for the ajax to complete before our 'all' assertion below
-    find('#article_nav_controls li')
-    all('#article_nav_controls li').size.should >1
-    click_on 'Log out'
+    it 'should allow voting' do
+      visit @home
+      click_link 'Top'
+      click_link 'Lorem ipsum'
+      get_title.should == "Lorem ipsum - Less Wrong"
+
+      # Check up voting works
+      page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_false
+      find('.vote a.up').click
+      page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
+      # Reload, check button still filled
+      visit page.driver.browser.current_url
+      page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
+    end
+
+    it 'should have ajaxy article navigation fields' do
+      visit @home
+      click_link 'Top'
+      click_link 'Lorem ipsum'
+      click_link 'Article Navigation'
+      # This find will wait for the ajax to complete before our 'all' assertion below
+      find('#article_nav_controls li')
+      all('#article_nav_controls li').size.should >1
+    end
   end
 
   it 'can delete user' do
