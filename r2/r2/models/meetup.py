@@ -17,8 +17,12 @@ class Meetup(Thing):
     pass
 
   @classmethod
+  def upcoming_meetups_query(cls):
+    return Meetup._query(Meetup.c.timestamp > time.time(), limit=5, data=True)
+
+  @classmethod
   def upcoming_meetups(cls):
-    meetups = list(Meetup._query(Meetup.c.timestamp > time.time(), limit=5, data=True))
+    meetups = list(cls.upcoming_meetups_query())
 
     # Sort in Python because the Thing API only provides sorting by base columns
     meetups.sort(key=lambda m: m.timestamp)

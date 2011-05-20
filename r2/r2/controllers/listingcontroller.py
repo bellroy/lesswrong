@@ -430,7 +430,7 @@ class MeetupslistingController(ListingController):
     title_text = _('Upcoming Meetups')
 
     def query(self):
-        return Meetup._query(sort = desc('_date'))
+        return Meetup.upcoming_meetups_query()
 
 
 class ByIDController(ListingController):
