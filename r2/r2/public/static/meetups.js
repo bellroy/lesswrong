@@ -80,8 +80,11 @@
         $('location').observe('change', geocodeLocation);
       });
 
-      Protoplasm.use('timepicker'); /* Used by datepicker below */
-      Protoplasm.use('datepicker').transform('input.date', {epoch: true, timePicker: true, onSelect: updateTimezone});
+      Protoplasm.use('timepicker', function() { /* Used by datepicker below */
+        Protoplasm.use('datepicker', function() {
+          var picker = new Control.DatePicker($$('input.date').first(), {epoch: true, timePicker: true, onSelect: updateTimezone});
+        });
+      });
     }
   });
 })();
