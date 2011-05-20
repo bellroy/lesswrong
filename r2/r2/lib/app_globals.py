@@ -46,6 +46,7 @@ class Globals(object):
                  'max_sr_images',
                  'karma_to_post',
                  'discussion_karma_to_post',
+                 'side_meetups_max_age',
                  'side_comments_max_age',
                  'side_posts_max_age',
                  'side_tags_max_age',

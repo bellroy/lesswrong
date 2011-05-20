@@ -136,8 +136,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(MeetupBox())
-
+        ps.append(SideBoxPlaceholder('side-meetups', _('Upcoming Meetups'), '/meetups'))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
@@ -1360,7 +1359,7 @@ class SiteMeter(Wrapped):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
 
-class MeetupBox(Wrapped):
+class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, *a, **kw):
         meetups = Meetup.upcoming_meetups()
         Wrapped.__init__(self, meetups=meetups, *a, **kw)

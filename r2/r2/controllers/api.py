@@ -41,7 +41,7 @@ from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
-    ArticleNavigation
+    ArticleNavigation, UpcomingMeetups
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -962,6 +962,11 @@ class ApiController(RedditController):
     def GET_side_contributors(self, *a, **kw):
         """Return HTML snippet of the top contributors for the side bar."""
         return self.render_cached('side-contributors', TopContributors, g.side_contributors_max_age)
+
+    def GET_side_meetups(self, *a, **kw):
+        """Return HTML snippet of the upcoming meetups for the side bar."""
+        cache_key = "side-meetups" # TODO: include the current user in this
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age)
 
     def GET_upload_sr_img(self, *a, **kw):
         """
