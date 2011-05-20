@@ -739,9 +739,11 @@ class ApiController(RedditController):
                else False if dir < 0
                else None)
 
+        isRetracted = thing.retracted if thing and isinstance(thing,Comment) else False
+
         # Ensure authors can't vote on their own posts / comments
-        # Cannot vote on retracted items
-        if thing and thing.author_id != c.user._id and not thing.retracted:
+        # Cannot vote on retracted comments
+        if thing and thing.author_id != c.user._id and not isRetracted:
             try:
                 organic = vote_type == 'organic'
                 v = Vote.vote(user, thing, dir, ip, spam, organic)
