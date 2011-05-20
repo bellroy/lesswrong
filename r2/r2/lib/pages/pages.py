@@ -21,7 +21,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.wrapped import Wrapped, NoTemplateFound
-from r2.models import IDBuilder, QueryBuilder, UnbannedCommentBuilder, InlineComment, InlineArticle, LinkListing, Account, Default, FakeSubreddit, Subreddit, Comment, Tag, Link, LinkTag, CommentPermalink
+from r2.models import *
 from r2.config import cache
 from r2.lib.jsonresponse import json_respond
 from r2.lib.jsontemplates import is_api
@@ -135,6 +135,8 @@ class Reddit(Wrapped):
 
         if self.extension_handling:
             ps.append(FeedLinkBar())
+
+        ps.append(MeetupBox())
 
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
@@ -1357,6 +1359,11 @@ class SiteMeter(Wrapped):
     def __init__(self, codename, *a, **kw):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
+
+class MeetupBox(Wrapped):
+    def __init__(self, *a, **kw):
+        meetups = list(Meetup._query())
+        Wrapped.__init__(self, meetups=meetups, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
 	  pass

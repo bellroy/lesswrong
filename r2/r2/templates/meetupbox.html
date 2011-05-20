@@ -1,0 +1,13 @@
+<%!
+  from routes.util import url_for
+%>
+<%namespace file="utils.html" import="plain_link"/>
+<div id="upcoming-meetups" class="sidebox">
+  <h2>${plain_link(_('Upcoming Meetups'), '/meetups')}:</h2>
+  <ul>
+    %for meetup in thing.meetups:
+      <li><a href="${url_for('meetup', id=meetup._id36)}">${meetup.title}</a></li>
+    %endfor
+  </ul>
+</div>
+##    ${a.render()}
