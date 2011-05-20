@@ -149,7 +149,7 @@ ${parent.midcol()}
           </li>
         %endif
       %endif
-      ${parent.delete_or_report_buttons()}
+      ${parent.delete_or_report_buttons(False,True,True)}
       ${parent.buttons()}
       %if not c.profilepage and thing.can_reply:
         <li>

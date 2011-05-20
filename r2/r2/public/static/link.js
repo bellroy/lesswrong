@@ -412,6 +412,7 @@ Listing.unhide = _fire_and_hide('unhide');
 Listing.hide   = _fire_and_hide('hide');
 Listing.report = _fire_and_hide('report');
 Listing.del    = _fire_and_hide('del');
+Listing.retract = _fire_and_hide('retract');
 
 Listing.parse = function(r) {
     var links = [];

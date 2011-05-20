@@ -880,7 +880,8 @@ class Comment(Thing, Printable):
     _defaults = dict(reported = 0, 
                      moderator_banned = False,
                      banned_before_moderator = False,
-                     is_html = False)
+                     is_html = False,
+                     retracted = False)
 
     def _markdown(self):
         pass
@@ -974,7 +975,8 @@ class Comment(Thing, Printable):
                               wrapped.can_reply,
                               wrapped.deleted,
                               wrapped.is_html,
-                              wrapped.votable))
+                              wrapped.votable,
+                              wrapped.retracted))
         s = ''.join(s)
         return s
 
@@ -1038,7 +1040,7 @@ class Comment(Thing, Printable):
             item.can_reply = (item.sr_id in can_reply_srs)
 
             # Don't allow users to vote on their own comments
-            item.votable = bool(c.user != item.author)
+            item.votable = bool(c.user != item.author and not item.retracted)
 
             # not deleted on profile pages,
             # deleted if spam and not author or admin

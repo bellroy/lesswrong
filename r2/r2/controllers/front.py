@@ -210,7 +210,8 @@ class FrontController(RedditController):
                            infotext = infotext,
                            is_canonical = bool(not request.GET)).render()
 
-        article._click(c.user)
+        if c.user_is_loggedin:
+            article._click(c.user)
 
         return res
 

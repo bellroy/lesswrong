@@ -47,6 +47,7 @@ ${self.tagline(True)}
 <%def name="entry()">
   <% fullname = thing._fullname %>
   <% collapse = thing.collapsed %>
+  <% retractedClass = "retracted" if getattr(thing, "retracted", False) else "" %>
   <% focal    = (c.focal_comment and c.focal_comment == thing._id36) and 'focal' or '' %>
   <div id="collapsed_${fullname}" class="comment-meta collapsed clear ${focal}"
        ${(not collapse and "style='display:none'" or "")}>
@@ -57,7 +58,7 @@ ${self.tagline(True)}
     <div class="comment-meta clear">
       ${self.tagline()}
     </div>
-    <div id="body_${fullname}" class="comment-content">
+    <div id="body_${fullname}" class="comment-content ${retractedClass}">
       ${self.commentBody()}
     </div>
     <div style="display: none;" \

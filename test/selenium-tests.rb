@@ -10,24 +10,74 @@ end
 # Run firefox3 cause firefox4 is buggy on macosx 10.5
 require 'selenium-webdriver'
 Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
-home = 'http://lesswrong.local:8085'
+
+def get_title(page)
+  page.find(:xpath, "//title").text
+end
 
 describe 'Lesswrong' do
-  it 'should register' do
-
+  before do
+    @home = 'http://lesswrong.local:8080'
+    @admin_user = 'admin'
   end
 
-  it 'should login' do
-    visit home
-    fill_in 'username', :with => 'testing'
-    fill_in 'password', :with => 'test'
-    click_button 'Login'
-    page.should have_link('Log out')
-    page.should_not have_link('Login')
+  def login(user)
+    visit @home
+    fill_in "username", :with => user
+    fill_in "password", :with => user
+    click_on "Login"
   end
 
-  it "should have preferences" do
-    visit home
+  def fill_tinymce(input_id,value)
+    # Magic to fill in tinymce (in an iframe)
+    bridge =  page.driver.browser
+    bridge.switch_to.frame("#{input_id}_ifr")
+    editor = page.find_by_id('tinymce').native
+    editor.send_keys(value)
+    bridge.switch_to.default_content
+  end
+
+  it "login admin user" do
+    login(@admin_user)
+    get_title(page).should == "Less Wrong"
+    click_on "Turn admin on"
+    click_on "Turn admin off"
+    click_on 'Log out'
+  end
+
+  xit 'can create article' do
+    login(@admin_user)
+    click_on 'Create new article'
+    fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
+    fill_in 'title', :with => 'A test article'
+    click_button 'Submit'
+
+    find('a.comment')   # Wait for page to load
+    page.should have_content('A test article Draft')
+    page.should have_content('hovercraft')
+    page.should have_content('Comments (0)')
+
+    # Now edit it, and put it in the 'Less Wrong' subreddit
+    click_link 'Edit'
+    select 'Less Wrong', :from => 'sr'
+    click_button 'Submit'
+    find('a.comment')   # Wait for page to load
+
+    click_on 'Top'
+    page.should have_content('hovercraft')
+
+    click_on 'Log out'
+  end
+
+  it "should register user" do
+    username = 'test_user'
+    visit @home
+    click_on 'Register'
+    fill_in 'user_reg', :with => username
+    fill_in 'passwd_reg', :with => username
+    fill_in 'passwd2_reg', :with => username
+    click_on 'Create account'
+    page.should have_content(username)
     within "#sidebar" do
       page.should have_no_content('Nowhere Land')
     end
@@ -38,11 +88,13 @@ describe 'Lesswrong' do
     within "#sidebar" do
       page.should have_content('Nowhere Land')
     end
+    click_on 'Log out'
   end
 
   it 'should allow browsing' do
     find('#logo').click
-    %w(New Top Comments Promoted).each do |l|
+    login('test_user')
+    %w(New Comments Promoted Top).each do |l|
       click_link l
     end
     find('.post a').click
@@ -56,9 +108,24 @@ describe 'Lesswrong' do
     # This find will wait for the ajax to complete before our 'all' assertion below
     find('#article_nav_controls li')
     all('#article_nav_controls li').size.should >1
+    click_on 'Log out'
   end
 
-  it 'should have a "load all comments" link' do
+  it 'can delete user' do
+    login('test_user')
+    click_on 'Preferences'
+    click_link 'Delete'
+
+    all("input[value=Yes]").each do |s|
+      s.select_option
+    end
+    click_button 'Delete'
+
+    visit(@home+'/user/test_user')
+    page.should have_content('The page you requested does not exist')
+  end
+
+  xit 'should have a "load all comments" link' do
     click_link('Top')
     find('a.comment').click
     page.should have_selector('.morecomments', :minimum => 1)

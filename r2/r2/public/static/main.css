@@ -316,6 +316,9 @@ div.message div.message div.message div.message div.message div.message div.mess
 .new-comment {
     border: 2px solid red !important;
 }
+div.retracted {
+    text-decoration: line-through;
+}
 div.comment-meta {
 	padding: 0 5px;
 }

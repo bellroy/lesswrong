@@ -197,7 +197,7 @@ function untoggle(execute, parent, oldtext, type) {
         var uh = modhash; //global
         parent.innerHTML = form.executed.value || oldtext;
 
-        if(type == 'del') {
+        if(type == 'del' || type=='retract') {
             post_form(form, type, function() {return ""});
         }
         else if (typeof(type) == "string") {

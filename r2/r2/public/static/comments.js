@@ -160,7 +160,10 @@ function morechildren(form, link_id, children, depth) {
 function getAttrTime(e) { return parseInt(e.readAttribute('time')); }
 
 function highlightNewComments() {
-  var last = getAttrTime($$('#lastViewed')[0]);
+  var lastViewed = $('#lastViewed')
+  if (lastViewed==null)
+    return;
+  var last = getAttrTime(lastViewed);
   $$('div.comment').each(function(div, i) {
     var t = getAttrTime(div.select('.comment-date')[0]);
     if (last<t) {
