@@ -426,6 +426,13 @@ class EditsController(ListingController):
         return Edit._query(sort = desc('_date'))
 
 
+class MeetupslistingController(ListingController):
+    title_text = _('Upcoming Meetups')
+
+    def query(self):
+        return Meetup._query(sort = desc('_date'))
+
+
 class ByIDController(ListingController):
     title_text = _('API')
 

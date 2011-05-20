@@ -38,6 +38,7 @@ from listingcontroller import BlessedController
 from listingcontroller import TagController
 from listingcontroller import RecentpostsController
 from listingcontroller import EditsController
+from listingcontroller import MeetupslistingController
 
 from listingcontroller import MyredditsController
 
