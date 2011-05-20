@@ -37,12 +37,20 @@ describe 'Lesswrong' do
     bridge.switch_to.default_content
   end
 
-  it "login admin user" do
-    login(@admin_user)
-    get_title.should == "Less Wrong"
-    click_on "Turn admin on"
-    click_on "Turn admin off"
-    click_on 'Log out'
+  describe 'admin user' do
+    after(:all) do
+      click_on 'Log out'
+    end
+
+    it 'can login' do
+      login(@admin_user)
+      get_title.should == "Less Wrong"
+    end
+
+    it 'can enable/disable admin functions' do
+      click_on "Turn admin on"
+      click_on "Turn admin off"
+    end
   end
 
   describe 'can create article' do
@@ -126,6 +134,7 @@ describe 'Lesswrong' do
     end
 
     it 'should have browsable pages' do
+      visit @home
       find('#logo').click
       { 'New' => 'Newest Submissions',
         'Comments' => 'Comments',
@@ -162,28 +171,32 @@ describe 'Lesswrong' do
     end
   end
 
-  it 'can delete user' do
-    login('test_user')
-    click_on 'Preferences'
-    click_link 'Delete'
+  describe 'test user' do
+    it 'can delete self' do
+      login('test_user')
+      click_on 'Preferences'
+      click_link 'Delete'
 
-    all("input[value=Yes]").each do |s|
-      s.select_option
+      all("input[value=Yes]").each do |s|
+        s.select_option
+      end
+      click_button 'Delete'
+
+      visit(@home+'/user/test_user')
+      page.should have_content('The page you requested does not exist')
     end
-    click_button 'Delete'
-
-    visit(@home+'/user/test_user')
-    page.should have_content('The page you requested does not exist')
   end
 
-  xit 'should have a "load all comments" link' do
-    click_link('Top')
-    find('a.comment').click
-    page.should have_selector('.morecomments', :minimum => 1)
-    page.should have_link('Load all comments', :visible => true)
-    find('#loadAllComments a').click
-    wait_until do
-      page.has_no_selector?('.morecomments', :visible=>true)
+  describe 'Article view' do
+    xit 'should have a "load all comments" link' do
+      click_link('Top')
+      find('a.comment').click
+      page.should have_selector('.morecomments', :minimum => 1)
+      page.should have_link('Load all comments', :visible => true)
+      find('#loadAllComments a').click
+      wait_until do
+        page.has_no_selector?('.morecomments', :visible=>true)
+      end
     end
   end
 end
