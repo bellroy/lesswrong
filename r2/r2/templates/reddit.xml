@@ -23,3 +23,11 @@
 <%inherit file="base.xml"/>
 
 ${thing.content().render()}
+
+<%def name="Title()">
+  %if hasattr(thing, 'title'):
+    ${thing.title}
+  %else:
+    ${c.site.name}: ${_("What's new")}
+  %endif
+</%def>
