@@ -68,6 +68,15 @@ except ImportError:
 filtermod = Extension('Cfilters',
                       sources = ['r2/lib/c/filters.c'])
 
+# GeoIP isn't in the Python package index so need to install semi-manually
+try:
+    import GeoIP
+except ImportError:
+    print "You need to install the GeoIP python package."
+    print "On Debian Linux and derivations: install the python-geoip package"
+    print "otherwise install manually from: http://www.maxmind.com/app/python"
+    raise Exception
+
 setup(
     name='r2',
     version="",
@@ -98,6 +107,7 @@ setup(
                       "lxml==2.2.6",
                       "PyYAML==3.09",
                       "pytz", # Best to keep up with DST updates (so no specific version)
+                      "geolocator==0.1.1",
                       ],
     packages=find_packages(),
     include_package_data=True,
