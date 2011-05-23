@@ -19,11 +19,13 @@ class Meetup(Thing):
 
   @classmethod
   def upcoming_meetups_query(cls):
-    return Meetup._query(Meetup.c.timestamp > time.time(), limit=5, data=True)
+    return Meetup._query(Meetup.c.timestamp > time.time(), data=True)
 
   @classmethod
-  def upcoming_meetups_near(cls, location, max_distance):
-    meetups = list(cls.upcoming_meetups_query())
+  def upcoming_meetups_near(cls, location, max_distance, count = 5):
+    query = cls.upcoming_meetups_query()
+    query._limit = count
+    meetups = list(query)
 
     # Find nearby ones
     if location:
