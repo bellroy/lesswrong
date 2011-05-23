@@ -301,6 +301,13 @@ class BlessedController(ListingController):
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 
+# This used to be RootController, but renamed since there is a new root controller
+class PromotedController(ListingController):
+   def __before__(self):
+       ListingController.__before__(self)
+       controller = self.link_listings(c.site.default_listing)
+       self.__class__ = controller
+
 class NewController(ListingController):
     where = 'new'
     title_text = _('Newest Submissions')

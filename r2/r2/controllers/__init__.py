@@ -23,6 +23,7 @@ from listingcontroller import ListingController
 from listingcontroller import HotController
 from listingcontroller import SavedController
 from listingcontroller import ToplinksController
+from listingcontroller import PromotedController
 from listingcontroller import NewController
 from listingcontroller import BrowseController
 from listingcontroller import RecommendedController
