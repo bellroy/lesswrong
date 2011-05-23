@@ -1,0 +1,16 @@
+<%!
+  from routes.util import url_for
+%>
+<%namespace file="utils.html" import="plain_link"/>
+<%namespace file="meetup.html" import="meetup_title"/>
+<h2>${plain_link(_('Upcoming Meetups'), '/meetups')}:</h2>
+%if len(thing.meetups) > 0:
+  <ul>
+    %for meetup in thing.meetups:
+      <li>${meetup_title(meetup)}</li>
+    %endfor
+  </ul>
+%else:
+  <p>There are no upcoming meetups in your area.&#32;
+  <a href="/meetups" class="view-all">View all meetups</a>.
+%endif

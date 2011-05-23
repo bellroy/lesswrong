@@ -6,7 +6,7 @@
 %>
 <% meetup = thing.meetup %>
 <h1>
-  <a href="${url_for('meetup', id=meetup._id)}">${meetup.title}</a>
+  <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">${meetup.title}</a>
 </h1>
 <div class="meta clear">
 ##  ${unsafe(self.author(friend = thing.friend))}

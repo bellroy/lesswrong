@@ -1,0 +1,21 @@
+<%!
+   from r2.lib.template_helpers import add_sr, get_domain
+   from r2.lib.utils import rfc822format
+   from r2.lib.filters import safemarkdown
+   from routes.util import url_for
+   from r2.lib.utils import prettytime
+%>
+<% 
+   url = add_sr(url_for(controller='meetups', action='show', id=thing._id36), force_hostname=True)
+ %>
+<item>
+  <title>${thing.title}: ${prettytime(thing.datetime())}</title>
+  <link>${url}</link>
+  <guid isPermaLink="true">${url}</guid>
+  <pubDate>${rfc822format(thing._date)}</pubDate>
+  <description>
+    <% domain = get_domain(cname = c.cname, subreddit = False) %>
+    ${unsafe(safemarkdown(thing.description))}
+  </description>
+</item>
+
