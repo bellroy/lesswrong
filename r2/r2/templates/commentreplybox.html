@@ -19,7 +19,10 @@
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
-
+<%! 
+  from r2.lib.wikipagecached import CommentPage
+  from r2.lib.filters import cleanhtml
+%>
 <%namespace file="utils.html" import="error_field"/>
 %if not thing.link_name:
 <div id="samplecomment_" style="display:none">
@@ -73,25 +76,7 @@
     </script>
 
     <div id="markhelp_${thing.link_name}" style="display: none">
-      <table class="help">
-        <tr style="background-color: #ffff99; text-align: center">
-          <td><em>${_( "you type:")}</em></td>
-          <td><em>${_( "you see:")}</em></td></tr>
-        <tr><td>*${_( "italics")}*</td>
-          <td><em>${_( "italics")}</em></td></tr>
-        <tr><td>**${_( "bold")}**</td>
-          <td><b>${_( "bold")}</b></td></tr>
-        <tr><td>[LessWrong](http://www.lesswrong.com)</td>
-          <td><a href="http://lesswrong.com">LessWrong</a></td></tr>
-        <tr><td>* ${_( "item")} 1<br/>
-            * ${_( "item")} 2<br/>
-            *  ${_( "item")} 3</td>
-          <td><ul><li>${_( "item")} 1</li>
-              <li>${_( "item")} 2</li>
-              <li>${_( "item")} 3</li></ul></td></tr>
-        <tr><td>&gt; ${_( "quoted text")}</td>
-          <td><blockquote>${_( "quoted text" )}</blockquote></td></tr>
-      </table>
+      ${unsafe(cleanhtml(CommentPage().html())) }
     </div>
   </form>
 %if not thing.link_name:

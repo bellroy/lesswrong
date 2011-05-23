@@ -33,7 +33,6 @@ from listingcontroller import RandomrisingController
 from listingcontroller import UserController
 from listingcontroller import CommentsController
 from listingcontroller import TopcommentsController
-from listingcontroller import RootController
 from listingcontroller import BlessedController
 from listingcontroller import TagController
 from listingcontroller import RecentpostsController
@@ -43,6 +42,7 @@ from listingcontroller import MyredditsController
 
 from feedback import FeedbackController
 from front import FrontController
+from front import WikipageController
 from buttons import ButtonsController
 from captcha import CaptchaController
 from embed import EmbedController
