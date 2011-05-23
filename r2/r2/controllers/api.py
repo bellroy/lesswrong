@@ -60,9 +60,9 @@ from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
 
-from simplejson import dumps
-
+from geolocator.providers import MaxMindCityDataProvider
 from datetime import datetime, timedelta
+from simplejson import dumps
 from md5 import md5
 
 from r2.lib.promote import promote, unpromote, get_promoted
@@ -966,7 +966,13 @@ class ApiController(RedditController):
     def GET_side_meetups(self, *a, **kw):
         """Return HTML snippet of the upcoming meetups for the side bar."""
         cache_key = "side-meetups" # TODO: include the current user in this
-        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age)
+        geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
+        try:
+            location = geo.getLocationByIp(c.environ['REMOTE_ADDR'])
+        except TypeError:
+            # geolocate can attempt to index into a None result from GeoIP
+            location = None
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, location=location, max_distance=g.meetups_radius)
 
     def GET_upload_sr_img(self, *a, **kw):
         """

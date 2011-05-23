@@ -22,22 +22,15 @@ class Meetup(Thing):
     return Meetup._query(Meetup.c.timestamp > time.time(), limit=5, data=True)
 
   @classmethod
-  def upcoming_meetups(cls):
-    meetups = list(cls.upcoming_meetups_query())
-
-    # Sort in Python because the Thing API only provides sorting by base columns
-    meetups.sort(key=lambda m: m.timestamp)
-    return meetups
-
-  @classmethod
-  def upcoming_meetups_near(cls, point):
+  def upcoming_meetups_near(cls, location, max_distance):
     meetups = list(cls.upcoming_meetups_query())
 
     # Find nearby ones
-    meetups = filter(lambda m: m.distance_to(point) < 100, meetups)
+    if location:
+        meetups = filter(lambda m: m.distance_to(point) <= max_distance, meetups)
+    else:
+        meetups.sort(key=lambda m: m.timestamp)
 
-    # Sort in Python because the Thing API only provides sorting by base columns
-    #meetups.sort(key=lambda m: )
     return meetups
 
 

@@ -38,7 +38,6 @@ from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
 from r2.lib.template_helpers import add_sr, get_domain
 from r2.lib.promote import promote_builder_wrapper
-from geolocator.providers import MaxMindCityDataProvider
 import sys
 
 datefmt = _force_utf8(_('%d %b %Y'))
@@ -1361,19 +1360,8 @@ class SiteMeter(Wrapped):
         Wrapped.__init__(self, *a, **kw)
 
 class UpcomingMeetups(SpaceCompressedWrapped):
-    def __init__(self, *a, **kw):
-        geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
-        try:
-            location = geo.getLocationByIp(c.environ['REMOTE_ADDR'])
-        except TypeError:
-            # geolocate can attempt to index into a None result from GeoIP
-            location = None
-
-        if location is not None:
-            meetups = Meetup.upcoming_meetups_near(location)
-        else:
-            meetups = Meetup.upcoming_meetups()
-
+    def __init__(self, location, max_distance, *a, **kw):
+        meetups = Meetup.upcoming_meetups_near(location, max_distance)
         Wrapped.__init__(self, meetups=meetups, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
