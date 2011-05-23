@@ -77,7 +77,8 @@ def make_map(global_conf={}, app_conf={}):
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
     mc('/', controller='wikipage', action='root')
-    
+    mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
+
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"
 
     mc('/:controller', action='listing',
