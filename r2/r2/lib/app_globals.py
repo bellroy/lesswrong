@@ -53,6 +53,7 @@ class Globals(object):
                  'side_contributors_max_age',
                  'post_karma_multiplier',
                  'article_navigation_max_age',
+                 'meetups_radius',
                  ]
     
     bool_props = ['debug', 'translator', 
