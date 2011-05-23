@@ -633,3 +633,15 @@ class FrontController(RedditController):
 
     def GET_blank(self):
         return ''
+
+
+from r2.lib.wikipagecached import AboutPage, MainPage
+
+# Controller for pages pulled from wiki
+class WikipageController(RedditController):
+
+    def GET_about(self):
+        return WikiPage(AboutPage()).render()
+
+    def GET_root(self):
+        return WikiPage(MainPage()).render()

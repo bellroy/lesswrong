@@ -1372,3 +1372,17 @@ class NewMeetup(Wrapped):
     def __init__(self, title= '', location = '', description = '', date = ''):
         Wrapped.__init__(self, title = title, location = location, description = description, date = date)
 
+
+class WikiPageInline(Wrapped): 
+    def __init__(self, html):
+        Wrapped.__init__(self, html=html)
+
+class WikiPage(Reddit):
+    def __init__(self, page, **context):
+        self.pagename = page.title()
+        Reddit.__init__(self,
+                        content = WikiPageInline(page.html()),
+                        title = self.pagename, 
+                        space_compress=False, 
+                        **context)
+

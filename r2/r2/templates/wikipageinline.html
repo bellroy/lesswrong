@@ -1,0 +1,7 @@
+<%!
+   from r2.lib.filters import cleanhtml
+ %>
+
+<div class="md">
+  ${unsafe(cleanhtml(thing.html))}
+</div>
