@@ -575,3 +575,11 @@ div.articlenavigation #article_nav_controls .loading {
 div.articlenavigation #article_nav_controls .loading img {
 	padding-right: 5px;
 }
+
+/* Styling for embedded wiki pages */
+#wiki #jump-to-nav, #wiki #siteSub {
+    display: none;
+}
+.wiki-comment-help h1, .wiki-comment-help div[id^='jump-to-nav'] {
+    display: none;
+}
