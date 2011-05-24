@@ -428,6 +428,14 @@ def prettytime(date, seconds = False):
 def rfc822format(date):
     return date.strftime('%a, %d %b %Y %H:%M:%S %z')
 
+def usformat(date):
+  """
+  Format a datetime in US date format
+
+  Makes the date readable by the Protoplasm datetime picker
+  """
+  return date.strftime('%m-%d-%Y %H:%M:%S')
+
 def to_base(q, alphabet):
     if q < 0: raise ValueError, "must supply a positive integer"
     l = len(alphabet)
