@@ -1,11 +1,13 @@
 from r2.lib.db.thing import Thing
 
-import pytz
 import time
 from datetime import datetime
 from r2.lib.utils import FixedOffset
 from r2.lib.db.operators import desc
 from geolocator import gislib
+# must be here to stop bizarre NotImplementedErrors being raise in the datetime
+# method below
+import pytz 
 
 class Meetup(Thing):
   def datetime(self):
