@@ -587,6 +587,7 @@ div.articlenavigation #article_nav_controls .loading img {
     font-size: 6pt;
     color: gray;
 }
-a[id^='invalidate'] {
+form[id^='invalidate'] {
     float: right;
+    font-size: 6pt;
 }

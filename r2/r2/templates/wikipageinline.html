@@ -1,7 +1,9 @@
 <%!
    from r2.lib.filters import cleanhtml
  %>
+<%namespace name="wiki" file="invalidate_wikipagecache.html" import="invalidate_link"/>
 
 <div id="wiki">
   ${unsafe(cleanhtml(thing.html))}
+  ${wiki.invalidate_link(thing.name)}
 </div>

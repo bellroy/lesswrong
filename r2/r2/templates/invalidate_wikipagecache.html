@@ -1,0 +1,5 @@
+<%def name="invalidate_link(name)">
+    <form id='invalidate' method='POST' action='/invalidate_cache/${name}'>
+      <input type='submit' value='Pull from wiki' name='invalidate'/>
+    </form>
+</%def>

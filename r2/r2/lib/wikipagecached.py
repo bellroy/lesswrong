@@ -19,9 +19,6 @@ def base_url(url):
     u = urlsplit(url)
     return urlunsplit([u[0],u[1]]+['','',''])
 
-def invalidate_link(page):
-    return "<a id='invalidate' href='/invalidate_cache/%s'>Invalidate</a>"%page.name()
-
 def fetch(url):
     log.debug('fetching: %s' % url)
     req = Request(url)
@@ -35,15 +32,6 @@ def getParsedContent(str):
     except KeyError:
         return parsed
 
-# Modify the 'elem' by embedding an 'invalidate' link at the appropriate place
-def embedInvalidateLink(page,elem):
-    # Embed the invalidate cache link
-    try:
-        linkAsElem = soupparser.fromstring( invalidate_link(page) ).get_element_by_id('invalidate')
-        elem.cssselect('.printfooter')[0].append(linkAsElem)
-    except Exception as e:
-        log.warning("Unable to embed invalidate link : %s"%e)
-
 class WikiPageCached:
     @staticmethod
     def html(page):
@@ -55,7 +43,6 @@ class WikiPageCached:
                 str = fetch(url)
                 elem = getParsedContent(str)
                 elem.make_links_absolute(base_url(url))
-                embedInvalidateLink(page,elem)
                 content = tostring(elem, method='html', encoding='utf8', with_tail=False)
                 g.rendercache.set(url, content, cache_time())
             except Exception as e:

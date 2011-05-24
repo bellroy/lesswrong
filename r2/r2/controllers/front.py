@@ -639,9 +639,9 @@ class WikipageController(RedditController):
             if name == p.name():
                 return WikiPage(p).render()
 
-    def GET_invalidate_cache(self, name):
+    def POST_invalidate_cache(self, name):
         for p in allWikiPagesCached:
             if name == p.name():
                 WikiPageCached.invalidate(p)
-                return "Done"
+                return self.redirect(p.route())
         return "No such page"
