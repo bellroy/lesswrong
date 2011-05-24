@@ -3,6 +3,7 @@ from pylons import g
 from r2.lib.pages import *
 from pylons.i18n import _, ungettext
 from urllib2 import Request, HTTPError, URLError, urlopen
+from urlparse import urlsplit,urlunsplit
 from lxml.html import soupparser
 from lxml.etree import tostring
 
@@ -23,18 +24,18 @@ class WikiPageCached:
     def url(self):
         raise NotImplementedError
 
+    def base_url(self):
+        u = urlsplit(self.url())
+        return urlunsplit([u[0],u[1]]+['','',''])
+
+    def invalidate_link(self):
+        return "<a id='invalidate' href='/invalidate_cache/%s'>Invalidate</a>"%self.name()
+
     def fetch(self):
         u = self.url()
-        content = g.rendercache.get(u)
-        try:
-            if not content:
-                log.debug('fetching: %s' % u)
-                req = Request(u)
-                content = urlopen(req).read()
-                g.rendercache.set(u, content, WikiPageCached.cache_time())
-        except IOError as e:
-            log.warn("Unable to fetch wiki page: '%s' %s"%(u,e))
-            content = WikiPageCached.missing_content()
+        log.debug('fetching: %s' % u)
+        req = Request(u)
+        content = urlopen(req).read()
         return content
 
     def invalidate(self):
@@ -49,20 +50,31 @@ class WikiPageCached:
         except KeyError:
             return parsed
 
-    def invalidate_link(self):
-        return "<a id='invalidate' href='/invalidate_cache/%s'>Invalidate</a>"%self.name()
-
-    def html(self):
-        str = self.fetch()
-        elem = self.getParsedContent(str)
-
+    def embedInvalidateLink(self, elem):
         # Embed the invalidate cache link
         try:
             linkAsElem = soupparser.fromstring( self.invalidate_link() ).get_element_by_id('invalidate')
             elem.cssselect('.printfooter')[0].append(linkAsElem)
         except:
             pass
-        return tostring(elem, method='html', encoding='utf8', with_tail=False)
+
+    def html(self):
+        u=self.url()
+        content = g.rendercache.get(u)
+
+        if not content:
+            try:
+                str = self.fetch()
+                elem = self.getParsedContent(str)
+                self.embedInvalidateLink(elem)
+                elem.make_links_absolute(self.base_url())
+                content = tostring(elem, method='html', encoding='utf8', with_tail=False)
+                g.rendercache.set(u, content, WikiPageCached.cache_time())
+            except Exception as e:
+                log.warn("Unable to fetch wiki page: '%s' %s"%(u,e))
+                content = WikiPageCached.missing_content()
+        return content
+
 
 class AboutPage(WikiPageCached):
     def url(self): return 'http://wiki.lesswrong.com/wiki/Lesswrong:Aboutpage'
