@@ -44,7 +44,6 @@ from listingcontroller import MyredditsController
 
 from feedback import FeedbackController
 from front import FrontController
-from front import WikipageController
 from buttons import ButtonsController
 from captcha import CaptchaController
 from embed import EmbedController
@@ -54,6 +53,7 @@ from toolbar import ToolbarController
 from i18n import I18nController
 from promotecontroller import PromoteController
 from meetupscontroller import MeetupsController
+from wikipagecontroller import WikipageController
 
 from querycontroller import QueryController
 

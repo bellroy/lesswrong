@@ -1384,11 +1384,11 @@ class EditMeetup(Wrapped):
 class WikiPageInline(Wrapped): pass
 
 class WikiPage(Reddit):
-    def __init__(self, page, **context):
-        self.pagename = page.title()
+    def __init__(self, name, page, **context):
+        self.pagename = page['title']()
         html = WikiPageCached.html(page)
         Reddit.__init__(self,
-                        content = WikiPageInline(html=html, name=page.name(), title=page.title()),
+                        content = WikiPageInline(html=html, name=name, title=self.pagename),
                         title = self.pagename, 
                         space_compress=False, 
                         **context)

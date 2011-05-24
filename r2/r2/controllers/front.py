@@ -628,20 +628,3 @@ class FrontController(RedditController):
     def GET_blank(self):
         return ''
 
-
-from wiki_pages_embed import allWikiPagesCached
-
-# Controller for pages pulled from wiki
-class WikipageController(RedditController):
-
-    def GET_wikipage(self,name):
-        for p in allWikiPagesCached:
-            if name == p.name():
-                return WikiPage(p).render()
-
-    def POST_invalidate_cache(self, name):
-        for p in allWikiPagesCached:
-            if name == p.name():
-                WikiPageCached.invalidate(p)
-                return self.redirect(p.route())
-        return "No such page"

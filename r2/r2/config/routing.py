@@ -77,9 +77,12 @@ def make_map(global_conf={}, app_conf={}):
 
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
-    for page in allWikiPagesCached:
-        if hasattr(page,'route'):
-            mc(page.route(), controller='wikipage', action='wikipage', name=page.name())
+    for name,page in allWikiPagesCached.items():
+        if page.has_key('route'):
+            mc(page['route'], controller='wikipage', action='wikipage', name=name)
+        if page.has_key('htmlroute'):
+            mc("/wiki"+page['htmlroute'], controller='wikipage', action='html', name=name)
+        
     mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
 
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"

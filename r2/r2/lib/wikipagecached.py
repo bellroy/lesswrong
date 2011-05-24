@@ -37,7 +37,7 @@ def getParsedContent(str):
 class WikiPageCached:
     @staticmethod
     def html(page):
-        url=page.url()
+        url=page['url']
         content = g.rendercache.get(url)
 
         if not content:
@@ -54,7 +54,7 @@ class WikiPageCached:
 
     @staticmethod
     def invalidate(page):
-        g.rendercache.delete(page.url())
-        log.debug('invalidated: %s' % page.url())
+        g.rendercache.delete(page['url'])
+        log.debug('invalidated: %s' % page['url'])
 
     
