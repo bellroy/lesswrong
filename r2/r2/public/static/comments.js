@@ -1,6 +1,16 @@
 function helpon(link, what, newlabel) {
     var id = _id(link);
-    show(what + id);
+    show(what+id);
+
+    // If not loaded help content, load it!
+    if ($(what+id).innerHTML.indexOf('Loading')==0) {
+      new Ajax.Request("/wiki/comment-help", {
+        method: 'get',
+        onSuccess: function(response) {
+          $(what+id).innerHTML = response.responseText;
+        }});
+    }
+
     var oldlabel = link.innerHTML;
     if(newlabel) {
         link.innerHTML = newlabel

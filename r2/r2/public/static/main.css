@@ -578,9 +578,8 @@ div.articlenavigation #article_nav_controls .loading img {
 
 /* Styling for embedded wiki pages */
 #wiki #jump-to-nav, #wiki #siteSub,
-.wiki-comment-help div[id^='jump-to-nav'], .wiki-comment-help *[id^='siteSub'],
-#wiki h1,
-.wiki-comment-help h1, 
+.wiki-comment-help div#jump-to-nav, .wiki-comment-help #siteSub,
+#wiki h1, .wiki-comment-help h1, 
 #wiki #catlinks, .wiki-comment-help div[id^='catlinks'] {
     display: none;
 }
@@ -588,7 +587,7 @@ div.articlenavigation #article_nav_controls .loading img {
     font-size: 6pt;
     color: gray;
 }
-form[id^='invalidate'] {
+form#invalidate {
     float: right;
     font-size: 6pt;
 }

@@ -19,11 +19,6 @@
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
-<%! 
-  from wiki_pages_embed import CommentPage
-  from r2.lib.wikipagecached import WikiPageCached
-  from r2.lib.filters import cleanhtml
-%>
 <%namespace file="utils.html" import="error_field"/>
 %if not thing.link_name:
 <div id="samplecomment_" style="display:none">
@@ -77,7 +72,7 @@
     </script>
 
     <div id="markhelp_${thing.link_name}" class="wiki-comment-help" style="display: none">
-      ${unsafe(cleanhtml(WikiPageCached.html(CommentPage()))) }
+      Loading...
     </div>
   </form>
 %if not thing.link_name:
