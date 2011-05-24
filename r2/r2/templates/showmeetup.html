@@ -20,7 +20,7 @@
   </span>
   <div id="map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
 
-%if meetup.can_edit(c.user):
+%if meetup.can_edit(c.user, c.user_is_admin):
   <a href="${url_for(controller='meetups', action='edit', id=meetup._id36)}">${_('Edit meetup')}</a>
 %endif
 

@@ -64,7 +64,7 @@ class MeetupsController(RedditController):
 
   @Json
   @validate(VUser(),
-            meetup = VMeetup('id'),
+            meetup = VEditMeetup('id'),
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),
             location = VRequired('location', errors.NO_LOCATION),

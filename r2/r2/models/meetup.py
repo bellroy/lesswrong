@@ -47,9 +47,12 @@ class Meetup(Thing):
   def keep_item(self, item):
     return True
 
-  def can_edit(self, user):
+  def can_edit(self, user, user_is_admin=False):
     """Returns true if the supplied user is allowed to edit this meetup"""
-    return True
+    if user and (user_is_admin or self.author_id == user._id):
+      return True
+    else:
+      return False
 
   @staticmethod
   def cache_key(item):
