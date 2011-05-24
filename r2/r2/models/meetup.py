@@ -1,11 +1,14 @@
 from r2.lib.db.thing import Thing
 
-import pytz
 import time
 from datetime import datetime
 from r2.lib.utils import FixedOffset
 from r2.lib.db.operators import desc
 from geolocator import gislib
+# must be here to stop bizarre NotImplementedErrors being raise in the datetime
+# method below
+import pytz 
+from r2.models.account import FakeAccount
 
 class Meetup(Thing):
   def datetime(self):
@@ -35,7 +38,6 @@ class Meetup(Thing):
 
     return meetups
 
-
   def distance_to(self, location):
     """
     Returns the distance from this meetup to the passed point. The point is
@@ -45,6 +47,15 @@ class Meetup(Thing):
 
   def keep_item(self, item):
     return True
+
+  def can_edit(self, user, user_is_admin=False):
+    """Returns true if the supplied user is allowed to edit this meetup"""
+    if user is None or isinstance(user, FakeAccount):
+      return False
+    elif user_is_admin or self.author_id == user._id:
+      return True
+    else:
+      return False
 
   @staticmethod
   def cache_key(item):

@@ -581,8 +581,16 @@ div.comment div.parent {
 }
 /* Meetups */
 #map {
+  margin-top: 1em;
   width: 640px;
   height: 480px;
+}
+div.meta.meetup {
+  color: black;
+}
+div.meta.meetup strong {
+  float: left;
+  width: 4em;
 }
 .pretty-form.meetup label {
   font-weight: bold;

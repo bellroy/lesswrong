@@ -1,0 +1,15 @@
+<%!
+  from r2.lib.template_helpers import static
+  from r2.lib.utils import usformat
+  from routes.util import url_for
+%>
+<%namespace name="utils" file="utils.html" import="error_field, submit_form"/>
+<%namespace name="form" file="newmeetup.html" import="form_fields"/>
+
+<h1>Edit Meetup</h1>
+
+<%utils:submit_form action="/meetups/${thing._id36}/update" onsubmit="return post_form(this, 'meetups/${thing._id36}/update', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="${thing.tzoffset}" latitude="${thing.latitude}" longitude="${thing.longitude}">
+  ${form_fields()}
+</%utils:submit_form>
+
+<script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>
