@@ -8,7 +8,7 @@ class AboutPage:
     @staticmethod
     def url(): return 'http://wiki.lesswrong.com/wiki/Lesswrong:Aboutpage'
     @staticmethod
-    def title(): return _('About - '+c.site.name)
+    def title(): return _('About - '+c.site.title)
     @staticmethod
     def name(): return 'about'
 
@@ -18,7 +18,7 @@ class MainPage:
     @staticmethod
     def url(): return 'http://wiki.lesswrong.com/wiki/Lesswrong:Homepage'
     @staticmethod
-    def title(): return _(c.site.name)
+    def title(): return _(c.site.title)
     @staticmethod
     def name(): return 'main'
 

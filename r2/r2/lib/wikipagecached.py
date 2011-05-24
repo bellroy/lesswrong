@@ -28,7 +28,9 @@ def fetch(url):
 def getParsedContent(str):
     parsed = soupparser.fromstring(str)
     try:
-        return parsed.get_element_by_id('content')
+        elem=parsed.get_element_by_id('content')
+        elem.set('id','wiki-content')
+        return elem
     except KeyError:
         return parsed
 
