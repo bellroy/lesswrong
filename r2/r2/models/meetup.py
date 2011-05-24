@@ -35,7 +35,6 @@ class Meetup(Thing):
 
     return meetups
 
-
   def distance_to(self, location):
     """
     Returns the distance from this meetup to the passed point. The point is
@@ -44,6 +43,10 @@ class Meetup(Thing):
     return gislib.getDistance((self.latitude, self.longitude), location)
 
   def keep_item(self, item):
+    return True
+
+  def can_edit(self, user):
+    """Returns true if the supplied user is allowed to edit this meetup"""
     return True
 
   @staticmethod

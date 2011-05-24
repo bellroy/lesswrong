@@ -90,6 +90,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/meetups/create', action='create', controller='meetups')
     mc('/meetups', action='listing', controller='meetupslisting')
     mc('/meetups/new', action='new', controller='meetups')
+    mc('/meetups/:id/edit', action='edit', controller='meetups')
     mc('/meetups/:id', action='show', controller='meetups')
 
     mc('/tag/:tag', controller='tag', action='listing', where='tag')

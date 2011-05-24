@@ -147,6 +147,16 @@ class VMeetup(Validator):
                 else:
                     return None
 
+class VEditMeetup(VMeetup):
+    def __init__(self, param, redirect = True, *a, **kw):
+        VMeetup.__init__(self, param, redirect = redirect, *a, **kw)
+
+    def run(self, param):
+        meetup = VMeetup.run(self, param)
+        if meetup and not (c.user_is_loggedin and meetup.can_edit(c.user)):
+            abort(403, "forbidden")
+        return meetup
+
 class VTagByName(Validator):
     def __init__(self, param, *a, **kw):
         Validator.__init__(self, param, *a, **kw)

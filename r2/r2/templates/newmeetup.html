@@ -1,12 +1,13 @@
 <%!
   from r2.lib.template_helpers import static
+  from r2.lib.utils import usformat
   from routes.util import url_for
 %>
 <%namespace name="utils" file="utils.html" import="error_field, submit_form"/>
 
 <h1>New Meetup</h1>
 
-<%utils:submit_form action="/meetups/create" onsubmit="return post_form(this, 'meetups/create', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="0" latitude="0" longitude="0">
+<%utils:submit_form action="/meetups/create" onsubmit="return post_form(this, 'meetups/create', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="${thing.tzoffset}" latitude="${thing.latitude}" longitude="${thing.longitude}">
 <fieldset>
   <label for="title">${_("Title")}:</label>
   <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
@@ -25,18 +26,19 @@
 <fieldset>
   <label for="description">${_("Description")}:</label>
   <textarea id="description" name="description" rows="5" cols="35">
+    ${thing.description}
   </textarea>
   ${error_field("NO_DESCRIPTION", "span")}
 </fieldset>
 
 <fieldset>
   <label for="date">${_("Date")}:</label>
-  <input id="date" class="date" name="timestamp" value="${thing.date}" type="text" />
+  <input id="date" class="date" name="timestamp" value="${thing.timestamp}" type="text" />
   ${error_field("NO_DATE", "span")}
   ${error_field("INVALID_DATE", "span")}
 </fieldset>
 
-<button class="btn" type="submit">${_("Create Meetup")}</button>
+<button class="btn" type="submit">${_("Submit Meetup")}</button>
 <span id="status" class="error"></span>
 </%utils:submit_form>
 

@@ -1,10 +1,11 @@
 from reddit_base import RedditController
-from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup
-from validator import validate, VUser, VRequired, VMeetup, VFloat, nop
+from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup
+from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, nop
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
 from r2.models import Meetup
+from pylons import c
 import json
 
 class MeetupsController(RedditController):
@@ -12,15 +13,15 @@ class MeetupsController(RedditController):
     return self.sendstring(json.dumps(kw))
 
   @validate(VUser(),
-            title = VRequired('title', None),
-            description = VRequired('description', None),
-            location = VRequired('location', None),
-            date = VRequired('date', None))
+            title = nop('title'),
+            description = nop('description'),
+            location = nop('location'),
+            timestamp = nop('timestamp'))
   def GET_new(self, title, description, location, date):
     return BoringPage(pagename = 'New Meetup', content = NewMeetup(title=title or '',
                                                                    description=description or '',
                                                                    location=location or '',
-                                                                   date=date or '')).render()
+                                                                   timestamp=timestamp or '')).render()
 
   @Json
   @validate(VUser(),
@@ -43,17 +44,20 @@ class MeetupsController(RedditController):
 
     if res.error: return
 
-    meetup = Meetup()
-    meetup.title = title
-    meetup.description = description
+    meetup = Meetup(
+      author_id = c.user._id,
 
-    # TODO: Geocode
-    meetup.location = location
-    meetup.latitude = latitude
-    meetup.longitude = longitude
+      title = title,
+      description = description,
 
-    meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
-    meetup.tzoffset = tzoffset
+      # TODO: Geocode
+      location = location,
+      latitude = latitude,
+      longitude = longitude,
+
+      timestamp = timestamp / 1000, # Value from form is in ms UTC
+      tzoffset = tzoffset
+    )
 
     meetup._commit()
 
@@ -63,5 +67,14 @@ class MeetupsController(RedditController):
   def GET_show(self, meetup):
     return BoringPage(pagename = meetup.title, content = ShowMeetup(meetup = meetup)).render()
 
-  def GET_edit(self):
-    pass
+  @validate(VUser(),
+            meetup = VEditMeetup('id'))
+  def GET_edit(self, meetup):
+    return BoringPage(pagename = 'Edit Meetup', content = EditMeetup(meetup,
+                                                                     title=meetup.title,
+                                                                     description=meetup.description,
+                                                                     location=meetup.location,
+                                                                     latitude=meetup.latitude,
+                                                                     longitude=meetup.longitude,
+                                                                     timestamp=int(meetup.timestamp * 1000),
+                                                                     tzoffset=meetup.tzoffset)).render()

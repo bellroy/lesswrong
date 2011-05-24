@@ -1374,10 +1374,13 @@ class ShowMeetup(Wrapped):
         Wrapped.__init__(self, meetup = meetup)
 
 class NewMeetup(Wrapped):
-    def __init__(self, title= '', location = '', description = '', date = ''):
-        Wrapped.__init__(self, title = title, location = location, description = description, date = date)
+    def __init__(self, *a, **kw):
+        Wrapped.__init__(self, *a, **kw)
 
-class WikiPageInline(Wrapped): 
+class EditMeetup(Wrapped):
+    pass
+
+class WikiPageInline(Wrapped):
     def __init__(self, html, name):
         Wrapped.__init__(self, html=html, name=name)
 
