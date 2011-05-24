@@ -77,6 +77,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
     mc('/', controller='wikipage', action='root')
+    mc('/about-less-wrong', controller='wikipage', action='about')
     mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
 
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"
@@ -127,7 +128,6 @@ def make_map(global_conf={}, app_conf={}):
     mc('/code', controller='redirect', action='redirect',
        dest='http://code.google.com/p/lesswrong/')
 
-    mc('/about-less-wrong', controller='front', action='about')
     mc('/issues', controller='front', action='issues')
 
     # Google webmaster tools verification page
