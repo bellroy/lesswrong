@@ -115,6 +115,11 @@ class VRequired(Validator):
         else:
             return item
 
+class ValueOrBlank(Validator):
+    def run(self, value):
+        """Returns the value as is if present, else an empty string"""
+        return '' if value is None else value
+
 class VLink(Validator):
     def __init__(self, param, redirect = True, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
