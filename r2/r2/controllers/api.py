@@ -965,10 +965,11 @@ class ApiController(RedditController):
 
     def GET_side_meetups(self, *a, **kw):
         """Return HTML snippet of the upcoming meetups for the side bar."""
-        cache_key = "side-meetups" # TODO: include the current user in this
+        ip = c.environ['REMOTE_ADDR']
+        cache_key = "side-meetups-%s" % ip
         geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
         try:
-            location = geo.getLocationByIp(c.environ['REMOTE_ADDR'])
+            location = geo.getLocationByIp(ip)
         except TypeError:
             # geolocate can attempt to index into a None result from GeoIP
             location = None
