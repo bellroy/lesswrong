@@ -13,6 +13,10 @@ class WikiPageCached:
     def missing_content():
         return "<h2>Unable to fetch wiki page.  Try again later</h2>"
 
+    @staticmethod
+    def cache_time():
+        return int(g.wiki_page_cache_time)
+
     def title(self):
         raise NotImplementedError
 
@@ -27,7 +31,7 @@ class WikiPageCached:
                 log.debug('fetching: %s' % u)
                 req = Request(u)
                 content = urlopen(req).read()
-                g.rendercache.set(u, content)
+                g.rendercache.set(u, content, WikiPageCached.cache_time())
         except IOError as e:
             log.warn("Unable to fetch wiki page: '%s' %s"%(u,e))
             content = WikiPageCached.missing_content()
