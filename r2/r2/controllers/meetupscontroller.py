@@ -50,7 +50,6 @@ class MeetupsController(RedditController):
       title = title,
       description = description,
 
-      # TODO: Geocode
       location = location,
       latitude = latitude,
       longitude = longitude,
@@ -58,6 +57,42 @@ class MeetupsController(RedditController):
       timestamp = timestamp / 1000, # Value from form is in ms UTC
       tzoffset = tzoffset
     )
+
+    meetup._commit()
+
+    res._redirect(url_for(action='show', id=meetup._id36))
+
+  @Json
+  @validate(VUser(),
+            meetup = VMeetup('id'),
+            title = VRequired('title', errors.NO_TITLE),
+            description = VRequired('description', errors.NO_DESCRIPTION),
+            location = VRequired('location', errors.NO_LOCATION),
+            latitude = VFloat('latitude', error=errors.NO_LOCATION),
+            longitude = VFloat('longitude', error=errors.NO_LOCATION),
+            timestamp = VFloat('timestamp', error=errors.INVALID_DATE),
+            tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
+  def POST_update(self, res, meetup, title, description, location, latitude, longitude, timestamp, tzoffset):
+    if res._chk_error(errors.NO_TITLE):
+      res._chk_error(errors.TITLE_TOO_LONG)
+      res._focus('title')
+
+    res._chk_errors((errors.NO_LOCATION,
+                     errors.NO_DESCRIPTION,
+                     errors.INVALID_DATE,
+                     errors.NO_DATE))
+
+    if res.error: return
+
+    meetup.title = title
+    meetup.description = description
+
+    meetup.location = location
+    meetup.latitude = latitude
+    meetup.longitude = longitude
+
+    meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
+    meetup.tzoffset = tzoffset
 
     meetup._commit()
 

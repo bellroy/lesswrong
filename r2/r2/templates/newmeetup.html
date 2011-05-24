@@ -5,41 +5,45 @@
 %>
 <%namespace name="utils" file="utils.html" import="error_field, submit_form"/>
 
-<h1>Submit Meetup</h1>
+<h1>New Meetup</h1>
 
 <%utils:submit_form action="/meetups/create" onsubmit="return post_form(this, 'meetups/create', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="${thing.tzoffset}" latitude="${thing.latitude}" longitude="${thing.longitude}">
-<fieldset>
-  <label for="title">${_("Title")}:</label>
-  <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
-  ${error_field("NO_TITLE", "span")}
-  ${error_field("TITLE_TOO_LONG", "span")}
-</fieldset>
-
-<fieldset>
-  <label for="location">${_("Location")}:</label>
-  <input id="location" name="location" value="${thing.location}" type="text" />
-  <img id="geocode_status" src="${static('spinner.gif')}" alt="status" style="display: none;" />
-  <div id="geocoded_location">Enter the meetup address above</div>
-  ${error_field("NO_LOCATION", "span")}
-</fieldset>
-
-<fieldset>
-  <label for="description">${_("Description")}:</label>
-  <textarea id="description" name="description" rows="5" cols="35">
-    ${thing.description}
-  </textarea>
-  ${error_field("NO_DESCRIPTION", "span")}
-</fieldset>
-
-<fieldset>
-  <label for="date">${_("Date")}:</label>
-  <input id="date" class="date" name="timestamp" value="${thing.timestamp}" type="text" />
-  ${error_field("NO_DATE", "span")}
-  ${error_field("INVALID_DATE", "span")}
-</fieldset>
-
-<button class="btn" type="submit">${_("Submit Meetup")}</button>
-<span id="status" class="error"></span>
+  ${form_fields()}
 </%utils:submit_form>
 
 <script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>
+
+<%def name="form_fields()">
+  <fieldset>
+    <label for="title">${_("Title")}:</label>
+    <input id="title" name="title" value="${thing.title}" onfocus="clearTitle(this)" type="text" />
+    ${error_field("NO_TITLE", "span")}
+    ${error_field("TITLE_TOO_LONG", "span")}
+  </fieldset>
+
+  <fieldset>
+    <label for="location">${_("Location")}:</label>
+    <input id="location" name="location" value="${thing.location}" type="text" />
+    <img id="geocode_status" src="${static('spinner.gif')}" alt="status" style="display: none;" />
+    <div id="geocoded_location">Enter the meetup address above</div>
+    ${error_field("NO_LOCATION", "span")}
+  </fieldset>
+
+  <fieldset>
+    <label for="description">${_("Description")}:</label>
+    <textarea id="description" name="description" rows="5" cols="35">
+      ${thing.description}
+    </textarea>
+    ${error_field("NO_DESCRIPTION", "span")}
+  </fieldset>
+
+  <fieldset>
+    <label for="date">${_("Date")}:</label>
+    <input id="date" class="date" name="timestamp" value="${thing.timestamp}" type="text" />
+    ${error_field("NO_DATE", "span")}
+    ${error_field("INVALID_DATE", "span")}
+  </fieldset>
+
+  <button class="btn" type="submit">${_("Submit Meetup")}</button>
+  <span id="status" class="error"></span>
+</%def>
