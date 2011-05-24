@@ -1374,8 +1374,7 @@ class ShowMeetup(Wrapped):
         Wrapped.__init__(self, meetup = meetup)
 
 class NewMeetup(Wrapped):
-    def __init__(self, *a, **kw):
-        Wrapped.__init__(self, *a, **kw)
+    pass
 
 class EditMeetup(Wrapped):
     pass

@@ -1,6 +1,6 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup
-from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, nop
+from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
@@ -13,15 +13,15 @@ class MeetupsController(RedditController):
     return self.sendstring(json.dumps(kw))
 
   @validate(VUser(),
-            title = nop('title'),
-            description = nop('description'),
-            location = nop('location'),
-            timestamp = nop('timestamp'))
-  def GET_new(self, title, description, location, date):
-    return BoringPage(pagename = 'New Meetup', content = NewMeetup(title=title or '',
-                                                                   description=description or '',
-                                                                   location=location or '',
-                                                                   timestamp=timestamp or '')).render()
+            title = ValueOrBlank('title'),
+            description = ValueOrBlank('description'),
+            location = ValueOrBlank('location'),
+            latitude = ValueOrBlank('latitude'),
+            longitude = ValueOrBlank('longitude'),
+            timestamp = ValueOrBlank('timestamp'),
+            tzoffset = ValueOrBlank('tzoffset'))
+  def GET_new(self, *a, **kw):
+    return BoringPage(pagename = 'New Meetup', content = NewMeetup(*a, **kw)).render()
 
   @Json
   @validate(VUser(),
