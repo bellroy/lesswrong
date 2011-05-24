@@ -33,9 +33,16 @@ class WikiPageCached:
     def getContent(self,str):
         return soupparser.fromstring(str).get_element_by_id('content')
 
+    def invalidate_link(self):
+        return "<a id='invalidate' href='/invalidate_cache/%s'>Invalidate</a>"%self.name()
+
     def html(self):
         str = self.fetch()
         elem = self.getContent(str)
+
+        # Embed the invalidate cache link
+        linkAsElem = soupparser.fromstring( self.invalidate_link() ).get_element_by_id('invalidate')
+        elem.cssselect('.printfooter')[0].append(linkAsElem)
         return tostring(elem, method='html', encoding='utf8', with_tail=False)
 
 class AboutPage(WikiPageCached):

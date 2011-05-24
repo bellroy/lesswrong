@@ -583,3 +583,10 @@ div.articlenavigation #article_nav_controls .loading img {
 .wiki-comment-help h1, .wiki-comment-help div[id^='jump-to-nav'] {
     display: none;
 }
+#wiki .printfooter, .wiki-comment-help .printfooter {
+    font-size: 6pt;
+    color: gray;
+}
+a[id^='invalidate'] {
+    float: right;
+}
