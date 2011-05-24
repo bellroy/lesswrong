@@ -38,6 +38,8 @@ from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
 from r2.lib.template_helpers import add_sr, get_domain
 from r2.lib.promote import promote_builder_wrapper
+from r2.lib.wikipagecached import WikiPageCached
+
 import sys
 
 datefmt = _force_utf8(_('%d %b %Y'))
@@ -1384,8 +1386,9 @@ class WikiPageInline(Wrapped):
 class WikiPage(Reddit):
     def __init__(self, page, **context):
         self.pagename = page.title()
+        html = WikiPageCached.html(page)
         Reddit.__init__(self,
-                        content = WikiPageInline(page.html(),page.name()),
+                        content = WikiPageInline(html,page.name()),
                         title = self.pagename, 
                         space_compress=False, 
                         **context)

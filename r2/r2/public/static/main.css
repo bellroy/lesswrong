@@ -578,9 +578,9 @@ div.articlenavigation #article_nav_controls .loading img {
 
 /* Styling for embedded wiki pages */
 #wiki #jump-to-nav, #wiki #siteSub,
-#wiki #catlinks, .wiki-comment-help div[id^='catlinks'], 
-.wiki-comment-help h1, .wiki-comment-help div[id^='jump-to-nav'] 
-{
+.wiki-comment-help div[id^='jump-to-nav'], .wiki-comment-help *[id^='siteSub'],
+.wiki-comment-help h1, 
+#wiki #catlinks, .wiki-comment-help div[id^='catlinks'] {
     display: none;
 }
 #wiki .printfooter, .wiki-comment-help .printfooter {

@@ -25,6 +25,7 @@ Setup your Routes options here
 import os
 from routes import Mapper
 import admin_routes
+from wiki_pages_embed import allWikiPagesCached
 
 def make_map(global_conf={}, app_conf={}):
     map = Mapper()
@@ -76,8 +77,9 @@ def make_map(global_conf={}, app_conf={}):
 
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
     
-    mc('/', controller='wikipage', action='root')
-    mc('/about-less-wrong', controller='wikipage', action='about')
+    for page in allWikiPagesCached:
+        if hasattr(page,'route'):
+            mc(page.route(), controller='wikipage', action='wikipage', name=page.name())
     mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
 
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"

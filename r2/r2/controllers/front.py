@@ -629,20 +629,19 @@ class FrontController(RedditController):
         return ''
 
 
-from r2.lib.wikipagecached import AboutPage, MainPage, allWikiPagesCached
+from wiki_pages_embed import allWikiPagesCached
 
 # Controller for pages pulled from wiki
 class WikipageController(RedditController):
 
-    def GET_about(self):
-        return WikiPage(AboutPage()).render()
-
-    def GET_root(self):
-        return WikiPage(MainPage()).render()
+    def GET_wikipage(self,name):
+        for p in allWikiPagesCached:
+            if name == p.name():
+                return WikiPage(p).render()
 
     def GET_invalidate_cache(self, name):
         for p in allWikiPagesCached:
             if name == p.name():
-                p.invalidate()
+                WikiPageCached.invalidate(p)
                 return "Done"
         return "No such page"
