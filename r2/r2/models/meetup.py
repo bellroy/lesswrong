@@ -60,3 +60,9 @@ class Meetup(Thing):
   @staticmethod
   def cache_key(item):
     return False
+  
+  @staticmethod
+  def group_cache_key():
+    """ Used with CacheUtils.get_key_group_value """
+    return "meetup-inc-key"
+
