@@ -1,14 +1,34 @@
+/* Fill in the given help content, and attach a handler for the form invalidate submission */
+function fillInHelpDiv(elem, content) {
+  elem.innerHTML = content
+  elem.select('.invalidate').first().observe('submit', function(e) {
+    e.stop();
+    elem.innerHTML = "Loading..."
+    new Ajax.Request(this.getAttribute('action'), {
+      method: 'post',
+      onSuccess: function(response) {
+        fillInHelpDiv(elem, response.responseText)
+      }
+    })
+  });
+}
+
+/* Perform an ajax get for the help content, and fill in the element */
+function getHelpContent(elem) {
+  new Ajax.Request("/wiki/comment-help", {
+    method: 'get',
+    onSuccess: function(response) {
+      fillInHelpDiv(elem, response.responseText)
+    }});
+}
+
 function helpon(link, what, newlabel) {
     var id = _id(link);
     show(what+id);
 
-    // If not loaded help content, load it!
+    /* If not loaded help content, load it! */
     if ($(what+id).innerHTML.indexOf('Loading')==0) {
-      new Ajax.Request("/wiki/comment-help", {
-        method: 'get',
-        onSuccess: function(response) {
-          $(what+id).innerHTML = response.responseText;
-        }});
+      getHelpContent($(what+id))
     }
 
     var oldlabel = link.innerHTML;

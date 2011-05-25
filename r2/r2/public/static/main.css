@@ -580,14 +580,14 @@ div.articlenavigation #article_nav_controls .loading img {
 #wiki #jump-to-nav, #wiki #siteSub,
 .wiki-comment-help div#jump-to-nav, .wiki-comment-help #siteSub,
 #wiki h1, .wiki-comment-help h1, 
-#wiki #catlinks, .wiki-comment-help div[id^='catlinks'] {
+#wiki #catlinks, .wiki-comment-help div#catlinks {
     display: none;
 }
 #wiki .printfooter, .wiki-comment-help .printfooter {
     font-size: 6pt;
     color: gray;
 }
-form#invalidate {
+form.invalidate {
     float: right;
     font-size: 6pt;
 }
