@@ -30,7 +30,7 @@ framejs='frame.js'
 votejs='vote.js'
 
 function compressor {
-  "$wd/r2/lib/contrib/jsjam" -g -i $@
+    yui-compressor --type js $@
 }
 
 echo "Generating ${redditjs}..."
@@ -40,9 +40,9 @@ cd r2/public/static
 
 cat /dev/null > $redditjs.tmp
 for f in "${files[@]}"; do
-    compressor $f >> $redditjs.tmp
+    echo "Compressing ${f}"
+    compressor $f >> $redditjs
 done;
-sed 's/\$/ \$/g' $redditjs.tmp > $redditjs
 
 echo "Droppping md5s..."
 for file in *.{js,css,gif,png,jpg}; do
