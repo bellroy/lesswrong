@@ -122,9 +122,6 @@ class Reddit(Wrapped):
         for toolbar in self.toolbars:
             filters_ps.append(toolbar)
 
-        if self.nav_menu:
-            filters_ps.append(self.nav_menu)
-
         if not filters_ps.empty:
             ps.append(SideBox(filters_ps))
 
@@ -226,23 +223,44 @@ class Reddit(Wrapped):
 
     def header_nav(self):
         """Navigation menu for the header"""
+
+        menu_stack = PaneStack()
+        
         # Ensure the default button is the first tab
         #default_button_name = c.site.default_listing
-        button_names = ['new', 'top', 'comments','topcomments']
+
+        main_buttons = [
+          NamedButton('main', dest = '/', sr_path = False),
+          NamedButton('discussion', dest = '/r/discussion'),
+          NamedButton('comments')
+        ]
+
+        menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
+
+        filter_buttons = []
+        button_names = ['new', 'top']
         if c.default_sr:
             button_names.insert(0, 'promoted')
 
-        main_buttons = []
         for name in button_names:
-          main_buttons.append(NamedButton(name))
+          filter_buttons.append(NamedButton(name))
 
         if c.user_is_loggedin:
-            main_buttons.append(NamedButton('saved', False))
+            filter_buttons.append(NamedButton('saved', False))
+        
+        menu_stack.append(NavMenu(filter_buttons, title = _('Filter by'), _id='filternav', type='navlist'))
 
-        if not c.default_sr:
-            main_buttons.insert(0, NamedButton('home', dest = '/', sr_path = False))
+        return menu_stack
+    
+    def right_menu(self):
+        """docstring for right_menu"""
+        buttons = [
+          NamedButton('wiki'),
+          NamedButton('sequences'),
+          NamedButton('about')
+        ]
 
-        return NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist')
+        return NavMenu(buttons, title = _('Filter by'), _id='rightnav', type='navlist')
 
     def build_toolbars(self):
         """Additional toolbars/menus"""
@@ -1376,7 +1394,8 @@ class ShowMeetup(Wrapped):
         Wrapped.__init__(self, meetup = meetup)
 
 class NewMeetup(Wrapped):
-    pass
+    def __init__(self, *a, **kw):
+        Wrapped.__init__(self, *a, **kw)
 
 class EditMeetup(Wrapped):
     pass

@@ -127,7 +127,7 @@ ul#nav li {
 	padding: 0 15px;
 	text-transform: uppercase;
 }
-ul#nav li:first-child, ul#nav li:last-child {
+ul#nav li:first-child {
 	border-left: none;
 }
 ul#nav li a {

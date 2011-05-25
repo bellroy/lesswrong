@@ -128,18 +128,28 @@
   
     <div id="wrapper">
     
-      <%include file="redditheader.html" args="menu=thing.header_nav()"/>
+      <%include file="redditheader.html"/>
   
     	<div id="main" class="clear">
+
+      <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
+        %if thing.header_nav:
+          ${thing.header_nav().render()}
+        %endif
+        %if thing.nav_menu:
+          ${thing.nav_menu.render()}
+        %endif
   
-      %if thing.content:
-        <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
+        %if thing.content:
           ${thing.content().render()}
-        </div>
-      %endif
+        %endif
+      </div>
     
       %if thing.show_sidebar:
         <div id="sidebar">
+          %if thing.right_menu:
+            ${thing.right_menu().render()}
+          %endif
           ${sidebar(content = thing.rightbox())}
         </div>
       %endif
