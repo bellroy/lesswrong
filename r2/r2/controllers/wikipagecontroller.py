@@ -1,7 +1,6 @@
 from reddit_base import RedditController
 from r2.lib.pages import *
 from wiki_pages_embed import allWikiPagesCached
-from mako.template import Template
 
 # Controller for pages pulled from wiki
 class WikipageController(RedditController):
@@ -15,8 +14,7 @@ class WikipageController(RedditController):
     def GET_html(self,name):
         p = allWikiPagesCached[name]
         html = WikiPageCached().html(p)
-        form = Template(filename='r2/templates/invalidate_wikipagecache.html').get_def("invalidate_link").render(name=name)
-        return html+form
+        return WikiPageInline(html=html, name=name).render()
 
     def POST_invalidate_cache(self, name):
         p = allWikiPagesCached[name]
