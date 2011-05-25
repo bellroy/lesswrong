@@ -1,3 +1,4 @@
+from validator import *
 from reddit_base import RedditController
 from r2.lib.pages import *
 from wiki_pages_embed import allWikiPagesCached
@@ -16,6 +17,7 @@ class WikipageController(RedditController):
         html = WikiPageCached().html(p)
         return WikiPageInline(html=html, name=name).render()
 
+    @validate(VUser())
     def POST_invalidate_cache(self, name):
         p = allWikiPagesCached[name]
         WikiPageCached.invalidate(p)

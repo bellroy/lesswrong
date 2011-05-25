@@ -8,5 +8,7 @@
 %endif
 <div id="wiki">
   ${unsafe(cleanhtml(thing.html))}
-  ${wiki.invalidate_link(thing.name)}
+  %if c.user_is_loggedin:
+    ${wiki.invalidate_link(thing.name)}
+  %endif
 </div>
