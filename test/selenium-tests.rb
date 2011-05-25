@@ -9,7 +9,14 @@ end
 
 # Run firefox3 cause firefox4 is buggy on macosx 10.5
 require 'selenium-webdriver'
-Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
+#Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
+Selenium::WebDriver::Firefox.path= '/Users/dave/firefox.sh'
+
+
+# NOTE: there seems to be a feature(?) in firefox that will only deliver certain js events
+# if the browser window has focus.  Thus, some of these tests will only work if the main
+# window has focus.
+#  http://code.google.com/p/selenium/issues/detail?id=157&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary
 
 describe 'Lesswrong' do
   before(:all) do
@@ -70,7 +77,7 @@ describe 'Lesswrong' do
 
       # Must simulate focus on the title because it changes the field colour which would
       # otherwise cause the field value to be ignored.  But using the 'focus' event seems flakey,
-      # so explicity call the js method
+      # so explicity call the js method (I think the flakyness is related to the focus not above)
       page.evaluate_script('clearTitle($("title"))')
       fill_in 'title', :with => 'A test article'
       fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
@@ -190,6 +197,31 @@ describe 'Lesswrong' do
       find('.realcomment button').click
       page.should have_content('latin is dead')
     end
+  end
+
+  describe 'meetups' do
+    before(:all) do
+      login('test_user')
+    end
+    after(:all) do
+      click_on 'Log out'
+    end
+
+    it 'can create a meetup' do
+      click_link 'Add new meetup'
+      page.driver.browser.switch_to.window('')
+      fill_in 'title', :with => 'Lesswong, The Gathering'
+      fill_in 'location', :with => 'Timbuktu'
+      fill_in 'description', :with => 'First one there, put on the kettle!'
+      t = Time.now().to_i + 86400
+      page.evaluate_script("$('date').value=#{t}")
+      page.evaluate_script("$$('input[name=\"tzoffset\"]')[0].value=10")
+
+      page.should have_content('Mali')      # Wait for the location to be validated
+      click_button 'Submit Meetup'
+      page.should have_content('The Gathering')
+    end
+
   end
 
   describe 'test user' do
