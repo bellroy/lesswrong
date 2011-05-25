@@ -5,7 +5,7 @@ from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
 from r2.models import Meetup
-from pylons import c
+from pylons import c,g
 import json
 
 class MeetupsController(RedditController):
@@ -58,6 +58,9 @@ class MeetupsController(RedditController):
       tzoffset = tzoffset
     )
 
+    # Expire all meetups in the render cache
+    g.rendercache.invalidate_key_group(Meetup.group_cache_key())
+
     meetup._commit()
 
     res._redirect(url_for(action='show', id=meetup._id36))
@@ -93,6 +96,9 @@ class MeetupsController(RedditController):
 
     meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
     meetup.tzoffset = tzoffset
+
+    # Expire all meetups in the render cache
+    g.rendercache.invalidate_key_group(Meetup.group_cache_key())
 
     meetup._commit()
 

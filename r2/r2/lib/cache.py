@@ -49,6 +49,17 @@ class CacheUtils(object):
 
         return dict((key_map[k], r[k]) for k in r.keys())
 
+    def get_key_group_value(self, prefix):
+        """ This is used to allow the expiring of a group of keys
+        Use the value returned by "get_key_group_value" in all cache
+        keys for items you want to expire together """
+        return self.get(prefix, 0)
+
+    def invalidate_key_group(self, prefix):
+        """ Expire a group of keys - use together with get_key_group_value """
+        self.add(prefix, 0)
+        self.incr(prefix)
+
 class Memcache(CacheUtils, memcache.Client):
     simple_get_multi = memcache.Client.get_multi
 
