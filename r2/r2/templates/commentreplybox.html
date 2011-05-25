@@ -22,6 +22,8 @@
 <%namespace file="utils.html" import="error_field"/>
 %if not thing.link_name:
 <div id="samplecomment_" style="display:none">
+%else:
+<div class="realcomment">
 %endif
   <form id="commentform_${thing.link_name}" 
         onsubmit="return chkcomment(this);"
@@ -76,7 +78,5 @@
   <div id="markhelp_${thing.link_name}" class="wiki-comment-help commentreply" style="display: none">
     Loading...
   </div>
-%if not thing.link_name:
 </div>
-%endif
 

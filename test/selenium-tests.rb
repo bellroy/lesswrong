@@ -129,7 +129,6 @@ describe 'Lesswrong' do
 
   describe 'should allow browsing' do
     before(:all) do
-      visit @home
       login('test_user')
     end
     after(:all) do
@@ -171,6 +170,25 @@ describe 'Lesswrong' do
       # This find will wait for the ajax to complete before our 'all' assertion below
       find('#article_nav_controls li')
       all('#article_nav_controls li').size.should >1
+    end
+  end
+
+  describe 'can comment' do
+    before(:all) do
+      login('test_user')
+    end
+    after(:all) do
+      click_on 'Log out'
+    end
+
+    it 'on article' do
+      click_link 'Top'
+      click_link 'Lorem ipsum'
+      # Read earlier comment about 'clearTitle'
+      page.evaluate_script('clearTitle($$(".realcomment textarea")[0])')
+      find('.realcomment textarea').set('Who says latin is dead language?!?')
+      find('.realcomment button').click
+      page.should have_content('latin is dead')
     end
   end
 
