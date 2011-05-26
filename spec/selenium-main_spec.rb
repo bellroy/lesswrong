@@ -7,6 +7,27 @@ RSpec.configure do |config|
   config.include Capybara
 end
 
+def inifile
+  File.dirname(__FILE__)+'/../r2/test.ini'
+end
+
+def ini
+  @conf ||= begin
+    conf = {}
+    File.open(inifile.to_s) do |ini|
+      ini.each_line do |line|
+        next if line =~ /^\s*#/ # skip comments
+        next if line =~ /^\s*\[[^\]]+\]/ # skip sections
+
+        if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
+          conf[$1] = $2
+        end
+      end
+    end
+    conf
+  end
+end
+
 # NOTE: there seems to be a feature(?) in firefox that will only deliver certain js events
 # if the browser window has focus.  Thus, some of these tests will only work if the main
 # window has focus.
@@ -14,7 +35,7 @@ end
 
 describe 'Lesswrong' do
   before(:all) do
-    @home = 'http://lesswrong.local:8080'
+    @home = 'http://'+ini['domain']+":"+ini['port']
     @admin_user = 'admin'
   end
 

@@ -1,4 +1,4 @@
-require 'ftools'
+require 'fileutils'
 require 'tempfile'
 require 'pathname'
 require 'shellwords'
@@ -279,7 +279,7 @@ namespace :test do
     task :start do
       ENV['APPLICATION_ENV'] = 'test'
       FileUtils.cd r2_path do |d|
-        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--daemon')
+        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--daemon','--reload')
       end
     end
     task :stop do
@@ -290,11 +290,13 @@ namespace :test do
     end
   end
 
+  desc "Start the server in test mode for specs"
   task :start do
     Rake::Task['db:test:prepare'].invoke
     Rake::Task['memcached:start'].invoke
     Rake::Task['test:paster:start'].invoke
   end
+  desc "Stop the test server"
   task :stop do
     Rake::Task['test:paster:stop'].invoke
     Rake::Task['memcached:stop'].invoke
