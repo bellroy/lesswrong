@@ -7,6 +7,12 @@ RSpec.configure do |config|
   config.include Capybara
 end
 
+# Run firefox3 cause firefox4 is buggy on macosx 10.5
+require 'selenium-webdriver'
+#Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
+Selenium::WebDriver::Firefox.path= '/Users/dave/firefox.sh'
+
+
 def inifile
   File.dirname(__FILE__)+'/../r2/test.ini'
 end
@@ -121,12 +127,15 @@ describe 'Lesswrong' do
       visit @home
     end
 
-    after(:all) do
-      click_on 'Log out'
+    def self.username
+      @username ||= "user_#{Time.now.to_i}"
+    end
+
+    def username
+      self.class.username
     end
 
     it 'should register' do
-      username = 'test_user'
       click_on 'Register'
       fill_in 'user_reg', :with => username
       fill_in 'passwd_reg', :with => username
@@ -146,6 +155,21 @@ describe 'Lesswrong' do
       within "#sidebar" do
         page.should have_content('Nowhere Land')
       end
+      click_on 'Log out'
+    end
+
+    it 'can delete self' do
+      login(username)
+      click_on 'Preferences'
+      click_link 'Delete'
+
+      all("input[value=Yes]").each do |s|
+        s.select_option
+      end
+      click_button 'Delete'
+
+      visit(@home+'/user/'+username)
+      page.should have_content('The page you requested does not exist')
     end
   end
 
@@ -182,6 +206,9 @@ describe 'Lesswrong' do
       # Reload, check button still filled
       visit page.driver.browser.current_url
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
+
+      # Undo the up vote
+      find('.vote a.up').click
     end
 
     it 'should have ajaxy article navigation fields' do
@@ -237,22 +264,6 @@ describe 'Lesswrong' do
       page.should have_content('The Gathering')
     end
 
-  end
-
-  describe 'test user' do
-    it 'can delete self' do
-      login('test_user')
-      click_on 'Preferences'
-      click_link 'Delete'
-
-      all("input[value=Yes]").each do |s|
-        s.select_option
-      end
-      click_button 'Delete'
-
-      visit(@home+'/user/test_user')
-      page.should have_content('The page you requested does not exist')
-    end
   end
 
   describe 'Article view' do

@@ -292,12 +292,14 @@ namespace :test do
 
   desc "Start the server in test mode for specs"
   task :start do
+    ENV['APPLICATION_ENV'] = 'test'
     Rake::Task['db:test:prepare'].invoke
     Rake::Task['memcached:start'].invoke
     Rake::Task['test:paster:start'].invoke
   end
   desc "Stop the test server"
   task :stop do
+    ENV['APPLICATION_ENV'] = 'test'
     Rake::Task['test:paster:stop'].invoke
     Rake::Task['memcached:stop'].invoke
   end
