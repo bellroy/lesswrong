@@ -148,29 +148,30 @@ task :after_update_code => %w[
   deploy:crontab
 ]
 
+def conf
+  @conf ||= begin
+    conf = {}
+    File.open(inifile.to_s) do |ini|
+      ini.each_line do |line|
+        next if line =~ /^\s*#/ # skip comments
+        next if line =~ /^\s*\[[^\]]+\]/ # skip sections
+
+        if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
+          conf[$1] = $2
+        end
+      end
+    end
+    conf
+  end
+end
+
+
 # Set the databases variable in your local deploy configuration
 # expects an array of PostgreSQL database names
 # Example:
 #    set :databases, %w[reddit change query_queue]
 
 namespace :postgresql do
-
-  def conf
-    @conf ||= begin
-      conf = {}
-      File.open(inifile.to_s) do |ini|
-        ini.each_line do |line|
-          next if line =~ /^\s*#/ # skip comments
-          next if line =~ /^\s*\[[^\]]+\]/ # skip sections
-
-          if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
-            conf[$1] = $2
-          end
-        end
-      end
-      conf
-    end
-  end
 
   def db_conf(db, var)
     key = [db, 'db', var].join('_')
@@ -225,5 +226,25 @@ namespace :postgresql do
         run "pg_restore #{postgresql_opts(db)} --no-owner --clean -d #{db_conf(db, 'name')} #{dump_file_path(db)} || true"
       end
     end
+  end
+end
+namespace :memcached do
+  def memcached_pid_path
+    r2_path + "memcached.#{environment}.pid"
+  end
+
+  task :start do
+    port = conf['memcaches'].split(':').last
+    pid = fork do
+      exec('memcached','-p',port)
+    end
+    File.open(memcached_pid_path, "w") do |f|
+      f.puts pid
+    end
+  end
+  task :stop do
+    pid = File.read(memcached_pid_path).to_i
+    Process.kill("TERM", pid)
+    File.unlink(memcached_pid_path)
   end
 end
