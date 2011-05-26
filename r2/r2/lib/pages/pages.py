@@ -227,14 +227,15 @@ class Reddit(Wrapped):
     def header_nav(self):
         """Navigation menu for the header"""
         # Ensure the default button is the first tab
-        #default_button_name = c.site.default_listing
+        default_button_name = c.site.default_listing
         button_names = ['new', 'top', 'comments','topcomments']
         if c.default_sr:
-            button_names.insert(0, 'promoted')
+            button_names.insert(0, 'blessed')
 
         main_buttons = []
         for name in button_names:
-          main_buttons.append(NamedButton(name))
+          kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
+          main_buttons.append(NamedButton(name, **kw))
 
         if c.user_is_loggedin:
             main_buttons.append(NamedButton('saved', False))

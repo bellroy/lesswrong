@@ -619,6 +619,12 @@ class FrontController(RedditController):
             return self.abort404()
         return self.redirect(link.make_permalink(subreddit.Default))
 
+    def GET_about(self):
+        try:
+            return self._redirect_to_link(g.about_post_id)
+        except AttributeError:
+            return self.abort404()
+
     def GET_issues(self):
         try:
             return self._redirect_to_link(g.issues_post_id)
