@@ -6,6 +6,7 @@ function fillInHelpDiv(elem, content) {
     elem.innerHTML = "Loading..."
     new Ajax.Request(this.getAttribute('action'), {
       method: 'post',
+      parameters: {'skiplayout': 'on'},
       onSuccess: function(response) {
         fillInHelpDiv(elem, response.responseText)
       }
@@ -15,8 +16,9 @@ function fillInHelpDiv(elem, content) {
 
 /* Perform an ajax get for the help content, and fill in the element */
 function getHelpContent(elem) {
-  new Ajax.Request("/wiki/comment-help", {
+  new Ajax.Request("/wiki/Commentmarkuphelp", {
     method: 'get',
+    parameters: {'skiplayout': 'on'},
     onSuccess: function(response) {
       fillInHelpDiv(elem, response.responseText)
     }});

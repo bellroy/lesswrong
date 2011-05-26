@@ -79,9 +79,7 @@ def make_map(global_conf={}, app_conf={}):
     
     for name,page in allWikiPagesCached.items():
         if page.has_key('route'):
-            mc(page['route'], controller='wikipage', action='wikipage', name=name)
-        if page.has_key('htmlroute'):
-            mc("/wiki"+page['htmlroute'], controller='wikipage', action='html', name=name)
+            mc("/wiki/"+page['route'], controller='wikipage', action='wikipage', name=name)
         
     mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
 
