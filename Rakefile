@@ -3,6 +3,11 @@ require 'tempfile'
 require 'pathname'
 require 'shellwords'
 
+require 'rspec/core/rake_task'
+begin
+rescue Exception
+end
+
 namespace :test do
   desc "Interactively run through the deployment test script."
   task :manual do
@@ -69,6 +74,10 @@ def databases
     dbs = ENV['DATABASES'] || raise("DATABASES environment variable must be set to run this task")
     dbs.split(/\s*,\s*/)
   end
+end
+
+def db_dump_prefix
+  ENV['DB_DUMP_PREFIX'] || ''
 end
 
 def app_server(action)
@@ -207,7 +216,7 @@ namespace :postgresql do
   end
 
   def dump_file_path(db)
-    (db_dump_path + "#{db}.psql").to_s.shellescape
+    (db_dump_path + "#{db_dump_prefix}#{db}.psql").to_s.shellescape
   end
 
   desc 'Dump the database'
@@ -228,9 +237,10 @@ namespace :postgresql do
     end
   end
 end
+
 namespace :memcached do
   def memcached_pid_path
-    r2_path + "memcached.#{environment}.pid"
+    basepath + "memcached.#{environment}.pid"
   end
 
   task :start do
@@ -247,4 +257,52 @@ namespace :memcached do
     Process.kill("TERM", pid)
     File.unlink(memcached_pid_path)
   end
+end
+
+namespace :db do
+  namespace :test do
+    task :prepare do
+      ENV['APPLICATION_ENV'] = 'test'
+      ENV['DATABASES'] = 'main'
+      ENV['DB_DUMP_PREFIX'] = 'test-'
+      Rake::Task['postgresql:restore'].invoke
+    end
+  end
+end
+
+namespace :test do
+  def paster_pid_path
+    basepath + "paster.#{environment}.pid"
+  end
+
+  namespace :paster do
+    task :start do
+      ENV['APPLICATION_ENV'] = 'test'
+      FileUtils.cd r2_path do |d|
+        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--daemon')
+      end
+    end
+    task :stop do
+      ENV['APPLICATION_ENV'] = 'test'
+      FileUtils.cd r2_path do |d|
+        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--stop-daemon')
+      end
+    end
+  end
+
+  task :start do
+    Rake::Task['db:test:prepare'].invoke
+    Rake::Task['memcached:start'].invoke
+    Rake::Task['test:paster:start'].invoke
+  end
+  task :stop do
+    Rake::Task['test:paster:stop'].invoke
+    Rake::Task['memcached:stop'].invoke
+  end
+end
+
+desc "Run all specs in spec directory"
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+  t.pattern = 'spec/**/*_spec.rb'
 end
