@@ -578,8 +578,9 @@ class VExistingUname(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.NO_USER, *a, **kw)
 
-    def run(self, name):
-        if name:
+    def run(self, username):
+        if username:
+            name = chkuser(username)
             try:
                 return Account._by_name(name)
             except NotFound:
