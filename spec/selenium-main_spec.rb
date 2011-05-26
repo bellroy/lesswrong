@@ -7,12 +7,6 @@ RSpec.configure do |config|
   config.include Capybara
 end
 
-# Run firefox3 cause firefox4 is buggy on macosx 10.5
-require 'selenium-webdriver'
-#Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
-Selenium::WebDriver::Firefox.path= '/Users/dave/firefox.sh'
-
-
 # NOTE: there seems to be a feature(?) in firefox that will only deliver certain js events
 # if the browser window has focus.  Thus, some of these tests will only work if the main
 # window has focus.
