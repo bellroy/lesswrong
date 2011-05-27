@@ -4,9 +4,6 @@ require 'pathname'
 require 'shellwords'
 
 require 'rspec/core/rake_task'
-begin
-rescue Exception
-end
 
 namespace :test do
   desc "Interactively run through the deployment test script."

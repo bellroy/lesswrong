@@ -8,6 +8,12 @@ RSpec.configure do |config|
   config.include Capybara
 end
 
+begin
+  # Allow overriding of selenium settings
+  require 'selenium-override'
+rescue LoadError
+end
+
 # Run firefox3 cause firefox4 is buggy on macosx 10.5
 require 'selenium-webdriver'
 #Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
