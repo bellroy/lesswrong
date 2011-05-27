@@ -1,71 +1,18 @@
-
-require 'capybara/rspec'
-
-Capybara.default_driver= :selenium
-Capybara.default_wait_time = 5
-RSpec.configure do |config|
-  config.include Capybara
-end
-
-# Run firefox3 cause firefox4 is buggy on macosx 10.5
-require 'selenium-webdriver'
-#Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
-Selenium::WebDriver::Firefox.path= '/Users/dave/firefox.sh'
-
-
-def inifile
-  File.dirname(__FILE__)+'/../r2/test.ini'
-end
-
-def ini
-  @conf ||= begin
-    conf = {}
-    File.open(inifile.to_s) do |ini|
-      ini.each_line do |line|
-        next if line =~ /^\s*#/ # skip comments
-        next if line =~ /^\s*\[[^\]]+\]/ # skip sections
-
-        if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
-          conf[$1] = $2
-        end
-      end
-    end
-    conf
-  end
-end
-
-# NOTE: there seems to be a feature(?) in firefox that will only deliver certain js events
-# if the browser window has focus.  Thus, some of these tests will only work if the main
-# window has focus.
-#  http://code.google.com/p/selenium/issues/detail?id=157&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary
+require 'spec_helper'
 
 describe 'Lesswrong' do
+  include Lesswrong::Helpers
+
+  def test_user
+    'test_user'
+  end
+
   before(:all) do
-    @home = 'http://'+ini['domain']+":"+ini['port']
-    @admin_user = 'admin'
-  end
-
-  def get_title
-    find(:xpath, "//title").text
-  end
-
-  def login(user)
-    visit @home
-    fill_in "username", :with => user
-    fill_in "password", :with => user
-    click_on "Login"
-
-    # Wait for the ajax login to reload the page
-    page.should have_content('Log out')
-  end
-
-  def fill_tinymce(input_id,value)
-    # Magic to fill in tinymce (in an iframe)
-    bridge =  page.driver.browser
-    bridge.switch_to.frame("#{input_id}_ifr")
-    editor = page.find_by_id('tinymce').native
-    editor.send_keys(value)
-    bridge.switch_to.default_content
+    visit_path('/user/'+test_user)
+    if page.has_content?('The page you requested does not exist')
+      register_user test_user
+      click_on 'Log out'
+    end
   end
 
   describe 'admin user' do
@@ -74,7 +21,7 @@ describe 'Lesswrong' do
     end
 
     it 'can login' do
-      login(@admin_user)
+      login(admin_user)
       get_title.should == "Less Wrong"
     end
 
@@ -86,7 +33,7 @@ describe 'Lesswrong' do
 
   describe 'can create article' do
     before(:all) do
-      login(@admin_user)
+      login(admin_user)
     end
 
     after(:all) do
@@ -94,15 +41,7 @@ describe 'Lesswrong' do
     end
 
     it 'create draft' do
-      click_on 'Create new article'
-
-      # Must simulate focus on the title because it changes the field colour which would
-      # otherwise cause the field value to be ignored.  But using the 'focus' event seems flakey,
-      # so explicity call the js method (I think the flakyness is related to the focus not above)
-      page.evaluate_script('clearTitle($("title"))')
-      fill_in 'title', :with => 'A test article'
-      fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
-      click_button 'Submit'
+      create_article('A test article', "My hovercraft is full of eels\n\nHuh?")
 
       find('a.comment')   # Wait for page to load
       page.should have_content('A test article Draft')
@@ -124,7 +63,7 @@ describe 'Lesswrong' do
 
   describe 'new user' do
     before(:all) do
-      visit @home
+      visit home
     end
 
     def self.username
@@ -136,12 +75,7 @@ describe 'Lesswrong' do
     end
 
     it 'should register' do
-      click_on 'Register'
-      fill_in 'user_reg', :with => username
-      fill_in 'passwd_reg', :with => username
-      fill_in 'passwd2_reg', :with => username
-      click_on 'Create account'
-      page.should have_content(username)
+      register_user username
     end
 
     it 'should be able to edit preferences' do
@@ -168,7 +102,7 @@ describe 'Lesswrong' do
       end
       click_button 'Delete'
 
-      visit(@home+'/user/'+username)
+      visit_path('/user/'+username)
       page.should have_content('The page you requested does not exist')
     end
   end
@@ -182,7 +116,7 @@ describe 'Lesswrong' do
     end
 
     it 'should have browsable pages' do
-      visit @home
+      visit home
       find('#logo').click
       { 'New' => 'Newest Submissions',
         'Comments' => 'Comments',
@@ -194,10 +128,10 @@ describe 'Lesswrong' do
     end
 
     it 'should allow voting' do
-      visit @home
+      visit home
       click_link 'Top'
-      click_link 'Lorem ipsum'
-      get_title.should == "Lorem ipsum - Less Wrong"
+      click_link 'The ABOUT article'
+      get_title.should == "The ABOUT article - Less Wrong"
 
       # Check up voting works
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_false
@@ -212,9 +146,9 @@ describe 'Lesswrong' do
     end
 
     it 'should have ajaxy article navigation fields' do
-      visit @home
+      visit home
       click_link 'Top'
-      click_link 'Lorem ipsum'
+      click_link 'The ABOUT article'
       click_link 'Article Navigation'
       # This find will wait for the ajax to complete before our 'all' assertion below
       find('#article_nav_controls li')
@@ -224,7 +158,7 @@ describe 'Lesswrong' do
 
   describe 'can comment' do
     before(:all) do
-      login('test_user')
+      login(test_user)
     end
     after(:all) do
       click_on 'Log out'
@@ -232,7 +166,7 @@ describe 'Lesswrong' do
 
     it 'on article' do
       click_link 'Top'
-      click_link 'Lorem ipsum'
+      click_link 'The ABOUT article'
       # Read earlier comment about 'clearTitle'
       page.evaluate_script('clearTitle($$(".realcomment textarea")[0])')
       find('.realcomment textarea').set('Who says latin is dead language?!?')
@@ -243,7 +177,7 @@ describe 'Lesswrong' do
 
   describe 'meetups' do
     before(:all) do
-      login('test_user')
+      login(test_user)
     end
     after(:all) do
       click_on 'Log out'
