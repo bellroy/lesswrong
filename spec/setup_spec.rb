@@ -26,6 +26,12 @@ describe 'Setting up Lesswrong' do
     click_on 'Create'
   end
 
+  it 'create "About" post' do
+    create_article('The ABOUT article', article_body, 'Less Wrong')
+
+    find('a.comment')   # Wait for page to load
+  end
+
   it 'configure discussion category' do
     dir = File.join File.dirname(__FILE__), '../r2/'
     FileUtils.chdir dir do |d|
@@ -34,11 +40,6 @@ describe 'Setting up Lesswrong' do
     end
   end
 
-  it 'create "About" post' do
-    create_article('The ABOUT article', article_body, 'Less Wrong')
-
-    find('a.comment')   # Wait for page to load
-  end
 end
 
 def article_body

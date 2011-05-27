@@ -54,6 +54,9 @@ module Lesswrong
       'admin'
     end
 
+    def force_reload
+      page.evaluate_script("window.location.reload()")
+    end
 
     def get_title
       find(:xpath, "//title").text

@@ -167,6 +167,7 @@ describe 'Lesswrong' do
     it 'on article' do
       click_link 'Top'
       click_link 'The ABOUT article'
+      force_reload             # Not sure why this is required :(
       # Read earlier comment about 'clearTitle'
       page.evaluate_script('clearTitle($$(".realcomment textarea")[0])')
       find('.realcomment textarea').set('Who says latin is dead language?!?')
@@ -184,6 +185,7 @@ describe 'Lesswrong' do
     end
 
     it 'can create a meetup' do
+      force_reload
       click_link 'Add new meetup'
       page.driver.browser.switch_to.window('')
       fill_in 'title', :with => 'Lesswong, The Gathering'
