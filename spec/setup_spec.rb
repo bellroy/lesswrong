@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+#set_speed :slow
+
 describe 'Setting up Lesswrong' do
   include Lesswrong::Helpers
 
