@@ -45,3 +45,4 @@ notes/*
 attic/*
 .dir-locals.el
 .Trashes/*
+spec/selenium-override.rb
