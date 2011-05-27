@@ -16,16 +16,16 @@ allWikiPagesCached = \
   {
     'about': { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Aboutpage',
                'title' : lambda: _('About - '+c.site.title),
-               'route' : '/about-less-wrong' 
+               'route' : 'Aboutpage'
                },
 
     'main': { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Homepage',
               'title' : lambda: _(c.site.title),
-              'route' : '/'
+              'route' : 'Homepage'
               },
 
     'comment-help' : { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Commentmarkuphelp',
-                       'htmlroute' : '/comment-help'
+                       'route' : 'Commentmarkuphelp'
                        }
     }
 

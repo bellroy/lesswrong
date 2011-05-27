@@ -1,43 +1,18 @@
-
-require 'capybara/rspec'
-
-Capybara.default_driver= :selenium
-Capybara.default_wait_time = 5
-RSpec.configure do |config|
-  config.include Capybara
-end
-
-# Run firefox3 cause firefox4 is buggy on macosx 10.5
-require 'selenium-webdriver'
-Selenium::WebDriver::Firefox.path= '/Applications/Firefox3.app/Contents/MacOS/firefox-bin'
+require 'spec_helper'
 
 describe 'Lesswrong' do
+  include Lesswrong::Helpers
+
+  def test_user
+    'test_user'
+  end
+
   before(:all) do
-    @home = 'http://lesswrong.local:8080'
-    @admin_user = 'admin'
-  end
-
-  def get_title
-    find(:xpath, "//title").text
-  end
-
-  def login(user)
-    visit @home
-    fill_in "username", :with => user
-    fill_in "password", :with => user
-    click_on "Login"
-
-    # Wait for the ajax login to reload the page
-    page.should have_content('Log out')
-  end
-
-  def fill_tinymce(input_id,value)
-    # Magic to fill in tinymce (in an iframe)
-    bridge =  page.driver.browser
-    bridge.switch_to.frame("#{input_id}_ifr")
-    editor = page.find_by_id('tinymce').native
-    editor.send_keys(value)
-    bridge.switch_to.default_content
+    visit_path('/user/'+test_user)
+    if page.has_content?('The page you requested does not exist')
+      register_user test_user
+      click_on 'Log out'
+    end
   end
 
   describe 'admin user' do
@@ -46,7 +21,7 @@ describe 'Lesswrong' do
     end
 
     it 'can login' do
-      login(@admin_user)
+      login(admin_user)
       get_title.should == "Less Wrong"
     end
 
@@ -58,7 +33,7 @@ describe 'Lesswrong' do
 
   describe 'can create article' do
     before(:all) do
-      login(@admin_user)
+      login(admin_user)
     end
 
     after(:all) do
@@ -66,15 +41,7 @@ describe 'Lesswrong' do
     end
 
     it 'create draft' do
-      click_on 'Create new article'
-
-      # Must simulate focus on the title because it changes the field colour which would
-      # otherwise cause the field value to be ignored.  But using the 'focus' event seems flakey,
-      # so explicity call the js method
-      page.evaluate_script('clearTitle($("title"))')
-      fill_in 'title', :with => 'A test article'
-      fill_tinymce 'article', "My hovercraft is full of eels\n\nHuh?"
-      click_button 'Submit'
+      create_article('A test article', "My hovercraft is full of eels\n\nHuh?")
 
       find('a.comment')   # Wait for page to load
       page.should have_content('A test article Draft')
@@ -96,21 +63,19 @@ describe 'Lesswrong' do
 
   describe 'new user' do
     before(:all) do
-      visit @home
+      visit home
     end
 
-    after(:all) do
-      click_on 'Log out'
+    def self.username
+      @username ||= "user_#{Time.now.to_i}"
+    end
+
+    def username
+      self.class.username
     end
 
     it 'should register' do
-      username = 'test_user'
-      click_on 'Register'
-      fill_in 'user_reg', :with => username
-      fill_in 'passwd_reg', :with => username
-      fill_in 'passwd2_reg', :with => username
-      click_on 'Create account'
-      page.should have_content(username)
+      register_user username
     end
 
     it 'should be able to edit preferences' do
@@ -124,12 +89,26 @@ describe 'Lesswrong' do
       within "#sidebar" do
         page.should have_content('Nowhere Land')
       end
+      click_on 'Log out'
+    end
+
+    it 'can delete self' do
+      login(username)
+      click_on 'Preferences'
+      click_link 'Delete'
+
+      all("input[value=Yes]").each do |s|
+        s.select_option
+      end
+      click_button 'Delete'
+
+      visit_path('/user/'+username)
+      page.should have_content('The page you requested does not exist')
     end
   end
 
   describe 'should allow browsing' do
     before(:all) do
-      visit @home
       login('test_user')
     end
     after(:all) do
@@ -137,7 +116,7 @@ describe 'Lesswrong' do
     end
 
     it 'should have browsable pages' do
-      visit @home
+      visit home
       find('#logo').click
       { 'New' => 'Newest Submissions',
         'Comments' => 'Comments',
@@ -149,10 +128,10 @@ describe 'Lesswrong' do
     end
 
     it 'should allow voting' do
-      visit @home
+      visit home
       click_link 'Top'
-      click_link 'Lorem ipsum'
-      get_title.should == "Lorem ipsum - Less Wrong"
+      click_link 'The ABOUT article'
+      get_title.should == "The ABOUT article - Less Wrong"
 
       # Check up voting works
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_false
@@ -161,12 +140,15 @@ describe 'Lesswrong' do
       # Reload, check button still filled
       visit page.driver.browser.current_url
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
+
+      # Undo the up vote
+      find('.vote a.up').click
     end
 
     it 'should have ajaxy article navigation fields' do
-      visit @home
+      visit home
       click_link 'Top'
-      click_link 'Lorem ipsum'
+      click_link 'The ABOUT article'
       click_link 'Article Navigation'
       # This find will wait for the ajax to complete before our 'all' assertion below
       find('#article_nav_controls li')
@@ -174,20 +156,48 @@ describe 'Lesswrong' do
     end
   end
 
-  describe 'test user' do
-    it 'can delete self' do
-      login('test_user')
-      click_on 'Preferences'
-      click_link 'Delete'
-
-      all("input[value=Yes]").each do |s|
-        s.select_option
-      end
-      click_button 'Delete'
-
-      visit(@home+'/user/test_user')
-      page.should have_content('The page you requested does not exist')
+  describe 'can comment' do
+    before(:all) do
+      login(test_user)
     end
+    after(:all) do
+      click_on 'Log out'
+    end
+
+    it 'on article' do
+      click_link 'Top'
+      click_link 'The ABOUT article'
+      # Read earlier comment about 'clearTitle'
+      page.evaluate_script('clearTitle($$(".realcomment textarea")[0])')
+      find('.realcomment textarea').set('Who says latin is dead language?!?')
+      find('.realcomment button').click
+      page.should have_content('latin is dead')
+    end
+  end
+
+  describe 'meetups' do
+    before(:all) do
+      login(test_user)
+    end
+    after(:all) do
+      click_on 'Log out'
+    end
+
+    it 'can create a meetup' do
+      click_link 'Add new meetup'
+      page.driver.browser.switch_to.window('')
+      fill_in 'title', :with => 'Lesswong, The Gathering'
+      fill_in 'location', :with => 'Timbuktu'
+      fill_in 'description', :with => 'First one there, put on the kettle!'
+      t = Time.now().to_i + 86400
+      page.evaluate_script("$('date').value=#{t}")
+      page.evaluate_script("$$('input[name=\"tzoffset\"]')[0].value=10")
+
+      page.should have_content('Mali')      # Wait for the location to be validated
+      click_button 'Submit Meetup'
+      page.should have_content('The Gathering')
+    end
+
   end
 
   describe 'Article view' do

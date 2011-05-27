@@ -1,7 +1,12 @@
-require 'ftools'
+require 'fileutils'
 require 'tempfile'
 require 'pathname'
 require 'shellwords'
+
+require 'rspec/core/rake_task'
+begin
+rescue Exception
+end
 
 namespace :test do
   desc "Interactively run through the deployment test script."
@@ -69,6 +74,10 @@ def databases
     dbs = ENV['DATABASES'] || raise("DATABASES environment variable must be set to run this task")
     dbs.split(/\s*,\s*/)
   end
+end
+
+def db_dump_prefix
+  ENV['DB_DUMP_PREFIX'] || ''
 end
 
 def app_server(action)
@@ -148,29 +157,30 @@ task :after_update_code => %w[
   deploy:crontab
 ]
 
+def conf
+  @conf ||= begin
+    conf = {}
+    File.open(inifile.to_s) do |ini|
+      ini.each_line do |line|
+        next if line =~ /^\s*#/ # skip comments
+        next if line =~ /^\s*\[[^\]]+\]/ # skip sections
+
+        if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
+          conf[$1] = $2
+        end
+      end
+    end
+    conf
+  end
+end
+
+
 # Set the databases variable in your local deploy configuration
 # expects an array of PostgreSQL database names
 # Example:
 #    set :databases, %w[reddit change query_queue]
 
 namespace :postgresql do
-
-  def conf
-    @conf ||= begin
-      conf = {}
-      File.open(inifile.to_s) do |ini|
-        ini.each_line do |line|
-          next if line =~ /^\s*#/ # skip comments
-          next if line =~ /^\s*\[[^\]]+\]/ # skip sections
-
-          if line =~ /\s*([^\s=]+)\s*=\s*(.*)$/
-            conf[$1] = $2
-          end
-        end
-      end
-      conf
-    end
-  end
 
   def db_conf(db, var)
     key = [db, 'db', var].join('_')
@@ -206,7 +216,7 @@ namespace :postgresql do
   end
 
   def dump_file_path(db)
-    (db_dump_path + "#{db}.psql").to_s.shellescape
+    (db_dump_path + "#{db_dump_prefix}#{db}.psql").to_s.shellescape
   end
 
   desc 'Dump the database'
@@ -226,4 +236,77 @@ namespace :postgresql do
       end
     end
   end
+end
+
+namespace :memcached do
+  def memcached_pid_path
+    basepath + "memcached.#{environment}.pid"
+  end
+
+  task :start do
+    port = conf['memcaches'].split(':').last
+    pid = fork do
+      exec('memcached','-p',port)
+    end
+    File.open(memcached_pid_path, "w") do |f|
+      f.puts pid
+    end
+  end
+  task :stop do
+    pid = File.read(memcached_pid_path).to_i
+    Process.kill("TERM", pid)
+    File.unlink(memcached_pid_path)
+  end
+end
+
+namespace :db do
+  namespace :test do
+    task :prepare do
+      ENV['APPLICATION_ENV'] = 'test'
+      ENV['DATABASES'] = 'main'
+      ENV['DB_DUMP_PREFIX'] = 'test-'
+      Rake::Task['postgresql:restore'].invoke
+    end
+  end
+end
+
+namespace :test do
+  def paster_pid_path
+    basepath + "paster.#{environment}.pid"
+  end
+
+  namespace :paster do
+    task :start do
+      ENV['APPLICATION_ENV'] = 'test'
+      FileUtils.cd r2_path do |d|
+        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--daemon','--reload')
+      end
+    end
+    task :stop do
+      ENV['APPLICATION_ENV'] = 'test'
+      FileUtils.cd r2_path do |d|
+        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--stop-daemon')
+      end
+    end
+  end
+
+  desc "Start the server in test mode for specs"
+  task :start do
+    ENV['APPLICATION_ENV'] = 'test'
+    Rake::Task['db:test:prepare'].invoke
+    Rake::Task['memcached:start'].invoke
+    Rake::Task['test:paster:start'].invoke
+  end
+  desc "Stop the test server"
+  task :stop do
+    ENV['APPLICATION_ENV'] = 'test'
+    Rake::Task['test:paster:stop'].invoke
+    Rake::Task['memcached:stop'].invoke
+  end
+end
+
+desc "Run all specs in spec directory"
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+  t.pattern = 'spec/**/*_spec.rb'
 end

@@ -9,6 +9,6 @@
 <div id="wiki">
   ${unsafe(cleanhtml(thing.html))}
   %if c.user_is_loggedin:
-    ${wiki.invalidate_link(thing.name)}
+    ${wiki.invalidate_link(thing.name,thing.skiplayout)}
   %endif
 </div>

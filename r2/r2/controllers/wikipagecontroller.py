@@ -7,23 +7,25 @@ from wiki_pages_embed import allWikiPagesCached
 class WikipageController(RedditController):
 
     # Get a full page with the wiki page embedded
-    def GET_wikipage(self,name):
+    @validate(skiplayout=VBoolean('skiplayout'))
+    def GET_wikipage(self,name,skiplayout):
         p = allWikiPagesCached[name]
-        return WikiPage(name,p).render()
+        if skiplayout:
+            # Get just the html of the wiki page
+            html = WikiPageCached().html(p)
+            return WikiPageInline(html=html, name=name, skiplayout=skiplayout).render()
+        else:
+            return WikiPage(name,p,skiplayout=skiplayout).render()
 
-    # Get just the html of the wiki page
-    def GET_html(self,name):
-        p = allWikiPagesCached[name]
-        html = WikiPageCached().html(p)
-        return WikiPageInline(html=html, name=name).render()
-
-    @validate(VUser())
-    def POST_invalidate_cache(self, name):
+    @validate(VUser(),
+              skiplayout=VBoolean('skiplayout'))
+    def POST_invalidate_cache(self, name, skiplayout):
         p = allWikiPagesCached[name]
         WikiPageCached.invalidate(p)
         if p.has_key('route'):
-            return self.redirect(p['route'])
-        elif p.has_key('htmlroute'):
-            return self.redirect('/wiki'+p['htmlroute'])
+            if skiplayout:
+                return self.redirect('/wiki/'+p['route']+'?skiplayout=on')
+            else:
+                return self.redirect('/wiki/'+p['route'])
         else:
             return "Done"

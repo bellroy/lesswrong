@@ -966,14 +966,19 @@ class ApiController(RedditController):
     def GET_side_meetups(self, *a, **kw):
         """Return HTML snippet of the upcoming meetups for the side bar."""
         ip = c.environ['REMOTE_ADDR']
-        cache_key = "side-meetups-%s" % ip
+        
+        # Key to group cached meetup pages with
+        invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
+        cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)
         geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
         try:
             location = geo.getLocationByIp(ip)
         except TypeError:
             # geolocate can attempt to index into a None result from GeoIP
             location = None
-        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, location=location, max_distance=g.meetups_radius)
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
+                                  cache_time=self.TWELVE_HOURS, location=location, 
+                                  max_distance=g.meetups_radius)
 
     def GET_upload_sr_img(self, *a, **kw):
         """
