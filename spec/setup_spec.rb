@@ -6,6 +6,10 @@ describe 'Setting up Lesswrong' do
     #set_speed :slow
   end
 
+  after(:all) do
+    click_on "Log out"
+  end
+
   it 'create admin user' do
     register_user(admin_user)
     click_on 'Turn admin on'
