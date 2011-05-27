@@ -262,7 +262,19 @@ namespace :db do
       ENV['APPLICATION_ENV'] = 'test'
       ENV['DATABASES'] = 'main'
       ENV['DB_DUMP_PREFIX'] = 'test-'
+      Rake::Task['db:test:truncate'].invoke
       Rake::Task['postgresql:restore'].invoke
+    end
+
+    task :truncate do
+      databases.each do |db|
+        with_pgpass(db) do
+          tables = `psql -t -A #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c "select tablename from pg_tables where schemaname='public'"`
+          tables.lines.each do |table|
+            run "psql #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c 'TRUNCATE TABLE #{table.chomp}'"
+          end
+        end
+      end
     end
   end
 end
