@@ -3,9 +3,9 @@ require 'tempfile'
 require 'pathname'
 require 'shellwords'
 
-require 'rspec/core/rake_task'
 begin
-rescue Exception
+  require 'rspec/core/rake_task'
+rescue LoadError
 end
 
 namespace :test do
@@ -305,8 +305,10 @@ namespace :test do
   end
 end
 
-desc "Run all specs in spec directory"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-  t.pattern = 'spec/**/*_spec.rb'
+if Object.const_defined? :RSpec
+  desc "Run all specs in spec directory"
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+    t.pattern = 'spec/**/*_spec.rb'
+  end
 end
