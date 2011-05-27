@@ -284,11 +284,20 @@ namespace :test do
     basepath + "paster.#{environment}.pid"
   end
 
+  def paster_log_file_path
+    basepath + "paster.#{environment}.log"
+  end
+
   namespace :paster do
     task :start do
       ENV['APPLICATION_ENV'] = 'test'
       FileUtils.cd r2_path do |d|
-        system('paster','serve',inifile.to_s,'--pid-file',paster_pid_path.to_s,'--daemon','--reload')
+        system(
+          'paster','serve',inifile.to_s,
+          '--pid-file',paster_pid_path.to_s,
+          '--log-file',paster_log_file_path.to_s,
+          '--daemon','--reload'
+        )
       end
     end
     task :stop do
