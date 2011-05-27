@@ -305,7 +305,7 @@ namespace :test do
   end
 end
 
-if Object.const_defined? :RSpec
+if defined?(RSpec)
   desc "Run all specs in spec directory"
   RSpec::Core::RakeTask.new(:spec) do |t|
     t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
