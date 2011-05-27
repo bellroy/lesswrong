@@ -1,9 +1,10 @@
 require 'spec_helper'
 
-#set_speed :slow
-
 describe 'Setting up Lesswrong' do
   include Lesswrong::Helpers
+  before(:all) do
+    #set_speed :slow
+  end
 
   it 'create admin user' do
     register_user(admin_user)
@@ -29,6 +30,7 @@ describe 'Setting up Lesswrong' do
   end
 
   it 'create "About" post' do
+    visit home
     create_article('The ABOUT article', article_body, 'Less Wrong')
 
     find('a.comment')   # Wait for page to load
