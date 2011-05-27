@@ -24,6 +24,7 @@
    from r2.lib.template_helpers import get_domain, static, UrlParser
    from r2.lib.strings import strings
    from r2.lib import tracking
+   from pylons import g
    import random, datetime
 %>
 <%namespace file="login.html" import="login_panel"/>
@@ -91,22 +92,24 @@
   </div>
 %endif
 
-<script type="text/javascript">
-  var vglnk = { api_url: '//api.viglink.com/api',
-                key: '9f37ca02a1e3cbd4f3d0a3618a39fbca' };
+%if not getattr(g, 'disable_tracking_js', False):
+        <script type="text/javascript">
+          var vglnk = { api_url: '//api.viglink.com/api',
+                        key: '9f37ca02a1e3cbd4f3d0a3618a39fbca' };
 
-  (function(d, t) {
-    var s = d.createElement(t); s.type = 'text/javascript'; s.async = true;
-    s.src = vglnk.api_url + '/vglnk.js?key=' + vglnk.key;
-    var r = d.getElementsByTagName(t)[0]; r.parentNode.insertBefore(s, r);
-  }(document, 'script'));
-</script>
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-5818093-2");
-pageTracker._trackPageview();
-} catch(err) {}</script>
+          (function(d, t) {
+            var s = d.createElement(t); s.type = 'text/javascript'; s.async = true;
+            s.src = vglnk.api_url + '/vglnk.js?key=' + vglnk.key;
+            var r = d.getElementsByTagName(t)[0]; r.parentNode.insertBefore(s, r);
+          }(document, 'script'));
+        </script>
+        <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-5818093-2");
+        pageTracker._trackPageview();
+        } catch(err) {}</script>
+%endif
