@@ -7,6 +7,7 @@ from routes.util import url_for
 from r2.models import Meetup
 from r2.models import Link
 from r2.models import Subreddit
+from r2.lib.filters import python_websafe
 from pylons import c,g
 import json
 
@@ -68,7 +69,7 @@ class MeetupsController(RedditController):
     l = Link._submit(title, 
                      "Discussion for the meetup <a href='%s'>%s</a>"
                      %(url_for(controller='meetups',action='show',id=meetup._id36),
-                       title),
+                       python_websafe(title)),
                      c.user, Subreddit._by_name('discussion'),ip, [])
 
     #update the queries
