@@ -1,10 +1,12 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup
-from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank
+from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
 from r2.models import Meetup
+from r2.models import Link
+from r2.models import Subreddit
 from pylons import c,g
 import json
 
@@ -25,6 +27,7 @@ class MeetupsController(RedditController):
 
   @Json
   @validate(VUser(),
+            ip = ValidIP(),
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),
             location = VRequired('location', errors.NO_LOCATION),
@@ -32,7 +35,7 @@ class MeetupsController(RedditController):
             longitude = VFloat('longitude', error=errors.NO_LOCATION),
             timestamp = VFloat('timestamp', error=errors.INVALID_DATE),
             tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
-  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset):
+  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip):
     if res._chk_error(errors.NO_TITLE):
       res._chk_error(errors.TITLE_TOO_LONG)
       res._focus('title')
@@ -62,6 +65,11 @@ class MeetupsController(RedditController):
     g.rendercache.invalidate_key_group(Meetup.group_cache_key())
 
     meetup._commit()
+    l = Link._submit(title, "Some meetup content here!", c.user, Subreddit._by_name('discussion'),ip, [])
+
+    #update the queries
+    if g.write_query_queue:
+      queries.new_link(l)
 
     res._redirect(url_for(action='show', id=meetup._id36))
 
