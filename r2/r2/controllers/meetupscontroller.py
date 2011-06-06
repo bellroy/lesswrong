@@ -65,7 +65,11 @@ class MeetupsController(RedditController):
     g.rendercache.invalidate_key_group(Meetup.group_cache_key())
 
     meetup._commit()
-    l = Link._submit(title, "Some meetup content here!", c.user, Subreddit._by_name('discussion'),ip, [])
+    l = Link._submit(title, 
+                     "Discussion for the meetup <a href='%s'>%s</a>"
+                     %(url_for(controller='meetups',action='show',id=meetup._id36),
+                       title),
+                     c.user, Subreddit._by_name('discussion'),ip, [])
 
     #update the queries
     if g.write_query_queue:
