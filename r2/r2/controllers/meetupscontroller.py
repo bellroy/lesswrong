@@ -74,7 +74,7 @@ class MeetupsController(RedditController):
 
     l.meetup = meetup._id36
     l._commit()
-    meetup.assoc_link = l._id36
+    meetup.assoc_link = l._id
     meetup._commit()
 
     #update the queries
@@ -178,7 +178,8 @@ class MeetupsController(RedditController):
     
     lastViewed = None
     if c.user_is_loggedin:
-      lastViewed = article._getLastClickTime(c.user)._date
+      clicked = article._getLastClickTime(c.user)
+      lastViewed = clicked._date if clicked else None
       article._click(c.user)
 
     res = ShowMeetup(meetup = meetup, content = content, 
