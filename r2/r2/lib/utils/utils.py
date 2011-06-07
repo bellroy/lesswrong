@@ -31,7 +31,8 @@ from datetime import datetime, timedelta, tzinfo
 from pylons.i18n import ungettext, _
 from r2.lib.filters import _force_unicode
 from mako.filters import url_escape, url_unescape
-        
+from pylons import g        
+
 iters = (list, tuple, set)
 
 def tup(item, ret_is_single=False):
