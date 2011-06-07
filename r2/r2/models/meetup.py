@@ -22,7 +22,7 @@ class Meetup(Thing):
 
   @classmethod
   def upcoming_meetups_query(cls):
-    return Meetup._query(Meetup.c.timestamp > time.time(), data=True)
+    return Meetup._query(Meetup.c.timestamp > time.time(), data=True, sort=desc('_date'))
 
   @classmethod
   def upcoming_meetups_near(cls, location, max_distance, count = 5):
