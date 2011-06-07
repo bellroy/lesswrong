@@ -1371,10 +1371,10 @@ class NotEnoughKarmaToPost(Wrapped):
 
 class ShowMeetup(Wrapped):
     """docstring for ShowMeetup"""
-    def __init__(self, meetup):
+    def __init__(self, meetup, **kw):
         # title_params = {'title':_force_unicode(meetup.title), 'site' : c.site.title}
         # title = strings.show_meetup_title % title_params
-        Wrapped.__init__(self, meetup = meetup)
+        Wrapped.__init__(self, meetup = meetup, **kw)
 
 class NewMeetup(Wrapped):
     pass

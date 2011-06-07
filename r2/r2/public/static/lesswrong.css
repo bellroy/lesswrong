@@ -628,3 +628,6 @@ div.meta.meetup strong {
   height: 16px;
   padding: 4px 0;
 }
+.meetup-comments {
+    margin-top: 30px;
+}

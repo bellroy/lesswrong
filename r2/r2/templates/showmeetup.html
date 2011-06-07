@@ -24,4 +24,16 @@
   <a href="${url_for(controller='meetups', action='edit', id=meetup._id36)}">${_('Edit meetup')}</a>
 %endif
 
+<!-- NOTE: These divs are here to make the comment.js code work with a new
+     top level comment.  These are copied from link.html.  I don't know
+     why they are required!
+-->
+<div id="thingrow_${thing.fullname}" class="post">
+  <div id="entry_${thing.fullname}" class="content clear"></div>
+</div>
+
+<div class="meetup-comments">
+  ${thing.content.render()}
+</div>
+
 <script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>
