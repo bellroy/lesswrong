@@ -15,7 +15,7 @@
   </div><!-- .content -->
   <div class="meetup meta clear">
     <strong>When:</strong>&#32;
-    <span class="date">${prettytime(meetup.datetime())}</span><br>
+    <span class="date">${meetup.datetime().strftime('%d %B %Y %I:%M:%S%p (%z)')}</span><br>
 
     <strong>Where:</strong>&#32;
     <span class="address">${meetup.location}</span>
