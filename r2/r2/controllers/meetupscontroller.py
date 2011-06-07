@@ -72,6 +72,11 @@ class MeetupsController(RedditController):
                        python_websafe(title)),
                      c.user, Subreddit._by_name('discussion'),ip, [])
 
+    l.meetup = meetup._id36
+    l._commit()
+    meetup.assoc_link = l._id36
+    meetup._commit()
+
     #update the queries
     if g.write_query_queue:
       queries.new_link(l)
