@@ -1,6 +1,6 @@
 <%!
   from routes.util import url_for
-  from r2.lib.filters import safemarkdown
+  from r2.lib.filters import safemarkdown,unsafe
   from r2.lib.utils import prettytime, epochtime
   from r2.lib.template_helpers import static
 %>
@@ -8,16 +8,22 @@
 <h1>
   <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">${meetup.title}</a>
 </h1>
-<div id="" class="content clear">
-  ${unsafe(safemarkdown(meetup.description))}
-</div><!-- .content -->
-<div class="meetup meta clear">
-  <strong>When:</strong>&#32;
-  <span class="date">${prettytime(meetup.datetime())}</span><br>
 
-  <strong>Where:</strong>&#32;
-  <span class="address">${meetup.location}</span>
-</div><!-- .meta -->
+<%def name="meetup_info(meetup)">
+  <div id="" class="content clear">
+    ${unsafe(safemarkdown(meetup.description))}
+  </div><!-- .content -->
+  <div class="meetup meta clear">
+    <strong>When:</strong>&#32;
+    <span class="date">${prettytime(meetup.datetime())}</span><br>
+
+    <strong>Where:</strong>&#32;
+    <span class="address">${meetup.location}</span>
+  </div><!-- .meta -->
+</%def>
+
+${meetup_info(meetup)}
+
 <div id="map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
 
 %if meetup.can_edit(c.user, c.user_is_admin):
