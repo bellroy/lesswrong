@@ -417,12 +417,14 @@ def timeuntil(d, resultion = 1, bare = True):
     return timetext(d - datetime.now(g.tz))
 
 def epochtime(date):
+    date = date.astimezone(g.tz)
     if not date:
         return "0"
     else:
         return date.strftime("%s")
 
 def prettytime(date, seconds = False):
+    date = date.astimezone(g.tz)
     return date.strftime('%d %B %Y %I:%M:%S%p' if seconds else '%d %B %Y %I:%M%p')
 
 def rfc822format(date):
