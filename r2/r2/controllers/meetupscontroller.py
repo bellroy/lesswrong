@@ -131,6 +131,15 @@ class MeetupsController(RedditController):
 
     meetup._commit()
 
+    # Update the linked article
+    article = Link._byID(meetup.assoc_link)
+    article_old_url = article.url
+    article.title = meetup_article_title(meetup)
+    article.article = meetup_article_text(meetup)
+    article._commit()
+    article.update_url_cache(article_old_url)
+
+
     res._redirect(url_for(action='show', id=meetup._id36))
 
   @validate(VUser(),
