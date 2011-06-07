@@ -7,29 +7,22 @@ from routes.util import url_for
 from r2.models import Meetup,Link,Subreddit,CommentBuilder
 from r2.models.listing import NestedListing
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
-from r2.lib.filters import python_websafe,safemarkdown,unsafe
-from r2.lib.utils import prettytime
+from r2.lib.filters import python_websafe
+from mako.template import Template
 from pylons import c,g,request
 import json
 
 def meetup_article_text(meetup):
+  t = Template(filename="r2/templates/showmeetup.html")
+  res = t.get_def("meetup_info").render(meetup=meetup)
+
   url = url_for(controller='meetups',action='show',id=meetup._id36)
   title = python_websafe(meetup.title)
-  return """
-         <h2>Discussion article for the meetup : <a href='%s'>%s</a></h2>
-         <div>%s</div>
-         <div class="meetup meta clear">
-           <strong>When:</strong>&#32;
-           <span class="date">%s</span><br>
-           <strong>Where:</strong>&#32;
-           <span class="address">%s</span>
-         </div>
-         </h2>Discussion article for the meetup : <a href='%s'>%s</a></h2>
-       """%(url, title, 
-            unsafe(safemarkdown(meetup.description)),
-            prettytime(meetup.datetime()),
-            python_websafe(meetup.location),
-            url, title)
+  hdr = "<h2>Discussion article for the meetup : <a href='%s'>%s</a></h2>"%(url,title)
+  return hdr+res+hdr
+
+def meetup_article_title(meetup):
+  return "Meetup : %s"%meetup.title
 
 class MeetupsController(RedditController):
   def response_func(self, **kw):
@@ -87,7 +80,7 @@ class MeetupsController(RedditController):
 
     meetup._commit()
 
-    l = Link._submit("Meetup : %s"%title, meetup_article_text(meetup),
+    l = Link._submit(meetup_article_title(meetup), meetup_article_text(meetup),
                      c.user, Subreddit._by_name('discussion'),ip, [])
 
     l.meetup = meetup._id36
