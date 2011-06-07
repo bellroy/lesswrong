@@ -1,6 +1,6 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox
-from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP
+from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
@@ -155,14 +155,18 @@ class MeetupsController(RedditController):
                                                                      tzoffset=meetup.tzoffset)).render()
 
   # Show a meetup.  Most of this code was coped from GET_comments in front.py
-  # TODO, re-introduce the comment filters and sorting.
-  @validate(meetup = VMeetup('id'))
-  def GET_show(self, meetup):
+  @validate(meetup = VMeetup('id'),
+            sort         = VMenu('controller', CommentSortMenu),
+            num_comments = VMenu('controller', NumCommentsMenu))
+  def GET_show(self, meetup, sort, num_comments):
     article = Link._byID(meetup.assoc_link)
-    sort = 'old'
-    num_comments = g.max_comments
+
+    # figure out number to show based on the menu
+    user_num = c.user.pref_num_comments or g.num_comments
+    num = g.max_comments if num_comments == 'true' else user_num
+
     builder = CommentBuilder(article, CommentSortMenu.operator(sort), None, None)
-    listing = NestedListing(builder, num=num_comments, parent_name = article._fullname)
+    listing = NestedListing(builder, num=num, parent_name = article._fullname)
     displayPane = PaneStack()
     
     # insert reply box only for logged in user
@@ -174,28 +178,19 @@ class MeetupsController(RedditController):
     # finally add the comment listing
     displayPane.append(listing.listing())
 
-    # sort_menu = CommentSortMenu(default = sort)
-    # if hasattr(article, 'comment_sort_order'):
-    #   sort_menu.enabled = False
-    # nav_menus = [sort_menu,
-    #              NumCommentsMenu(article.num_comments,
-    #                              default=num_comments)]
+    sort_menu = CommentSortMenu(default = sort)
+    nav_menus = [sort_menu,
+                 NumCommentsMenu(article.num_comments,
+                                 default=num_comments)]
 
     content = CommentListing(
       content = displayPane,
       num_comments = article.num_comments,
-      #nav_menus = nav_menus,
+      nav_menus = nav_menus,
       )
 
 
-    # is_canonical indicates if the page is the canonical location for
-    # the resource. The canonical location is deemed to be one with
-    # no query string arguments
-    # res = LinkInfoPage(link = article, comment = None,
-    #                    content = content, 
-    #                    infotext = None,
-    #                    is_canonical = True).render()
-    
+    # Update last viewed time, and return the previous last viewed time.  Actually tracked on the article
     lastViewed = None
     if c.user_is_loggedin:
       clicked = article._getLastClickTime(c.user)
