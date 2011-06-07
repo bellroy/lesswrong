@@ -32,7 +32,9 @@
   <div id="entry_${thing.fullname}" class="content clear"></div>
 </div>
 
-<div style="display: none;" id='lastViewed' time="${ epochtime(thing.lastViewed if thing.lastViewed else None) }"></div>
+%if thing.lastViewed:
+  <div style="display: none;" id='lastViewed' time="${ epochtime(thing.lastViewed) }"></div>
+%endif
 
 <div class="meetup-comments">
   ${thing.content.render()}
