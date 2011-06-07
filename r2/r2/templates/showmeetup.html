@@ -1,7 +1,7 @@
 <%!
   from routes.util import url_for
   from r2.lib.filters import safemarkdown
-  from r2.lib.utils import prettytime
+  from r2.lib.utils import prettytime, epochtime
   from r2.lib.template_helpers import static
 %>
 <% meetup = thing.meetup %>
@@ -31,6 +31,8 @@
 <div id="thingrow_${thing.fullname}" class="post">
   <div id="entry_${thing.fullname}" class="content clear"></div>
 </div>
+
+<div style="display: none;" id='lastViewed' time="${ epochtime(thing.lastViewed if thing.lastViewed else None) }"></div>
 
 <div class="meetup-comments">
   ${thing.content.render()}

@@ -175,8 +175,15 @@ class MeetupsController(RedditController):
     #                    content = content, 
     #                    infotext = None,
     #                    is_canonical = True).render()
+    
+    lastViewed = None
+    if c.user_is_loggedin:
+      lastViewed = article._getLastClickTime(c.user)._date
+      article._click(c.user)
 
-    res = ShowMeetup(meetup = meetup, content = content, fullname=article._fullname)
+    res = ShowMeetup(meetup = meetup, content = content, 
+                     fullname=article._fullname,
+                     lastViewed = lastViewed)
 
     return BoringPage(pagename = meetup.title, 
                       content = res).render()

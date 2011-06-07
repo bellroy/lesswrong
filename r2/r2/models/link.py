@@ -230,6 +230,10 @@ class Link(Thing, Printable):
             obj._commit()
             return c
 
+    def _getLastClickTime(self, user):
+        c = Link._clicked(user,self)
+        return c.get((user, self, 'click'))
+
     @classmethod
     def _hidden(cls, user, link):
         return cls._somethinged(SaveHide, user, link, 'hide')
