@@ -1,14 +1,18 @@
-/* IE6 PNG Fix - Requires /images/blank.gif - Set correct path in /js/iepngfix.htc
+/* IE6 PNG Fix
 -------------------------------------------------------------------------------------- */
-#sample {
-	behavior: url("/static/iepngfix.htc");
+#header img,
+#side-feed a img,
+div.footer div.reddit img {
+	behavior: url(/iepngfix/iepngfix.htc);
 }
+
 
 /* Header
 -------------------------------------------------------------------------------------- */
-#gradient, a#logo img, a#fhi img, a#siai img {
-	behavior: url(/iepngfix/iepngfix.htc);
+a#logo {
+	display: inline;
 }
+
 
 /* Post
 -------------------------------------------------------------------------------------- */
@@ -19,9 +23,6 @@ div.tools ul {
 div.tools ul li {
 	display: inline;
 	float: right;
-}
-div.tools div.boxright {
-  text-align: right;
 }
 div.tools div.tags {
   display: inline;
@@ -36,6 +37,14 @@ div.tools div.articlenavigation ul li {
 	overflow: hidden;
 }
 
+
+/* Meetup
+-------------------------------------------------------------------------------------- */
+body.meetup-index #map {
+	display: inline;
+}
+
+
 /* Comments
 -------------------------------------------------------------------------------------- */
 form#comment-listing {
@@ -44,6 +53,7 @@ form#comment-listing {
 form#comment-listing select {
 	width: 150px;
 }
+
 
 /* Sidebar
 -------------------------------------------------------------------------------------- */
@@ -54,7 +64,7 @@ div.sidebox select {
     width: auto;
 }
 #side-status ul.userlinks li a {
-	width: 90px;
+	width: 96px;
 }
 #side-comments h3 {
 	width: 175px;
@@ -62,10 +72,4 @@ div.sidebox select {
 #side-status .extrainfo dd {
   overflow: hidden;
   width: 140px;
-}
-
-/* Nav Bar
--------------------------------------------------------------------------------------- */
-ul#nav {
-	behavior: expression(this.firstChild.style.borderLeft = this.lastChild.style.borderLeft = "none");
 }

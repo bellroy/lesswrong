@@ -1,9 +1,0 @@
-div.tools div.boxright {
-  text-align: right;
-}
-
-/* Nav Bar
--------------------------------------------------------------------------------------- */
-ul#nav {
-	behavior: expression(this.firstChild.style.borderLeft = this.lastChild.style.borderLeft = "none");
-}
