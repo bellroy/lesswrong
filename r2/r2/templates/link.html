@@ -79,20 +79,23 @@
       %endif
     </div>
   </div><!-- .content -->
+  %if full_article:
+  <div class="articlenavigation">
+    <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
+    <div style="display: none;" class="dspcont" id="article_nav_controls">
+      <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
+      Loading&hellip;</span>
+    </div>
+  </div><!-- .articlenavigation -->
+  %endif
   <div class="tools clear">
     ${parent.midcol(thing.votable)}
     %if c.user_is_loggedin:
       <div style="display: none;" id='lastViewed' time="${ epochtime(thing.clicked._date if thing.clicked else None) }"></div>
     %endif
-    %if thing.comments_enabled:
-      <%
-          num_comments = 0 if not thing.num_comments else thing.num_comments
-      %>
-      <a class="comment" href="${thing.url}#comments">${_('Comments (%d)') % (num_comments)}</a>
-    %endif
     <div class="boxright clear">
       <ul class="clear">
-        ${self.buttons(comments = False)}
+        ${self.buttons(comments = False, report=False)}
       </ul>
       %if full_article:
         <% tags = thing.get_tags() %>
@@ -104,20 +107,10 @@
             %endfor
           </div>
         %endif
-        <img src="${static('mini-landscape.gif')}" alt="" class="landscape" />
       %endif
     </div>
     ## Each link has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
-    %if full_article:
-    <div class="articlenavigation">
-      <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
-      <div style="display: none;" class="dspcont" id="article_nav_controls">
-        <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
-        Loading&hellip;</span>
-      </div>
-    </div><!-- .articlenavigation -->
-    %endif
   </div><!-- .tools -->
 </div><!-- .post -->
 

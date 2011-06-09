@@ -125,11 +125,11 @@ class Reddit(Wrapped):
         if self.nav_menu:
             filters_ps.append(self.nav_menu)
 
-        if not filters_ps.empty:
-            ps.append(SideBox(filters_ps))
-
         if self.searchbox:
             ps.append(GoogleSearchForm())
+
+        if not filters_ps.empty:
+            ps.append(SideBox(filters_ps))
 
         #don't show the subreddit info bar on cnames
         if c.user_is_admin and not isinstance(c.site, FakeSubreddit) and not c.cname:

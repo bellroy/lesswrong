@@ -42,7 +42,14 @@
   <link rel="stylesheet" href="${static('antikibitzer.css')}" type="text/css"
  %endif
   <link rel="stylesheet" href="${static(g.stylesheet)}" type="text/css" />
-  <!--[if IE 7]>
+  <link rel="stylesheet" href="${static('jquery.qtip.css')}" type="text/css" />
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" type="text/css" href="${static('ie8below.css')}" />
+  <![endif]-->
+  <!--[if lte IE 7]>
+  <link rel="stylesheet" type="text/css" href="${static('ie7below.css')}" />
+  <![endif]-->
+  <!--[if IE 7]> 
   <link rel="stylesheet" type="text/css" href="${static('ie7.css')}" />
   <![endif]-->
   <!--[if lte IE 6]>
@@ -89,10 +96,19 @@
     <script src="${static('protoplasm/protoplasm.js')}"  type="text/javascript"></script>
     <script src="${static('lesswrong.js')}"  type="text/javascript"></script>
   %endif
+    <script src="${static('jquery.qtip.min.js')}"  type="text/javascript"></script>
+    <script src="${static('main.js')}"  type="text/javascript"></script>
+    <!--[if lte IE 8]>
+    <script src="${static('ie8below.js')}"  type="text/javascript"></script>
+    <![endif]-->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+
   <script type="text/javascript" src="http://www.google.com/jsapi?key=${g.google_api_key}"></script>
 </%def>
 
 <%def name="javascript_run()">
+  jQuery.noConflict();
+
   var class_dict = ${class_dict()};
   var where = ${path_info()};
   %if hasattr(c.site, '_fullname'):

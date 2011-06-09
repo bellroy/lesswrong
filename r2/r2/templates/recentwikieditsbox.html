@@ -25,8 +25,11 @@
             var author_link = document.createElement('a');
             author_link.setAttribute("href", "http://wiki.lesswrong.com/wiki/User:" + entry.author.replace(/ /g, "_"));
             author_link.appendChild(document.createTextNode(entry.author));
-            li.appendChild(document.createTextNode(" by "));
-            li.appendChild(author_link);
+
+	    var span = document.createElement('span');
+	    li.appendChild(span);
+	    span.appendChild(document.createTextNode(" by "));
+	    span.appendChild(author_link);
             container.appendChild(li);
           }
         }
