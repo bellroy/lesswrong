@@ -113,6 +113,9 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
+
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
         else:
@@ -127,9 +130,6 @@ class Reddit(Wrapped):
 
         if not filters_ps.empty:
             ps.append(SideBox(filters_ps))
-
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
 
         #don't show the subreddit info bar on cnames
         if c.user_is_admin and not isinstance(c.site, FakeSubreddit) and not c.cname:
