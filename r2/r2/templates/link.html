@@ -302,7 +302,7 @@
           "return change_state(this, 'unsave');", _("Unsaved"))}
     %else:
        ${parent.state_button("save", fullname, _("Save"), \
-          "return change_state(this, 'save');", _("Saved"))}
+          "return change_state(this, 'save');", _("Saved"), a_class="save")}
     %endif
     </li>
     %if not thing.render_full:
