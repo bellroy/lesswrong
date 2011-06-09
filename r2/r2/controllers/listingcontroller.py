@@ -100,6 +100,10 @@ class ListingController(RedditController):
         etc) to be displayed on this listing page"""
         return []
 
+    @property
+    def post_filter(self):
+      return None
+
     @base_listing
     def build_listing(self, num, after, reverse, count):
         """uses the query() method to define the contents of the
@@ -123,6 +127,7 @@ class ListingController(RedditController):
                                title = self.title(),
                                infotext = self.infotext,
                                robots = self.robots,
+                               post_filter = self.post_filter,
                                **self.render_params).render()
         return res
 
@@ -382,6 +387,10 @@ class BrowseController(ListingController):
     @property
     def menus(self):
         return [TimeMenu(default = self.time)]
+
+    @property
+    def post_filter(self):
+        return TimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
     def query(self):
         return c.site.get_links(self.sort, self.time)

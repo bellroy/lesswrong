@@ -79,7 +79,7 @@ class Reddit(Wrapped):
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None, 
-                 show_sidebar = True, body_class = None, **context):
+                 show_sidebar = True, body_class = None, post_filter = None, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
@@ -88,6 +88,7 @@ class Reddit(Wrapped):
         self.show_sidebar   = show_sidebar
         self.space_compress = space_compress
         self.body_class     = body_class
+        self.post_filter    = post_filter
 
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None

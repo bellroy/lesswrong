@@ -150,6 +150,11 @@
   
       %if thing.content:
         <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
+          %if thing.post_filter:
+            <div id="post-filter">
+              ${thing.post_filter.render()}
+            </div>
+          %endif
           ${thing.content().render()}
         </div>
       %endif

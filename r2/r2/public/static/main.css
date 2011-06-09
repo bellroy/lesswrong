@@ -250,6 +250,7 @@ ul#filternav li:last-child {
 #post-filter {
 	float: left;
 	position: relative;
+	margin-bottom: 30px;
 }
 #post-filter div.filter-active {
 	background: url(/static/disclosure-triangle.gif) no-repeat 0 2px;
