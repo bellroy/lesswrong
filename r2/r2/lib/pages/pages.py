@@ -113,6 +113,9 @@ class Reddit(Wrapped):
         
         ps = PaneStack(css_class='spacer')
 
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
+
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
         else:
@@ -124,9 +127,6 @@ class Reddit(Wrapped):
 
         if self.nav_menu:
             filters_ps.append(self.nav_menu)
-
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
 
         if not filters_ps.empty:
             ps.append(SideBox(filters_ps))
