@@ -2,10 +2,8 @@
    from r2.lib.template_helpers import static, add_sr, join_urls
 %>
 <div id="side-feed" class="sidebox">
-  <div class="feed-icon">
-    <a href="${add_sr(join_urls(request.path,'.rss'))}">
-      <img src="${static('feed.png')}" alt="Feed icon" />
-    </a>
-  </div>
-  <a href="${add_sr(join_urls(request.path,'.rss'))}">RSS feed for this page</a>&nbsp;
+	<a href="${add_sr(join_urls(request.path,'.rss'))}">
+		<img src="${static('feed.png')}" alt="Feed icon" />
+		RSS feed for this page
+	</a>
 </div>
