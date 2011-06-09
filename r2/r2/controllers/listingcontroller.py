@@ -101,7 +101,7 @@ class ListingController(RedditController):
         return []
 
     @property
-    def post_filter(self):
+    def top_filter(self):
       return None
 
     @base_listing
@@ -127,7 +127,7 @@ class ListingController(RedditController):
                                title = self.title(),
                                infotext = self.infotext,
                                robots = self.robots,
-                               post_filter = self.post_filter,
+                               top_filter = self.top_filter,
                                **self.render_params).render()
         return res
 
@@ -389,7 +389,7 @@ class BrowseController(ListingController):
         return [TimeMenu(default = self.time)]
 
     @property
-    def post_filter(self):
+    def top_filter(self):
         return TimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
     def query(self):
