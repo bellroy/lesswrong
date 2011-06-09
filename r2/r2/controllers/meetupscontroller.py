@@ -178,7 +178,7 @@ class MeetupsController(RedditController):
     # finally add the comment listing
     displayPane.append(listing.listing())
 
-    sort_menu = CommentSortMenu(default = sort)
+    sort_menu = CommentSortMenu(default = sort, type='dropdown2')
     nav_menus = [sort_menu,
                  NumCommentsMenu(article.num_comments,
                                  default=num_comments)]
