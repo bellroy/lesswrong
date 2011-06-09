@@ -127,36 +127,37 @@ ${parent.midcol()}
 
 <%def name="buttons()">
   %if not thing.deleted:
-    <ul class="clear">
       %if thing.votable:
-        <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
-        <li>${self.arrow(thing, 0, thing.likes == False)}</li>
+        <ul class="votes">
+          <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
+          <li>${self.arrow(thing, 0, thing.likes == False)}</li>
+        </ul>
       %endif
       <% fullname = thing._fullname %>
-      <li>
-        ${parent.comment_button("permalink", fullname, _("Permalink"), 0, 
-        thing.permalink)}
-      </li>
-      %if not c.profilepage:
-        %if thing.parent_permalink:
+      <ul>
+        %if not c.profilepage and thing.can_reply:
           <li>
-            ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
+            ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
           </li>
         %endif
-        %if c.user_is_loggedin and thing.author.name == c.user.name:
-          <li>
-            ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
-          </li>
-        %endif
-      %endif
-      ${parent.delete_or_report_buttons(False,True,True)}
-      ${parent.buttons()}
-      %if not c.profilepage and thing.can_reply:
         <li>
-          ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
+          ${parent.comment_button("permalink", fullname, _("Permalink"), 0, thing.permalink)}
         </li>
-      %endif
-    </ul>
+        %if not c.profilepage:
+          %if thing.parent_permalink:
+            <li>
+              ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
+            </li>
+          %endif
+          %if c.user_is_loggedin and thing.author.name == c.user.name:
+            <li>
+              ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
+            </li>
+          %endif
+        %endif
+        ${parent.delete_or_report_buttons(False,True,True)}
+        ${parent.buttons()}
+      </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
   %endif
