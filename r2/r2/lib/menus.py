@@ -120,7 +120,10 @@ menu =   MenuHandler(hot          = _('Popular'),
                      details      = _("Details"),
 
                      # reddits
-                     home         = _("Back to Less Wrong"),
+                     main         = _("Main"),
+                     discussion   = _("Discussion"),
+                     wiki         = _("Wiki"),
+                     sequences    = _("Sequences"),
                      about        = _("About"),
                      edit         = _("Edit"),
                      banned       = _("Banned"),

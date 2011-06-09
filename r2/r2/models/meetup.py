@@ -32,7 +32,7 @@ class Meetup(Thing):
 
     # Find nearby ones
     if location:
-        meetups = filter(lambda m: m.distance_to(point) <= max_distance, meetups)
+        meetups = filter(lambda m: m.distance_to(location) <= max_distance, meetups)
     else:
         meetups.sort(key=lambda m: m.timestamp)
 

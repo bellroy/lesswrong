@@ -23,7 +23,6 @@
 <% from r2.lib.template_helpers import static %>
 <% from r2.models.subreddit import DefaultSR %>
 <%namespace file="utils.html" import="img_link"/>
-<%page args="menu" />
 <%
     if c.site.header and c.allow_styles:
         header_img = c.site.header
@@ -40,8 +39,3 @@
     <img src="${static('SIAI.png')}" alt="Singularity Institute for Artificial Intelligence" />
   </a>
 </div><!-- #header -->
-<div>
-  %if menu:
-    ${menu.render()}
-  %endif
-</div>

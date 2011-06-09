@@ -3,7 +3,10 @@ require 'tempfile'
 require 'pathname'
 require 'shellwords'
 
-require 'rspec/core/rake_task'
+begin
+  require 'rspec/core/rake_task'
+rescue LoadError
+end
 
 namespace :test do
   desc "Interactively run through the deployment test script."
@@ -314,8 +317,10 @@ namespace :test do
   end
 end
 
-desc "Run all specs in spec directory"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-  t.pattern = 'spec/**/*_spec.rb'
+if defined?(RSpec)
+  desc "Run all specs in spec directory"
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+    t.pattern = 'spec/**/*_spec.rb'
+  end
 end
