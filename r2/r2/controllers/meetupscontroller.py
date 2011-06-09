@@ -202,6 +202,7 @@ class MeetupsController(RedditController):
                      lastViewed = lastViewed)
 
     return BoringPage(pagename = meetup.title, 
-                      content = res).render()
+                      content = res,
+                      body_class = 'meetup').render()
 
 

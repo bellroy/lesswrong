@@ -5,35 +5,44 @@
   from r2.lib.template_helpers import static
 %>
 <% meetup = thing.meetup %>
-<h1>
-  <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">${meetup.title}</a>
-</h1>
+<div class="post">
+	<div class="meetup-content">
+		<h1>
+		  <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">Meet Up:&nbsp;${meetup.title}</a>
+		</h1>
+		<%def name="meetup_info(meetup)">
+		  <div class="meetup-meta">
+				<p>
+		    	<strong>WHEN:</strong>&#32;
+		    	<span class="date">${meetup.datetime().strftime('%d %B %Y %I:%M:%S%p (%z)')}</span><br>
+				</p>
+				<p>
+		    	<strong>WHERE:</strong>&#32;
+		    	<span class="address">${meetup.location}</span>
+				</p>
+		  </div><!-- .meta -->
+		  <div id="" class="content">
+		    ${unsafe(safemarkdown(meetup.description))}
+		  </div><!-- .content -->
+		</%def>
 
-<%def name="meetup_info(meetup)">
-  <div id="" class="content clear">
-    ${unsafe(safemarkdown(meetup.description))}
-  </div><!-- .content -->
-  <div class="meetup meta clear">
-    <strong>When:</strong>&#32;
-    <span class="date">${meetup.datetime().strftime('%d %B %Y %I:%M:%S%p (%z)')}</span><br>
+		${meetup_info(meetup)}
 
-    <strong>Where:</strong>&#32;
-    <span class="address">${meetup.location}</span>
-  </div><!-- .meta -->
-</%def>
+	</div>
 
-${meetup_info(meetup)}
+	<div id="map" class="meetup-map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}">
 
-<div id="map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
+	</div>
 
-%if meetup.can_edit(c.user, c.user_is_admin):
-  <a href="${url_for(controller='meetups', action='edit', id=meetup._id36)}">${_('Edit meetup')}</a>
-%endif
+	%if meetup.can_edit(c.user, c.user_is_admin):
+	  <a href="${url_for(controller='meetups', action='edit', id=meetup._id36)}">${_('Edit meetup')}</a>
+	%endif
 
-<!-- NOTE: These divs are here to make the comment.js code work with a new
-     top level comment.  These are copied from link.html.  I don't know
-     why they are required!
--->
+	<!-- NOTE: These divs are here to make the comment.js code work with a new
+	     top level comment.  These are copied from link.html.  I don't know
+	     why they are required!
+	-->
+</div>
 <div id="thingrow_${thing.fullname}" class="post">
   <div id="entry_${thing.fullname}" class="content clear"></div>
 </div>
@@ -41,9 +50,8 @@ ${meetup_info(meetup)}
 %if thing.lastViewed:
   <div style="display: none;" id='lastViewed' time="${ epochtime(thing.lastViewed) }"></div>
 %endif
-
 <div class="meetup-comments">
-  ${thing.content.render()}
+	${thing.content.render()}
 </div>
 
 <script src="${static('meetups.js')}" type="text/javascript" charset="utf-8"></script>
