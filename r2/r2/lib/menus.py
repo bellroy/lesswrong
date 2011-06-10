@@ -345,6 +345,14 @@ class ExpandableButton(NamedButton):
     def sub_menus(self):
         return self.sub
 
+    def is_selected(self):
+        if not self.path in request.fullpath:
+          return False
+        for i, sub_menu in enumerate(self.sub_menus()):
+          sub_menu.build()
+          if not "/" in request.fullpath.lstrip(sub_menu.path).rstrip('/').lower():
+            return True
+        return False
 
 class JsButton(NavButton):
     """A button which fires a JS event and thus has no path and cannot
