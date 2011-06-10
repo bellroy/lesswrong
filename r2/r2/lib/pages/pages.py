@@ -249,9 +249,6 @@ class Reddit(Wrapped):
 
         filter_buttons = self.header_sub_nav
 
-        if c.user_is_loggedin:
-            filter_buttons.append(NamedButton('saved', False))
-
         menu_stack.append(NavMenu(filter_buttons, title = _('Filter by'), _id='filternav', type='navlist'))
 
         return menu_stack

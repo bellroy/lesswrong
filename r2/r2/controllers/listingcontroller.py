@@ -106,13 +106,17 @@ class ListingController(RedditController):
 
     @property
     def header_sub_nav(self):
-      filter_buttons = []
-      button_names = ['new', 'top']
+      buttons = []
       if c.default_sr:
-        filter_buttons.append(NamedButton("promoted", aliases = ["/"]))
-      for name in button_names:
-        filter_buttons.append(NamedButton(name))
-      return filter_buttons
+        buttons.append(NamedButton("promoted", aliases = ["/"]))
+        buttons.append(NamedButton("new"))
+      else:
+        buttons.append(NamedButton("new", aliases = ["/"]))
+
+      buttons.append(NamedButton('top'))
+      if c.user_is_loggedin:
+        buttons.append(NamedButton('saved'))
+      return buttons
 
     @base_listing
     def build_listing(self, num, after, reverse, count):
