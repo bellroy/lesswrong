@@ -79,7 +79,7 @@ class Reddit(Wrapped):
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None,
-                 show_sidebar = True, body_class = None, top_filter = None, **context):
+                 show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = None, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
@@ -89,6 +89,7 @@ class Reddit(Wrapped):
         self.space_compress = space_compress
         self.body_class     = body_class
         self.top_filter     = top_filter
+        self.header_sub_nav = header_sub_nav
 
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None
@@ -237,21 +238,16 @@ class Reddit(Wrapped):
         main_buttons = [
             ExpandableButton('main', dest = '/', sr_path = False, sub_menus =
                              [ NamedButton('posts', dest = '/', sr_path = False),
-                               NamedButton('comments', dest = '/comments')]),
+                               NamedButton('comments', dest = '/comments', sr_path = False)]),
             ExpandableButton('discussion', dest = discussion_reddit, sub_menus =
                              [ NamedButton('posts', dest = discussion_reddit, sr_path = False),
-                               NamedButton('comments', dest = discussion_reddit+'/comments')])
+                               NamedButton('comments', dest = discussion_reddit+'/comments', sr_path = False)])
        ]
 
         menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
 
-        filter_buttons = []
-        button_names = ['new', 'top']
-        if c.default_sr:
-            button_names.insert(0, 'promoted')
 
-        for name in button_names:
-          filter_buttons.append(NamedButton(name))
+        filter_buttons = self.header_sub_nav
 
         if c.user_is_loggedin:
             filter_buttons.append(NamedButton('saved', False))

@@ -104,6 +104,16 @@ class ListingController(RedditController):
     def top_filter(self):
       return None
 
+    @property
+    def header_sub_nav(self):
+      filter_buttons = []
+      button_names = ['new', 'top']
+      if c.default_sr:
+        button_names.insert(0, 'promoted')
+      for name in button_names:
+        filter_buttons.append(NamedButton(name))
+      return filter_buttons
+
     @base_listing
     def build_listing(self, num, after, reverse, count):
         """uses the query() method to define the contents of the
@@ -128,6 +138,7 @@ class ListingController(RedditController):
                                infotext = self.infotext,
                                robots = self.robots,
                                top_filter = self.top_filter,
+                               header_sub_nav = self.header_sub_nav,
                                **self.render_params).render()
         return res
 
@@ -685,6 +696,10 @@ class MyredditsController(ListingController):
 class CommentsController(ListingController):
     title_text = _('Comments')
     builder_cls = UnbannedCommentBuilder
+
+    @property
+    def header_sub_nav(self):
+	    return [NamedButton("topcomments"), NamedButton("comments")]
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),

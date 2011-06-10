@@ -69,7 +69,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      blessed      = _('Promoted'),
                      comments     = _('Comments'),
                      posts        = _('Posts'),
-                     topcomments     = _('Top Comments'),                                 
+                     topcomments     = _('Top'),
 
                      # time sort words
                      hour         = _('This hour'),
