@@ -247,9 +247,8 @@ class Reddit(Wrapped):
         menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
 
 
-        filter_buttons = self.header_sub_nav
-
-        menu_stack.append(NavMenu(filter_buttons, title = _('Filter by'), _id='filternav', type='navlist'))
+        if self.header_sub_nav:
+            menu_stack.append(NavMenu(self.header_sub_nav, title = _('Filter by'), _id='filternav', type='navlist'))
 
         return menu_stack
 
