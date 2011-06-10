@@ -385,10 +385,6 @@ class BrowseController(ListingController):
     where = 'browse'
 
     @property
-    def menus(self):
-        return [TimeMenu(default = self.time)]
-
-    @property
     def top_filter(self):
         return TimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 

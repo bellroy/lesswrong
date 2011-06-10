@@ -155,16 +155,13 @@
         %if thing.nav_menu:
           ${thing.nav_menu.render()}
         %endif
-  
-      %if thing.content:
-        <div id="content" class="clear ${'' if thing.show_sidebar else 'fullwidth'}">
-          %if thing.top_filter:
-            <div id="post-filter">
-              ${thing.top_filter.render()}
-            </div>
-          %endif
-          ${thing.content().render()}
+
+        %if thing.top_filter:
+          <div id="post-filter">
+            ${thing.top_filter.render()}
+          </div>
         %endif
+        ${thing.content().render()}
       </div>
     
       %if thing.show_sidebar:
