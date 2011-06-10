@@ -59,3 +59,11 @@
 #content .nextprev {
   clear: both;
 }
+
+#header.discussion #header-img {
+	height: 60px;
+}
+
+#header.discussion #tagline {
+	display: none;
+}
