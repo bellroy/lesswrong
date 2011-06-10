@@ -109,7 +109,7 @@ class ListingController(RedditController):
       filter_buttons = []
       button_names = ['new', 'top']
       if c.default_sr:
-        button_names.insert(0, 'promoted')
+        filter_buttons.append(NamedButton("promoted", aliases = ["/"]))
       for name in button_names:
         filter_buttons.append(NamedButton(name))
       return filter_buttons
