@@ -79,7 +79,7 @@ class Reddit(Wrapped):
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
                  infotext = '', content = None, title = '', robots = None,
-                 show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = None, **context):
+                 show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = [], **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
