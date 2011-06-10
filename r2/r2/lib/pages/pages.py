@@ -32,7 +32,7 @@ from pylons.controllers.util import abort
 from r2.lib.captcha import get_iden
 from r2.lib.filters import spaceCompress, _force_unicode, _force_utf8
 from r2.lib.db.queries import db_sort
-from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton
+from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton, ExpandableButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
@@ -78,7 +78,7 @@ class Reddit(Wrapped):
     extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
-                 infotext = '', content = None, title = '', robots = None, 
+                 infotext = '', content = None, title = '', robots = None,
                  show_sidebar = True, body_class = None, top_filter = None, **context):
         Wrapped.__init__(self, **context)
         self.title          = title
@@ -233,11 +233,15 @@ class Reddit(Wrapped):
         # Ensure the default button is the first tab
         #default_button_name = c.site.default_listing
 
+        discussion_reddit = '/r/discussion'
         main_buttons = [
-          NamedButton('main', dest = '/', sr_path = False),
-          NamedButton('discussion', dest = '/r/discussion'),
-          NamedButton('comments')
-        ]
+            ExpandableButton('main', dest = '/', sr_path = False, sub_menus =
+                             [ NamedButton('posts', dest = '/', sr_path = False),
+                               NamedButton('comments', dest = '/comments')]),
+            ExpandableButton('discussion', dest = discussion_reddit, sub_menus =
+                             [ NamedButton('posts', dest = discussion_reddit, sr_path = False),
+                               NamedButton('comments', dest = discussion_reddit+'/comments')])
+       ]
 
         menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
 
@@ -1411,7 +1415,7 @@ class WikiPage(Reddit):
         self.pagename = page['title']()
         html = WikiPageCached.html(page)
         Reddit.__init__(self,
-                        content = WikiPageInline(html=html, name=name, 
+                        content = WikiPageInline(html=html, name=name,
                                                  skiplayout=skiplayout,title=self.pagename),
                         title = self.pagename,
                         space_compress=False,

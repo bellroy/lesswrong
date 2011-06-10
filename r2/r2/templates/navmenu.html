@@ -199,7 +199,17 @@
              class_name = ""
              content = option.render()
         %>
-        <li ${class_name}>${content}</li>
+        <li ${class_name}>${content}
+          %if hasattr(option, 'sub_menus'):
+            <img class="dropdown" src="/static/nav-dropdown.gif" alt="" />
+            <ul>
+              %for i, sub_menu in enumerate(option.sub_menus()):
+              <% sub_menu.build() %>
+                <li>${sub_menu.render()}</li>
+              %endfor
+            </ul>
+          %endif
+        </li>
       %endfor
     </ul>
   %endif

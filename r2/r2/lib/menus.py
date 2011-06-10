@@ -68,6 +68,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      drafts       = _('Drafts'),
                      blessed      = _('Promoted'),
                      comments     = _('Comments'),
+                     posts        = _('Posts'),
                      topcomments     = _('Top Comments'),                                 
 
                      # time sort words
@@ -335,6 +336,14 @@ class NamedButton(NavButton):
         except KeyError:
             return NavButton.selected_title(self)
 
+class ExpandableButton(NamedButton):
+    def __init__(self, name, sr_path = True, nocname=False, dest = None, 
+                 sub_menus=[], **kw):
+        self.sub = sub_menus
+        NamedButton.__init__(self,name,sr_path,nocname,dest,**kw)
+
+    def sub_menus(self):
+        return self.sub
 
 
 class JsButton(NavButton):
