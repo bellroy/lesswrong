@@ -1,0 +1,31 @@
+/* Clearing
+-------------------------------------------------------------------------------------- */
+#main,
+#content,
+ul#nav,
+ul#filternav,
+form div.row,
+div.post,
+div.post div.content,
+div.meta,
+div.tools,
+div.tools div.boxright,
+div.tools div.boxright ul,
+#comments,
+div.comment,
+div.comment div.entry,
+div.comment-meta,
+div.comment-links,
+div.comment-links ul,
+ul#rightnav,
+div.sidebox,
+div.footer,
+div.footer ul.footer-links,
+.clear { zoom: 1; }
+
+
+/* Everything Else
+-------------------------------------------------------------------------------------- */
+div.tools div.boxright {
+	text-align: right;
+}
