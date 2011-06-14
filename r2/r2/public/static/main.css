@@ -148,10 +148,10 @@ a#fhi {
 	float: right;
 }
 a#siai {
-	margin: 44px 10px 0 0;	
+	margin: 44px 10px 0 0;
 }
 a#fhi {
-	margin: 40px 20px 0 0;	
+	margin: 40px 20px 0 0;
 }
 
 
@@ -325,7 +325,7 @@ div.meta span.votes span.votes {
 div.editors-pick div.meta span.votes {
 }
 div.meta span.editors-pick {
-	color: #538d4d;	
+	color: #538d4d;
 	font-weight: bold;
 }
 div.meta span.author a {
@@ -365,7 +365,7 @@ div.tools div.vote a {
 	padding: 20px 0 0;
 	width: 14px;
 }
-div.tools div.vote a:hover {
+div.tools div.vote a:hover, div.tools div.vote a.mod {
 	background-position: 0 -20px;
 }
 div.tools div.vote a.up {
@@ -374,6 +374,7 @@ div.tools div.vote a.up {
 div.tools div.vote a.down {
 	background-image: url(/static/vote-down.gif);
 }
+
 div.tools a.comment {
 	float: left;
 	margin-left: 10px;
@@ -683,7 +684,7 @@ div.comment-links ul li a {
 	padding: 20px 0 0;
 }
 div.comment-links ul li a:hover {
-	background-position: 0 -20px;	
+	background-position: 0 -20px;
 }
 div.comment-links ul li.up a {
 	background-image: url(/static/vote-up.gif);
@@ -937,7 +938,7 @@ ul#rightnav li a {
 	color: #999999;
 }
 ul#rightnav li a:hover {
-	text-decoration: none;	
+	text-decoration: none;
 }
 
 #side-feed a {
@@ -1090,7 +1091,7 @@ div.articlenavigation #article_nav_controls .loading img {
 /* Styling for embedded wiki pages */
 #wiki #jump-to-nav, #wiki #siteSub,
 .wiki-comment-help div#jump-to-nav, .wiki-comment-help #siteSub,
-#wiki h1, .wiki-comment-help h1, 
+#wiki h1, .wiki-comment-help h1,
 #wiki #catlinks, .wiki-comment-help div#catlinks {
     display: none;
 }
