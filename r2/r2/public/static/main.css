@@ -681,9 +681,10 @@ div.comment-links ul li a {
 	display: block;
 	float: left;
 	height: 0;
+        overflow: hidden;
 	padding: 20px 0 0;
 }
-div.comment-links ul li a:hover {
+div.comment-links ul li a:hover, div.comment-links ul li a.mod {
 	background-position: 0 -20px;
 }
 div.comment-links ul li.up a {
