@@ -125,7 +125,7 @@ ${parent.midcol()}
 <%def name="midcol()">
 </%def>
 
-<%def name="buttons()">
+<%def name="buttons(parent_link = False)">
   %if not thing.deleted:
       %if thing.votable:
         <ul class="votes">
@@ -136,6 +136,11 @@ ${parent.midcol()}
       <% fullname = thing._fullname %>
       <ul>
         %if not c.profilepage and thing.can_reply:
+          %if thing.parent_permalink and parent_link:
+            <li class="parent">
+              ${bylink_button("parent", _("Parent"), thing.parent_permalink, tool_tip=_("Parent"))}
+            </li>
+          %endif
           <li class="reply">
             ${parent.simple_button("reply", fullname, _("Reply"), "reply", tool_tip=_("Reply"))}
           </li>
@@ -160,7 +165,9 @@ ${parent.midcol()}
 </%def>
 
 
-<%def name="bylink_button(name, title, link)">
- <a id="${name}_${thing._fullname}" href="${link}" class="bylink">${title}</a>
+<%def name="bylink_button(name, title, link, tool_tip=None)">
+ <a id="${name}_${thing._fullname}" href="${link}" class="bylink"
+    ${ "title=%s"%(_(tool_tip)) if tool_tip else "" }
+   >${title}</a>
 </%def>
 
