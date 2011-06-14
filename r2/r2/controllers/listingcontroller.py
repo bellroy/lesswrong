@@ -703,7 +703,7 @@ class CommentsController(ListingController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("comments"), NamedButton("topcomments")]
+	    return [NamedButton("newcomments", dest="comments"), NamedButton("topcomments")]
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
