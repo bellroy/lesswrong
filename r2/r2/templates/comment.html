@@ -137,18 +137,13 @@ ${parent.midcol()}
       <ul>
         %if not c.profilepage and thing.can_reply:
           <li class="reply">
-            ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
+            ${parent.simple_button("reply", fullname, _("Reply"), "reply", tool_tip=_("Reply"))}
           </li>
         %endif
         <li class="permalink">
-          ${parent.comment_button("permalink", fullname, _("Permalink"), 0, thing.permalink)}
+          ${parent.comment_button("permalink", fullname, _("Permalink"), 0, thing.permalink, title=_("Permalink"))}
         </li>
         %if not c.profilepage:
-          %if thing.parent_permalink:
-            <li>
-              ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
-            </li>
-          %endif
           %if c.user_is_loggedin and thing.author.name == c.user.name:
             <li class='edit'>
               ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
