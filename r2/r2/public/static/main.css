@@ -387,6 +387,7 @@ div.tools div.boxright {
 	float: right;
 }
 div.tools ul {
+        float: right;
 	line-height: 1em;
 	list-style: none;
 	margin: 0;
