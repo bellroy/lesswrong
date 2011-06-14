@@ -140,7 +140,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(SideBoxPlaceholder('side-meetups', _('Upcoming Meetups'), '/meetups'))
+        ps.append(SideBoxPlaceholder('side-meetups', _('Nearby Meetups'), '/meetups'))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 

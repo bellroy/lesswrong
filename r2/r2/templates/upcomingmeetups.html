@@ -3,7 +3,7 @@
 %>
 <%namespace file="utils.html" import="plain_link"/>
 <%namespace file="meetup.html" import="meetup_title"/>
-<h2>${plain_link(_('Upcoming Meetups'), '/meetups')}:</h2>
+<h2>${plain_link(_('Nearby Meetups'), '/meetups')}:</h2>
 %if len(thing.meetups) > 0:
   <ul>
     %for meetup in thing.meetups:
