@@ -272,6 +272,7 @@ ul#filternav li:last-child {
 	padding: 0;
 	position: absolute;
 	top: 20px;
+	z-index: 999;
 }
 #post-filter div.filter-options a {
 	display: block;
@@ -680,7 +681,6 @@ div.comment-links ul li a {
 	display: block;
 	float: left;
 	height: 0;
-	overflow: hidden;
 	padding: 20px 0 0;
 }
 div.comment-links ul li a:hover {
