@@ -387,6 +387,7 @@ div.tools div.boxright {
 	float: right;
 }
 div.tools ul {
+        float: right;
 	line-height: 1em;
 	list-style: none;
 	margin: 0;
@@ -719,6 +720,15 @@ div.comment-links ul li.agree a {
 div.comment-links ul li.disagree a {
 	background-image: url(/static/disagree-button.gif);
 	width: 20px;
+}
+
+/* Temporary styling for text buttons until we have icons */
+div.comment-links ul li.edit a, div.comment-links ul li.retract a,
+div.comment-links ul li.report a, div.comment-links ul li.delete a,
+div.comment-links ul li.unban a, div.comment-links ul li.ban a,
+div.comment-links ul li.ignore a {
+    height: 20px;
+    padding-top: 4px;
 }
 
 

@@ -82,18 +82,18 @@ ${self.RenderPrintable()}
 <% fullname = thing._fullname %>
 %if thing.can_ban and ban:
   %if thing.show_spam:
-    <li>
+    <li class='unban'>
       ${state_button("unban", fullname, _("Unban"), \
       "return change_state(this, 'unban');", _("Unbanned"))}
     </li>
   %else:
-    <li>
+    <li class='ban'>
       ${state_button("ban", fullname, _("Ban"), \
       "return change_state(this, 'ban');", _("Banned"))}
     </li>
     %endif
   %if thing.show_reports:
-    <li>
+    <li class='ignore'>
     ${state_button("ignore", fullname, _("Ignore"), \
     "return change_state(this, 'ignore');", _("Ignored"))}
     </li>
@@ -105,21 +105,21 @@ ${self.RenderPrintable()}
 <% fullname = thing._fullname %>
 %if c.user_is_loggedin:
   %if (not thing.author or thing.author.name != c.user.name) and report:
-    <li>
+    <li class="report">
       ${yes_no_button("report", fullname, _("Report"), \
       "return deletetoggle(this, $ListClass.report);",\
       _("Reported"), clicked=thing.report_made)}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and delete:
-    <li>
+    <li class='delete'>
       ${yes_no_button("delete", fullname, _("Delete"), \
       "return deletetoggle(this, $ListClass.del);",\
       _("Deleted"))}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and retract:
-    <li>
+    <li class='retract'>
       ${yes_no_button("retract", fullname, _("Retract"), \
       "return deletetoggle(this, $ListClass.retract);",\
       _("Retracted"), clicked=thing.retracted)}
@@ -261,8 +261,9 @@ ${state_button(name, fullname, title, onclick, executed,
                clicked=clicked, **kw)}
 </%def>
 
-<%def name="simple_button(name, fullname, title, nameFunc=None)">
+<%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None)">
 <a id="${nameFunc}_a_${fullname}" class="" \
+   ${ "title=%s"%(_(tool_tip)) if tool_tip else "" } \
    href="javascript:${nameFunc}('${fullname}')">\
   ${title}</a>
 </%def>
