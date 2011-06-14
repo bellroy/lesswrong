@@ -32,7 +32,7 @@ from pylons.controllers.util import abort
 from r2.lib.captcha import get_iden
 from r2.lib.filters import spaceCompress, _force_unicode, _force_utf8
 from r2.lib.db.queries import db_sort
-from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton, ExpandableButton
+from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton, ExpandableButton, AbsButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
@@ -255,7 +255,7 @@ class Reddit(Wrapped):
     def right_menu(self):
         """docstring for right_menu"""
         buttons = [
-          NamedButton('wiki'),
+          AbsButton('wiki', 'http://wiki.lesswrong.com'),
           NamedButton('sequences'),
           NamedButton('about')
         ]
