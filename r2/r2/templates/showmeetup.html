@@ -10,6 +10,21 @@
 		<h1>
 		  <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">Meet Up:&nbsp;${meetup.title}</a>
 		</h1>
+	  <div class="meta clear">
+      <span class="votes">&bull;</span>
+      %if meetup.author()._deleted:
+		    <span>[deleted]</span>
+      %else:
+        <%
+           author = meetup.author()
+           name = websafe(author.name)
+           href = unsafe('href="%s"' % "/user/%s/" % name)
+           if c.user_is_admin: name += " (%d)" % (author.link_karma)
+        %>
+      %endif
+	    <span class="author"><a id="author_${meetup._fullname}" ${href}>${name}</a></span>
+	    <span class="date">${prettytime(meetup._date)}</span>
+	  </div><!-- .meta -->
 		<%def name="meetup_info(meetup)">
 		  <div class="meetup-meta">
 				<p>

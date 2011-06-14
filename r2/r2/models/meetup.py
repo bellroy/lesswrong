@@ -7,8 +7,9 @@ from r2.lib.db.operators import desc
 from geolocator import gislib
 # must be here to stop bizarre NotImplementedErrors being raise in the datetime
 # method below
-import pytz 
+import pytz
 from r2.models.account import FakeAccount
+from account import Account
 
 class Meetup(Thing):
   def datetime(self):
@@ -60,9 +61,11 @@ class Meetup(Thing):
   @staticmethod
   def cache_key(item):
     return False
-  
+
   @staticmethod
   def group_cache_key():
     """ Used with CacheUtils.get_key_group_value """
     return "meetup-inc-key"
 
+  def author(self):
+    return Account._byID(self.author_id)
