@@ -721,12 +721,26 @@ div.comment-links ul li.disagree a {
 	background-image: url(/static/disagree-button.gif);
 	width: 20px;
 }
+div.comment-links ul li.edit a {
+	background-image: url(/static/edit.png);
+	width: 20px;
+}
+div.comment-links ul li.retract a {
+	background-image: url(/static/retract.png);
+	width: 20px;
+}
+div.comment-links ul li.report a {
+	background-image: url(/static/report.png);
+	width: 20px;
+}
+div.comment-links ul li.parent a {
+	background-image: url(/static/parent.png);
+	width: 20px;
+}
 
 /* Temporary styling for text buttons until we have icons */
-div.comment-links ul li.edit a, div.comment-links ul li.retract a,
-div.comment-links ul li.report a, div.comment-links ul li.delete a,
-div.comment-links ul li.unban a, div.comment-links ul li.ban a,
-div.comment-links ul li.ignore a {
+div.comment-links ul li.delete a, div.comment-links ul li.unban a,
+div.comment-links ul li.ban a, div.comment-links ul li.ignore a {
     height: 20px;
     padding-top: 4px;
 }
