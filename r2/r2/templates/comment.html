@@ -6,16 +6,16 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -38,7 +38,7 @@ ${parent.midcol(not thing.collapsed)}
   ${parent.ParentDiv()}
   <a name="${thing._id36}" ></a>
   %if c.profilepage or c.full_comment_listing:
-    %if thing.link: 
+    %if thing.link:
       %if thing.link.title:
         ${_('In response to')}&#32;
         %if thing.parent_permalink and thing.parent_author:
@@ -91,7 +91,7 @@ ${parent.collapsed()}
      %endif
      [${_("+") if collapse else _("-")}]
   %if collapse:
-     (${thing.num_children} 
+     (${thing.num_children}
       ${ungettext("child", "children", thing.num_children)})
   %endif
 </a>
@@ -129,18 +129,18 @@ ${parent.midcol()}
   %if not thing.deleted:
       %if thing.votable:
         <ul class="votes">
-          <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
-          <li>${self.arrow(thing, 0, thing.likes == False)}</li>
+          <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
+          <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>
         </ul>
       %endif
       <% fullname = thing._fullname %>
       <ul>
         %if not c.profilepage and thing.can_reply:
-          <li>
+          <li class="reply">
             ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
           </li>
         %endif
-        <li>
+        <li class="permalink">
           ${parent.comment_button("permalink", fullname, _("Permalink"), 0, thing.permalink)}
         </li>
         %if not c.profilepage:
