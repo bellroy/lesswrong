@@ -60,8 +60,12 @@
   clear: both;
 }
 
+#header.discussion {
+	background: url(/static/background-discussion.jpg) no-repeat top left;
+}
+
 #header.discussion #header-img {
-	height: 60px;
+	height: 55px;
 }
 
 #header.discussion #tagline {
