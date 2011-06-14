@@ -117,7 +117,7 @@
 </%def>
 
 <%def name="title()">
-  ${thing.title} 
+  ${thing.title}
 </%def>
 
 <%def name="draft()">
@@ -302,7 +302,7 @@
           "return change_state(this, 'unsave');", _("Unsaved"))}
     %else:
        ${parent.state_button("save", fullname, _("Save"), \
-          "return change_state(this, 'save');", _("Saved"), a_class="save")}
+          "return change_state(this, 'save');", _("Saved"), a_class="save", tool_tip="Save")}
     %endif
     </li>
     %if not thing.render_full:
