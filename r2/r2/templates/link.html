@@ -313,7 +313,7 @@
           "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"))}
       %else:
         ${parent.state_button("hide", fullname, _("Hide"), \
-          "return change_w_callback(this, $ListClass.hide);", _("Hidden"))}
+          "return change_w_callback(this, $ListClass.hide);", _("Hidden"), a_class="hide", tool_tip="Hide")}
       %endif
       </li>
     %endif
