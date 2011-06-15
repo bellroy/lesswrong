@@ -1121,8 +1121,7 @@ div.articlenavigation #article_nav_controls .loading img {
     display: none;
 }
 #wiki .printfooter, .wiki-comment-help .printfooter {
-    font-size: 6pt;
-    color: gray;
+    display: none;
 }
 form.invalidate {
     float: right;
