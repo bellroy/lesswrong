@@ -9,6 +9,6 @@
 
 <%def name="meetup_title(meetup)">
   <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">
-		${meetup.title}:&nbsp;<span class="date">${meetup.datetime().strftime('%d %B %Y %I:%M %p (%z)')}</span>
+		${meetup.title}:&nbsp;<span class="date">${meetup.datetime().strftime('%d %B %Y %I:%M%p')}</span>
 	</a>
 </%def>
