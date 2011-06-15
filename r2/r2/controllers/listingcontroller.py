@@ -448,6 +448,10 @@ class EditsController(ListingController):
 class MeetupslistingController(ListingController):
     title_text = _('Upcoming Meetups')
 
+    @property
+    def header_sub_nav(self):
+	    return []
+
     def query(self):
         # TODO: Work out how to sort this sensibly
         return Meetup.upcoming_meetups_query()
