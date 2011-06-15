@@ -108,7 +108,7 @@ class ListingController(RedditController):
     def header_sub_nav(self):
       buttons = []
       if c.default_sr:
-        buttons.append(NamedButton("promoted", aliases = ["/"]))
+        buttons.append(NamedButton("promoted"))
         buttons.append(NamedButton("new"))
       else:
         buttons.append(NamedButton("new", aliases = ["/"]))
