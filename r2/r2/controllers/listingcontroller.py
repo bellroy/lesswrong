@@ -108,7 +108,7 @@ class ListingController(RedditController):
     def header_sub_nav(self):
       buttons = []
       if c.default_sr:
-        buttons.append(NamedButton("promoted", aliases = ["/"]))
+        buttons.append(NamedButton("promoted"))
         buttons.append(NamedButton("new"))
       else:
         buttons.append(NamedButton("new", aliases = ["/"]))
@@ -447,6 +447,10 @@ class EditsController(ListingController):
 
 class MeetupslistingController(ListingController):
     title_text = _('Upcoming Meetups')
+
+    @property
+    def header_sub_nav(self):
+	    return []
 
     def query(self):
         return Meetup.upcoming_meetups_by_timestamp()
