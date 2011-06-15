@@ -350,16 +350,17 @@ class NamedButton(NavButton):
             return NavButton.selected_title(self)
 
 class ExpandableButton(NamedButton):
-    def __init__(self, name, sr_path = True, nocname=False, dest = None,
-                 sub_menus=[], **kw):
+    def __init__(self, name, sr_path = True, nocname=False, dest = None, 
+                 sub_reddit = "/", sub_menus=[], **kw):
         self.sub = sub_menus
+        self.sub_reddit  = sub_reddit
         NamedButton.__init__(self,name,sr_path,nocname,dest,**kw)
 
     def sub_menus(self):
         return self.sub
 
     def is_selected(self):
-        return c.site.path == self.path
+        return c.site.path == self.sub_reddit
 
 class JsButton(NavButton):
     """A button which fires a JS event and thus has no path and cannot

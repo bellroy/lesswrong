@@ -234,14 +234,13 @@ class Reddit(Wrapped):
         # Ensure the default button is the first tab
         #default_button_name = c.site.default_listing
 
-        discussion_reddit = '/r/discussion'
         main_buttons = [
-            ExpandableButton('main', dest = '/', sr_path = False, sub_menus =
-                             [ NamedButton('posts', dest = '/', sr_path = False),
+            ExpandableButton('main', dest = '/promoted', sr_path = False, sub_menus =
+                             [ NamedButton('posts', dest = '/promoted', sr_path = False),
                                NamedButton('comments', dest = '/comments', sr_path = False)]),
-            ExpandableButton('discussion', dest = discussion_reddit, sub_menus =
-                             [ NamedButton('posts', dest = discussion_reddit, sr_path = False),
-                               NamedButton('comments', dest = discussion_reddit+'/comments', sr_path = False)])
+            ExpandableButton('discussion', dest = "/r/discussion/new", sub_reddit = "/r/discussion/", sub_menus =
+                             [ NamedButton('posts', dest = "/r/discussion/new", sr_path = False),
+                               NamedButton('comments', dest = "/r/discussion/comments", sr_path = False)])
        ]
 
         menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
