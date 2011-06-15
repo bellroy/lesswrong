@@ -151,7 +151,7 @@ ${parent.midcol()}
         %if not c.profilepage:
           %if c.user_is_loggedin and thing.author.name == c.user.name:
             <li class='edit'>
-              ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
+              ${parent.simple_button("edit", fullname, _("Edit"), "editcomment", tool_tip=_("Edit"))}
             </li>
           %endif
         %endif

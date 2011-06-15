@@ -122,7 +122,7 @@ ${self.RenderPrintable()}
     <li class='retract'>
       ${yes_no_button("retract", fullname, _("Retract"), \
       "return deletetoggle(this, $ListClass.retract);",\
-      _("Retracted"), clicked=thing.retracted)}
+      _("Retracted"), clicked=thing.retracted, tool_tip=_("Retract"))}
     </li>
   %endif
 %endif
