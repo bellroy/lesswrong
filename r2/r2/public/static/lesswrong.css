@@ -129,16 +129,15 @@ div.inline-listing a:hover {
 
 .commentreply {
     clear: both;
-    margin: 10px 0 30px;
+    margin: 10px 15px 30px 0;
 }
 .commentreply textarea {
-	border-color: #e9e9e9;
-	-webkit-box-shadow: inset 1px 1px 5px #dbdbdb;
-	-moz-box-shadow: inset 1px 1px 5px #dbdbdb;
-	box-shadow: inset 1px 1px 5px #dbdbdb;
-	margin: 0 0 10px;
-	padding: 9px;
-    width: 675px !important;
+    border-color: #e9e9e9;
+    -webkit-box-shadow: inset 1px 1px 5px #dbdbdb;
+    -moz-box-shadow: inset 1px 1px 5px #dbdbdb;
+    box-shadow: inset 1px 1px 5px #dbdbdb;
+    margin: 0 0 10px;
+    width: 100%;
 }
 .commentreply .buttons {
     float: left;
@@ -323,7 +322,7 @@ ul#image-preview-list .description pre {
 .spam { background-color: #FA8072 }
 
 /* For lists of users, such as friends */
-.usertable { margin-left: 10px;} 
+.usertable { margin-left: 10px;}
 .usertable td { padding: 0 .7em }
 .usertable { white-space: nowrap }
 .usertable h1 { padding: 10px 0; margin: 0;}
@@ -444,10 +443,10 @@ div.comment div.parent {
 }
 .edit .diff .new {
     background-color: #dfd;
-}    
+}
 .edit .diff .del {
     background-color: #fdd;
-}   
+}
 .edit .diff .context {
     background-color: #eaf2f5;
     color: #999;
