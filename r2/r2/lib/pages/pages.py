@@ -1399,6 +1399,22 @@ class NewMeetup(Wrapped):
 class EditMeetup(Wrapped):
     pass
 
+class MeetupIndexPage(Reddit):
+  def __init__(self, **context):
+    self.meetups = context.get("content", None)
+    Reddit.__init__(self, **context)
+
+  def content(self):
+    return MeetupIndex(self.meetups)
+
+class MeetupIndex(Wrapped):
+  def __init__(self, meetups = [], *a, **kw):
+    self.meetups = meetups
+    Wrapped.__init__(self, *a, **kw)
+
+  def meetups(self):
+    return self.meetups
+
 class WikiPageInline(Wrapped): pass
 
 class WikiPage(Reddit):

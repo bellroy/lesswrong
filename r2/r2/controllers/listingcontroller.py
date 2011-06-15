@@ -447,6 +447,7 @@ class EditsController(ListingController):
 
 class MeetupslistingController(ListingController):
     title_text = _('Upcoming Meetups')
+    render_cls = MeetupIndexPage
 
     @property
     def header_sub_nav(self):

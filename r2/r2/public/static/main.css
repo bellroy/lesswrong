@@ -455,6 +455,9 @@ body.meetup-index #map {
 	margin: 0 0 20px;
 	width: 695px;
 }
+div.meetup-listing {
+	margin-top: 10px;
+}
 div.meetup-listing ul {
 	color: #6A8A6B;
 	font-size: 13px;
@@ -486,8 +489,6 @@ body.meetup #map {
 	margin: 0;
 	width: 240px;
 }
-
-
 /* Comments and Messages
 -------------------------------------------------------------------------------------- */
 #comment-controls {

@@ -3,9 +3,7 @@
   from r2.lib.utils import prettytime
 %>
 <%namespace file="utils.html" import="plain_link"/>
-<div>
-  <h1>${self.meetup_title(thing)}</h1>
-</div>
+<li>${self.meetup_title(thing)}</li>
 
 <%def name="meetup_title(meetup)">
   <a href="${url_for(controller='meetups', action='show', id=meetup._id36)}">
