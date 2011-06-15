@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -63,7 +63,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      controversial  = _('Controversial'),
                      saved        = _('Saved'),
                      recommended  = _('Recommended'),
-                     rising       = _('Rising'), 
+                     rising       = _('Rising'),
                      admin        = _('Admin'),
                      drafts       = _('Drafts'),
                      blessed      = _('Promoted'),
@@ -79,33 +79,33 @@ menu =   MenuHandler(hot          = _('Popular'),
                      month        = _('This month'),
                      year         = _('This year'),
                      all          = _('All time'),
-                                  
+
                      # "kind" words
                      spam         = _("Spam"),
                      autobanned   = _("Autobanned"),
 
                      # reddit header strings
                      adminon      = _("Turn admin on"),
-                     adminoff     = _("Turn admin off"), 
-                     prefs        = _("Preferences"), 
-                     stats        = _("Stats"), 
+                     adminoff     = _("Turn admin off"),
+                     prefs        = _("Preferences"),
+                     stats        = _("Stats"),
                      submit       = _("Create new article"),
                      meetupsnew   = _("Add new meetup"),
                      help         = _("Help"),
                      blog         = _("Blog"),
                      logout       = _("Log out"),
-                     
+
                      #reddit footer strings
                      feedback     = _("Feedback"),
                      bookmarklets = _("Bookmarklets"),
                      socialite    = _("Socialite"),
                      buttons      = _("Buttons"),
-                     widget       = _("Widget"), 
-                     code         = _("Code"), 
-                     mobile       = _("Mobile"), 
-                     store        = _("Store"),  
+                     widget       = _("Widget"),
+                     code         = _("Code"),
+                     mobile       = _("Mobile"),
+                     store        = _("Store"),
                      ad_inq       = _("Advertise"),
-                     
+
                      #preferences
                      options      = _('Options'),
                      friends      = _("Friends"),
@@ -197,14 +197,14 @@ def menu_style(type):
              dropdown2 = ('dropdown2', ''))
     return d.get(type, default)
 
-         
+
 
 class NavMenu(Styled):
     """generates a navigation menu.  The intention here is that the
     'style' parameter sets what template/layout to use to differentiate, say,
     a dropdown from a flatlist, while the optional _class, and _id attributes
     can be used to set individualized CSS."""
-    
+
     def __init__(self, options, default = None, title = '', type = "dropdown",
                  base_path = '', separator = '|', **kw):
         self.options = options
@@ -253,24 +253,24 @@ class NavButton(Styled):
     must also have its build() method called with the current path to
     set self.path.  This step is done automatically if the button is
     passed to a NavMenu instance upon its construction."""
-    def __init__(self, title, dest, sr_path = True, 
+    def __init__(self, title, dest, sr_path = True,
                  nocname=False, opt = '', aliases = [],
                  target = "", style = "plain", **kw):
-        
+
         # keep original dest to check against c.location when rendering
         self.aliases = set(a.rstrip('/') for a in aliases)
         self.aliases.add(dest.rstrip('/'))
         self.dest = dest
 
-        Styled.__init__(self, style = style, sr_path = sr_path, 
-                        nocname = nocname, target = target, 
+        Styled.__init__(self, style = style, sr_path = sr_path,
+                        nocname = nocname, target = target,
                         title = title, opt = opt, **kw)
 
     def build(self, base_path = ''):
         '''Generates the href of the button based on the base_path provided.'''
 
         # append to the path or update the get params dependent on presence
-        # of opt 
+        # of opt
         if self.opt:
             p = request.get.copy()
             p[self.opt] = self.dest
@@ -280,10 +280,10 @@ class NavButton(Styled):
 
         self.bare_path = _force_unicode(base_path.replace('//', '/')).lower()
         self.bare_path = self.bare_path.rstrip('/')
-        
+
         # append the query string
         base_path += query_string(p)
-        
+
         # since we've been sloppy of keeping track of "//", get rid
         # of any that may be present
         self.path = base_path.replace('//', '/')
@@ -307,6 +307,18 @@ class NavButton(Styled):
         when it is different from self.title)"""
         return self.title
 
+class AbsButton(NavButton):
+    """A button for linking to an absolute URL"""
+    def __init__(self, title, dest):
+        self.path = dest
+        NavButton.__init__(self, title, dest, False)
+
+    def build(self, base_path = ''):
+        pass
+
+    def is_selected(self):
+        return False
+
 class SubredditButton(NavButton):
     def __init__(self, sr):
         self.sr = sr
@@ -324,7 +336,7 @@ class NamedButton(NavButton):
     whereby the 'title' is just the translation of 'name' and the
     'dest' defaults to the 'name' as well (unless specified
     separately)."""
-    
+
     def __init__(self, name, sr_path = True, nocname=False, dest = None, **kw):
         self.name = name.replace('/', '')
         NavButton.__init__(self, menu[self.name], name if dest is None else dest,
@@ -382,7 +394,7 @@ class SimpleGetMenu(NavMenu):
     get_param = ''
     title     = ''
     default = None
-    
+
     def __init__(self, type = 'select', **kw):
         kw['default'] = kw.get('default', self.default)
         kw['base_path'] = kw.get('base_path') or request.path
@@ -391,7 +403,7 @@ class SimpleGetMenu(NavMenu):
         NavMenu.__init__(self, buttons, type = type, **kw)
         #if kw.get('default'):
         #    self.selected = kw['default']
-    
+
     def make_title(self, attr):
         return menu[attr]
 
@@ -409,7 +421,7 @@ class SortMenu(SimpleGetMenu):
     def __init__(self, **kw):
         kw['title'] = _("Sort By") + ':'
         SimpleGetMenu.__init__(self, **kw)
-    
+
     @classmethod
     def operator(self, sort):
         if sort == 'hot':
@@ -460,7 +472,7 @@ class NewMenu(SimpleGetMenu):
     def operator(self, sort):
         if sort == 'new':
             return operators.desc('_date')
-        
+
 
 class KindMenu(SimpleGetMenu):
     get_param = 'kind'
@@ -514,14 +526,14 @@ class NumCommentsMenu(SimpleGetMenu):
         elif self.num_comments > g.max_comments:
             # if the number present is larger than the global max,
             # label the menu as the user pref and the max number
-            return dict(true=str(g.max_comments), 
+            return dict(true=str(g.max_comments),
                         false=str(user_num))[attr]
         else:
             # if the number is less than the global max, display "all"
             # instead for the upper bound.
             return dict(true=_("All"),
                         false=str(user_num))[attr]
-        
+
 
     def render(self, **kw):
         user_num = c.user.pref_num_comments

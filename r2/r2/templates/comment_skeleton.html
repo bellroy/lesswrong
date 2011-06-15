@@ -6,16 +6,16 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -48,7 +48,8 @@ ${self.tagline(True)}
   <% fullname = thing._fullname %>
   <% collapse = thing.collapsed %>
   <% retractedClass = "retracted" if getattr(thing, "retracted", False) else "" %>
-  <% focal    = (c.focal_comment and c.focal_comment == thing._id36) and 'focal' or '' %>
+  <% isFocal = (c.focal_comment and c.focal_comment == thing._id36) %>
+  <% focal    = isFocal and 'focal' or '' %>
   <div id="collapsed_${fullname}" class="comment-meta collapsed clear ${focal}"
        ${(not collapse and "style='display:none'" or "")}>
     ${self.collapsed()}
@@ -65,7 +66,7 @@ ${self.tagline(True)}
            id="edit_body_${fullname}">${self.commentText()}\
     </div>
     <div class="comment-links">
-      ${self.buttons()}
+      ${self.buttons(parent_link = True)}
     </div>
   </div>
 </%def>

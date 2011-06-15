@@ -438,7 +438,7 @@ class Link(Thing, Printable):
     def set_blessed(self, is_blessed):
         if self.blessed != is_blessed:
           self.blessed = is_blessed
-          self.date = datetime.now(g.tz)
+          self._date = datetime.now(g.tz)
           self._commit()
 
     def get_images(self):

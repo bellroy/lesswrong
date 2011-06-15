@@ -28,16 +28,15 @@ class Meetup(Thing):
   @classmethod
   def upcoming_meetups_near(cls, location, max_distance, count = 5):
     query = cls.upcoming_meetups_query()
-    query._limit = count
     meetups = list(query)
 
     # Find nearby ones
     if location:
         meetups = filter(lambda m: m.distance_to(location) <= max_distance, meetups)
-    else:
-        meetups.sort(key=lambda m: m.timestamp)
 
-    return meetups
+    meetups.sort(key=lambda m: m.timestamp)
+
+    return meetups[:count]
 
   def distance_to(self, location):
     """
