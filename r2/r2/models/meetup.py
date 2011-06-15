@@ -23,7 +23,22 @@ class Meetup(Thing):
 
   @classmethod
   def upcoming_meetups_query(cls):
-    return Meetup._query(Meetup.c.timestamp > time.time(), data=True, sort=desc('_date'))
+    """Return query for all meetups that are in the future"""
+    # Warning, this timestamp inequality is actually done as a string comparison
+    # in the db for some reason.  BUT, since epoch seconds won't get another digit
+    # for another 275 years, we're good for now...
+    return Meetup._query(Meetup.c.timestamp > time.time(), data=True, sort='_date')
+
+  @classmethod
+  def upcoming_meetups_by_timestamp(cls):
+    """Return upcoming meetups ordered by soonest first"""
+    # This doesn't do nice db level paginations, but there should only
+    # be a smallish number of meetups
+    query = cls.upcoming_meetups_query()
+    meetups = list(query)
+    meetups.sort(key=lambda m: m.timestamp)
+    return map(lambda m: m._fullname, meetups)
+
 
   @classmethod
   def upcoming_meetups_near(cls, location, max_distance, count = 5):
