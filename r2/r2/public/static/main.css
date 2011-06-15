@@ -405,8 +405,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save {
-	background: url(/static/save-button.gif) no-repeat 0 0;
+div.tools a.save, div.tools a.edit {
 	cursor: pointer;
 	display: block;
 	height: 0;
@@ -414,9 +413,16 @@ div.tools a.save {
 	padding: 20px 0 0;
 	width: 16px;
 }
-div.tools a.save:hover {
+div.tools a.save:hover, div.tools a.edit:hover {
 	background-position: 0 -20px;
 }
+div.tools a.save {
+    background: url(/static/save-button.gif) no-repeat 0 0;
+}
+div.tools a.edit {
+    background-image: url(/static/edit.png);
+}
+
 div.tools div.tags {
 	clear: both;
 	padding-left: 20px;

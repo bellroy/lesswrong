@@ -282,7 +282,8 @@
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>
-        ${plain_link("Edit", "/edit/%s" % thing._id36)}
+        <% kw = {"class": "edit", "title": "Edit"} %>
+        ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
       </li>
     %endif
     %if c.user_is_admin:
