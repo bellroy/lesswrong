@@ -146,12 +146,25 @@ a#siai,
 a#fhi {
 	display: block;
 	float: right;
+        height: 0;
+        padding-top: 69px;
+        overflow: hidden;
 }
 a#siai {
+	background: url(/static/SIAI.png) no-repeat top left;
+        background-position: 0 -69px;
+        width: 121px;
 	margin: 44px 10px 0 0;
 }
 a#fhi {
+	background: url(/static/FHI_diamond.png) no-repeat top left;
+        background-position: 0 -69px;
+        width: 108px;
 	margin: 40px 20px 0 0;
+}
+
+a#siai:hover, a#fhi:hover {
+    background-position: 0 0px;
 }
 
 
