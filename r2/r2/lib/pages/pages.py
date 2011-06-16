@@ -645,10 +645,11 @@ class ProfilePage(Reddit):
     searchbox         = False
     create_reddit_box = False
     submit_box        = False
+    
 
     def __init__(self, user, *a, **kw):
         self.user     = user
-        Reddit.__init__(self, *a, **kw)
+        Reddit.__init__(self, body_class = "profile_page", *a, **kw)
 
     def header_nav(self):
         path = "/user/%s/" % self.user.name
