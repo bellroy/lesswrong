@@ -177,7 +177,7 @@ ${self.RenderPrintable()}
    _class = _type + (" mod" if mod else "")
    fullname = this._fullname
 %>
-  <a id="${_type}_${fullname}" class="${_type}"
+  <a id="${_type}_${fullname}" class="${_class}"
   %if c.user_is_loggedin:
     onclick="mod('${fullname}', ${dir}, '$votehash')"
   %else:
