@@ -152,10 +152,6 @@
         %if thing.header_nav:
           ${thing.header_nav().render()}
         %endif
-        %if thing.nav_menu:
-          ${thing.nav_menu.render()}
-        %endif
-
         %if thing.top_filter:
           <div id="post-filter">
             ${thing.top_filter.render()}
