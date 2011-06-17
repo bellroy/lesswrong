@@ -229,7 +229,8 @@ h1 a, h2 a {
 
 /* default form styles */
 .pretty-form {
-    vertical-align: top;
+	margin-top: 10px;
+  vertical-align: top;
 }
 
 .pretty-form p {margin: 3px ;}
