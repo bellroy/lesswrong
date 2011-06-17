@@ -351,8 +351,7 @@ div#side-wikilinks {
 .infobar {
     background-color: #f7f7f8;
     padding: 5px;
-    margin: 0;
-    margin-bottom: 10px;
+    margin: 10px 0;
     border: 1px solid rgb(83, 141, 77);
     font-size: small;
 }
