@@ -300,7 +300,7 @@ ul#filternav li:last-child {
 -------------------------------------------------------------------------------------- */
 div.post {
 	clear: both;
-	margin: 0 0 30px;
+	margin: 5px 0 10px;
 }
 body.post div.post {
 	padding: 10px 0 0;
@@ -574,7 +574,7 @@ div.comment, div.message {
 	padding: 5px;
 }
 div.comment {
-	margin: 0;
+	margin: 10px 0px 0px 0px;
 	padding: 2px 0 2px 15px;
 }
 div.comment div.entry {
