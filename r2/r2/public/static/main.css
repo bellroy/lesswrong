@@ -575,7 +575,7 @@ div.comment, div.message {
 }
 div.comment {
 	margin: 0;
-	padding: 15px 0 15px 15px;
+	padding: 2px 0 2px 15px;
 }
 div.comment div.entry {
 	padding-right: 15px;
@@ -592,7 +592,7 @@ div.message div.message div.message div.message,
 div.message div.message div.message div.message div.message div.message,
 div.message div.message div.message div.message div.message div.message div.message div.message {
 	background-color: #fff;
-	margin: 10px 0 0;
+	margin: 10px 0 8px;
 }
 div.comment div.comment div.comment,
 div.comment div.comment div.comment div.comment div.comment,
@@ -659,7 +659,7 @@ div.comment-links, div.message-links {
 	padding: 0 5px 5px;
 }
 div.comment-links {
-	padding: 0 0 5px;
+	padding: 0 0 2px;
 }
 div.comment-links ul, div.message-links ul {
 	list-style: none;
