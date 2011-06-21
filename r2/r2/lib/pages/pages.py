@@ -198,7 +198,7 @@ class Reddit(Wrapped):
 
             buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
-            buttons += [NamedButton('meetups/new', sr_path = not c.default_sr,
+            buttons += [NamedButton('meetups/new', False,
                                     nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
