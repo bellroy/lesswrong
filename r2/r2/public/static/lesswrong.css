@@ -186,6 +186,8 @@ div.inline-listing a:hover {
 }
 div.comment .focal {
 	background-color: #ffc;
+        padding-left: 5px;
+        padding-right: 5px;
 }
 
 
