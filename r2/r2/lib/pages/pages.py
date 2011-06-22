@@ -255,8 +255,8 @@ class Reddit(Wrapped):
         """docstring for right_menu"""
         buttons = [
           AbsButton('wiki', 'http://wiki.lesswrong.com'),
-          NamedButton('sequences'),
-          NamedButton('about')
+          NamedButton('sequences', sr_path=False),
+          NamedButton('about', sr_path=False)
         ]
 
         return NavMenu(buttons, title = _('Filter by'), _id='rightnav', type='navlist')
