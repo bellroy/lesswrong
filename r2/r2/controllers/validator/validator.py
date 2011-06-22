@@ -580,10 +580,10 @@ class VExistingUname(VRequired):
 
     def run(self, username):
         if username:
-            name = chkuser(username)
             try:
+                name = str(username)
                 return Account._by_name(name)
-            except NotFound:
+            except (TypeError, UnicodeEncodeError, NotFound):
                 return self.error(errors.USER_DOESNT_EXIST)
         self.error()
 
