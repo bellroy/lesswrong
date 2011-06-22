@@ -140,7 +140,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(SideBoxPlaceholder('side-meetups', _('Nearby Meetups'), '/meetups'))
+        ps.append(SideBoxPlaceholder('side-meetups', _('Nearby Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
@@ -289,8 +289,8 @@ class SideBoxPlaceholder(Wrapped):
     result of an ajax request.
     """
 
-    def __init__(self, node_id, link_text, link_path=None):
-        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
+    def __init__(self, node_id, link_text, link_path=None, sr_path=True):
+        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path, sr_path=sr_path)
 
 class SpaceCompressedWrapped(Wrapped):
     """Overrides default Wrapped.render to do space compression as well."""

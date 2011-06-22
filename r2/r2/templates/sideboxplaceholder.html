@@ -24,7 +24,7 @@
 <div id="${thing.node_id}" class="sidebox">
   <h2>
   %if thing.link_path:
-    ${plain_link(thing.link_text, thing.link_path)}
+    ${plain_link(thing.link_text, thing.link_path, thing.sr_path)}
   %else:
     ${thing.link_text}
   %endif
