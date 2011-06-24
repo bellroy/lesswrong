@@ -140,7 +140,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(SideBoxPlaceholder('side-meetups', _('Nearby Meetups'), '/meetups', sr_path=False))
+        ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
@@ -1381,7 +1381,7 @@ class SiteMeter(Wrapped):
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
         meetups = Meetup.upcoming_meetups_near(location, max_distance)
-        Wrapped.__init__(self, meetups=meetups, *a, **kw)
+        Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
 	  pass
