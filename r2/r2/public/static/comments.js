@@ -193,9 +193,12 @@ function getAttrTime(e) { return parseInt(e.readAttribute('time')); }
 
 function highlightNewComments() {
   var lastViewed = $('lastViewed')
-  if (!lastViewed) return;
+  if (!lastViewed) 
+    return;
 
   var last = getAttrTime(lastViewed);
+  if (last<=0)
+    return;
   $$('div.comment').each(function(div, i) {
     var t = getAttrTime(div.select('.comment-date')[0]);
     if (last<t) {
