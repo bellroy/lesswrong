@@ -1,6 +1,6 @@
 from reddit_base import RedditController
-from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox
-from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu
+from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
+from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
@@ -9,6 +9,7 @@ from r2.models.listing import NestedListing
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
 from r2.lib.filters import python_websafe
 from mako.template import Template
+from pylons.i18n import _
 from pylons import c,g,request
 import json
 
@@ -28,7 +29,8 @@ class MeetupsController(RedditController):
   def response_func(self, **kw):
     return self.sendstring(json.dumps(kw))
 
-  @validate(VUser(),
+  @validate(VUser(), 
+            VCreateMeetup(),
             title = ValueOrBlank('title'),
             description = ValueOrBlank('description'),
             location = ValueOrBlank('location'),
@@ -41,6 +43,7 @@ class MeetupsController(RedditController):
 
   @Json
   @validate(VUser(),
+            VCreateMeetup(),
             ip = ValidIP(),
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),
