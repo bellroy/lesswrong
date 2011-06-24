@@ -151,7 +151,7 @@ class Reddit(Wrapped):
             ps.append(FeedBox(feed_url))
 
         ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Hall of Fame')))
+        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors')))
 
         if g.site_meter_codename:
             ps.append(SiteMeter(g.site_meter_codename))
