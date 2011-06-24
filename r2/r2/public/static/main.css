@@ -822,6 +822,9 @@ div.comment-links ul li.ban a, div.comment-links ul li.ignore a {
 #sidebar div.spacer {
 	clear: both;
 }
+#sidebar div.userinfo h2 {
+    text-transform: none;
+}
 div.sidebox {
 	background-color: #f5f5f5;
 	border-top: 1px solid #d6d5d6;
