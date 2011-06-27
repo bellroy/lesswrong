@@ -11,6 +11,9 @@ import pytz
 from r2.models.account import FakeAccount
 from account import Account
 
+from pylons import g
+from geolocator.providers import MaxMindCityDataProvider
+
 class Meetup(Thing):
   def datetime(self):
     utc_timestamp = datetime.fromtimestamp(self.timestamp, pytz.utc)
@@ -83,3 +86,13 @@ class Meetup(Thing):
 
   def author(self):
     return Account._byID(self.author_id)
+
+  @staticmethod
+  def geoLocateIp(ip):
+    geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
+    try:
+      location = geo.getLocationByIp(ip)
+    except TypeError:
+      # geolocate can attempt to index into a None result from GeoIP
+      location = None
+    return location

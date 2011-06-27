@@ -61,7 +61,6 @@ from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
 
-from geolocator.providers import MaxMindCityDataProvider
 from datetime import datetime, timedelta
 from simplejson import dumps
 from md5 import md5
@@ -974,16 +973,10 @@ class ApiController(RedditController):
     def GET_side_meetups(self, *a, **kw):
         """Return HTML snippet of the upcoming meetups for the side bar."""
         ip = remote_addr(c.environ)
-
+        location = Meetup.geoLocateIp(ip)
         # Key to group cached meetup pages with
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)
-        geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")
-        try:
-            location = geo.getLocationByIp(ip)
-        except TypeError:
-            # geolocate can attempt to index into a None result from GeoIP
-            location = None
         return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
                                   cache_time=self.TWELVE_HOURS, location=location, 
                                   max_distance=g.meetups_radius)
@@ -1004,6 +997,21 @@ class ApiController(RedditController):
         As above
         """
         return "nothing to see here."
+
+    def GET_front_recent_posts(self, *a, **kw):
+        """Return HTML snippet of the recent posts for the side bar."""
+        # Server side cache is also invalidated when new article is posted
+        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age)
+
+    def GET_front_meetups_map(self, *a, **kw):
+        ip = remote_addr(c.environ)
+        location = Meetup.geoLocateIp(ip)
+        meetups = Meetup.upcoming_meetups_near(location, g.meetups_radius)
+
+        s=''
+        for m in meetups:
+            s += "<div class='marker' data-latitude='%s' data-longitude='%s' data-title='%s'></div>"%(m.latitude,m.longitude,m.location)
+        return "<div id='front-map'>"+s+"</div>"
 
     @validate(link = VLink('article_id', redirect=False))
     def GET_article_navigation(self, link, *a, **kw):
