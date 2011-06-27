@@ -1,0 +1,36 @@
+div.tools ul li.first-child {
+	border-left: none;
+}
+ul#nav li.last-child {
+	border-right: none;
+}
+ul#filternav li.last-child {
+	border-right: none;
+}
+div.comment-links ul li.last-child, div.message-links ul li.last-child {
+	border-right: none;
+}
+#sidebar ul li.last-child {
+	margin: 0;
+}
+ul#rightnav li.last-child {
+	border-right: none;
+	padding-right: 0;
+}
+#side-comments div.inline-comment.last-child {
+	margin: 0;
+}
+#side-posts div.reddit-link.last-child {
+	margin: 0;
+}
+#side-contributors div.contributors div.user.last-child {
+	margin: 0;
+}
+div.footer ul.footer-links li.last-child {
+	border-right: none;
+	margin-right: 0;
+	padding-right: 0;
+}
+.ui-tooltip-lesswrong .ui-tooltip-tip {
+	background: url(/static/qtip-tip-ie.gif) no-repeat top center !important;
+}

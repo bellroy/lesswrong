@@ -79,6 +79,15 @@
       %endif
     </div>
   </div><!-- .content -->
+  %if full_article:
+  <div class="articlenavigation">
+    <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
+    <div style="display: none;" class="dspcont" id="article_nav_controls">
+      <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
+      Loading&hellip;</span>
+    </div>
+  </div><!-- .articlenavigation -->
+  %endif
   <div class="tools clear">
     ${parent.midcol(thing.votable)}
     %if c.user_is_loggedin:
@@ -92,7 +101,7 @@
     %endif
     <div class="boxright clear">
       <ul class="clear">
-        ${self.buttons(comments = False)}
+        ${self.buttons(comments = False, report=False)}
       </ul>
       %if full_article:
         <% tags = thing.get_tags() %>
@@ -104,27 +113,17 @@
             %endfor
           </div>
         %endif
-        <img src="${static('mini-landscape.gif')}" alt="" class="landscape" />
       %endif
     </div>
     ## Each link has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
-    %if full_article:
-    <div class="articlenavigation">
-      <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
-      <div style="display: none;" class="dspcont" id="article_nav_controls">
-        <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
-        Loading&hellip;</span>
-      </div>
-    </div><!-- .articlenavigation -->
-    %endif
   </div><!-- .tools -->
 </div><!-- .post -->
 
 </%def>
 
 <%def name="title()">
-  ${thing.title} 
+  ${thing.title}
 </%def>
 
 <%def name="draft()">
@@ -289,7 +288,8 @@
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>
-        ${plain_link("Edit", "/edit/%s" % thing._id36)}
+        <% kw = {"class": "edit", "title": "Edit"} %>
+        ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
       </li>
     %endif
     %if c.user_is_admin:
@@ -304,22 +304,19 @@
       </li>
     %endif
     <li>
-    %if thing.saved:
-       ${parent.state_button("unsave", fullname, _("Unsave"), \
-          "return change_state(this, 'unsave');", _("Unsaved"))}
-    %else:
-       ${parent.state_button("save", fullname, _("Save"), \
-          "return change_state(this, 'save');", _("Saved"))}
-    %endif
+    ${parent.state_button("save", fullname, _("Save"), \
+          "return change_state_by_class(this, '%s', 'mod')"%("unsave" if thing.saved else "save"), \
+          _("Saved"), a_class="save"+(" mod" if thing.saved else ""), \
+          tool_tip = "Unsave" if thing.saved else "Save")}
     </li>
     %if not thing.render_full:
       <li>
       %if thing.hidden:
         ${parent.state_button("unhide", fullname, _("Unhide"), \
-          "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"))}
+          "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"), a_class="hide mod", tool_tip="Unhide")}
       %else:
         ${parent.state_button("hide", fullname, _("Hide"), \
-          "return change_w_callback(this, $ListClass.hide);", _("Hidden"))}
+          "return change_w_callback(this, $ListClass.hide);", _("Hidden"), a_class="hide", tool_tip="Hide")}
       %endif
       </li>
     %endif

@@ -31,7 +31,8 @@ from datetime import datetime, timedelta, tzinfo
 from pylons.i18n import ungettext, _
 from r2.lib.filters import _force_unicode
 from mako.filters import url_escape, url_unescape
-        
+from pylons import g        
+
 iters = (list, tuple, set)
 
 def tup(item, ret_is_single=False):
@@ -419,10 +420,11 @@ def timeuntil(d, resultion = 1, bare = True):
 def epochtime(date):
     if not date:
         return "0"
-    else:
-        return date.strftime("%s")
+    date = date.astimezone(g.tz)
+    return date.strftime("%s")
 
 def prettytime(date, seconds = False):
+    date = date.astimezone(g.tz)
     return date.strftime('%d %B %Y %I:%M:%S%p' if seconds else '%d %B %Y %I:%M%p')
 
 def rfc822format(date):

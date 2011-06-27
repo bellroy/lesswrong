@@ -5,9 +5,8 @@
 %>
 <%namespace name="utils" file="utils.html" import="error_field, submit_form"/>
 
-<h1>New Meetup</h1>
-
 <%utils:submit_form action="/meetups/create" onsubmit="return post_form(this, 'meetups/create', null, null, true, '/')" _id="newmeetup" _class="meetup" tzoffset="${thing.tzoffset}" latitude="${thing.latitude}" longitude="${thing.longitude}">
+  <h1>New Meetup</h1>
   ${form_fields()}
 </%utils:submit_form>
 

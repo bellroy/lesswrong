@@ -1,6 +1,8 @@
 require 'selenium-webdriver'
 require 'capybara/rspec'
+require 'selenium-webdriver'
 
+include Selenium
 
 Capybara.default_driver= :selenium
 Capybara.default_wait_time = 5

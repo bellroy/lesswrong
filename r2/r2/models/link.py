@@ -230,6 +230,10 @@ class Link(Thing, Printable):
             obj._commit()
             return c
 
+    def _getLastClickTime(self, user):
+        c = Link._clicked(user,self)
+        return c.get((user, self, 'click'))
+
     @classmethod
     def _hidden(cls, user, link):
         return cls._somethinged(SaveHide, user, link, 'hide')
@@ -434,7 +438,7 @@ class Link(Thing, Printable):
     def set_blessed(self, is_blessed):
         if self.blessed != is_blessed:
           self.blessed = is_blessed
-          self.date = datetime.now(g.tz)
+          self._date = datetime.now(g.tz)
           self._commit()
 
     def get_images(self):

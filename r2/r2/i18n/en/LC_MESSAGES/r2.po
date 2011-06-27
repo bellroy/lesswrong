@@ -1035,7 +1035,7 @@ msgstr "on"
 #: r2/templates/commentreplybox.html:26 r2/templates/frametoolbar.html:68
 #: r2/templates/link.html:111
 msgid "comment {verb}"
-msgstr "comment"
+msgstr "Comment"
 
 #: r2/templates/commentreplybox.html:33
 msgid "cancel"

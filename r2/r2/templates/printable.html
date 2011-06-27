@@ -6,21 +6,21 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%! 
+<%!
    from r2.lib.template_helpers import add_sr
    from r2.lib.strings import strings
 %>
@@ -44,7 +44,7 @@ ${self.RenderPrintable()}
       <li><b>[
         ${strings.reports % thing.reported}
       ]</b></li>
-  %endif  
+  %endif
 </%def>
 
 <%def name="RenderPrintable()">
@@ -82,18 +82,18 @@ ${self.RenderPrintable()}
 <% fullname = thing._fullname %>
 %if thing.can_ban and ban:
   %if thing.show_spam:
-    <li>
+    <li class='unban'>
       ${state_button("unban", fullname, _("Unban"), \
       "return change_state(this, 'unban');", _("Unbanned"))}
     </li>
   %else:
-    <li>
+    <li class='ban'>
       ${state_button("ban", fullname, _("Ban"), \
       "return change_state(this, 'ban');", _("Banned"))}
     </li>
     %endif
   %if thing.show_reports:
-    <li>
+    <li class='ignore'>
     ${state_button("ignore", fullname, _("Ignore"), \
     "return change_state(this, 'ignore');", _("Ignored"))}
     </li>
@@ -105,24 +105,24 @@ ${self.RenderPrintable()}
 <% fullname = thing._fullname %>
 %if c.user_is_loggedin:
   %if (not thing.author or thing.author.name != c.user.name) and report:
-    <li>
+    <li class="report">
       ${yes_no_button("report", fullname, _("Report"), \
       "return deletetoggle(this, $ListClass.report);",\
       _("Reported"), clicked=thing.report_made)}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and delete:
-    <li>
+    <li class='delete'>
       ${yes_no_button("delete", fullname, _("Delete"), \
       "return deletetoggle(this, $ListClass.del);",\
       _("Deleted"))}
     </li>
   %endif
   %if (not thing.author or thing.author.name == c.user.name) and retract:
-    <li>
+    <li class='retract'>
       ${yes_no_button("retract", fullname, _("Retract"), \
       "return deletetoggle(this, $ListClass.retract);",\
-      _("Retracted"), clicked=thing.retracted)}
+      _("Retracted"), clicked=thing.retracted, tool_tip=_("Retract"))}
     </li>
   %endif
 %endif
@@ -172,7 +172,7 @@ ${self.RenderPrintable()}
 
 
 <%def name="arrow(this, dir, mod)">
-<% 
+<%
    _type = "up" if dir > 0 else "down"
    _class = _type + (" mod" if mod else "")
    fullname = this._fullname
@@ -183,7 +183,7 @@ ${self.RenderPrintable()}
   %else:
     onclick="showcover(true, 'vote_${fullname}')"
   %endif
-  >${_('Vote')} ${_(_type)}</a>
+  title="${_('Vote')} ${_(_type)}">${_('Vote')} ${_(_type)}</a>
 </%def>
 
 <%def name="score(this, likes=None, inline=True, label = True, _id = True)">
@@ -196,21 +196,21 @@ ${self.RenderPrintable()}
    score = this.score
    base_score = score - 1 if likes else score if likes is None else score + 1
    base_score = [base_score + x for x in range(-1, 2)];
-   
+
  %>
   <${tag} class="votes ${_class}" ${_id}>
     ${thing.score_fmt(this.score)}
   </${tag}>
   <script type="text/javascript">
     vl['${this._fullname}'] = ['${thing.score_fmt(base_score[0])}',
-                               '${thing.score_fmt(base_score[1])}', 
+                               '${thing.score_fmt(base_score[1])}',
                                '${thing.score_fmt(base_score[2])}' ];
   </script>
 </%def>
 
 
 <%def name="midcol(display=True)">
-  <div id="arrows_${thing._fullname}" class="vote" 
+  <div id="arrows_${thing._fullname}" class="vote"
        ${not display and "style='display:none'" or ''}>
     ${self.arrow(thing, 1, thing.likes)}
     ${self.arrow(thing, 0, thing.likes == False)}
@@ -221,12 +221,13 @@ ${self.RenderPrintable()}
 ##
 ##
 ### originally in statebuttons
-<%def name="state_button(name, fullname, title, onclick, executed, clicked=False, a_class = '', fmt=None, fmt_param = '', **kw)">
-  <% 
-   tag = "%s_%s" % (name, fullname) 
+<%def name="state_button(name, fullname, title, onclick, executed, clicked=False, a_class = '', fmt=None, fmt_param = '', tool_tip=None, **kw)">
+  <%
+   tag = "%s_%s" % (name, fullname)
   %>
   <%def name="_link()" buffered="True">
-    <a href="/" class="${a_class}" onclick="${onclick}" 
+    <a href="/" class="${a_class}" onclick="${onclick}"
+       ${ "title=%s"%(_(tool_tip)) if tool_tip else "" }
        id="a_${tag.replace('/','_')}">${title}</a>
   </%def>
   <%
@@ -235,7 +236,7 @@ ${self.RenderPrintable()}
          link = fmt % {fmt_param: link}
          ##who knows?
          ##link = link.replace("\n", " ").replace(" <", "&#32;<").replace("> ", ">&#32;")
-   %>   
+   %>
 
   %if clicked:
     ${executed}
@@ -255,13 +256,14 @@ ${self.RenderPrintable()}
 
 
 <%def name="yes_no_button(name, fullname, title, onclick, executed, clicked=False, **kw)">
-${state_button(name, fullname, title, onclick, executed, 
-               yes=_('Yes'), no=_('No'), question=_('Are you sure?'), 
+${state_button(name, fullname, title, onclick, executed,
+               yes=_('Yes'), no=_('No'), question=_('Are you sure?'),
                clicked=clicked, **kw)}
 </%def>
 
-<%def name="simple_button(name, fullname, title, nameFunc=None)">
+<%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None)">
 <a id="${nameFunc}_a_${fullname}" class="" \
+   ${ "title=%s"%(_(tool_tip)) if tool_tip else "" } \
    href="javascript:${nameFunc}('${fullname}')">\
   ${title}</a>
 </%def>
@@ -284,7 +286,7 @@ ${k.strip('_')}="${v}" \
 ### originally in commentbutton
 <%def name="comment_button(name, fullname, link_text, num, link,\
             a_class='', title='', newwindow = False)">
-  <% 
+  <%
      cls = "" if num == 0 else "comments"
 
      if num > 0:

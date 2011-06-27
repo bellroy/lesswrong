@@ -6,16 +6,16 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -38,7 +38,7 @@ ${parent.midcol(not thing.collapsed)}
   ${parent.ParentDiv()}
   <a name="${thing._id36}" ></a>
   %if c.profilepage or c.full_comment_listing:
-    %if thing.link: 
+    %if thing.link:
       %if thing.link.title:
         ${_('In response to')}&#32;
         %if thing.parent_permalink and thing.parent_author:
@@ -91,7 +91,7 @@ ${parent.collapsed()}
      %endif
      [${_("+") if collapse else _("-")}]
   %if collapse:
-     (${thing.num_children} 
+     (${thing.num_children}
       ${ungettext("child", "children", thing.num_children)})
   %endif
 </a>
@@ -125,38 +125,39 @@ ${parent.midcol()}
 <%def name="midcol()">
 </%def>
 
-<%def name="buttons()">
+<%def name="buttons(parent_link = False)">
   %if not thing.deleted:
-    <ul class="clear">
       %if thing.votable:
-        <li class="first">${self.arrow(thing, 1, thing.likes)}</li>
-        <li>${self.arrow(thing, 0, thing.likes == False)}</li>
+        <ul class="votes">
+          <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
+          <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>
+        </ul>
       %endif
       <% fullname = thing._fullname %>
-      <li>
-        ${parent.comment_button("permalink", fullname, _("Permalink"), 0, 
-        thing.permalink)}
-      </li>
-      %if not c.profilepage:
-        %if thing.parent_permalink:
-          <li>
-            ${bylink_button("parent", _("Parent"), thing.parent_permalink)}
+      <ul>
+        %if not c.profilepage and thing.can_reply:
+          %if thing.parent_permalink and parent_link:
+            <li class="parent">
+              ${bylink_button("parent", _("Parent"), thing.parent_permalink, tool_tip=_("Parent"))}
+            </li>
+          %endif
+          <li class="reply">
+            ${parent.simple_button("reply", fullname, _("Reply"), "reply", tool_tip=_("Reply"))}
           </li>
         %endif
-        %if c.user_is_loggedin and thing.author.name == c.user.name:
-          <li>
-            ${parent.simple_button("edit", fullname, _("Edit"), "editcomment")}
-          </li>
-        %endif
-      %endif
-      ${parent.delete_or_report_buttons(False,True,True)}
-      ${parent.buttons()}
-      %if not c.profilepage and thing.can_reply:
-        <li>
-          ${parent.simple_button("reply", fullname, _("Reply"), "reply")}
+        <li class="permalink">
+          ${parent.comment_button("permalink", fullname, _("Permalink"), 0, thing.permalink, title=_("Permalink"))}
         </li>
-      %endif
-    </ul>
+        %if not c.profilepage:
+          %if c.user_is_loggedin and thing.author.name == c.user.name:
+            <li class='edit'>
+              ${parent.simple_button("edit", fullname, _("Edit"), "editcomment", tool_tip=_("Edit"))}
+            </li>
+          %endif
+        %endif
+        ${parent.delete_or_report_buttons(False,False,True)}
+        ${parent.buttons()}
+      </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
     <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
   %endif
@@ -164,7 +165,9 @@ ${parent.midcol()}
 </%def>
 
 
-<%def name="bylink_button(name, title, link)">
- <a id="${name}_${thing._fullname}" href="${link}" class="bylink">${title}</a>
+<%def name="bylink_button(name, title, link, tool_tip=None)">
+ <a id="${name}_${thing._fullname}" href="${link}" class="bylink"
+    ${ "title=%s"%(_(tool_tip)) if tool_tip else "" }
+   >${title}</a>
 </%def>
 

@@ -433,6 +433,12 @@ class VSRSubmitPage(Validator):
         else:
             return True
 
+class VCreateMeetup(Validator):
+    def run(self):
+        if (c.user_is_loggedin and c.user.safe_karma > g.discussion_karma_to_post):
+            return True
+        abort(403, "forbidden")
+
 class VSubmitParent(Validator):
     def run(self, fullname):
         if fullname:
@@ -580,10 +586,10 @@ class VExistingUname(VRequired):
 
     def run(self, username):
         if username:
-            name = chkuser(username)
             try:
+                name = str(username)
                 return Account._by_name(name)
-            except NotFound:
+            except (TypeError, UnicodeEncodeError, NotFound):
                 return self.error(errors.USER_DOESNT_EXIST)
         self.error()
 

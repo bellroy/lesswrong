@@ -37,7 +37,7 @@ describe 'Setting up Lesswrong' do
     visit home
     create_article('The ABOUT article', article_body, 'Less Wrong')
 
-    find('a.comment')   # Wait for page to load
+    find('div.articlenavigation')   # Wait for page to load
   end
 
   it 'configure discussion category' do

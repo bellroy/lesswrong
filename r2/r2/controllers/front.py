@@ -187,7 +187,7 @@ class FrontController(RedditController):
         loc = None if c.focal_comment or context is not None else 'comments'
 
         if article.comments_enabled:
-            sort_menu = CommentSortMenu(default = sort)
+            sort_menu = CommentSortMenu(default = sort, type='dropdown2')
             if hasattr(article, 'comment_sort_order'):
                 sort_menu.enabled = False
             nav_menus = [sort_menu,

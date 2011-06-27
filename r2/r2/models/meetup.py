@@ -7,8 +7,9 @@ from r2.lib.db.operators import desc
 from geolocator import gislib
 # must be here to stop bizarre NotImplementedErrors being raise in the datetime
 # method below
-import pytz 
+import pytz
 from r2.models.account import FakeAccount
+from account import Account
 
 class Meetup(Thing):
   def datetime(self):
@@ -22,21 +23,35 @@ class Meetup(Thing):
 
   @classmethod
   def upcoming_meetups_query(cls):
-    return Meetup._query(Meetup.c.timestamp > time.time(), data=True)
+    """Return query for all meetups that are in the future"""
+    # Warning, this timestamp inequality is actually done as a string comparison
+    # in the db for some reason.  BUT, since epoch seconds won't get another digit
+    # for another 275 years, we're good for now...
+    return Meetup._query(Meetup.c.timestamp > time.time(), data=True, sort='_date')
+
+  @classmethod
+  def upcoming_meetups_by_timestamp(cls):
+    """Return upcoming meetups ordered by soonest first"""
+    # This doesn't do nice db level paginations, but there should only
+    # be a smallish number of meetups
+    query = cls.upcoming_meetups_query()
+    meetups = list(query)
+    meetups.sort(key=lambda m: m.timestamp)
+    return map(lambda m: m._fullname, meetups)
+
 
   @classmethod
   def upcoming_meetups_near(cls, location, max_distance, count = 5):
     query = cls.upcoming_meetups_query()
-    query._limit = count
     meetups = list(query)
 
     # Find nearby ones
     if location:
-        meetups = filter(lambda m: m.distance_to(point) <= max_distance, meetups)
-    else:
-        meetups.sort(key=lambda m: m.timestamp)
+        meetups = filter(lambda m: m.distance_to(location) <= max_distance, meetups)
 
-    return meetups
+    meetups.sort(key=lambda m: m.timestamp)
+
+    return meetups[:count]
 
   def distance_to(self, location):
     """
@@ -60,9 +75,11 @@ class Meetup(Thing):
   @staticmethod
   def cache_key(item):
     return False
-  
+
   @staticmethod
   def group_cache_key():
     """ Used with CacheUtils.get_key_group_value """
     return "meetup-inc-key"
 
+  def author(self):
+    return Account._byID(self.author_id)

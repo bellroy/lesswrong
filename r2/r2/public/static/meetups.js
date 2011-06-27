@@ -26,9 +26,10 @@
   });
 
   /* Add Meetup */
-  function updateTimezone(date) {
+  function setTimeZone(date) {
     $$('input[name="tzoffset"]').each(function(el) {
-      el.setValue(date.getTimezoneOffset() / -60)
+      var tz = (new Date()).getTimezoneOffset()
+      el.setValue(tz / -60)
     });
   }
 
@@ -80,9 +81,12 @@
         $('location').observe('change', geocodeLocation);
       });
 
+      /* Fill in the current time zone */
+      setTimeZone();
+
       Protoplasm.use('timepicker', function() { /* Used by datepicker below */
         Protoplasm.use('datepicker', function() {
-          var picker = new Control.DatePicker($$('input.date').first(), {epoch: true, timePicker: true, onSelect: updateTimezone});
+          var picker = new Control.DatePicker($$('input.date').first(), {epoch: true, timePicker: true});
         });
       });
     }

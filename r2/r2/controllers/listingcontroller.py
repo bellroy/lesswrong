@@ -100,6 +100,24 @@ class ListingController(RedditController):
         etc) to be displayed on this listing page"""
         return []
 
+    @property
+    def top_filter(self):
+      return None
+
+    @property
+    def header_sub_nav(self):
+      buttons = []
+      if c.default_sr:
+        buttons.append(NamedButton("promoted"))
+        buttons.append(NamedButton("new"))
+      else:
+        buttons.append(NamedButton("new", aliases = ["/"]))
+
+      buttons.append(NamedButton('top'))
+      if c.user_is_loggedin:
+        buttons.append(NamedButton('saved'))
+      return buttons
+
     @base_listing
     def build_listing(self, num, after, reverse, count):
         """uses the query() method to define the contents of the
@@ -123,6 +141,8 @@ class ListingController(RedditController):
                                title = self.title(),
                                infotext = self.infotext,
                                robots = self.robots,
+                               top_filter = self.top_filter,
+                               header_sub_nav = self.header_sub_nav,
                                **self.render_params).render()
         return res
 
@@ -380,8 +400,8 @@ class BrowseController(ListingController):
     where = 'browse'
 
     @property
-    def menus(self):
-        return [TimeMenu(default = self.time)]
+    def top_filter(self):
+        return TimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
     def query(self):
         return c.site.get_links(self.sort, self.time)
@@ -427,11 +447,14 @@ class EditsController(ListingController):
 
 class MeetupslistingController(ListingController):
     title_text = _('Upcoming Meetups')
+    render_cls = MeetupIndexPage
+
+    @property
+    def header_sub_nav(self):
+	    return []
 
     def query(self):
-        # TODO: Work out how to sort this sensibly
-        return Meetup.upcoming_meetups_query()
-
+        return Meetup.upcoming_meetups_by_timestamp()
 
 class ByIDController(ListingController):
     title_text = _('API')
@@ -681,6 +704,10 @@ class CommentsController(ListingController):
     title_text = _('Comments')
     builder_cls = UnbannedCommentBuilder
 
+    @property
+    def header_sub_nav(self):
+	    return [NamedButton("newcomments", dest="comments"), NamedButton("topcomments")]
+
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
                            Comment.c.sr_id == c.current_or_default_sr._id,
@@ -731,8 +758,8 @@ class TopcommentsController(CommentsController):
 		return q
 
 	@property
-	def menus(self):
-		return [TimeMenu(default = self.time, title = _('Comments from'))]
+	def top_filter(self):
+		return TimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
 	@validate(time = VMenu('where', TimeMenu))
 	def GET_listing(self, time, **env):

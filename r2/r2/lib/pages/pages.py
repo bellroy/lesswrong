@@ -7,16 +7,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -32,7 +32,7 @@ from pylons.controllers.util import abort
 from r2.lib.captcha import get_iden
 from r2.lib.filters import spaceCompress, _force_unicode, _force_utf8
 from r2.lib.db.queries import db_sort
-from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton
+from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton, ExpandableButton, AbsButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
 from r2.lib.utils import title_to_url, query_string, UrlParser
@@ -58,7 +58,7 @@ class Reddit(Wrapped):
         loginbox -- enable/disable rendering of the small login box in the right margin
           (only if no user is logged in; login box will be disabled for a logged in user)
         show_sidebar -- enable/disable content in the right margin
-        
+
         infotext -- text to display in a <p class="infotext"> above the content
         nav_menus -- list of Menu objects to be shown in the area below the header
         content -- renderable object to fill the main content well in the page.
@@ -78,8 +78,8 @@ class Reddit(Wrapped):
     extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
-                 infotext = '', content = None, title = '', robots = None, 
-                 show_sidebar = True, body_class = None, **context):
+                 infotext = '', content = None, title = '', robots = None,
+                 show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = [], **context):
         Wrapped.__init__(self, **context)
         self.title          = title
         self.robots         = robots
@@ -88,6 +88,8 @@ class Reddit(Wrapped):
         self.show_sidebar   = show_sidebar
         self.space_compress = space_compress
         self.body_class     = body_class
+        self.top_filter     = top_filter
+        self.header_sub_nav = header_sub_nav
 
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None
@@ -110,8 +112,11 @@ class Reddit(Wrapped):
 
     def rightbox(self):
         """generates content in <div class="rightbox">"""
-        
+
         ps = PaneStack(css_class='spacer')
+
+        if self.searchbox:
+            ps.append(GoogleSearchForm())
 
         if not c.user_is_loggedin and self.loginbox:
             ps.append(LoginFormWide())
@@ -128,9 +133,6 @@ class Reddit(Wrapped):
         if not filters_ps.empty:
             ps.append(SideBox(filters_ps))
 
-        if self.searchbox:
-            ps.append(GoogleSearchForm())
-
         #don't show the subreddit info bar on cnames
         if c.user_is_admin and not isinstance(c.site, FakeSubreddit) and not c.cname:
             ps.append(SubredditInfoBar())
@@ -138,7 +140,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(SideBoxPlaceholder('side-meetups', _('Upcoming Meetups'), '/meetups'))
+        ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
@@ -179,7 +181,7 @@ class Reddit(Wrapped):
             else:
                 abort(404, "not found")
         return c.response
-    
+
     def corner_buttons(self):
         """set up for buttons in upper right corner of main page."""
         buttons = []
@@ -196,14 +198,15 @@ class Reddit(Wrapped):
 
             buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
-            buttons += [NamedButton('meetups/new', sr_path = not c.default_sr,
-                                    nocname=not c.authorized_cname)]
+            if c.user.safe_karma > g.discussion_karma_to_post:
+                buttons += [NamedButton('meetups/new', False,
+                                        nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
                                   css_class = "pref-lang")]
             buttons += [NamedButton("logout", False,
                                     nocname=not c.authorized_cname,
                                     target = "_self")]
-        
+
         return NavMenu(buttons, base_path = "/", type = "buttons")
 
     def footer_nav(self):
@@ -226,29 +229,43 @@ class Reddit(Wrapped):
 
     def header_nav(self):
         """Navigation menu for the header"""
+
+        menu_stack = PaneStack()
+
         # Ensure the default button is the first tab
-        default_button_name = c.site.default_listing
-        button_names = ['new', 'top', 'comments','topcomments']
-        if c.default_sr:
-            button_names.insert(0, 'blessed')
+        #default_button_name = c.site.default_listing
 
-        main_buttons = []
-        for name in button_names:
-          kw = dict(dest='', aliases=['/' + name]) if name == default_button_name else {}
-          main_buttons.append(NamedButton(name, **kw))
+        main_buttons = [
+            ExpandableButton('main', dest = '/promoted', sr_path = False, sub_menus =
+                             [ NamedButton('posts', dest = '/promoted', sr_path = False),
+                               NamedButton('comments', dest = '/comments', sr_path = False)]),
+            ExpandableButton('discussion', dest = "/r/discussion/new", sub_reddit = "/r/discussion/", sub_menus =
+                             [ NamedButton('posts', dest = "/r/discussion/new", sr_path = False),
+                               NamedButton('comments', dest = "/r/discussion/comments", sr_path = False)])
+       ]
 
-        if c.user_is_loggedin:
-            main_buttons.append(NamedButton('saved', False))
+        menu_stack.append(NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist'))
 
-        if not c.default_sr:
-            main_buttons.insert(0, NamedButton('home', dest = '/', sr_path = False))
 
-        return NavMenu(main_buttons, title = _('Filter by'), _id='nav', type='navlist')
+        if self.header_sub_nav:
+            menu_stack.append(NavMenu(self.header_sub_nav, title = _('Filter by'), _id='filternav', type='navlist'))
+
+        return menu_stack
+
+    def right_menu(self):
+        """docstring for right_menu"""
+        buttons = [
+          AbsButton('wiki', 'http://wiki.lesswrong.com'),
+          NamedButton('sequences', sr_path=False),
+          NamedButton('about', sr_path=False)
+        ]
+
+        return NavMenu(buttons, title = _('Filter by'), _id='rightnav', type='navlist')
 
     def build_toolbars(self):
         """Additional toolbars/menus"""
         return []
-                
+
     def __repr__(self):
         return "<Reddit>"
 
@@ -273,8 +290,8 @@ class SideBoxPlaceholder(Wrapped):
     result of an ajax request.
     """
 
-    def __init__(self, node_id, link_text, link_path=None):
-        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path)
+    def __init__(self, node_id, link_text, link_path=None, sr_path=True):
+        Wrapped.__init__(self, node_id=node_id, link_text=link_text, link_path=link_path, sr_path=sr_path)
 
 class SpaceCompressedWrapped(Wrapped):
     """Overrides default Wrapped.render to do space compression as well."""
@@ -297,7 +314,7 @@ class RecentItems(SpaceCompressedWrapped):
     @staticmethod
     def wrap_thing(thing):
         w = Wrapped(thing)
-        
+
         if isinstance(thing, Link):
             w.render_class = InlineArticle
         elif isinstance(thing, Comment):
@@ -317,7 +334,7 @@ class RecentComments(RecentItems):
             skip = True,
             sr_ids = [c.current_or_default_sr._id]
         )
-        
+
 class RecentArticles(RecentItems):
     def query(self):
         q = c.current_or_default_sr.get_links('new', 'all')
@@ -342,9 +359,9 @@ class TopContributors(SpaceCompressedWrapped):
         Wrapped.__init__(self, *args, **kwargs)
 
 class TagCloud(SpaceCompressedWrapped):
-    
+
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
-    
+
     def nav(self):
         cloud = Tag.tag_cloud_for_subreddits([c.current_or_default_sr._id])
 
@@ -353,7 +370,7 @@ class TagCloud(SpaceCompressedWrapped):
             buttons.append(NavButton(tag.name, tag.name, css_class=self.numbers[weight - 1]))
 
         return NavMenu(buttons, type="flatlist", separator=' ', base_path='/tag/')
-        
+
 class SubredditInfoBar(Wrapped):
     """When not on Default, renders a sidebox which gives info about
     the current reddit, including links to the moderator and
@@ -381,7 +398,7 @@ class SideBox(Wrapped):
 
 class PrefsPage(Reddit):
     """container for pages accessible via /prefs.  No extension handling."""
-    
+
     extension_handling = False
 
     def __init__(self, show_sidebar = True, *a, **kw):
@@ -429,21 +446,21 @@ class MessagePage(Reddit):
 
 class MessageCompose(Wrapped):
     """Compose message form."""
-    def __init__(self,to='', subject='', message='', success='', 
+    def __init__(self,to='', subject='', message='', success='',
                  captcha = None):
         Wrapped.__init__(self, to = to, subject = subject,
-                         message = message, success = success, 
+                         message = message, success = success,
                          captcha = captcha)
 
-    
+
 class BoringPage(Reddit):
     """parent class For rendering all sorts of uninteresting,
     sortless, navless form-centric pages.  The top navmenu is
     populated only with the text provided with pagename and the page
     title is 'reddit.com: pagename'"""
-    
+
     extension_handling= False
-    
+
     def __init__(self, pagename, **context):
         self.pagename = pagename
         Reddit.__init__(self, title = "%s - %s" % (pagename, c.site.title),
@@ -454,7 +471,7 @@ class FormPage(BoringPage):
     def __init__(self, pagename, show_sidebar = False, *a, **kw):
         BoringPage.__init__(self, pagename,  show_sidebar = show_sidebar,
                             *a, **kw)
-        
+
 
 class LoginPage(BoringPage):
     """a boring page which provides the Login/register form"""
@@ -476,7 +493,7 @@ class Login(Wrapped):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
 
-    
+
 class SearchPage(BoringPage):
     """Search results page"""
     searchbox = False
@@ -500,7 +517,7 @@ class LinkInfoPage(Reddit):
     passed to this class will also be rendered underneath the rendered
     Link.
     """
-    
+
     create_reddit_box  = False
     robots             = None
 
@@ -512,9 +529,9 @@ class LinkInfoPage(Reddit):
 
     def __init__(self, link = None, comment = None,
                  link_title = '', is_canonical = False, *a, **kw):
-        
+
         link.render_full = True
-        
+
         # TODO: temp hack until we find place for builder_wrapper
         from r2.controllers.listingcontroller import ListingController
         if comment:
@@ -533,7 +550,7 @@ class LinkInfoPage(Reddit):
         link_title = ((self.link.title) if hasattr(self.link, 'title') else '')
         if comment:
             title = comment.make_permalink_title(link)
-            
+
             # Comment permalinks should not be indexed, there's too many of them
             self.robots = 'noindex'
 
@@ -605,7 +622,7 @@ class SubredditsPage(Reddit):
 
 class MySubredditsPage(SubredditsPage):
     """Same functionality as SubredditsPage, without the search box."""
-    
+
     def content(self):
         return self.content_stack(self.infobar, self._content)
 
@@ -625,21 +642,22 @@ class ProfilePage(Reddit):
     object of the user must be passed in as the first argument, along
     with the current sub-page (to determine the title to be rendered
     on the page)"""
-    
+
     searchbox         = False
     create_reddit_box = False
     submit_box        = False
+    
 
     def __init__(self, user, *a, **kw):
         self.user     = user
-        Reddit.__init__(self, *a, **kw)
+        Reddit.__init__(self, body_class = "profile_page", *a, **kw)
 
     def header_nav(self):
         path = "/user/%s/" % self.user.name
         main_buttons = [NavButton(menu.overview, '/', aliases = ['/overview']),
                    NavButton(_('Comments'), 'comments'),
                    NamedButton('submitted')]
-        
+
         if votes_visible(self.user):
             main_buttons += [NamedButton('liked'),
                         NamedButton('disliked'),
@@ -648,9 +666,9 @@ class ProfilePage(Reddit):
         if c.user_is_loggedin and self.user._id == c.user._id:
             # User is looking at their own page
             main_buttons.append(NamedButton('drafts'))
-            
+
         return NavMenu(main_buttons, base_path = path, title = _('View'), _id='nav', type='navlist')
-    
+
 
     def rightbox(self):
         rb = Reddit.rightbox(self)
@@ -658,7 +676,7 @@ class ProfilePage(Reddit):
             rb.push(ProfileBar(self.user))
         return rb
 
-class ProfileBar(Wrapped): 
+class ProfileBar(Wrapped):
     """Draws a right box for info about the user (karma, etc)"""
     def __init__(self, user, buttons = None):
         Wrapped.__init__(self, user = user, buttons = buttons)
@@ -685,7 +703,7 @@ class ErrorPage(Wrapped):
     """Wrapper for an error message"""
     def __init__(self, message = _("You aren't allowed to do that.")):
         Wrapped.__init__(self, message = message)
-    
+
 class Profiling(Wrapped):
     """Debugging template for code profiling using built in python
     library (only used in middleware)"""
@@ -710,7 +728,7 @@ class SubredditTopBar(Wrapped):
                                          return_dict = False)
             my_reddits.sort(key = lambda sr: sr.name.lower())
 
-        drop_down_buttons = []    
+        drop_down_buttons = []
         for sr in my_reddits:
             drop_down_buttons.append(SubredditButton(sr))
 
@@ -725,7 +743,7 @@ class SubredditTopBar(Wrapped):
                                          title = _('My categories'),
                                          type = 'srdrop')
 
-    
+
         pop_reddits = Subreddit.default_srs(c.content_langs, limit = 30)
         buttons = []
         for sr in c.recent_reddits:
@@ -736,16 +754,16 @@ class SubredditTopBar(Wrapped):
         for sr in pop_reddits:
             if sr not in c.recent_reddits:
                 buttons.append(SubredditButton(sr))
-    
+
         self.sr_bar = NavMenu(buttons, type='flatlist', separator = '-',
                                         _id = 'sr-bar')
-    
+
 class SubredditBox(Wrapped):
     """A content pane that has the lists of subreddits that go in the
     right pane by default"""
     def __init__(self):
         Wrapped.__init__(self)
-        
+
         self.title = _('Other reddit communities')
         self.subtitle = 'Visit your subscribed categories (in bold) or explore new ones'
         self.create_link = ('/categories/', menu.more)
@@ -759,7 +777,7 @@ class SubredditBox(Wrapped):
             my_reddits.sort(key = lambda sr: sr._downs, reverse = True)
 
         display_reddits = my_reddits[:g.num_side_reddits]
-        
+
         #remove the current reddit
         display_reddits = filter(lambda x: x != c.site, display_reddits)
 
@@ -875,7 +893,7 @@ class PermalinkMessage(Wrapped):
 
 class PaneStack(Wrapped):
     """Utility class for storing and rendering a list of block elements."""
-    
+
     def __init__(self, panes=[], div_id = None, css_class=None, div=False):
         div = div or div_id or css_class or False
         self.div_id    = div_id
@@ -887,7 +905,7 @@ class PaneStack(Wrapped):
     def append(self, item):
         """Appends an element to the end of the current stack"""
         self.stack.append(item)
-    
+
     def push(self, item):
         """Prepends an element to the top of the current stack"""
         self.stack.insert(0, item)
@@ -978,7 +996,7 @@ class FrameToolbar(Wrapped):
     def __init__(self, link = None, **kw):
         self.title = link.title
         Wrapped.__init__(self, link = link, *kw)
-    
+
 
 
 class NewLink(Wrapped):
@@ -1039,7 +1057,7 @@ class ButtonEmbed(Wrapped):
     def __init__(self, button = None, width = 100, height=100, referer = "", url = ""):
         Wrapped.__init__(self, button = button, width = width, height = height,
                          referer=referer, url = url)
-        
+
 class ButtonLite(Wrapped):
     """Generates the JS wrapper around the buttons for embedding."""
     def __init__(self, image = None, link = None, url = "", styled = True, target = '_top'):
@@ -1048,12 +1066,12 @@ class ButtonLite(Wrapped):
 class Button(Wrapped):
     """the voting buttons, embedded with the ButtonEmbed wrapper, shown on /buttons"""
     extension_handling = False
-    def __init__(self, link = None, button = None, css=None, 
-                 url = None, title = '', score_fmt = None, vote = True, target = "_parent", 
+    def __init__(self, link = None, button = None, css=None,
+                 url = None, title = '', score_fmt = None, vote = True, target = "_parent",
                  bgcolor = None, width = 100):
         Wrapped.__init__(self, link = link, score_fmt = score_fmt,
-                         likes = link.likes if link else None, 
-                         button = button, css = css, url = url, title = title, 
+                         likes = link.likes if link else None,
+                         button = button, css = css, url = url, title = title,
                          vote = vote, target = target, bgcolor=bgcolor, width=width)
 
 class ButtonNoBody(Button):
@@ -1098,7 +1116,7 @@ class AdminTranslations(Wrapped):
         from r2.lib.translation import list_translations
         Wrapped.__init__(self)
         self.translations = list_translations()
-        
+
 
 class Embed(Wrapped):
     """wrapper for embedding /help into reddit as if it were not on a separate wiki."""
@@ -1122,7 +1140,7 @@ class Ajaxed():
     'rendering' dictionary representations of the data which can be
     passed to the client via JSON over AJAX"""
     __slots__ = ['kind', 'action', 'data']
-    
+
     def __init__(self, kind, action):
         self._ajax = dict(kind=kind,
                           action = None,
@@ -1165,7 +1183,7 @@ class UserTableItem(Wrapped, Ajaxed):
         return '<UserTableItem "%s">' % self.user.name
 
 class UserList(Wrapped):
-    """base class for generating a list of users"""    
+    """base class for generating a list of users"""
     form_title     = ''
     table_title    = ''
     type           = ''
@@ -1190,7 +1208,7 @@ class UserList(Wrapped):
         objects which should be present in this UserList."""
         uids = self.user_ids()
         if uids:
-            users = Account._byID(uids, True, return_dict = False) 
+            users = Account._byID(uids, True, return_dict = False)
             return [self.ajax_user(u) for u in users]
         else:
             return ()
@@ -1364,23 +1382,40 @@ class SiteMeter(Wrapped):
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
         meetups = Meetup.upcoming_meetups_near(location, max_distance)
-        Wrapped.__init__(self, meetups=meetups, *a, **kw)
+        Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
 	  pass
 
 class ShowMeetup(Wrapped):
     """docstring for ShowMeetup"""
-    def __init__(self, meetup):
+    def __init__(self, meetup, **kw):
         # title_params = {'title':_force_unicode(meetup.title), 'site' : c.site.title}
         # title = strings.show_meetup_title % title_params
-        Wrapped.__init__(self, meetup = meetup)
+        Wrapped.__init__(self, meetup = meetup, **kw)
 
 class NewMeetup(Wrapped):
-    pass
+    def __init__(self, *a, **kw):
+        Wrapped.__init__(self, *a, **kw)
 
 class EditMeetup(Wrapped):
     pass
+
+class MeetupIndexPage(Reddit):
+  def __init__(self, **context):
+    self.meetups = context.get("content", None)
+    Reddit.__init__(self, **context)
+
+  def content(self):
+    return MeetupIndex(self.meetups)
+
+class MeetupIndex(Wrapped):
+  def __init__(self, meetups = [], *a, **kw):
+    self.meetups = meetups
+    Wrapped.__init__(self, *a, **kw)
+
+  def meetups(self):
+    return self.meetups
 
 class WikiPageInline(Wrapped): pass
 
@@ -1389,9 +1424,9 @@ class WikiPage(Reddit):
         self.pagename = page['title']()
         html = WikiPageCached.html(page)
         Reddit.__init__(self,
-                        content = WikiPageInline(html=html, name=name, 
+                        content = WikiPageInline(html=html, name=name,
                                                  skiplayout=skiplayout,title=self.pagename),
-                        title = self.pagename, 
-                        space_compress=False, 
+                        title = self.pagename,
+                        space_compress=False,
                         **context)
 

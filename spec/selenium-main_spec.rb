@@ -43,7 +43,7 @@ describe 'Lesswrong' do
     it 'create draft' do
       create_article('A test article', "My hovercraft is full of eels\n\nHuh?")
 
-      find('a.comment')   # Wait for page to load
+      find('div.articlenavigation')   # Wait for page to load
       page.should have_content('A test article Draft')
       page.should have_content('hovercraft')
       page.should have_content('Comments (0)')
@@ -51,11 +51,12 @@ describe 'Lesswrong' do
 
     it 'move it to Less Wrong subreddit' do
       # Now edit it, and put it in the 'Less Wrong' subreddit
-      click_link 'Edit'
+      click_on "Edit"
       select 'Less Wrong', :from => 'sr'
       click_button 'Submit'
-      find('a.comment')   # Wait for page to load
+      find('div.articlenavigation')   # Wait for page to load
 
+      click_on 'Main'
       click_on 'Top'
       page.should have_content('hovercraft')
     end
@@ -117,13 +118,48 @@ describe 'Lesswrong' do
 
     it 'should have browsable pages' do
       visit home
-      find('#logo').click
-      { 'New' => 'Newest Submissions',
-        'Comments' => 'Comments',
-        'Promoted' => 'Less Wrong',
-        'Top' => 'Top scoring articles'}.each do |link,title|
-        click_link link
-        get_title.should match(title)
+
+      page_map = {
+        "Discussion" => {
+          "Posts"    => {
+            "Top" => "Top scoring articles - Less Wrong Discussion",
+            "What's new" => "Newest Submissions - Less Wrong Discussion"
+          },
+          "Comments" => {
+            "New Comments"  => "Comments - Less Wrong Discussion",
+            "Top Comments"  => "Top Comments - Less Wrong Discussion"
+          }
+        },
+        "Main" => {
+          "Posts"    => {
+            "Promoted"  => "Less Wrong" ,
+            "New"       => "Newest Submissions - Less Wrong",
+            "Top"       => "Top scoring articles - Less Wrong"
+          },
+          "Comments" => {
+            "New Comments"  => "Comments - Less Wrong",
+            "Top Comments"  => "Top Comments - Less Wrong"
+          }
+        }
+      }
+
+      page_map.each do |reddit, top_link|
+        top_link.each do |top_link_label, sub_links|
+          click_link reddit
+          # Need to open the dropdown before clicking. Can't click
+          # on invisible elements
+          find("ul#nav li.active img.dropdown").click
+          # Must ensure that the intended link is click, their might be two
+          # with the same name, but only one is visible
+          within "ul#nav li.active" do
+            click_link top_link_label
+            #find("ul#nav li.active a[title='#{top_link_label}']").click
+          end
+          sub_links.each do |sub_link_label, page_title|
+            click_link sub_link_label
+            get_title.should match(page_title)
+          end
+        end
       end
     end
 
@@ -185,6 +221,10 @@ describe 'Lesswrong' do
     end
 
     it 'can create a meetup' do
+      # If this test fails for you, cause of not finding content 'Mali',
+      # it is because your browser window does not have focus and will
+      # receive no onchange events. Simply click the window when starting
+      # the test.
       force_reload
       click_link 'Add new meetup'
       page.driver.browser.switch_to.window('')

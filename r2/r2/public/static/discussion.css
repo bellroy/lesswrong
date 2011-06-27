@@ -6,7 +6,7 @@
 
 #content .list h2 {
   float: left;
-  margin-left: 30px;
+  margin-left: 35px;
   z-index: 1;
 }
 
@@ -58,4 +58,16 @@
 
 #content .nextprev {
   clear: both;
+}
+
+#header.discussion {
+	background: url(/static/background-discussion.jpg) no-repeat top left;
+}
+
+#header.discussion #header-img {
+	height: 55px;
+}
+
+#header.discussion #tagline {
+	display: none;
 }
