@@ -89,23 +89,36 @@ function init(args) {
     populate_side_bar('side-posts', args);
     populate_side_bar('side-tags', args);
     populate_side_bar('side-contributors', args);
+
+    populate_side_bar('front-recent-posts', args);
+    populate_side_bar('front-meetups-map', args, 
+                      function(response) { 
+                        $('front-meetups-map').innerHTML = response.responseText;
+                        createMap($('front-map')); 
+                      });
 }
 
-function populate_side_bar(id, args) {
+function populate_side_bar(id, args, onSuccess) {
     var node = $(id);
     var sr = args.r;
     var path_prefix = '';
     if(sr && sr.length > 0) {
       path_prefix = '/r/' + sr;
     }
+
+    if (!onSuccess) {
+      onSuccess = function(response) {
+                    node.innerHTML = response.responseText;
+      };
+    }
+
     if (node) {
         var path = path_prefix + '/api/' + id.replace('-', '_');
         new Ajax.Request(path, {
                 method: 'get',
                 parameters: args,
-                onSuccess: function(response) {
-                    node.innerHTML = response.responseText;
-                }});
+                onSuccess: onSuccess,
+                });
     }
 }
 

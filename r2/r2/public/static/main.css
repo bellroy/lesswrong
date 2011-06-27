@@ -508,6 +508,7 @@ div.meetup-meta p strong {
 body.meetup div.post div.content {
 	margin: 0 0 30px;
 }
+#front-map,
 body.meetup #map {
 	background-color: #eee;
 	float: right;
