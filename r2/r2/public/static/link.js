@@ -411,8 +411,27 @@ function _fire_and_hide(type) {
 Listing.unhide = _fire_and_hide('unhide');
 Listing.hide   = _fire_and_hide('hide');
 Listing.report = _fire_and_hide('report');
-Listing.del    = _fire_and_hide('del');
-Listing.retract = _fire_and_hide('retract');
+Listing.retract = function(fullname) { 
+  redditRequest('retract', {id: fullname, uh: modhash}, function(r) {
+    var res_obj = parse_response(r);
+    if (res_obj.error) {
+      alert(res_obj.error.message);
+    } else {
+    }
+  });
+}
+
+
+Listing.del = function(fullname) { 
+  redditRequest('del', {id: fullname, uh: modhash}, function(r) {
+    var res_obj = parse_response(r);
+    if (res_obj.error) {
+      alert(res_obj.error.message);
+    } else {
+      new Link(fullname).hide(true);
+    }
+  });
+}
 
 Listing.parse = function(r) {
     var links = [];

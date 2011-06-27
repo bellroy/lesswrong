@@ -75,6 +75,7 @@ error_list = dict((
         ('NO_DATE', _('The time and date of the meetup is required')),
         ('INVALID_DATE', _('Must be a valid date and time')),
         ('NO_DESCRIPTION', _('You must supply a description')),
+        ('CANNOT_DELETE', _('Cannot delete that comment')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 

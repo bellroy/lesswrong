@@ -521,6 +521,13 @@ class ApiController(RedditController):
               thing = VByNameIfAuthor('id'))
     def POST_del(self, res, thing):
         '''for deleting all sorts of things'''
+
+        # Special check if comment can be deleted
+        if isinstance(thing, Comment) and (hasattr(thing, "child") or not thing.retracted):
+            c.errors.add(errors.CANNOT_DELETE)
+            res._chk_error(errors.CANNOT_DELETE)
+            return
+
         thing._deleted = True
         thing._commit()
 

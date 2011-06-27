@@ -155,7 +155,8 @@ ${parent.midcol()}
             </li>
           %endif
         %endif
-        ${parent.delete_or_report_buttons(False,False,True)}
+        <% allow_delete = (not hasattr(thing,"child")) and thing.retracted %>
+        ${parent.delete_or_report_buttons(allow_delete,False,True)}
         ${parent.buttons()}
       </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
