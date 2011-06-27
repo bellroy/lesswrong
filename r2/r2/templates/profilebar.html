@@ -27,29 +27,7 @@
 %if thing.user:
 <div id="side-user" class="sidebox">
   <div id="side-status" class="clear">
-    <div class="userinfo editor">
-      <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
-      <span class="label">Karma Score</span>
-      <span class="score">${thing.user.safe_karma}</span>
-      %if thing.user.name in g.admins:
-        <span class="role">Editor</span>
-      %endif
-
-      %if thing.isMe:
-        <%
-          mail_img ="mail"
-          if c.have_messages:
-            mail_img += ".png"
-          else:
-            mail_img += "gray.png"
-          mail_img = static(mail_img)
-        %>
-        <span class="mail">
-          ${img_link(_("messages"), mail_img, path="/message/inbox/", _id="mail")}
-        </span>
-      %endif
-
-    </div>
+    <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
     %if thing.buttons:
       ${thing.buttons.render()}
     %endif
@@ -78,6 +56,28 @@
         </li>
       </ul>
     %endif
+    <div class="userinfo editor">
+      <span class="label">Karma Score</span>
+      <span class="score">${thing.user.safe_karma}</span>
+      %if thing.user.name in g.admins:
+        <span class="role">Editor</span>
+      %endif
+
+      %if thing.isMe:
+        <%
+          mail_img ="mail"
+          if c.have_messages:
+            mail_img += ".png"
+          else:
+            mail_img += "gray.png"
+          mail_img = static(mail_img)
+        %>
+        <span class="mail">
+          ${img_link(_("messages"), mail_img, path="/message/inbox/", _id="mail")}
+        </span>
+      %endif
+
+    </div>
 
     <dl class="extrainfo">
       %if thing.user.pref_location:
