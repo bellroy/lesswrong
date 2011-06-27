@@ -45,8 +45,8 @@
 
 	</div>
 
-	<div id="map" class="meetup-map" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}">
-
+	<div id="map" class="meetup-map">
+          <div class="marker" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
 	</div>
 
 	%if meetup.can_edit(c.user, c.user_is_admin):

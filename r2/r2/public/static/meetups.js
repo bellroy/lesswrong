@@ -1,28 +1,7 @@
 (function() {
-  /* Show Meetup */
-  document.observe("dom:loaded", function() {
-    var map = $('map');
-    if (map) {
-      loadMaps(function() {
-        var lat = map.readAttribute('data-latitude');
-        var lng = map.readAttribute('data-longitude');
-        var latlng = new google.maps.LatLng(lat, lng);
-        var myOptions = {
-          zoom: 16,
-          center: latlng,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
 
-        var gMap = new google.maps.Map(map, myOptions);
-        var marker = new google.maps.Marker({
-          map: gMap,
-          draggable: false,
-          animation: google.maps.Animation.DROP,
-          position: latlng,
-          title: map.readAttribute('data-title')
-        });
-      });
-    }
+  document.observe("dom:loaded", function() {
+    createMap( $('map') );
   });
 
   /* Add Meetup */
