@@ -35,7 +35,8 @@ import r2.models.thing_changes as tc
 
 from r2.controllers import ListingController
 
-from r2.lib.utils import get_title, sanitize_url, timeuntil, set_last_modified
+from r2.lib.utils import get_title, sanitize_url, timeuntil, \
+    set_last_modified, remote_addr
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
@@ -972,8 +973,8 @@ class ApiController(RedditController):
 
     def GET_side_meetups(self, *a, **kw):
         """Return HTML snippet of the upcoming meetups for the side bar."""
-        ip = c.environ['REMOTE_ADDR']
-        
+        ip = remote_addr(c.environ)
+
         # Key to group cached meetup pages with
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)

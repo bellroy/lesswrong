@@ -1028,6 +1028,23 @@ def trace(fn):
         return ret
     return new_fn
 
+def remote_addr(env):
+  """
+  Returns the remote address for the WSGI env passed
+
+  Takes proxies into consideration
+  """
+  # In production the remote address is always the load balancer
+  # So check X-Forwarded-For first
+  # E.g. HTTP_X_FORWARDED_FOR: '66.249.72.73, 75.101.144.164'
+  if env.has_key('HTTP_X_FORWARDED_FOR'):
+    ips = re.split(r'\s*,\s*', env['HTTP_X_FORWARDED_FOR'])
+    if len(ips) > 0:
+      return ips[0]
+
+  return env['REMOTE_ADDR']
+
+
 # A class building tzinfo objects for a fixed offset.
 class FixedOffset(tzinfo):
     """Fixed offset in hours east from UTC. name may be None"""
