@@ -1,6 +1,6 @@
 (function ($) {
 
-  window.featuredArticles = function(div,num) {
+  window.featuredArticles = function(div) {
     if (!div)
       return;
     var t = $(div).attr("data-start-date");
@@ -12,6 +12,8 @@
     var millisInWeek = 1000*86400*7;
     var weekNum = Math.floor(((new Date()).getTime() - t)/millisInWeek);
     if (weekNum<0) weekNum = -weekNum;
+
+    var num = parseInt($(div).attr("data-num")) || 5;
 
     var res = new Array();
     var items = $('li',div);
