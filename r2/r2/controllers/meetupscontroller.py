@@ -136,6 +136,7 @@ class MeetupsController(RedditController):
 
     # Update the linked article
     article = Link._byID(meetup.assoc_link)
+    article._load()
     article_old_url = article.url
     article.title = meetup_article_title(meetup)
     article.article = meetup_article_text(meetup)
