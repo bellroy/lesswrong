@@ -1,0 +1,10 @@
+<%namespace file="utils.html" import="plain_link"/>
+<% 
+   t = thing.things
+   article_generator = t.item_iter(t.get_items())
+%>
+%for a in article_generator:
+  <div class="reddit-link">
+   ${a.render()}
+  </div>
+%endfor:

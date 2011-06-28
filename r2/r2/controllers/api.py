@@ -42,7 +42,7 @@ from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
-    ArticleNavigation, UpcomingMeetups
+    ArticleNavigation, UpcomingMeetups, RecentPromotedArticles
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -999,9 +999,10 @@ class ApiController(RedditController):
         return "nothing to see here."
 
     def GET_front_recent_posts(self, *a, **kw):
-        """Return HTML snippet of the recent posts for the side bar."""
+        """Return HTML snippet of the recent promoted posts for the front page."""
         # Server side cache is also invalidated when new article is posted
-        return self.render_cached('side-posts', RecentArticles, g.side_posts_max_age)
+        #return self.render_cached('recent-promoted', RecentPromotedArticles, g.side_posts_max_age)
+        return RecentPromotedArticles().render()
 
     def GET_front_meetups_map(self, *a, **kw):
         ip = remote_addr(c.environ)

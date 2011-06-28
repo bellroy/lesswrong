@@ -346,6 +346,13 @@ class RecentArticlesPage(Wrapped):
     def __init__(self, content, *a, **kw):
         Wrapped.__init__(self, content=content, *a, **kw)
 
+class RecentPromotedArticles(RecentItems):
+    def query(self):
+        sr = DefaultSR()
+        q = sr.get_links('blessed', 'all')
+        q._limit = 4
+        return q
+
 class TopContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users
