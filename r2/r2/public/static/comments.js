@@ -239,7 +239,8 @@ function chkcomment(form) {
         return post_form(form, 'editcomment', null, null, true);
     }
     else {
-        return post_form(form, 'comment', null, null, true);
+      form.disable();  /* Disable the form while it is being ajaxed...*/
+      return post_form(form, 'comment', null, null, true, null, function() { form.enable()});
     }
 };
 
