@@ -1,0 +1,13 @@
+<%namespace file="utils.html" import="plain_link"/>
+<% 
+   article_generator = thing.things
+%>
+%for a in article_generator:
+  <div class="reddit-link">
+    <h3>
+      <a href="${a.url}" class="reddit-link-title">
+      ${a.title}
+      </a>
+    </h3>
+  </div>
+%endfor:

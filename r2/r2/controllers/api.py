@@ -42,7 +42,7 @@ from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
-    ArticleNavigation, UpcomingMeetups, RecentPromotedArticles
+    ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, FeaturedArticles
 
 from r2.lib.menus import CommentSortMenu
 from r2.lib.translation import Translator
@@ -1013,6 +1013,10 @@ class ApiController(RedditController):
         for m in meetups:
             s += "<div class='marker' data-latitude='%s' data-longitude='%s' data-title='%s'></div>"%(m.latitude,m.longitude,m.location)
         return "<div id='front-map'>"+s+"</div>"
+
+    @validate(links = VLinkUrls('articles'))
+    def GET_front_featured_articles(self, links, *a, **kw):
+        return FeaturedArticles(links=links).render()
 
     @validate(link = VLink('article_id', redirect=False))
     def GET_article_navigation(self, link, *a, **kw):

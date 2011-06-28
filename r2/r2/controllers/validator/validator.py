@@ -235,6 +235,23 @@ def chksrname(x):
     except UnicodeEncodeError:
         return None
 
+class VLinkUrls(Validator):
+    "A comma-separated list of link urls"
+    splitter = re.compile('[ ,]+')
+    id_re = re.compile('^/lw/([^/]+)/')
+    def __init__(self, item, *a, **kw):
+        self.item = item
+        Validator.__init__(self, item, *a, **kw)
+    
+    def run(self, val):
+        res=[]
+        for v in self.splitter.split(val):
+            link_id = self.id_re.match(v)
+            if link_id:
+                l = VLink(None,False).run(link_id.group(1))
+                if l:
+                    res.append(l)
+        return res
 
 class VLinkFullnames(Validator):
     "A space- or comma-separated list of fullnames for Links"
