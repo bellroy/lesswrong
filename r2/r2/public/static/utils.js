@@ -86,7 +86,12 @@ function buildParams(parameters) {
     return parameters;
 }
 
-function redditRequest(op, parameters, worker_in, block, api_loc) {
+/* redditRequest: worker_in - the callback to process the ajax response.
+                               if null, will use handleResponse
+                  cleanup_func - if this callback is specified, and worker_in
+                                 is not, then cleanup_func will be called on completion of the ajax call
+ */
+function redditRequest(op, parameters, worker_in, block, api_loc, cleanup_func) {
     var action = op;
     var worker = worker_in;
     if (!api_loc) {
@@ -104,7 +109,7 @@ function redditRequest(op, parameters, worker_in, block, api_loc) {
     }
     op = api_loc + op;
     if(!worker) {
-        worker = handleResponse(action);
+        worker = handleResponse(action,cleanup_func);
     }
     else {
         worker = function(r) {
@@ -362,7 +367,7 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
-function handleResponse(action) {
+function handleResponse(action, cleanup_func) {
     var my_iter = function(x, func) {
         if(x) {
             var y = tup(x);
@@ -399,7 +404,12 @@ function handleResponse(action) {
                 $(errid).innerHTML = error.message;
             }
         }
-        var r = res_obj.response;
+
+        if (cleanup_func) {
+          cleanup_func(res_obj);
+        }
+  
+      var r = res_obj.response;
         if(!r) return;
         var obj = r.object;
         if(obj) {
@@ -462,6 +472,7 @@ function handleResponse(action) {
                 function(h) {
                     var field = h.name && $(h.name);
                     if(field) { show(field); }});
+
     };
     return responseHandler;
 }
@@ -534,7 +545,7 @@ function change_state_by_class(link, type, className) {
     return false;
 }
 
-function post_form(form, where, statusfunc, nametransformfunc, block, api_loc) {
+function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, cleanup_func) {
     var p = {uh: modhash};
     var id = _id(form);
     var status = $("status");
@@ -559,7 +570,7 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc) {
             }
         }
     }
-    redditRequest(where, p, null, block, api_loc);
+    redditRequest(where, p, null, block, api_loc, cleanup_func);
     return false;
 }
 
