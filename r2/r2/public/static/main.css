@@ -609,8 +609,9 @@ div.message div.message div.message div.message div.message div.message div.mess
 .new-comment,
 div.comment div.new-comment {
     border: 5px solid #dcf8d9 !important;
-	padding: 10px 0 10px 10px !important;
-	margin-right: 0 !important;
+    /* padding: 10px 0 10px 10px !important; */
+    padding: 0 0 0 10px !important;
+    margin-right: 0 !important;
 }
 div.retracted {
     text-decoration: line-through;
