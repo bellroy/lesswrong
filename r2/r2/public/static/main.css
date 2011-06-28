@@ -653,16 +653,17 @@ div.message .subject {
 }
 div.comment-content, div.message-content {
 	clear: both;
-	padding: 12px 5px 0;
+	padding: 9px 5px 0;
 }
 div.comment-content {
-	padding: 12px 0 0;
+	padding: 9px 0 0;
 }
 div.comment-links, div.message-links {
 	padding: 0 5px 5px;
 }
 div.comment-links {
 	padding: 0 0 2px;
+        margin-top: -10px;
 }
 div.comment-links ul, div.message-links ul {
 	list-style: none;
