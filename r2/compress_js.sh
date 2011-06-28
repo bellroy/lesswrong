@@ -22,7 +22,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-files=( event.simulate.js utils.js animate.js link.js comments.js subreddit.js vote_piece.js reddit_piece.js organic.js main.js )
+files=( event.simulate.js utils.js animate.js link.js comments.js subreddit.js vote_piece.js reddit_piece.js organic.js main.js map.js featured-articles.js)
 
 wd=`pwd`
 redditjs='lesswrong.js'

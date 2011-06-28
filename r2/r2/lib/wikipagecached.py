@@ -23,6 +23,7 @@ def fetch(url):
     log.debug('fetching: %s' % url)
     req = Request(url)
     content = urlopen(req).read()
+    log.debug('fetched %d bytes' % len(content))
     return content
 
 def getParsedContent(str):
