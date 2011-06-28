@@ -96,6 +96,13 @@ function init(args) {
                         $('front-meetups-map').innerHTML = response.responseText;
                         createMap($('front-map')); 
                       });
+  
+    var articles = featuredArticles($('front-featured-articles'), 5);
+  populate_side_bar('front-featured-articles', {'articles' : articles.join()},
+                      function(response) { 
+                        $('front-featured-articles').innerHTML = response.responseText;
+                        $('front-featured-articles').show();
+                      });
 }
 
 function populate_side_bar(id, args, onSuccess) {

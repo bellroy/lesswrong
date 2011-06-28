@@ -5,6 +5,10 @@
 %>
 %for a in article_generator:
   <div class="reddit-link">
-   ${a.render()}
+    <h3>
+      <a href="${a.url}" class="reddit-link-title">
+      ${a.title}
+      </a>
+    </h3>
   </div>
 %endfor:
