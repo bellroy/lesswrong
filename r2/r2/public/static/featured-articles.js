@@ -7,7 +7,7 @@
     if (t)
       t = (new Date(t)).getTime();
     else
-      t = (new Date()).getTime();
+      t = (new Date(0)).getTime();
 
     var millisInWeek = 1000*86400*7;
     var weekNum = Math.floor(((new Date()).getTime() - t)/millisInWeek);
