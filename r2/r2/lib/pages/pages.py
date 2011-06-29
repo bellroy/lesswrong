@@ -1429,6 +1429,9 @@ class MeetupIndex(Wrapped):
   def meetups(self):
     return self.meetups
 
+class MeetupsMap(Wrapped):
+    pass
+
 class WikiPageInline(Wrapped): pass
 
 class WikiPage(Reddit):

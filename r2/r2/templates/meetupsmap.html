@@ -1,0 +1,5 @@
+<div id="front-map">
+  %for meetup in thing.meetups:
+    <div class="marker" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.location}"></div>
+  %endfor
+</div>
