@@ -9,6 +9,7 @@ from geolocator import gislib
 # method below
 import pytz
 from r2.models.account import FakeAccount
+from r2.models import Subreddit
 from account import Account
 
 from pylons import g
@@ -71,6 +72,8 @@ class Meetup(Thing):
     if user is None or isinstance(user, FakeAccount):
       return False
     elif user_is_admin or self.author_id == user._id:
+      return True
+    elif Subreddit._by_name('discussion').can_submit(user):
       return True
     else:
       return False
