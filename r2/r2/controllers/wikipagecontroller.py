@@ -12,7 +12,7 @@ class WikipageController(RedditController):
         p = allWikiPagesCached[name]
         if skiplayout:
             # Get just the html of the wiki page
-            html = WikiPageCached().html(p)
+            html = WikiPageCached(p).html()
             return WikiPageInline(html=html, name=name, skiplayout=skiplayout).render()
         else:
             return WikiPage(name,p,skiplayout=skiplayout).render()
@@ -21,7 +21,7 @@ class WikipageController(RedditController):
               skiplayout=VBoolean('skiplayout'))
     def POST_invalidate_cache(self, name, skiplayout):
         p = allWikiPagesCached[name]
-        WikiPageCached.invalidate(p)
+        WikiPageCached(p).invalidate()
         if p.has_key('route'):
             if skiplayout:
                 return self.redirect('/wiki/'+p['route']+'?skiplayout=on')

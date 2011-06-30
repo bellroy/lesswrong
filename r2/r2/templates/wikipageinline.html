@@ -3,9 +3,6 @@
  %>
 <%namespace name="wiki" file="invalidate_wikipagecache.html" import="invalidate_link"/>
 
-%if hasattr(thing, 'title'):
-  <h1>${thing.title}</h1>
-%endif
 <div id="wiki">
   ${unsafe(cleanhtml(thing.html))}
   %if c.user_is_loggedin:

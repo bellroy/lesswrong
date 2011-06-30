@@ -36,26 +36,45 @@ def getParsedContent(str):
         return parsed
 
 class WikiPageCached:
-    @staticmethod
-    def html(page):
-        url=page['url']
-        content = g.rendercache.get(url)
+    def __init__(self, page):
+        self.page = page
+        self.loaded = False
+
+    def getPage(self):
+        url=self.page['url']
+        contentTitle = g.rendercache.get(url)
+        [content,title] = contentTitle if contentTitle else [None,None]
 
         if not content:
             try:
                 str = fetch(url)
                 elem = getParsedContent(str)
                 elem.make_links_absolute(base_url(url))
+                headlines = elem.cssselect('h1 .mw-headline')
+                if headlines and len(headlines)>0:
+                    title = headlines[0].text_content()
                 content = tostring(elem, method='html', encoding='utf8', with_tail=False)
-                g.rendercache.set(url, content, cache_time())
+                g.rendercache.set(url, [content,title], cache_time())
             except Exception as e:
                 log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
                 content = missing_content()
-        return content
 
-    @staticmethod
-    def invalidate(page):
-        g.rendercache.delete(page['url'])
-        log.debug('invalidated: %s' % page['url'])
+        self.titleStr = title
+        self.content = content
+        self.loaded = True
+
+    def html(self):
+        if not self.loaded:
+            self.getPage()
+        return self.content
+
+    def title(self):
+        if not self.loaded:
+            self.getPage()
+        return self.titleStr
+
+    def invalidate(self):
+        g.rendercache.delete(self.page['url'])
+        log.debug('invalidated: %s' % self.page['url'])
 
     

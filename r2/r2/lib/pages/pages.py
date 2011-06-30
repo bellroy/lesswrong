@@ -1436,8 +1436,9 @@ class WikiPageInline(Wrapped): pass
 
 class WikiPage(Reddit):
     def __init__(self, name, page, skiplayout, **context):
-        self.pagename = page['title']()
-        html = WikiPageCached.html(page)
+        wikiPage = WikiPageCached(page)
+        html = wikiPage.html()
+        self.pagename = wikiPage.title()
         Reddit.__init__(self,
                         content = WikiPageInline(html=html, name=name,
                                                  skiplayout=skiplayout,title=self.pagename),

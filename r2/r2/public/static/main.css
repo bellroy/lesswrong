@@ -1163,12 +1163,18 @@ div.articlenavigation #article_nav_controls .loading img {
 /* Styling for embedded wiki pages */
 #wiki #jump-to-nav, #wiki #siteSub,
 .wiki-comment-help div#jump-to-nav, .wiki-comment-help #siteSub,
-#wiki h1, .wiki-comment-help h1,
+#wiki h1#firstHeading, .wiki-comment-help h1,
+#wiki #toc,
 #wiki #catlinks, .wiki-comment-help div#catlinks {
     display: none;
 }
 #wiki .printfooter, .wiki-comment-help .printfooter {
     display: none;
+}
+#wiki h1 {
+    font-family: palantino;
+    font-style: italic;
+    color: #538d4d;
 }
 form.invalidate {
     float: right;
