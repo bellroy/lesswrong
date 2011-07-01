@@ -1,6 +1,17 @@
 <div class="meetup-listing">
-	<h2>Upcoming Events</h2>
+  <h2>Upcoming Events</h2>
+
+  <%namespace file='meetupsmap.html' import='meetup_map' />
+  ${meetup_map("meetup-map", thing.meetups.lookups[0].get_items()[0])}
+
   <ul>
-  	${thing.meetups.render()}
+    ${thing.meetups.render()}
   </ul>
 </div>
+
+<script type="text/javascript">
+  document.observe("dom:loaded", function() {
+    createMap( $('meetup-map') );
+  });
+</script>
+

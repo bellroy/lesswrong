@@ -487,11 +487,15 @@ body.meetup-index #map {
 	width: 695px;
 }
 div.meetup-listing {
-	margin-top: 10px;
+	margin-top: 20px;
+}
+div.meetup-listing div#siteTable {
+    clear: none;
 }
 div.meetup-listing ul {
 	color: #6A8A6B;
 	font-size: 13px;
+        margin-top: 30px;
 	margin-left: 20px;
 }
 div.meetup-listing ul li {
@@ -514,6 +518,7 @@ body.meetup div.post div.content {
 	margin: 0 0 30px;
 }
 #front-map,
+#meetup-map,
 body.meetup #map {
 	background-color: #eee;
 	float: right;
