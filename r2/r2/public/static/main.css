@@ -1172,9 +1172,26 @@ div.articlenavigation #article_nav_controls .loading img {
     display: none;
 }
 #wiki h1 {
-    font-family: palantino;
+    font-family: Palatino, Palladio, "URW Palladio L", "Book Antiqua", Baskerville, "Bookman Old Style", "Bitstream Charter", "Nimbus Roman No9 L", Garamond, "Apple Garamond", "ITC Garamond Narrow", "New Century Schoolbook", "Century Schoolbook", "Century Schoolbook L", Georgia, serif;
     font-style: italic;
     color: #538d4d;
+}
+#wiki .article-list ul {
+    list-style: none;
+    margin-left: 0;
+    font-size: 1.17em;
+    font-weight: bold;
+}
+#wiki .article-list li {
+    border-bottom: 1px solid #D6D5D6;
+    padding: 10px 0;
+}
+#wiki .article-list a {
+    text-decoration: none;
+}
+#wiki hr {
+    border: none;
+    border-bottom: 1px dotted #D6D5D6;
 }
 form.invalidate {
     float: right;

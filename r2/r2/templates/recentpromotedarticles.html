@@ -3,12 +3,8 @@
    t = thing.things
    article_generator = t.item_iter(t.get_items())
 %>
-%for a in article_generator:
-  <div class="reddit-link">
-    <h3>
-      <a href="${a.url}" class="reddit-link-title">
-      ${a.title}
-      </a>
-    </h3>
-  </div>
-%endfor:
+<ul>
+  %for a in article_generator:
+    <li><a href="${a.url}">${a.title}</li>
+  %endfor:
+</ul>
