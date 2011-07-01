@@ -1391,6 +1391,11 @@ class UpcomingMeetups(SpaceCompressedWrapped):
         meetups = Meetup.upcoming_meetups_near(location, max_distance)
         Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
+class MeetupsMap(Wrapped):
+    def __init__(self, location, max_distance, *a, **kw):
+        meetups = Meetup.upcoming_meetups_near(location, max_distance)
+        Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
+
 class NotEnoughKarmaToPost(Wrapped):
 	  pass
 
@@ -1423,9 +1428,6 @@ class MeetupIndex(Wrapped):
 
   def meetups(self):
     return self.meetups
-
-class MeetupsMap(Wrapped):
-    pass
 
 class WikiPageInline(Wrapped): pass
 
