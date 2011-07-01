@@ -324,19 +324,24 @@ div.meta span.votes {
 	margin: 0 5px 0 0;
 }
 div.meta span.votes span.votes {
-	background-color: #538d4d;
 	-webkit-border-radius: 11px;
 	-moz-border-radius: 11px;
 	border-radius: 11px;
-	color: #fff;
-	height: 22px;
-	line-height: 22px;
+        border: 2px solid #538d4d;
+	height: 18px;
+	line-height: 18px;
 	margin: 0;
-	padding: 0 9px;
+	padding: 0 7px;
 	font-weight: bold;
 	text-align: center;
 }
-div.editors-pick div.meta span.votes {
+div.editors-pick div.meta span.votes span.votes {
+	color: #fff;
+	background-color: #538d4d;
+        border: none;
+	height: 22px;
+	line-height: 22px;
+	padding: 0 9px;
 }
 div.meta span.editors-pick {
 	color: #538d4d;
