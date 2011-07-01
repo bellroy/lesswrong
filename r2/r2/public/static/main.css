@@ -527,12 +527,14 @@ body.meetup #map {
 	float: right;
 	position: relative;
 }
-#comment-controls div.filter-active {
-	background: url(/static/disclosure-triangle.gif) no-repeat 0 2px;
+#comment-controls div.filter-inactive, #comment-controls div.filter-active {
 	color: #666666;
-	cursor: pointer;
 	font-size: 11px;
 	padding-left: 18px;
+}
+#comment-controls div.filter-active {
+	background: url(/static/disclosure-triangle.gif) no-repeat 0 2px;
+	cursor: pointer;
 }
 #comment-controls div.open {
 	background-position: 0 -16px;
