@@ -353,11 +353,6 @@ class RecentPromotedArticles(RecentItems):
         q._limit = 4
         return q
 
-class FeaturedArticles(Wrapped):
-    def __init__(self, links):
-        Wrapped.__init__(self, things = links)
-
-
 class TopContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
         from r2.lib.user_stats import top_users

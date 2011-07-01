@@ -42,7 +42,7 @@ from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
-    ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, FeaturedArticles, \
+    ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, \
     MeetupsMap
 
 
@@ -1011,10 +1011,6 @@ class ApiController(RedditController):
         location = Meetup.geoLocateIp(ip)
         meetups = Meetup.upcoming_meetups_near(location, g.meetups_radius)
         return MeetupsMap(meetups=meetups).render()
-
-    @validate(links = VLinkUrls('articles'))
-    def GET_front_featured_articles(self, links, *a, **kw):
-        return FeaturedArticles(links=links).render()
 
     @validate(link = VLink('article_id', redirect=False))
     def GET_article_navigation(self, link, *a, **kw):
