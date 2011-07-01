@@ -417,6 +417,7 @@ Listing.retract = function(fullname) {
     if (res_obj.error) {
       alert(res_obj.error.message);
     } else {
+      $('body_'+fullname).addClassName('retracted');
     }
   });
 }
