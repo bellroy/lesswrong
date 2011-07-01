@@ -732,8 +732,8 @@ div.comment-links ul li.down a {
 	width: 14px;
 }
 div.comment-links ul li.reply a {
-	background-image: url(/static/reply-button.gif);
-	width: 22px;
+	background-image: url(/static/reply-button.png);
+	width: 24px;
 }
 div.comment-links ul li.permalink a {
 	background-image: url(/static/permalink-button.gif);
