@@ -50,7 +50,7 @@ class Meetup(Thing):
     meetups = list(query)
 
     # Find nearby ones
-    if location:
+    if location and max_distance:
         meetups = filter(lambda m: m.distance_to(location) <= max_distance, meetups)
 
     meetups.sort(key=lambda m: m.timestamp)
