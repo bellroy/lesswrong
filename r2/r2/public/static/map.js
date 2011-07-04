@@ -14,8 +14,8 @@
         var bounds = new google.maps.LatLngBounds();
 
         markers.each(function(i,m) {
-          var lat = m.readAttribute('data-latitude');
-          var lng = m.readAttribute('data-longitude');
+          var lat = $(m).attr('data-latitude');
+          var lng = $(m).attr('data-longitude');
           latlng = new google.maps.LatLng(lat, lng);
           bounds.extend(latlng);
           if (!first)
@@ -25,7 +25,7 @@
             draggable: false,
             animation: google.maps.Animation.DROP,
             position: latlng,
-            title: m.readAttribute('data-title')
+            title: $(m).attr('data-title')
           });
         });
 

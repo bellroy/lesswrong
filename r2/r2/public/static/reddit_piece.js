@@ -117,7 +117,7 @@ function populate_side_bar(id, args, onSuccess) {
         new Ajax.Request(path, {
                 method: 'get',
                 parameters: args,
-                onSuccess: onSuccess,
+                onSuccess: onSuccess
                 });
     }
 }
