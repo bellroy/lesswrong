@@ -635,7 +635,7 @@ class ApiController(RedditController):
             res._focus("comment_reply_" + parent._fullname)
             return
         res._show('reply_' + parent._fullname)
-        res._update("comment_reply_" + parent._fullname, rows = 2)
+        res._update("comment_reply_" + parent._fullname, rows = '2')
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)
