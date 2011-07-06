@@ -35,6 +35,7 @@ from r2.lib.strings import Score
 from r2.lib import organic
 from r2.lib.solrsearch import SearchQuery
 from r2.lib.utils import iters, check_cheating
+from r2.lib.filters import _force_unicode
 
 from admin import admin_profile_query
 
@@ -501,7 +502,7 @@ class UserController(ListingController):
                   'hidden': _("Hidden by %(user)s - %(site)s"),
                   'drafts': _("Drafts for %(user)s - %(site)s")}
         title = titles.get(self.where, _('Profile for %(user)s - %(site)s')) \
-            % dict(user = self.vuser.name, site = c.site.title)
+            % dict(user = _force_unicode(self.vuser.name), site = c.site.title)
         return title
 
     def query(self):

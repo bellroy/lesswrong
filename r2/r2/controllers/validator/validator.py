@@ -23,7 +23,7 @@ from pylons import c, request, g
 from pylons.i18n import _
 from pylons.controllers.util import abort
 from r2.lib import utils, captcha
-from r2.lib.filters import unkeep_space, websafe, _force_unicode
+from r2.lib.filters import unkeep_space, websafe, _force_unicode, _force_utf8
 from r2.lib.db.operators import asc, desc
 from r2.config import cache
 from r2.lib.template_helpers import add_sr
@@ -605,7 +605,7 @@ class VExistingUname(VRequired):
     def run(self, username):
         if username:
             try:
-                name = str(username)
+                name = _force_utf8(username)
                 return Account._by_name(name)
             except (TypeError, UnicodeEncodeError, NotFound):
                 return self.error(errors.USER_DOESNT_EXIST)
