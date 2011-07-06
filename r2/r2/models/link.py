@@ -226,6 +226,8 @@ class Link(Thing, Printable):
         except CreationError, e:
             c = Link._clicked(user,self)
             obj = c[(user,self,'click')]
+            if not obj:
+                raise Exception(user,self,e,c)
             obj._date = datetime.now(g.tz)
             obj._commit()
             return c
