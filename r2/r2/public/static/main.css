@@ -663,11 +663,12 @@ div.message .subject {
     padding: 0 5px;
     margin: 0;
 }
-div.comment-content, div.message-content {
+div.message-content {
 	clear: both;
 	padding: 9px 5px 0;
 }
 div.comment-content {
+	clear: both;
 	padding: 9px 0 0;
 }
 div.comment-links, div.message-links {
