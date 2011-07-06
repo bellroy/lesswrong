@@ -261,6 +261,7 @@ end
 
 namespace :db do
   namespace :test do
+    desc "Clean the test db, and re-populate it"
     task :prepare do
       ENV['APPLICATION_ENV'] = 'test'
       ENV['DATABASES'] = 'main'
@@ -326,10 +327,16 @@ namespace :test do
   end
 end
 
-if defined?(RSpec)
-  desc "Run all specs in spec directory"
-  RSpec::Core::RakeTask.new(:spec) do |t|
+namespace :spec do
+  desc "Run the setup selenium spec"
+  RSpec::Core::RakeTask.new(:setup) do |t|
     t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-    t.pattern = 'spec/**/*_spec.rb'
+    t.pattern = 'spec/setup_spec.rb'
+  end
+
+  desc "Run the selenium spec"
+  RSpec::Core::RakeTask.new(:test) do |t|
+    t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+    t.pattern = 'spec/selenium-main_spec.rb'
   end
 end

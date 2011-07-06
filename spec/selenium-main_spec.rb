@@ -123,7 +123,7 @@ describe 'Lesswrong' do
         "Discussion" => {
           "Posts"    => {
             "Top" => "Top scoring articles - Less Wrong Discussion",
-            "What's new" => "Newest Submissions - Less Wrong Discussion"
+            "New" => "Newest Submissions - Less Wrong Discussion"
           },
           "Comments" => {
             "New Comments"  => "Comments - Less Wrong Discussion",
@@ -149,7 +149,7 @@ describe 'Lesswrong' do
           # Need to open the dropdown before clicking. Can't click
           # on invisible elements
           find("ul#nav li.active img.dropdown").click
-          # Must ensure that the intended link is click, their might be two
+          # Must ensure that the intended link is clicked, there might be two
           # with the same name, but only one is visible
           within "ul#nav li.active" do
             click_link top_link_label
@@ -206,9 +206,10 @@ describe 'Lesswrong' do
       force_reload             # Not sure why this is required :(
       # Read earlier comment about 'clearTitle'
       page.evaluate_script('clearTitle($$(".realcomment textarea")[0])')
-      find('.realcomment textarea').set('Who says latin is dead language?!?')
+      comment_text = "Who says latin is dead language?!? (#{Time.now.to_i})"
+      find('.realcomment textarea').set(comment_text)
       find('.realcomment button').click
-      page.should have_content('latin is dead')
+      page.should have_content(comment_text)
     end
   end
 
