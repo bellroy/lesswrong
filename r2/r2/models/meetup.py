@@ -93,7 +93,7 @@ class Meetup(Thing):
     return "meetup-inc-key"
 
   def author(self):
-    return Account._byID(self.author_id)
+    return Account._byID(self.author_id, True)
 
   @staticmethod
   def geoLocateIp(ip):
