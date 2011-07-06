@@ -277,6 +277,12 @@ namespace :db do
           tables.lines.each do |table|
             run "psql #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c 'TRUNCATE TABLE #{table.chomp}'"
           end
+          
+          sequences = `psql -t -A #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c "select sequence_name from information_schema.sequences where sequence_schema='public'"`
+          sequences.lines.each do |seq|
+            run %{psql #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c "SELECT setval('#{seq.chomp}', 1, false)"}
+          end
+
         end
       end
     end
