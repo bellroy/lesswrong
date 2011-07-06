@@ -49,11 +49,16 @@ class Meetup(Thing):
     query = cls.upcoming_meetups_query()
     meetups = list(query)
 
-    # Find nearby ones
-    if location and max_distance:
+    if not location:
+      meetups.sort(key=lambda m: m.timestamp)
+    else:
+      if max_distance:
+        # Only find nearby ones, sorted by time
         meetups = filter(lambda m: m.distance_to(location) <= max_distance, meetups)
-
-    meetups.sort(key=lambda m: m.timestamp)
+        meetups.sort(key=lambda m: m.timestamp)
+      else:
+        # No max_distance, so just order by distance
+        meetups.sort(key=lambda m: m.distance_to(location))
 
     return meetups[:count]
 
