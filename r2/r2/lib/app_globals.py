@@ -63,7 +63,10 @@ class Globals(object):
                   'enable_doquery',
                   'use_query_cache',
                   'write_query_queue',
-                  'css_killswitch']
+                  'css_killswitch',
+                  'disable_captcha',
+                  'disable_tracking_js'
+                  ]
 
     tuple_props = ['memcaches',
                    'rec_cache',
