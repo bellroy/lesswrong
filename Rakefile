@@ -333,16 +333,19 @@ namespace :test do
   end
 end
 
-namespace :spec do
-  desc "Run the setup selenium spec"
-  RSpec::Core::RakeTask.new(:setup) do |t|
-    t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-    t.pattern = 'spec/setup_spec.rb'
-  end
+if defined?(RSpec)
+  namespace :spec do
+    desc "Run the setup selenium spec"
+    RSpec::Core::RakeTask.new(:setup) do |t|
+      t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+      t.pattern = 'spec/setup_spec.rb'
+    end
 
-  desc "Run the selenium spec"
-  RSpec::Core::RakeTask.new(:test) do |t|
-    t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-    t.pattern = 'spec/selenium-main_spec.rb'
+    desc "Run the selenium spec"
+    RSpec::Core::RakeTask.new(:test) do |t|
+      t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
+      t.pattern = 'spec/selenium-main_spec.rb'
+    end
   end
 end
+
