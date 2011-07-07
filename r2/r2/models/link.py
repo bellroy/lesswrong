@@ -227,7 +227,15 @@ class Link(Thing, Printable):
             c = Link._clicked(user,self)
             obj = c[(user,self,'click')]
             if not obj:
-                raise Exception(user,self,e,c)
+                # This is for a possible race.  It is possible the row in the db
+                # has been created but the cache not updated yet. This explicitly
+                # clears the cache then re-gets from the db
+                g.log.info("Trying cache clear for lookup : "+str((user,self,'click')))
+                Click._uncache(user, self, name='click')
+                c = Link._clicked(user,self)
+                obj = c[(user,self,'click')]
+                if not obj:
+                    raise Exception(user,self,e,c)
             obj._date = datetime.now(g.tz)
             obj._commit()
             return c

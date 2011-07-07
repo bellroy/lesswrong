@@ -593,6 +593,14 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
             self._name = 'un' + self._name
 
         @classmethod
+        def _uncache(cls, thing1, thing2, name):
+            # Remove a rel from from the fast query cache
+            prefix = thing_prefix(cls.__name__)
+            cache.delete(prefix + str((thing1._id,
+                                       thing2._id,
+                                       name)))
+
+        @classmethod
         def _fast_query(cls, thing1s, thing2s, name, data=True):
             """looks up all the relationships between thing1_ids and thing2_ids
             and caches them"""
