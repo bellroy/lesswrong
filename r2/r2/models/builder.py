@@ -483,6 +483,7 @@ class CommentBuilder(Builder):
             candidates = []
             candidates.extend(self.comment)
             dont_collapse.extend(cm._id for cm in self.comment)
+            top = self.comment[0]
             #assume the comments all have the same parent
             # TODO: removed by Chris to get rid of parent being sent
             # when morecomments is used.  
