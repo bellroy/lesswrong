@@ -470,7 +470,7 @@ class BoringPage(Reddit):
 
     def __init__(self, pagename, **context):
         self.pagename = pagename
-        Reddit.__init__(self, title = "%s - %s" % (pagename, c.site.title),
+        Reddit.__init__(self, title = "%s - %s" % (_force_unicode(pagename), c.site.title),
                         **context)
 
 class FormPage(BoringPage):
