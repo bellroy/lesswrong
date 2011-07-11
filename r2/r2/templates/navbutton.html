@@ -39,5 +39,5 @@
 </%def>
 
 <%def name="select_option(selected = False)">
-  <option value="${add_sr(thing.path)}" ${'selected="selected"' if selected else ""}>${thing.selected_title() if selected else thing.title}</option>
+  <option value="${add_sr(thing.path)}" ${unsafe('selected="selected"' if selected else "")}>${thing.selected_title() if selected else thing.title}</option>
 </%def>
