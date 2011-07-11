@@ -1258,3 +1258,10 @@ div.footer ul.footer-links li a {
 	font-weight: bold;
 	text-decoration: none;
 }
+
+/* A hack to fix the layout of "Load more comments" */
+span.deepthread,
+span.morecomments {
+    display: block;
+    margin: -9px 0 9px;
+}
