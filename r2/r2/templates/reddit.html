@@ -140,7 +140,7 @@
 </%def>
 
 <%def name="bodyHTML()">
-  <body onclick="close_menus()" ${"class=%s" % thing.body_class if thing.body_class else ''}>
+  <body onclick="close_menus()" ${"class='%s'" % thing.body_class if thing.body_class else ''}>
 
     <div id="wrapper">
 

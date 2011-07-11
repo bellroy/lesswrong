@@ -227,7 +227,7 @@ ${self.RenderPrintable()}
   %>
   <%def name="_link()" buffered="True">
     <a href="/" class="${a_class}" onclick="${onclick}"
-       ${ "title=%s"%(_(tool_tip)) if tool_tip else "" }
+       ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" }
        id="a_${tag.replace('/','_')}">${title}</a>
   </%def>
   <%
@@ -263,7 +263,7 @@ ${state_button(name, fullname, title, onclick, executed,
 
 <%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None)">
 <a id="${nameFunc}_a_${fullname}" class="" \
-   ${ "title=%s"%(_(tool_tip)) if tool_tip else "" } \
+   ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" } \
    href="javascript:${nameFunc}('${fullname}')">\
   ${title}</a>
 </%def>

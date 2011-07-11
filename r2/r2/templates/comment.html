@@ -160,7 +160,7 @@ ${parent.midcol()}
         ${parent.buttons()}
       </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
-    <span id=${"status_"+thing._fullname} class="error" style="display: none;"></span>
+    <span id='${"status_"+thing._fullname}' class="error" style="display: none;"></span>
   %endif
   ${self.admintagline()}
 </%def>
@@ -168,7 +168,7 @@ ${parent.midcol()}
 
 <%def name="bylink_button(name, title, link, tool_tip=None)">
  <a id="${name}_${thing._fullname}" href="${link}" class="bylink"
-    ${ "title=%s"%(_(tool_tip)) if tool_tip else "" }
+    ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" }
    >${title}</a>
 </%def>
 
