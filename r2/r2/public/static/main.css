@@ -504,6 +504,7 @@ div.meetup-listing ul li {
 div.meetup-content {
 	float: left;
 	width: 445px;
+        text-align: left;
 }
 div.meetup-meta {
 	margin: 0 0 20px;
