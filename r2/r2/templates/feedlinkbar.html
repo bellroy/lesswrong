@@ -2,8 +2,13 @@
    from r2.lib.template_helpers import static, add_sr, join_urls
 %>
 <div id="side-feed" class="sidebox">
-	<a href="${add_sr(join_urls(request.path,'.rss'))}">
-		<img src="${static('feed.png')}" alt="Feed icon" />
-                Subscribe to RSS Feed
-	</a>
+  <%
+     request_path = request.path
+     if request_path.startswith("/wiki/"):
+       request_path = '/'
+  %>
+  <a href="${add_sr(join_urls(request_path,'.rss'))}">
+    <img src="${static('feed.png')}" alt="Feed icon" />
+    Subscribe to RSS Feed
+  </a>
 </div>
