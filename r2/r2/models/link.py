@@ -947,6 +947,18 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
+    def has_children(self):
+        q = Comment._query(Comment.c.parent_id == self._id, limit=1)
+        child = list(q)
+        return len(child)>0
+
+    def can_delete(self):
+        if not self._loaded:
+            self._load()
+        return (c.user_is_loggedin and self.author_id == c.user._id and \
+                self.retracted and not self.has_children())
+        
+
     @property
     def subreddit_slow(self):
         from subreddit import Subreddit
@@ -990,7 +1002,8 @@ class Comment(Thing, Printable):
                               wrapped.deleted,
                               wrapped.is_html,
                               wrapped.votable,
-                              wrapped.retracted))
+                              wrapped.retracted,
+                              wrapped.can_be_deleted))
         s = ''.join(s)
         return s
 
@@ -1076,6 +1089,7 @@ class Comment(Thing, Printable):
             item.num_children = 0
             item.score_fmt = Score.points
             item.permalink = item.make_permalink(item.link, item.subreddit)
+            item.can_be_deleted = item.can_delete()
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent comments.

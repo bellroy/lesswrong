@@ -525,7 +525,7 @@ class ApiController(RedditController):
         '''for deleting all sorts of things'''
 
         # Special check if comment can be deleted
-        if isinstance(thing, Comment) and (hasattr(thing, "child") or not thing.retracted):
+        if isinstance(thing, Comment) and (not thing.can_delete()):
             c.errors.add(errors.CANNOT_DELETE)
             res._chk_error(errors.CANNOT_DELETE)
             return
