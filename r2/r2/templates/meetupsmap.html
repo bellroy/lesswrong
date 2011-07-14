@@ -1,7 +1,11 @@
+<%!
+  from routes.util import url_for
+%>
+
 <%def name='meetup_map(div_id,meetups)'>
   <div id="${div_id}">
     %for meetup in meetups:
-      <div class="marker" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.title}"></div>
+      <div class="marker" data-latitude="${meetup.latitude}" data-longitude="${meetup.longitude}" data-title="${meetup.title}" data-url="${url_for(controller='meetups', action='show', id=meetup._id36)}"></div>
     %endfor
   </div>
 </%def>

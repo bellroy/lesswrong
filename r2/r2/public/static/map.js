@@ -20,13 +20,19 @@
           bounds.extend(latlng);
           if (!first)
             first = latlng;
-          new google.maps.Marker({
+          var marker = new google.maps.Marker({
             map: gMap,
             draggable: false,
             animation: google.maps.Animation.DROP,
             position: latlng,
             title: $(m).attr('data-title')
           });
+          var url = $(m).attr('data-url');
+          if (url) {
+            google.maps.event.addListener(marker, 'click', function() {
+              window.location.href = url;
+            });
+          }
         });
 
         /* Show all markers, and center on the first */
