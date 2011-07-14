@@ -198,7 +198,7 @@ class Reddit(Wrapped):
 
             buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
-            if c.user.safe_karma > g.discussion_karma_to_post:
+            if c.user.safe_karma >= g.discussion_karma_to_post:
                 buttons += [NamedButton('meetups/new', False,
                                         nocname=not c.authorized_cname)]
             buttons += [NamedButton("prefs", False,
