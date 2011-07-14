@@ -331,6 +331,16 @@ namespace :test do
     Rake::Task['test:paster:stop'].invoke
     Rake::Task['memcached:stop'].invoke
   end
+
+  task :run do
+    begin
+      Rake::Task['test:start'].invoke
+      Rake::Task['spec:setup'].invoke
+      Rake::Task['spec:test'].invoke
+    ensure
+      Rake::Task['test:stop'].invoke
+    end
+  end
 end
 
 if defined?(RSpec)
