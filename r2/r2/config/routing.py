@@ -124,7 +124,7 @@ def make_map(global_conf={}, app_conf={}):
        action='resetpassword')
 
     mc('/post/:action', controller='post',
-       requirements=dict(action="options|over18|unlogged_options|optout|optin|login|reg"))
+       requirements=dict(action="options|over18|optout|optin|login|reg"))
 
     mc('/api/:action', controller='api')
 

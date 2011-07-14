@@ -63,107 +63,106 @@
   <p class="error">${_("Your preferences have been updated")}</p>
 %endif
 
-<%
-   if c.user_is_loggedin:
-       action = "/post/options" 
-   else:
-       action = "/post/unlogged_options" 
-   if not c.frameless_cname:
-       action = add_sr(action, nocname=True)
- %>
-<form action="${action}" method="post" class="pretty-form short-text">
-  <input type="hidden" name="uh" value="${c.modhash}" />
-  %if c.cname:
-    <input type="hidden" name="${UrlParser.cname_get}" value="${random.random()}" />
-  %endif
-<table class="content preftable">
-  <input type="hidden" name="lang" value="English [en]" />
-  <input type="hidden" name="all-langs" value="all" />
-  %if c.user_is_loggedin:
-  <tr>
-    <th>${_("Link options")}</th>
-    <td class="prefright">
-      <p>${checkbox(_("Don't show articles after i've liked them"), "hide_ups")}</p>
-      <p>${checkbox(_("Don't show articles after i've disliked them"), "hide_downs")}</p>
-      <%
-         # stuff I can soon delete:
-         _("Display")
-         _("Links at once")
-         _("Don't show me sites with a score less than")
-         _("Don't show me comments with a score less than")
-         _("Comments by default")
+%if c.user_is_loggedin:
+  <%
+    action = "/post/options" 
+    if not c.frameless_cname:
+      action = add_sr(action, nocname=True)
+  %>
+  <form action="${action}" method="post" class="pretty-form short-text">
+    <input type="hidden" name="uh" value="${c.modhash}" />
+    %if c.cname:
+      <input type="hidden" name="${UrlParser.cname_get}" value="${random.random()}" />
+    %endif
+  <table class="content preftable">
+    <input type="hidden" name="lang" value="English [en]" />
+    <input type="hidden" name="all-langs" value="all" />
+    %if c.user_is_loggedin:
+    <tr>
+      <th>${_("Link options")}</th>
+      <td class="prefright">
+        <p>${checkbox(_("Don't show articles after i've liked them"), "hide_ups")}</p>
+        <p>${checkbox(_("Don't show articles after i've disliked them"), "hide_downs")}</p>
+        <%
+           # stuff I can soon delete:
+           _("Display")
+           _("Links at once")
+           _("Don't show me sites with a score less than")
+           _("Don't show me comments with a score less than")
+           _("Comments by default")
+           %>
+        <p>
+          ${unsafe(_("Display %(num)s articles at once") % \
+          dict(num=capture(link_options)))}
+        </p>
+        <% 
+           input = capture(num_input, c.user.pref_min_link_score,
+           'min_link_score')
+           %>
+        <p>
+        ${unsafe(_("Don't show me articles with a score less than %(num)s") % dict(num = input))}
+        &#32;<span class="little gray">${_("(Blank for none)")}</span>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th>${_("Comment options")}</th>
+      <td class="prefright">
+      <% 
+         input = capture(num_input, c.user.pref_min_comment_score,
+                         'min_comment_score')
          %>
       <p>
-        ${unsafe(_("Display %(num)s articles at once") % \
-        dict(num=capture(link_options)))}
+        ${unsafe(_("Don't show me comments with a score less than %(num)s") % dict(num = input))}
+        &#32;<span class="little gray">${_("(Blank for none)")}</span>
       </p>
-      <% 
-         input = capture(num_input, c.user.pref_min_link_score,
-         'min_link_score')
-         %>
       <p>
-      ${unsafe(_("Don't show me articles with a score less than %(num)s") % dict(num = input))}
-      &#32;<span class="little gray">${_("(Blank for none)")}</span>
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <th>${_("Comment options")}</th>
-    <td class="prefright">
-    <% 
-       input = capture(num_input, c.user.pref_min_comment_score,
-                       'min_comment_score')
-       %>
-    <p>
-      ${unsafe(_("Don't show me comments with a score less than %(num)s") % dict(num = input))}
-      &#32;<span class="little gray">${_("(Blank for none)")}</span>
-    </p>
-    <p>
-      <% 
-       input = capture(num_input, c.user.pref_num_comments,
-       'num_comments')
-       %>
-    <% s = c.user.pref_num_comments %>
-    ${unsafe(_("Display %(num)s comments by default") % \
-    dict(num = input))}
-  &#32;<span class="little gray">(1 - ${g.max_comments})</span>
-    </td>
-  </tr>
-  <tr>
-    <th>${_("Privacy options")}</th>
-    <td class="prefright">
-      ${checkbox(_("Make my votes public"), "public_votes")}
-    </td>
-  </tr>
-  <tr>
-    <th>${_("Kibitz options")}</th>
-    <td class="prefright">
-      ${checkbox(_("Enable Anti-Kibitzer"), "kibitz")}
-      &nbsp;
-      <a target="blank" href="http://lesswrong.com/lw/1s/lesswrong_antikibitzer_hides_comment_authors_and/1hvk">${_("(What's this?)")}</a>
-      &nbsp;
-      ${_("Note: currently only works with Firefox.")}
-    </td>
-  </tr>
-  <tr>
-    <th>${_("Location")}</th>
-    <td class="prefright">
-      <input name="location" type="text" size="40" value="${c.user.pref_location}" />
-      ${error_field("LOCATION_TOO_LONG", kind="span")}
-    </td>
-  </tr>
-  <tr>
-    <th>${_("Personal Link")}</th>
-    <td class="prefright">
-      <input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" placeholder="http://yoursite.com/" />
-    </td>
-  </tr>
-  %endif
-  <tr>
-    <td>
-      <input type="submit" class="btn" value="${_('Save options')}"/>
-    </td>
-  </tr>
-</table>
-
-</form>
+        <% 
+         input = capture(num_input, c.user.pref_num_comments,
+         'num_comments')
+         %>
+      <% s = c.user.pref_num_comments %>
+      ${unsafe(_("Display %(num)s comments by default") % \
+      dict(num = input))}
+    &#32;<span class="little gray">(1 - ${g.max_comments})</span>
+      </td>
+    </tr>
+    <tr>
+      <th>${_("Privacy options")}</th>
+      <td class="prefright">
+        ${checkbox(_("Make my votes public"), "public_votes")}
+      </td>
+    </tr>
+    <tr>
+      <th>${_("Kibitz options")}</th>
+      <td class="prefright">
+        ${checkbox(_("Enable Anti-Kibitzer"), "kibitz")}
+        &nbsp;
+        <a target="blank" href="http://lesswrong.com/lw/1s/lesswrong_antikibitzer_hides_comment_authors_and/1hvk">${_("(What's this?)")}</a>
+        &nbsp;
+        ${_("Note: currently only works with Firefox.")}
+      </td>
+    </tr>
+    <tr>
+      <th>${_("Location")}</th>
+      <td class="prefright">
+        <input name="location" type="text" size="40" value="${c.user.pref_location}" />
+        ${error_field("LOCATION_TOO_LONG", kind="span")}
+      </td>
+    </tr>
+    <tr>
+      <th>${_("Personal Link")}</th>
+      <td class="prefright">
+        <input name="url" id="url" type="text" size="40" value="${c.user.pref_url}" placeholder="http://yoursite.com/" />
+      </td>
+    </tr>
+    %endif
+    <tr>
+      <td>
+        <input type="submit" class="btn" value="${_('Save options')}"/>
+      </td>
+    </tr>
+  </table>
+   
+  </form>
+%endif

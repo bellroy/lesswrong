@@ -79,11 +79,11 @@ class PostController(ApiController):
         c.user._commit()
 
 
-    @validate(pref_lang = VLang('lang'),
-              all_langs = nop('all-langs', default = 'all'))
-    def POST_unlogged_options(self, all_langs, pref_lang):
-        self.set_options( all_langs, pref_lang)
-        return self.redirect(request.referer)
+    # @validate(pref_lang = VLang('lang'),
+    #           all_langs = nop('all-langs', default = 'all'))
+    # def POST_unlogged_options(self, all_langs, pref_lang):
+    #     self.set_options( all_langs, pref_lang)
+    #     return self.redirect(request.referer)
 
     @validate(pref_public_votes = VBoolean('public_votes'),
               pref_kibitz = VBoolean('kibitz'),
