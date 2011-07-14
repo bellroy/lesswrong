@@ -31,8 +31,7 @@ function createCookie(name, value, days) {
 function readLCookie(nameEQ) {
     nameEQ=nameEQ+'=';
     var ca=document.cookie.split(';');
-    /* walk the list backwards so we always get the last cookie in the
-       list */
+    /* walk the list backwards so we always get the last cookie in the list */
     for(var i = ca.length-1; i >= 0; i--) { 
         var c = ca[i]; 
         while(c.charAt(0)==' ') c=c.substring(1,c.length);
