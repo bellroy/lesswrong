@@ -1388,7 +1388,7 @@ class SiteMeter(Wrapped):
 
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
-        meetups = Meetup.upcoming_meetups_near(location, max_distance)
+        meetups = Meetup.upcoming_meetups_near(location, max_distance, 2)
         Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class MeetupsMap(Wrapped):
