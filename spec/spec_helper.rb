@@ -5,7 +5,7 @@ require 'selenium-webdriver'
 include Selenium
 
 Capybara.default_driver= :selenium
-Capybara.default_wait_time = 5
+Capybara.default_wait_time = 30
 RSpec.configure do |config|
   config.include Capybara
 end
