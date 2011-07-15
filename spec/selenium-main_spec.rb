@@ -156,6 +156,7 @@ describe 'Lesswrong' do
             #find("ul#nav li.active a[title='#{top_link_label}']").click
           end
           sub_links.each do |sub_link_label, page_title|
+            puts "Trying #{reddit}/#{top_link_label}/#{sub_link_label}"
             click_link sub_link_label
             get_title.should match(page_title)
           end
