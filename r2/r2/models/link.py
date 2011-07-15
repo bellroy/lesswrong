@@ -434,6 +434,7 @@ class Link(Thing, Printable):
         if self.sr_id != new_sr_id:
             self.sr_id = new_sr_id
             self._date = datetime.now(g.tz)
+            self.url = self.make_permalink_slow()
             self._commit()
 
             # Comments must be in the same subreddit as the link that
