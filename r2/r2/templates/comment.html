@@ -155,7 +155,7 @@ ${parent.midcol()}
             </li>
           %endif
         %endif
-        <% allow_delete = thing.can_be_deleted %>
+        <% allow_delete = False %>
         ${parent.delete_or_report_buttons(allow_delete,False,True)}
         ${parent.buttons()}
       </ul>
