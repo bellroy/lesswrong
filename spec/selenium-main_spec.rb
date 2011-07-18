@@ -119,32 +119,34 @@ describe 'Lesswrong' do
     it 'should have browsable pages' do
       visit home
 
-      page_map = {
-        "Discussion" => {
-          "Posts"    => {
-            "Top" => "Top scoring articles - Less Wrong Discussion",
-            "New" => "Newest Submissions - Less Wrong Discussion"
-          },
-          "Comments" => {
-            "New Comments"  => "Comments - Less Wrong Discussion",
-            "Top Comments"  => "Top Comments - Less Wrong Discussion"
-          }
-        },
-        "Main" => {
-          "Posts"    => {
-            "Promoted"  => "Less Wrong" ,
-            "New"       => "Newest Submissions - Less Wrong",
-            "Top"       => "Top scoring articles - Less Wrong"
-          },
-          "Comments" => {
-            "New Comments"  => "Comments - Less Wrong",
-            "Top Comments"  => "Top Comments - Less Wrong"
-          }
-        }
-      }
+      pages_arr = [
+        {"Discussion" => [
+           {"Posts" => [
+              {"Top" => "Top scoring articles - Less Wrong Discussion"},
+              {"New" => "Newest Submissions - Less Wrong Discussion"}
+          ]},
+          {"Comments" => [
+              {"New Comments"  => "Comments - Less Wrong Discussion"},
+              {"Top Comments"  => "Top Comments - Less Wrong Discussion"}
+          ]}
+        ]},
+        {"Main" => [
+          {"Posts"    => [
+            {"Promoted"  => "Less Wrong"},
+            {"New"       => "Newest Submissions - Less Wrong"},
+            {"Top"       => "Top scoring articles - Less Wrong"}
+          ]},
+          {"Comments" => [
+            {"New Comments"  => "Comments - Less Wrong"},
+            {"Top Comments"  => "Top Comments - Less Wrong"}
+          ]}
+        ]}
+      ]
 
-      page_map.each do |reddit, top_link|
-        top_link.each do |top_link_label, sub_links|
+      pages_arr.each do |page_def|
+        reddit,top_link = page_def.to_a.flatten
+        top_link.each do |top_def|
+          top_link_label, sub_links = top_def.to_a.flatten
           click_link reddit
           # Need to open the dropdown before clicking. Can't click
           # on invisible elements
@@ -155,7 +157,9 @@ describe 'Lesswrong' do
             click_link top_link_label
             #find("ul#nav li.active a[title='#{top_link_label}']").click
           end
-          sub_links.each do |sub_link_label, page_title|
+          sub_links.each do |sub_def|
+            sub_link_label, page_title = sub_def.to_a.flatten
+            #puts "Trying #{reddit}/#{top_link_label}/#{sub_link_label}"
             click_link sub_link_label
             get_title.should match(page_title)
           end

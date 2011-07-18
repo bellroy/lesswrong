@@ -332,6 +332,7 @@ namespace :test do
     Rake::Task['memcached:stop'].invoke
   end
 
+  desc "Start+stop test server, and run selenium spec tests"
   task :run do
     begin
       Rake::Task['test:start'].invoke
