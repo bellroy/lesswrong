@@ -1,6 +1,7 @@
 from r2.lib.utils import UrlParser
 
 from urllib import urlopen
+from r2.lib.filters import _force_unicode
 import os, os.path, yaml, re
 from lxml import etree
 
@@ -84,7 +85,7 @@ class Wiki(object):
     from pylons import g
     all_sequences = self.data['sequences']
     url = UrlParser(url)
-    cache_key = (self.cache_key + url.path).encode('ascii', 'ignore')
+    cache_key = _force_unicode(self.cache_key + url.path).encode('ascii', 'ignore')
 
     sequences = g.permacache.get(cache_key)
 
