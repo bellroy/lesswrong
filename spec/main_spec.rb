@@ -65,6 +65,8 @@ describe 'Lesswrong' do
   describe 'new user' do
     before(:all) do
       visit home
+      register_user username
+      click_on 'Log out'
     end
 
     def self.username
@@ -75,11 +77,8 @@ describe 'Lesswrong' do
       self.class.username
     end
 
-    it 'should register' do
-      register_user username
-    end
-
     it 'should be able to edit preferences' do
+      login(username)
       within "#sidebar" do
         page.should have_no_content('Nowhere Land')
       end
@@ -103,6 +102,7 @@ describe 'Lesswrong' do
       end
       click_button 'Delete'
 
+      sleep 1                         # Allow memcached to be updated - should not be required!
       visit_path('/user/'+username)
       page.should have_content('The page you requested does not exist')
     end
@@ -178,6 +178,7 @@ describe 'Lesswrong' do
       find('.vote a.up').click
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
       # Reload, check button still filled
+      sleep 1                         # Allow memcached to be updated - should not be required!
       visit page.driver.browser.current_url
       page.evaluate_script("$$('.tools .up')[0].hasClassName('mod')").should be_true
 
