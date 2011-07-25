@@ -23,7 +23,7 @@ from pylons import c, request, g
 from pylons.i18n import _
 from pylons.controllers.util import abort
 from r2.lib import utils, captcha
-from r2.lib.filters import unkeep_space, websafe, _force_unicode, _force_utf8
+from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii
 from r2.lib.db.operators import asc, desc
 from r2.config import cache
 from r2.lib.template_helpers import add_sr
@@ -169,10 +169,13 @@ class VTagByName(Validator):
         
     def run(self, name):
         if name:
-            try:
-                return Tag._by_name(name)
-            except NotFound:
-                abort(404, 'page not found')
+            cleaned = _force_ascii(name)
+            if cleaned == name:
+                try:
+                    return Tag._by_name(cleaned)
+                except:
+                    pass
+            abort(404, 'page not found')
 
 class VTags(Validator):
     comma_sep = re.compile('[,\s]+', re.UNICODE)
@@ -184,7 +187,7 @@ class VTags(Validator):
         tags = []
         if tag_field:
             # Tags are comma delimited
-            tags = self.comma_sep.split(tag_field)
+            tags = [x for x in self.comma_sep.split(tag_field) if x==_force_ascii(x)]
         return tags
 
 class VMessage(Validator):

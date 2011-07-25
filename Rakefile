@@ -349,13 +349,13 @@ if defined?(RSpec)
     desc "Run the setup selenium spec"
     RSpec::Core::RakeTask.new(:setup) do |t|
       t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-      t.pattern = 'spec/setup_spec.rb'
+      t.pattern = 'spec/selenium-setup.rb'
     end
 
     desc "Run the selenium spec"
     RSpec::Core::RakeTask.new(:test) do |t|
       t.rspec_opts = ['--options', "\"#{basepath}/spec/spec.opts\""]
-      t.pattern = 'spec/selenium-main_spec.rb'
+      t.pattern = 'spec/**/*_spec.rb'
     end
   end
 end
