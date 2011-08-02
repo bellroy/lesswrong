@@ -294,7 +294,7 @@ class SavedController(ListingController):
     title_text = _('Saved')
 
     def query(self):
-        return queries.get_saved(c.user)
+        return queries.get_saved(c.user, not c.user_is_admin)
 
     @validate(VUser())
     def GET_listing(self, **env):
@@ -522,12 +522,12 @@ class UserController(ListingController):
         elif self.where in ('liked', 'disliked'):
             self.check_modified(self.vuser, self.where)
             if self.where == 'liked':
-                q = queries.get_liked(self.vuser)
+                q = queries.get_liked(self.vuser, not c.user_is_admin)
             else:
-                q = queries.get_disliked(self.vuser)
+                q = queries.get_disliked(self.vuser, not c.user_is_admin)
 
         elif self.where == 'hidden':
-            q = queries.get_hidden(self.vuser)
+            q = queries.get_hidden(self.vuser, not c.user_is_admin)
 
         elif self.where == 'drafts':
             q = queries.get_drafts(self.vuser)

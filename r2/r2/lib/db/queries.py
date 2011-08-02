@@ -213,7 +213,7 @@ def get_overview(user, sort, time):
     return merge_results(get_comments(user, sort, time),
                          get_submitted(user, sort, time))
     
-def user_rel_query(rel, user, name):
+def user_rel_query(rel, user, name, hide_spam=True):
     """General user relationship query."""
     q = rel._query(rel.c._thing1_id == user._id,
                    rel.c._t2_deleted == False,
@@ -222,22 +222,25 @@ def user_rel_query(rel, user, name):
                    eager_load = True,
                    thing_data = not g.use_query_cache
                    )
+
+    if hide_spam:
+        q._filter(rel.c._t2_spam == False)
        
     return make_results(q, filter_thing2)
 
 vote_rel = Vote.rel(Account, Link)
 
-def get_liked(user):
-    return user_rel_query(vote_rel, user, '1')
+def get_liked(user, hide_spam=True):
+    return user_rel_query(vote_rel, user, '1', hide_spam)
 
-def get_disliked(user):
-    return user_rel_query(vote_rel, user, '-1')
+def get_disliked(user, hide_spam=True):
+    return user_rel_query(vote_rel, user, '-1', hide_spam)
 
-def get_hidden(user):
-    return user_rel_query(SaveHide, user, 'hide')
+def get_hidden(user, hide_spam=True):
+    return user_rel_query(SaveHide, user, 'hide', hide_spam)
 
-def get_saved(user):
-    return user_rel_query(SaveHide, user, 'save')
+def get_saved(user, hide_spam=True):
+    return user_rel_query(SaveHide, user, 'save', hide_spam)
 
 def get_drafts(user):
     draft_sr = Subreddit._by_name(user.draft_sr_name)
