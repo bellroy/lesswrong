@@ -76,7 +76,7 @@ class _Unsafe(unicode): pass
 
 def _force_unicode(text):
     try:
-        text = unicode(text, 'utf-8')
+        text = unicode(text, 'utf-8', 'ignore')
     except TypeError:
         text = unicode(text)
     return text
