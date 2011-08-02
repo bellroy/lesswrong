@@ -130,6 +130,11 @@ class FrontController(RedditController):
         if not c.default_sr and c.site._id != article.sr_id: 
             return self.abort404()
         
+        # moderator is either reddit's moderator or an admin
+        is_moderator = c.user_is_loggedin and c.site.is_moderator(c.user) or c.user_is_admin
+        if article._spam and not is_moderator:
+            return self.abort404()
+
         if not article.subreddit_slow.can_view(c.user):
             abort(403, 'forbidden')
 
