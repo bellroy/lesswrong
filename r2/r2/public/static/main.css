@@ -1260,6 +1260,14 @@ div.footer ul.footer-links li a {
 	text-decoration: none;
 }
 
+#comments .loading {
+    display: none;
+}
+
+#comments .inprogress .loading {
+    display: inline;
+}
+
 /* A hack to fix the layout of "Load more comments" */
 span.deepthread,
 span.morecomments {
