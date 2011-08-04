@@ -235,14 +235,35 @@ function reply(id) {
 };
 
 function chkcomment(form) {
+    if(checkInProgress(form)) {
+        var r = confirm("Request still in progress\n(click Cancel to attempt to stop the request)");
+        if (r==false)
+          tagInProgress(form, false);
+        return false;
+    }
+
+    tagInProgress(form, true);
     if(form.replace.value) {
-        return post_form(form, 'editcomment', null, null, true);
+      return post_form(form, 'editcomment', null, null, true, null,
+                       function() { tagInProgress(form, false)});
     }
     else {
-      form.disable();  /* Disable the form while it is being ajaxed...*/
-      return post_form(form, 'comment', null, null, true, null, function() { form.enable()});
+      /* Disable the form while it is being ajaxed...*/
+      return post_form(form, 'comment', null, null, true, null,
+                       function() { tagInProgress(form, false)});
     }
 };
+
+function tagInProgress(form, inProgress) {
+  if (inProgress)
+    form.addClassName("inprogress");
+  else
+    form.removeClassName("inprogress");
+}
+
+function checkInProgress(form) {
+  return form.hasClassName("inprogress");
+}
 
 function clearTitle(box) {
     if (box.rows && box.rows < 7 || 
