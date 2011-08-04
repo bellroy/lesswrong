@@ -19,6 +19,10 @@
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
+<%!
+   from r2.lib.template_helpers import get_domain, static
+%>
+
 <%namespace file="utils.html" import="error_field"/>
 %if not thing.link_name:
 <div id="samplecomment_" style="display:none">
@@ -51,12 +55,13 @@
       <button id="comment_edit_${thing.link_name}" style="display:none;" 
               type="submit" class="btn">${_( "edit")}</button>
       %if not thing.link_name:
-      <button id="cancel_" class="btn" 
+      <button id="cancel_" class="btn"
               onclick="cancelReply(this);return false">
-        ${_("Cancel")}</button>
+        ${_("Close")}</button>
       %endif
       <span id='status_${thing.link_name}' class='error'></span>
     </div>
+    <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
     <div id="marktoggle_${thing.link_name}" 
          class="help-toggle">
       <a id="marklink_${thing.link_name}" href='#' 
