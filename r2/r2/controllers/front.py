@@ -452,10 +452,9 @@ class FrontController(RedditController):
         return LoginPage(dest = dest).render()
 
     def GET_logout(self):
-        """wipe login cookie and redirect to referer."""
+        """wipe login cookie and redirect to front page."""
         self.logout()
-        dest = request.referer or '/'
-        return self.redirect(dest)
+        return self.redirect('/')
 
     
     @validate(VUser())

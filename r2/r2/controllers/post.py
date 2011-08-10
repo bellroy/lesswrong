@@ -85,7 +85,8 @@ class PostController(ApiController):
     #     self.set_options( all_langs, pref_lang)
     #     return self.redirect(request.referer)
 
-    @validate(pref_public_votes = VBoolean('public_votes'),
+    @validate(VModhash(),
+              pref_public_votes = VBoolean('public_votes'),
               pref_kibitz = VBoolean('kibitz'),
               pref_hide_ups = VBoolean('hide_ups'),
               pref_hide_downs = VBoolean('hide_downs'),

@@ -1,6 +1,6 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
-from validator import validate, VUser, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup
+from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
@@ -44,6 +44,7 @@ class MeetupsController(RedditController):
   @Json
   @validate(VUser(),
             VCreateMeetup(),
+            VModhash(),
             ip = ValidIP(),
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),
@@ -99,6 +100,7 @@ class MeetupsController(RedditController):
 
   @Json
   @validate(VUser(),
+            VModhash(),
             meetup = VEditMeetup('id'),
             title = VRequired('title', errors.NO_TITLE),
             description = VRequired('description', errors.NO_DESCRIPTION),

@@ -24,7 +24,7 @@ from pylons import c, g, request
 from pylons.controllers.util import abort, redirect_to
 from pylons.i18n import _
 from pylons.i18n.translation import LanguageError
-from r2.lib.base import BaseController, proxyurl
+from r2.lib.base import BaseController, proxyurl, current_login_cookie
 from r2.lib import pages, utils, filters
 from r2.lib.utils import http_utils
 from r2.lib.cache import LocalCache
@@ -476,10 +476,7 @@ class RedditController(BaseController):
         c.response_wrappers = []
         c.errors = ErrorSet()
         c.firsttime = firsttime()
-        (c.user, maybe_admin) = \
-            valid_cookie(c.cookies[g.login_cookie].value
-                         if g.login_cookie in c.cookies
-                         else '')
+        (c.user, maybe_admin) = valid_cookie(current_login_cookie())
 
         if c.user:
             c.user_is_loggedin = True

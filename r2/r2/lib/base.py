@@ -188,7 +188,10 @@ def proxyurl(url):
     r = urllib2.Request(url, data, headers)
     content = embedopen.open(r).read()
     return content
-    
+
+def current_login_cookie():
+    return c.cookies[g.login_cookie].value if (g.login_cookie in c.cookies) else ''
+
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_') \
            or __name == '_']
 
