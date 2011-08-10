@@ -397,7 +397,13 @@ class VUser(Validator):
 class VModhash(Validator):
     default_param = 'uh'
     def run(self, uh):
-        pass
+        if not c.user_is_loggedin:
+            raise UserRequiredException
+
+        if not c.user.valid_hash(uh):
+            g.log.info("Invalid hash on form submission : "+str(c.user))
+            raise UserRequiredException
+            #abort(403, 'forbidden')
 
 class VVotehash(Validator):
     def run(self, vh, thing_name):

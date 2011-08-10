@@ -981,11 +981,11 @@ def UniqueIterator(iterator):
 
     return IteratorFilter(iterator, no_dups)
 
-def modhash(user, rand = None, test = False):
-    return user.name
+# def modhash(user, rand = None, test = False):
+#     return user.name
 
-def valid_hash(user, hash):
-    return True
+# def valid_hash(user, hash):
+#     return True
 
 def check_cheating(loc):
     pass
