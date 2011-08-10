@@ -198,6 +198,7 @@ class ApiController(RedditController):
     @validate(VUser(),
               VCaptcha(),
               VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
+              VModhash(),
               ip = ValidIP(),
               sr = VSubmitSR('sr'),
               title = VTitle('title'),

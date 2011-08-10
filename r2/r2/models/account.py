@@ -24,8 +24,9 @@ from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
 from r2.lib.memoize      import memoize, clear_memo
-from r2.lib.utils        import modhash, valid_hash, randstr 
+from r2.lib.utils        import randstr
 from r2.lib.strings      import strings, plurals
+from r2.lib.base         import current_login_cookie
 
 from pylons import g
 from pylons.i18n import _
@@ -206,11 +207,12 @@ class Account(Thing):
     def needs_captcha(self):
         return self.safe_karma < 1
 
-    def modhash(self, rand=None, test=False):
-        return modhash(self, rand = rand, test = test)
+    def modhash(self):
+        to_hash = ','.join((current_login_cookie(), g.SECRET))
+        return hashlib.sha1(to_hash).hexdigest()
     
     def valid_hash(self, hash):
-        return valid_hash(self, hash)
+        return hash == self.modhash()
 
     @classmethod
     @memoize('account._by_name')
