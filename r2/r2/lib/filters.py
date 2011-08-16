@@ -195,8 +195,12 @@ def killhtml(html=''):
     cleaned_html = ' '.join([fragment.strip() for fragment in text])
     return cleaned_html
 
+control_chars = re.compile('[\x00-\x08\x0b\0xc\x0e-\x1f]')   # Control characters *except* \t \r \n
+def remove_control_chars(text):
+    return control_chars.sub('',text)
+
 def cleanhtml(html='', cleaner=None):
-    html_doc = soupparser.fromstring(html)
+    html_doc = soupparser.fromstring(remove_control_chars(html))
     if not cleaner:
         cleaner = sanitizer
     cleaned_html = cleaner.clean_html(html_doc)
