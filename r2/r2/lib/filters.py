@@ -195,7 +195,7 @@ def killhtml(html=''):
     cleaned_html = ' '.join([fragment.strip() for fragment in text])
     return cleaned_html
 
-control_chars = re.compile('[\x00-\x08\x0b\0xc\x0e-\x1f]')   # Control characters *except* \t \r \n
+control_chars = re.compile('[\x00-\x08\x0b\x0c\x0e-\x1f]')   # Control characters *except* \t \r \n
 def remove_control_chars(text):
     return control_chars.sub('',text)
 
