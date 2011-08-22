@@ -248,7 +248,6 @@ function chkcomment(form) {
                        function() { tagInProgress(form, false)});
     }
     else {
-      /* Disable the form while it is being ajaxed...*/
       return post_form(form, 'comment', null, null, true, null,
                        function() { tagInProgress(form, false)});
     }

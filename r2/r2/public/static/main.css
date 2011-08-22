@@ -1260,11 +1260,11 @@ div.footer ul.footer-links li a {
 	text-decoration: none;
 }
 
-#comments .loading {
+.commentreply .loading {
     display: none;
 }
 
-#comments .inprogress .loading {
+.commentreply.inprogress .loading {
     display: inline;
 }
 
