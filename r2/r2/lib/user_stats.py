@@ -131,3 +131,11 @@ def calc_stats():
 
 def set_stats():
     cache.set('stats', calc_stats())
+# def calc_stats():
+#     top = top_users()
+#     top_day = top_user_change('1 day')
+#     top_week = top_user_change('1 week')
+#     return (top, top_day, top_week)
+
+# def set_stats():
+#     cache.set('stats', calc_stats())

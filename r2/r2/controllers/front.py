@@ -324,9 +324,9 @@ class FrontController(RedditController):
 
         return EditReddit(content = pane).render()
                               
-    def GET_stats(self):
-        """The stats page."""
-        return BoringPage(_("Stats"), content = UserStats()).render()
+    # def GET_stats(self):
+    #     """The stats page."""
+    #     return BoringPage(_("Stats"), content = UserStats()).render()
 
     # filter for removing punctuation which could be interpreted as lucene syntax
     related_replace_regex = re.compile('[?\\&|!{}+~^()":*-]+')

@@ -1037,26 +1037,26 @@ class OptIn(Wrapped):
     pass
 
 
-class UserStats(Wrapped):
-    """For drawing the stats page, which is fetched from the cache."""
-    def __init__(self):
-        Wrapped.__init__(self)
-        cache_stats = cache.get('stats')
-        if cache_stats:
-            top_users, top_day, top_week = cache_stats
+# class UserStats(Wrapped):
+#     """For drawing the stats page, which is fetched from the cache."""
+#     def __init__(self):
+#         Wrapped.__init__(self)
+#         cache_stats = cache.get('stats')
+#         if cache_stats:
+#             top_users, top_day, top_week = cache_stats
 
-            #lookup user objs
-            uids = []
-            uids.extend(u    for u in top_users)
-            uids.extend(u[0] for u in top_day)
-            uids.extend(u[0] for u in top_week)
-            users = Account._byID(uids, data = True)
+#             #lookup user objs
+#             uids = []
+#             uids.extend(u    for u in top_users)
+#             uids.extend(u[0] for u in top_day)
+#             uids.extend(u[0] for u in top_week)
+#             users = Account._byID(uids, data = True)
 
-            self.top_users = (users[u]            for u in top_users)
-            self.top_day   = ((users[u[0]], u[1]) for u in top_day)
-            self.top_week  = ((users[u[0]], u[1]) for u in top_week)
-        else:
-            self.top_users = self.top_day = self.top_week = ()
+#             self.top_users = (users[u]            for u in top_users)
+#             self.top_day   = ((users[u[0]], u[1]) for u in top_day)
+#             self.top_week  = ((users[u[0]], u[1]) for u in top_week)
+#         else:
+#             self.top_users = self.top_day = self.top_week = ()
 
 
 class ButtonEmbed(Wrapped):
