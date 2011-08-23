@@ -41,7 +41,7 @@ from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
-    RecentArticles, RecentComments, TagCloud, TopContributors, WikiPageList, \
+    RecentArticles, RecentComments, TagCloud, TopContributors, TopMonthlyContributors, WikiPageList, \
     ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, \
     MeetupsMap
 
@@ -983,6 +983,10 @@ class ApiController(RedditController):
         return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
                                   cache_time=self.TWELVE_HOURS, location=location, 
                                   max_distance=g.meetups_radius)
+
+    def GET_side_monthly_contributors(self, *a, **kw):
+        """Return HTML snippet of the top monthly contributors for the side bar."""
+        return self.render_cached('side-monthly-contributors', TopMonthlyContributors, g.side_contributors_max_age)
 
     def GET_upload_sr_img(self, *a, **kw):
         """

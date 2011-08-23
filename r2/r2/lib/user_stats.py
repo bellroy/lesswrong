@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 import sqlalchemy as sa
-from r2.models import Account, Vote, Link, Subreddit
+from r2.models import Account, Vote, Link, Subreddit, Comment
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
 
@@ -99,8 +99,21 @@ def top_users():
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
 
-def top_user_change(period = '1 day'):
-    rel = Vote.rel(Account, Link)
+# Calculate the karma change for the given period for all users
+# TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)
+def all_user_change(period = '1 day'):
+    link_karma = user_vote_change(Link, period)
+    comment_karma = user_vote_change(Comment, period)
+    res={}
+    for name,val in link_karma:
+        res[name]=val*g.post_karma_multiplier
+    for name, val in comment_karma:
+        res[name]=val+res.get(name,0)
+    return res
+
+
+def user_vote_change(table=Link, period = '1 day'):
+    rel = Vote.rel(Account, table)
     type = tdb.rel_types_id[rel._type_id]
     # rt = rel table
     # dt = data table
@@ -115,22 +128,24 @@ def top_user_change(period = '1 day'):
                   sa.and_(rt.c.date > date,
                           author.c.thing_id == rt.c.rel_id,
                           author.c.key == 'author_id'),
-                  group_by = author.c.value,
-                  order_by = sa.desc(sa.func.sum(sa.cast(rt.c.name, sa.Integer))),
-                  limit = 10)
+                  group_by = author.c.value)
 
     rows = s.execute().fetchall()
     
     return [(int(r.value), r.sum) for r in rows]
 
-def calc_stats():
-    top = top_users()
-    top_day = top_user_change('1 day')
-    top_week = top_user_change('1 week')
-    return (top, top_day, top_week)
+USER_CHANGE = 'all_user_change'
 
-def set_stats():
-    cache.set('stats', calc_stats())
+def cached_all_user_change():
+    r = cache.get(USER_CHANGE)
+    if not r:
+        changes = all_user_change('30 days')
+        s = sorted(changes.iteritems(), key=lambda x: x[1])
+        s.reverse()
+        r = [changes, s[0:5]]
+        cache.set(USER_CHANGE, r, 86400)
+    return r
+
 # def calc_stats():
 #     top = top_users()
 #     top_day = top_user_change('1 day')

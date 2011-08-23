@@ -365,6 +365,24 @@ class TopContributors(SpaceCompressedWrapped):
 
         Wrapped.__init__(self, *args, **kwargs)
 
+class TopMonthlyContributors(SpaceCompressedWrapped):
+    def __init__(self, *args, **kwargs):
+        from r2.lib.user_stats import cached_all_user_change
+        uids_karma = cached_all_user_change()[1]
+        uids = map(lambda x: x[0], uids_karma)
+        users = Account._byID(uids, data=True, return_dict=False)
+
+        # Add the monthly karma to the account objects
+        karma_lookup = dict(uids_karma)
+        for u in users:
+            u.monthly_karma = karma_lookup[u._id]
+
+        # Filter out accounts banned from the default subreddit
+        sr = Subreddit._by_name(g.default_sr)
+        self.things = filter(lambda user: not sr.is_banned(user), users)
+
+        Wrapped.__init__(self, *args, **kwargs)
+
 class TagCloud(SpaceCompressedWrapped):
 
     numbers = ('one','two','three','four','five','six','seven','eight','nine','ten')
