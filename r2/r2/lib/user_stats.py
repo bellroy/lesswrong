@@ -103,49 +103,85 @@ def top_users():
 # Calculate the karma change for the given period for all users
 # TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)
 def all_user_change(period = '1 day'):
-    link_karma = user_vote_change(Link, period)
-    comment_karma = user_vote_change(Comment, period)
     res={}
+
+    link_karma = user_vote_change_links(period)
     for name,val in link_karma:
-        res[name]=val*g.post_karma_multiplier
+        res[name]=val
+
+    comment_karma = user_vote_change_comments(period)
     for name, val in comment_karma:
-        res[name]=val+res.get(name,0)
+        res[name] = val + res.get(name,0)
+
     return res
 
 
-def user_vote_change(table=Link, period = '1 day'):
-    rel = Vote.rel(Account, table)
+def user_vote_change_links(period = '1 day'):
+    rel = Vote.rel(Account, Link)
     type = tdb.rel_types_id[rel._type_id]
     # rt = rel table
     # dt = data table
-    rt, account, link, dt = type.rel_table
+    rt, account_tt, link_tt, dt = type.rel_table
 
     aliases = tdb.alias_generator()
-    author = dt.alias(aliases.next())
+    author_dt = dt.alias(aliases.next())
+
+    link_dt = tdb.types_id[Link._type_id].data_table[0].alias(aliases.next())
+
+    # Create an SQL CASE statement for the subreddit vote multiplier
+    cases = []
+    for subreddit in subreddits_with_custom_karma_multiplier():
+        cases.append( (sa.cast(link_dt.c.value,sa.Integer) == subreddit._id,
+                      subreddit.post_karma_multiplier) )
+    cases.append( (True, g.post_karma_multiplier) )       # The default article multiplier
+
 
     date = utils.timeago(period)
     
-    s = sa.select([author.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer))],
+    s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer) * sa.case(cases))],
                   sa.and_(rt.c.date > date,
-                          author.c.thing_id == rt.c.rel_id,
-                          author.c.key == 'author_id'),
-                  group_by = author.c.value)
+                          author_dt.c.thing_id == rt.c.rel_id,
+                          author_dt.c.key == 'author_id',
+                          link_dt.c.key == 'sr_id',
+                          link_dt.c.thing_id == rt.c.thing2_id),
+                  group_by = author_dt.c.value)
 
     rows = s.execute().fetchall()
-    
     return [(int(r.value), r.sum) for r in rows]
 
-USER_CHANGE = 'all_user_change'
+def user_vote_change_comments(period = '1 day'):
+    rel = Vote.rel(Account, Comment)
+    type = tdb.rel_types_id[rel._type_id]
+    # rt = rel table
+    # dt = data table
+    rt, account_tt, comment_tt, dt = type.rel_table
+
+    aliases = tdb.alias_generator()
+    author_dt = dt.alias(aliases.next())
+
+    date = utils.timeago(period)
+    
+    s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer))],
+                  sa.and_(rt.c.date > date,
+                          author_dt.c.thing_id == rt.c.rel_id,
+                          author_dt.c.key == 'author_id'),
+                  group_by = author_dt.c.value)
+
+    rows = s.execute().fetchall()
+
+    return [(int(r.value), r.sum) for r in rows]
+
+USER_CHANGE_CACHE_KEY = 'all_user_change'
 
 def cached_all_user_change():
-    r = cache.get(USER_CHANGE)
+    r = cache.get(USER_CHANGE_CACHE_KEY)
     if not r:
         start_time = time.time()
         changes = all_user_change('30 days')
         s = sorted(changes.iteritems(), key=lambda x: x[1])
         s.reverse()
         r = [changes, s[0:5]]
-        cache.set(USER_CHANGE, r, 86400)
+        cache.set(USER_CHANGE_CACHE_KEY, r, 86400)
         g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
     return r
 
