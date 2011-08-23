@@ -23,6 +23,7 @@ import sqlalchemy as sa
 from r2.models import Account, Vote, Link, Subreddit, Comment
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
+import time
 
 from pylons import g 
 cache = g.cache
@@ -139,11 +140,13 @@ USER_CHANGE = 'all_user_change'
 def cached_all_user_change():
     r = cache.get(USER_CHANGE)
     if not r:
+        start_time = time.time()
         changes = all_user_change('30 days')
         s = sorted(changes.iteritems(), key=lambda x: x[1])
         s.reverse()
         r = [changes, s[0:5]]
         cache.set(USER_CHANGE, r, 86400)
+        g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
     return r
 
 # def calc_stats():
