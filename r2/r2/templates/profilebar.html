@@ -58,7 +58,8 @@
     %endif
     <div class="userinfo editor">
       <span class="label">Karma Score</span>
-      <span class="score">${thing.user.safe_karma}</span>
+      <span class="score" title="Total Karma">${thing.user.safe_karma}</span>
+      <span class="monthly-score" title="Karma for the last 30 days">${thing.user.monthly_karma}</span>
       %if thing.user.name in g.admins:
         <span class="role">Editor</span>
       %endif

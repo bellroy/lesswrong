@@ -1,6 +1,7 @@
 
 from pylons import g
 from r2.lib.pages import *
+from r2.lib.filters import remove_control_chars
 from pylons.i18n import _, ungettext
 from urllib2 import Request, HTTPError, URLError, urlopen
 from urlparse import urlsplit,urlunsplit
@@ -27,7 +28,7 @@ def fetch(url):
     return content
 
 def getParsedContent(str):
-    parsed = soupparser.fromstring(str)
+    parsed = soupparser.fromstring(remove_control_chars(str))
     try:
         elem=parsed.get_element_by_id('content')
         elem.set('id','wiki-content')

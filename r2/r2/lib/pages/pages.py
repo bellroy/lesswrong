@@ -140,6 +140,7 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
+        ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Most Karma Earned in Past 30 Days')))
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
@@ -358,6 +359,24 @@ class TopContributors(SpaceCompressedWrapped):
         from r2.lib.user_stats import top_users
         uids = top_users()
         users = Account._byID(uids, data=True, return_dict=False)
+
+        # Filter out accounts banned from the default subreddit
+        sr = Subreddit._by_name(g.default_sr)
+        self.things = filter(lambda user: not sr.is_banned(user), users)
+
+        Wrapped.__init__(self, *args, **kwargs)
+
+class TopMonthlyContributors(SpaceCompressedWrapped):
+    def __init__(self, *args, **kwargs):
+        from r2.lib.user_stats import cached_all_user_change
+        uids_karma = cached_all_user_change()[1]
+        uids = map(lambda x: x[0], uids_karma)
+        users = Account._byID(uids, data=True, return_dict=False)
+
+        # Add the monthly karma to the account objects
+        karma_lookup = dict(uids_karma)
+        for u in users:
+            u.monthly_karma = karma_lookup[u._id]
 
         # Filter out accounts banned from the default subreddit
         sr = Subreddit._by_name(g.default_sr)
@@ -1037,26 +1056,26 @@ class OptIn(Wrapped):
     pass
 
 
-class UserStats(Wrapped):
-    """For drawing the stats page, which is fetched from the cache."""
-    def __init__(self):
-        Wrapped.__init__(self)
-        cache_stats = cache.get('stats')
-        if cache_stats:
-            top_users, top_day, top_week = cache_stats
+# class UserStats(Wrapped):
+#     """For drawing the stats page, which is fetched from the cache."""
+#     def __init__(self):
+#         Wrapped.__init__(self)
+#         cache_stats = cache.get('stats')
+#         if cache_stats:
+#             top_users, top_day, top_week = cache_stats
 
-            #lookup user objs
-            uids = []
-            uids.extend(u    for u in top_users)
-            uids.extend(u[0] for u in top_day)
-            uids.extend(u[0] for u in top_week)
-            users = Account._byID(uids, data = True)
+#             #lookup user objs
+#             uids = []
+#             uids.extend(u    for u in top_users)
+#             uids.extend(u[0] for u in top_day)
+#             uids.extend(u[0] for u in top_week)
+#             users = Account._byID(uids, data = True)
 
-            self.top_users = (users[u]            for u in top_users)
-            self.top_day   = ((users[u[0]], u[1]) for u in top_day)
-            self.top_week  = ((users[u[0]], u[1]) for u in top_week)
-        else:
-            self.top_users = self.top_day = self.top_week = ()
+#             self.top_users = (users[u]            for u in top_users)
+#             self.top_day   = ((users[u[0]], u[1]) for u in top_day)
+#             self.top_week  = ((users[u[0]], u[1]) for u in top_week)
+#         else:
+#             self.top_users = self.top_day = self.top_week = ()
 
 
 class ButtonEmbed(Wrapped):
