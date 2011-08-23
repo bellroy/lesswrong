@@ -1,0 +1,9 @@
+<h2>${_('Most Karma Earned in Past 30 Days')}:</h2>
+<div class="monthly-contributors">
+%for user in thing.things:
+  <div class="user">
+    <a href="/user/${user.name}">${user.name}</a>&#32;
+    (<b>${user.monthly_karma}</b>)
+  </div>
+%endfor
+</div>
