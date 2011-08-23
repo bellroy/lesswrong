@@ -915,7 +915,8 @@ div.sidebox select {
 	line-height: 1.1em;
 	margin: 0 0 3px;
 }
-#side-status div.userinfo span.score {
+#side-status div.userinfo span.score,
+#side-status div.userinfo span.monthly-score {
 	background-color: #538d4d;
 	-webkit-border-radius: 11px;
 	-moz-border-radius: 11px;
@@ -928,6 +929,11 @@ div.sidebox select {
 	font-weight: bold;
 	text-align: center;
 }
+#side-status div.userinfo span.monthly-score {
+        background-color: #8fba75;
+        margin-top: 3px;
+}
+
 #side-status div.userinfo span.role {
 	font-weight: bold;
 	line-height: 22px;

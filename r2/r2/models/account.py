@@ -123,6 +123,11 @@ class Account(Thing):
         karma = self.link_karma + self.comment_karma
         return max(karma, 0) if karma > -1000 else karma
 
+    @property
+    def monthly_karma(self):
+        from r2.lib.user_stats import cached_all_user_change
+        return cached_all_user_change()[0].get(self._id, 0)
+
     def all_karmas(self):
         """returns a list of tuples in the form (name, link_karma,
         comment_karma)"""
