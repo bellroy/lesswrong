@@ -211,9 +211,11 @@ class VCommentID(Validator):
 
 class VCount(Validator):
     def run(self, count):
-        if count is None:
+        try:
+            count = int(count)
+        except (TypeError, ValueError):
             count = 0
-        return max(int(count), 0)
+        return max(count, 0)
 
 
 class VLimit(Validator):
