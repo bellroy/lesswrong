@@ -1105,7 +1105,7 @@ ul#rightnav li a:hover {
 #side-tags .ten   { font-size: 1.75em;  }
 
 #side-contributors div.contributors div.user {
-	margin: 0 0 10px;
+	margin: 0 0 0;
 }
 #side-contributors div.contributors div.user:last-child {
 	margin: 0;
