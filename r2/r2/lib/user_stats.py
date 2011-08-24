@@ -181,7 +181,7 @@ def cached_all_user_change():
         s = sorted(changes.iteritems(), key=lambda x: x[1])
         s.reverse()
         r = [changes, s[0:5]]
-        cache.set(USER_CHANGE_CACHE_KEY, r, 86400)
+        cache.set(USER_CHANGE_CACHE_KEY, r, 3600)
         g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
     return r
 
