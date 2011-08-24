@@ -127,7 +127,7 @@ ${parent.midcol()}
 
 <%def name="buttons(parent_link = False)">
   %if not thing.deleted:
-      %if thing.votable:
+      %if thing.votable and (not c.profilepage):
         <ul class="votes">
           <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
           <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>

@@ -551,11 +551,13 @@ class FrontController(RedditController):
     def GET_editarticle(self, article):
         author = Account._byID(article.author_id, data=True)
         subreddits = Subreddit.submit_sr(author)
+        article_sr = Subreddit._byID(article.sr_id)
         if c.user_is_admin:
-            # Add this admin subreddits to the list
-            if not subreddits:
-                subreddits = (Subreddit._byID(article.sr_id),)
-            subreddits = list(set(subreddits).union(Subreddit.submit_sr(c.user)))
+            # Add this admins subreddits to the list
+            subreddits = list(set(subreddits).union([article_sr] + Subreddit.submit_sr(c.user)))
+        elif article_sr.is_editor(c.user) and c.user != author:
+            # An editor can save to the current subreddit irrspective of the original author's karma
+            subreddits = [article_sr]
 
         captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
 

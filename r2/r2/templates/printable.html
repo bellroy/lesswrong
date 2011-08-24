@@ -210,11 +210,13 @@ ${self.RenderPrintable()}
 
 
 <%def name="midcol(display=True)">
-  <div id="arrows_${thing._fullname}" class="vote"
-       ${not display and "style='display:none'" or ''}>
-    ${self.arrow(thing, 1, thing.likes)}
-    ${self.arrow(thing, 0, thing.likes == False)}
-  </div>
+  %if not c.profilepage:
+    <div id="arrows_${thing._fullname}" class="vote"
+         ${not display and "style='display:none'" or ''}>
+      ${self.arrow(thing, 1, thing.likes)}
+      ${self.arrow(thing, 0, thing.likes == False)}
+    </div>
+  %endif
 </%def>
 
 ##

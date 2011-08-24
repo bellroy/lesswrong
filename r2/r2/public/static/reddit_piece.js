@@ -84,11 +84,11 @@ function init(args) {
     /* initiate ajax requests to populate the side bar */
     /*populate_side_bar('side-wikilinks');*/
     /*populate_side_bar('side-wikilinks', 'article_id=2');    */
-    populate_side_bar('side-monthly-contributors', args);
     populate_side_bar('side-meetups', args);
     populate_side_bar('side-comments', args);
     populate_side_bar('side-posts', args);
     populate_side_bar('side-tags', args);
+    populate_side_bar('side-monthly-contributors', args);
     populate_side_bar('side-contributors', args);
 
     populate_side_bar('front-recent-posts', args);
