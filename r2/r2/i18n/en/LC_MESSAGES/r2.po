@@ -1883,45 +1883,10 @@ msgstr ""
 
 #: randomstring:sadmessages
 msgid "Funny 500 page message 1"
-msgstr "you've done enough damage, please don't hit reload"
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 2"
-msgstr "and i suppose you're perfect?"
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 3"
-msgstr "you know what they say, you get what you pay for..."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 4"
 msgstr ""
-"Can you fix this? <a href='mailto:jobs@reddit.com'>jobs@reddit.com</a>."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 5"
-msgstr "9/11 changed everything."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 6"
-msgstr "Looks like today just isn't your day."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 7"
-msgstr "Conde Nast got their money's worth."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 8"
-msgstr ""
-"Quick, <a href=\"http://reddit.com/store \">buy a shirt</a> and make up for this."
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 9"
-msgstr "The features don't write themselves, you know. "
-
-#: randomstring:sadmessages
-msgid "Funny 500 page message 10"
-msgstr "It's ok to cry."
+"<p>You have encountered an error in the code that runs Less Wrong. The site maintainers have been informed and will get to it is as soon as they can.</p>"
+"<p>In the unlikely event that you've bumped into this error before and think that no-one is paying attention, please report the error and how to reproduce it on <a href='http://code.google.com/p/lesswrong/issues/list'>http://code.google.com/p/lesswrong/issues/list'</a></p>"
+"<p>If the error is localised you might still find awesome Less Wrong content in the <a href='http://lesswrong.com/promoted/'>Main article area</a> or in the <a href='http://lesswrong.com/r/discussion/'>Discussion area</a>.</p>"
 
 #: randomstring:create_reddit
 msgid "Reason to create a reddit 1"

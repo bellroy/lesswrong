@@ -57,9 +57,7 @@ redditbroke =  \
           <img border="0" src="/static/youbrokeit.png" alt="Error encountered" />
         </a>
       </p>
-      <p>
         %s
-      </p>
   </body>
 </html>
 '''            
