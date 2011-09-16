@@ -35,6 +35,7 @@ from r2.controllers.errors import errors, UserRequiredException
 
 from copy import copy
 from datetime import datetime, timedelta
+import pytz
 import re
 
 class Validator(object):
@@ -630,7 +631,19 @@ class VUserWithEmail(VExistingUname):
         if not user or not hasattr(user, 'email') or not user.email:
             return self.error(errors.NO_EMAIL_FOR_USER)
         return user
-            
+
+class VTimestamp(Validator):
+    def run(self, val):
+        if not val:
+            c.errors.add(errors.INVALID_DATE)
+            return
+
+        try:
+            val = float(val) / 1000.0
+            datetime.fromtimestamp(val, pytz.utc)   # Check it can be converted to a datetime
+            return val
+        except ValueError:
+            c.errors.add(errors.INVALID_DATE)
 
 class VBoolean(Validator):
     def run(self, val):
