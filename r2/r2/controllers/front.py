@@ -557,7 +557,7 @@ class FrontController(RedditController):
             subreddits = list(set(subreddits).union([article_sr] + Subreddit.submit_sr(c.user)))
         elif article_sr.is_editor(c.user) and c.user != author:
             # An editor can save to the current subreddit irrspective of the original author's karma
-            subreddits = [article_sr]
+            subreddits = [sr for sr in Subreddit.submit_sr(c.user) if sr.is_editor(c.user)]
 
         captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
 
