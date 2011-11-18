@@ -142,7 +142,7 @@ div.inline-listing a:hover {
 .commentreply .buttons {
     float: left;
 }
-.commentreply .buttons button {
+.commentreply .buttons button, .commentreply .help-toggle button {
 	background: #f0eeee; /* Old browsers */
 	background: -moz-linear-gradient(top, #f0eeee 0%, #c1c1c1 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0eeee), color-stop(100%,#c1c1c1)); /* Chrome,Safari4+ */

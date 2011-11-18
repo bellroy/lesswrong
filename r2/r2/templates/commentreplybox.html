@@ -64,10 +64,10 @@
     <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" /></span>
     <div id="marktoggle_${thing.link_name}" 
          class="help-toggle">
-      <a id="marklink_${thing.link_name}" href='#' 
+      <button id="marklink_${thing.link_name}" class="btn"
          onclick='return helpon(this, "markhelp_", "${_('Hide help')}");'>
-        ${_("Help")}
-      </a>
+        ${_("Show help")}
+      </button>
     </div>
     <div class="clear"></div>
     <script type="text/javascript">
