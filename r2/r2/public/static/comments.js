@@ -86,6 +86,34 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+Comment.prototype.size_textarea = function() {
+    var textarea = $("comment_reply_" + this._id),
+	s, parentwidth;
+
+    // if the box-sizing CSS property works, don't bother manually sizing it
+    if (typeof textarea.style.boxSizing == "string" ||
+	typeof textarea.style.MozBoxSizing == "string" ||
+	typeof textarea.style.WebkitBoxSizing == "string") {
+	return;
+    }
+
+    if (window.getComputedStyle) {
+	s = window.getComputedStyle(textarea,null);
+	parentwidth = parseInt(window.getComputedStyle(textarea.parentNode,null).width);
+    }
+    else { // IE <= 8
+	s = textarea.currentStyle;
+	// padding-left and padding-right are 0, so clientWidth is the inner width
+	parentwidth = textarea.parentNode.clientWidth;
+    }
+
+    var padding = parseInt(s.paddingLeft) + parseInt(s.paddingRight) +
+	    parseInt(s.marginLeft) + parseInt(s.marginRight) +
+	    parseInt(s.borderLeftWidth) + parseInt(s.borderRightWidth);
+        new_width = (parentwidth - padding) + 'px';
+    textarea.setStyle({'width': new_width});
+}
+
 Comment.prototype._edit = function(listing, where, text) {
     var edit_box = comment_reply(this._id);
     if (edit_box.parentNode != listing.listing) {
@@ -103,6 +131,7 @@ Comment.prototype._edit = function(listing, where, text) {
     clearTitle(box);
     box.value = text;
     show(edit_box);
+    this.size_textarea();
     return edit_box;
 };
 
@@ -213,6 +242,12 @@ document.observe("dom:loaded", function() {
     $$('#loadAllComments')[0].show();
 
   highlightNewComments();
+
+  // select the first comment form on the page
+  var real = $$('form.commentreply:not(#commentform_)');
+  if (real.length > 0){
+      new Comment(_id(real[0])).size_textarea();
+  }
 });
 
 
