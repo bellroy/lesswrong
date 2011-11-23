@@ -157,6 +157,9 @@ div.inline-listing a:hover {
 	font-weight: bold;
 	padding: 5px 30px;
 }
+.commentreply .help-toggle button {
+    margin-right: -6px;
+}
 
 .commentreply table.help {
 	clear: both;
