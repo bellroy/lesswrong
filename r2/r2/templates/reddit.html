@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.template_helpers import add_sr, static, join_urls, class_dict, path_info, get_domain
+   from r2.lib.template_helpers import static, get_rss_path, class_dict, path_info, get_domain
    from r2.lib.pages import SearchForm
    from pylons import request
    import os
@@ -71,7 +71,7 @@
         type="image/x-icon" />
   %if thing.extension_handling:
     <link rel="alternate" type="application/rss+xml" title="RSS"
-          href="${add_sr(join_urls(request.path,'.rss'))}" />
+          href="${get_rss_path(request.path)}" />
   %endif
   %if hasattr(thing, 'canonical_link'):
     <link rel="canonical" href="${thing.canonical_link}" />
