@@ -547,17 +547,9 @@ class CommentBuilder(Builder):
         final = []
         #make tree
 
-        def show_branch(cm):
-            if not cm.deleted:
-                return True;
-            else:
-                # show deleted comments only if they have a visible descendant
-                children = comment_tree.get(cm._id, [])
-                return any(show_branch(cids.get(child._id)) for child in children)
-
         for cm in wrapped:
-            # don't show spam with no non-spam children
-            if not show_branch(cm):
+            # don't show spam with no children
+            if cm.deleted and not comment_tree.has_key(cm._id):
                 continue
             cm.num_children = num_children[cm._id]
             if cm.collapsed and cm._id in dont_collapse:
