@@ -48,8 +48,8 @@
   fullname = thing._fullname
 %>
 
-<div id="thingrow_${fullname}" class="${css_class}">
-  <h${heading_size}><a href="${thing.url}">${self.title()}</a>${unsafe(self.draft())}</h${heading_size}>
+<div id="thingrow_${fullname}" class="${css_class}" itemscope itemtype="http://schema.org/BlogPosting">
+  <h${heading_size} itemprop="name"><a href="${thing.url}">${self.title()}</a>${unsafe(self.draft())}</h${heading_size}>
   <div class="meta clear">
 
     %if thing.hide_score:
@@ -71,7 +71,7 @@
 ##}_RL
   <div id="entry_${fullname}" class="content clear">
 ## The div below is a hack to get the space compressor to leave whitespace in articles alone
-    <div class="md">
+    <div class="md" itemprop="description">
       %if full_article:
         ${self.article()}
       %else:
