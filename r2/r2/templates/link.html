@@ -71,12 +71,14 @@
 ##}_RL
   <div id="entry_${fullname}" class="content clear">
 ## The div below is a hack to get the space compressor to leave whitespace in articles alone
-    <div class="md" itemprop="description">
-      %if full_article:
-        ${self.article()}
-      %else:
-        ${self.summary()}
-      %endif
+    <div class="md">
+      <div itemprop="description">
+        %if full_article:
+          ${self.article()}
+        %else:
+          ${self.summary()}
+        %endif
+      </div>
     </div>
   </div><!-- .content -->
   %if full_article:
