@@ -522,10 +522,8 @@ body.meetup div.post div.content {
 #meetup-map,
 body.meetup #map {
 	background-color: #eee;
-	float: right;
 	height: 300px;
 	margin: 0;
-	width: 240px;
 }
 /* Comments and Messages
 -------------------------------------------------------------------------------------- */
@@ -1280,3 +1278,55 @@ span.morecomments {
     display: block;
     margin: -9px 0 9px;
 }
+
+/* Brain Image */
+
+#brainImage {
+	position: relative;
+	margin-top: 23px;
+	border-bottom: 1px dotted #b6b6b6;
+	height: 558px;
+	background: url(http://wiki.lesswrong.com/mediawiki/images/f/f5/LW-brain.png) no-repeat;
+	font-family: "Helvitica Light", Arial, san-serif;
+	font-size: 25px;
+	line-height: 1;
+	color: #323431;
+	text-align: left;
+}
+
+#brainImage .communityBlog {
+    left: 170px;
+    position: absolute;
+    top: 94px;
+}
+
+#brainImage .discussionBoard {
+    left: 353px;
+    position: absolute;
+    top: 70px;
+}
+
+#brainImage .rationalityMaterials {
+    left: 176px;
+    position: absolute;
+    top: 214px;
+    width: 368px;
+}
+
+#brainImage .meetUps {
+    left: 349px;
+    position: absolute;
+    text-align: right;
+    top: 309px;
+}
+
+#brainImage .lessWrong {
+    color: #CECECE;
+    font-family: "Palatino",Times,serif;
+    font-size: 32px;
+    font-weight: bold;
+    left: 54px;
+    position: absolute;
+    top: 399px;
+}
+
