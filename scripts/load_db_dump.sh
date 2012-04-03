@@ -26,14 +26,14 @@ if [ ! -e "$CURRENT" ]; then
   exit 2
 fi
 
-DUMPFILE="$CURRENT/db/dumps/serpent.trike.com.au/prod.psql.gz"
+DUMPFILE="$CURRENT/db/dumps/serpent.trike.com.au/production.psql.gz"
 EXPORTDB="$SHARED/files/lesswrong.db"
 PIDFILE="$SHARED/pids/paster.pid"
 
 cd "$CURRENT"
 
 # Fetch the remote production dump
-cap prod db:fetch_dump
+cap production db:fetch_dump
 
 cd "$APPDIR"
 

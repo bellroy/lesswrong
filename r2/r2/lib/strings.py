@@ -308,5 +308,5 @@ class RandomStringManager(object):
 
 rand_strings = RandomStringManager()
 
-rand_strings.add('sadmessages',   "Funny 500 page message", 10)
+rand_strings.add('sadmessages',   "Funny 500 page message", 1)
 rand_strings.add('create_reddit', "Reason to create a reddit", 20)

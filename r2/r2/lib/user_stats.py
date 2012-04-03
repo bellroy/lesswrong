@@ -139,9 +139,11 @@ def user_vote_change_links(period = '1 day'):
     date = utils.timeago(period)
     
     s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer) * sa.case(cases))],
-                  sa.and_(rt.c.date > date,
+                  sa.and_(rt.c.date >= date,
                           author_dt.c.thing_id == rt.c.rel_id,
                           author_dt.c.key == 'author_id',
+                          link_tt.c.thing_id == rt.c.thing2_id,
+                          link_tt.c.date >= date,
                           link_dt.c.key == 'sr_id',
                           link_dt.c.thing_id == rt.c.thing2_id),
                   group_by = author_dt.c.value)
@@ -162,9 +164,11 @@ def user_vote_change_comments(period = '1 day'):
     date = utils.timeago(period)
     
     s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer))],
-                  sa.and_(rt.c.date > date,
+                  sa.and_(rt.c.date >= date,
                           author_dt.c.thing_id == rt.c.rel_id,
-                          author_dt.c.key == 'author_id'),
+                          author_dt.c.key == 'author_id',
+                          comment_tt.c.thing_id == rt.c.thing2_id,
+                          comment_tt.c.date >= date),
                   group_by = author_dt.c.value)
 
     rows = s.execute().fetchall()
@@ -181,7 +185,7 @@ def cached_all_user_change():
         s = sorted(changes.iteritems(), key=lambda x: x[1])
         s.reverse()
         r = [changes, s[0:5]]
-        cache.set(USER_CHANGE_CACHE_KEY, r, 86400)
+        cache.set(USER_CHANGE_CACHE_KEY, r, 3600)
         g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
     return r
 

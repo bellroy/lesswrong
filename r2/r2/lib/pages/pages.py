@@ -140,7 +140,6 @@ class Reddit(Wrapped):
         if self.extension_handling:
             ps.append(FeedLinkBar())
 
-        ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Most Karma Earned in Past 30 Days')))
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
@@ -152,7 +151,8 @@ class Reddit(Wrapped):
             ps.append(FeedBox(feed_url))
 
         ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors')))
+        ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
+        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
 
         if g.site_meter_codename:
             ps.append(SiteMeter(g.site_meter_codename))

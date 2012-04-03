@@ -1,6 +1,6 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
-from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup
+from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
 from errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
@@ -51,7 +51,7 @@ class MeetupsController(RedditController):
             location = VRequired('location', errors.NO_LOCATION),
             latitude = VFloat('latitude', error=errors.NO_LOCATION),
             longitude = VFloat('longitude', error=errors.NO_LOCATION),
-            timestamp = VFloat('timestamp', error=errors.INVALID_DATE),
+            timestamp = VTimestamp('timestamp'),
             tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
   def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip):
     if res._chk_error(errors.NO_TITLE):
@@ -75,7 +75,7 @@ class MeetupsController(RedditController):
       latitude = latitude,
       longitude = longitude,
 
-      timestamp = timestamp / 1000, # Value from form is in ms UTC
+      timestamp = timestamp,
       tzoffset = tzoffset
     )
 
@@ -107,7 +107,7 @@ class MeetupsController(RedditController):
             location = VRequired('location', errors.NO_LOCATION),
             latitude = VFloat('latitude', error=errors.NO_LOCATION),
             longitude = VFloat('longitude', error=errors.NO_LOCATION),
-            timestamp = VFloat('timestamp', error=errors.INVALID_DATE),
+            timestamp = VTimestamp('timestamp'),
             tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
   def POST_update(self, res, meetup, title, description, location, latitude, longitude, timestamp, tzoffset):
     if res._chk_error(errors.NO_TITLE):
@@ -128,7 +128,7 @@ class MeetupsController(RedditController):
     meetup.latitude = latitude
     meetup.longitude = longitude
 
-    meetup.timestamp = timestamp / 1000 # Value from form is in ms UTC
+    meetup.timestamp = timestamp
     meetup.tzoffset = tzoffset
 
     # Expire all meetups in the render cache

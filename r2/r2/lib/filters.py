@@ -190,7 +190,7 @@ def unkeep_space(text):
 
 whitespace_re = re.compile('^\s*$')
 def killhtml(html=''):
-    html_doc = soupparser.fromstring(html)
+    html_doc = soupparser.fromstring(remove_control_chars(html))
     text = filter(lambda text: not whitespace_re.match(text), html_doc.itertext())
     cleaned_html = ' '.join([fragment.strip() for fragment in text])
     return cleaned_html

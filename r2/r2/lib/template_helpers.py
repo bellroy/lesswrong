@@ -240,6 +240,13 @@ def join_urls(*urls):
         url += u
     return url
 
+def get_rss_path(request_path):
+    """Returns an appropriate path to an RSS feed for the current page."""
+
+    # e.g. the wiki homepage (LW front page) in particular needs a sensible RSS link
+    dewikified_path = '/' if request_path.startswith("/wiki/") else request_path    
+    return add_sr(join_urls(dewikified_path, '.rss'))
+       
 def style_line(button_width = None, bgcolor = "", bordercolor = ""):
     style_line = ''
     bordercolor = c.bordercolor or bordercolor
