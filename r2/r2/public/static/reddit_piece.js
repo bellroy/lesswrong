@@ -242,6 +242,7 @@ function chklogin(form) {
         }
         else {
             post_form(form, 'register');
+            pageTracker._trackPageview('/NewSignup');
         }
         return false;
     }
