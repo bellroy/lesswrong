@@ -138,7 +138,7 @@ def login(password):
     """
 
     print 'Logging in as the Admin user'
-    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:UserLogin&action=submitlogin&type=login'
+    url = 'http://shank.trikeapps.com/mediawiki/index.php?title=Special:UserLogin&action=submitlogin&type=login'
     data = urllib.urlencode({'wpLoginattempt': 'Log in', 'wpName': 'Admin', 'wpPassword': password})
     feed = urllib2.urlopen(url, data)
     buf = feed.read()
@@ -152,7 +152,7 @@ def get_edit_token():
     """Return the edit token that is needed to do an import."""
 
     print 'Getting edit token'
-    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import'
+    url = 'http://shank.trikeapps.com/mediawiki/index.php?title=Special:Import'
     feed = urllib2.urlopen(url)
     buf = feed.read()
     tree = etree.fromstring(buf, parser)
@@ -167,7 +167,7 @@ def do_import(export_filename, token):
     """Send the POST import request with the file to be imported."""
 
     print 'Importing %s' % export_filename
-    url = 'http://shank.trike.com.au/mediawiki/index.php?title=Special:Import&action=submit'
+    url = 'http://shank.trikeapps.com/mediawiki/index.php?title=Special:Import&action=submit'
     export_file = open(export_filename, 'rb')
     data = {'source': 'upload', 'log-comment': 'migrate_wiki.py script', 'xmlimport': export_file, 'editToken': token }
     feed = urllib2.urlopen(url, data)

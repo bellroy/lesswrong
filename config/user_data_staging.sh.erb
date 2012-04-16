@@ -1,11 +1,11 @@
 #!/bin/bash
-/usr/local/sys_scripts/bin/git-clone-update git@git.trike.com.au:sys_scripts.git /usr/local/sys_scripts --branch master
-/usr/local/sys_scripts/bin/git-clone-update git@git.trike.com.au:munin.git /etc/munin --branch master
+/usr/local/sys_scripts/bin/git-clone-update git@git.trikeapps.com:sys_scripts.git /usr/local/sys_scripts --branch master
+/usr/local/sys_scripts/bin/git-clone-update git@git.trikeapps.com:munin.git /etc/munin --branch master
 
 /usr/local/sys_scripts/bin/aws-update_hosts 75.101.144.164 \
-  db.aws.trike.com.au \
-  sultana.trike.com.au \
-  memcache.aws.trike.com.au
+  db.aws.trikeapps.com \
+  sultana.trikeapps.com \
+  memcache.aws.trikeapps.com
 
 export APPLICATION=lesswrong.com
 export APPLICATION_USER=www-data

@@ -26,7 +26,7 @@ if [ ! -e "$CURRENT" ]; then
   exit 2
 fi
 
-DUMPFILE="$CURRENT/db/dumps/serpent.trike.com.au/production.psql.gz"
+DUMPFILE="$CURRENT/db/dumps/serpent.trikeapps.com/production.psql.gz"
 EXPORTDB="$SHARED/files/lesswrong.db"
 PIDFILE="$SHARED/pids/paster.pid"
 

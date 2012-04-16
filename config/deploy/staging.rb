@@ -20,7 +20,7 @@ set :instance, lambda {
 
 role :app, instance, :primary => true
 role :web, instance, :primary => true
-role :db,  "db.aws.trike.com.au", :primary => true, :no_release => true
+role :db,  "db.aws.trikeapps.com", :primary => true, :no_release => true
 
 after 'multistage:ensure', :check_hostname
 after 'deploy:cleanup', :check_hostname
