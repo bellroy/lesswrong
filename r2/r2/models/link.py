@@ -218,27 +218,39 @@ class Link(Thing, Printable):
     def _clicked(cls, user, link):
         return cls._somethinged(Click, user, link, 'click')
 
-    def _click(self, user):
-        try:
-            saved = Click(user, self, name='click')
-            saved._commit()
-            return saved
-        except CreationError, e:
-            c = Link._clicked(user,self)
-            obj = c[(user,self,'click')]
-            if not obj:
-                # This is for a possible race.  It is possible the row in the db
-                # has been created but the cache not updated yet. This explicitly
-                # clears the cache then re-gets from the db
-                g.log.info("Trying cache clear for lookup : "+str((user,self,'click')))
-                Click._uncache(user, self, name='click')
-                c = Link._clicked(user,self)
-                obj = c[(user,self,'click')]
-                if not obj:
-                    raise Exception(user,self,e,c)
+    def _updateClickFromObj(obj):
+        obj = c[(user,self,'click')]
+        obj._date = datetime.now(g.tz)
+        obj._commit()
+
+    def _tryUpdateClick(self, user):
+        obj = Link._clicked(user,self)[(user,self,'click')]
+        print "Trying to update click"
+        if obj:
             obj._date = datetime.now(g.tz)
             obj._commit()
-            return c
+            return True
+        return False
+
+    def _click(self, user):
+        if self._tryUpdateClick(user):
+            return
+        # No click in the db to update, try and create.
+        try:
+            print "Trying to create click"
+            saved = Click(user, self, name='click')
+            saved._commit()
+            return
+        except CreationError, e:
+            # This is for a possible race.  It is possible the row in the db
+            # has been created but the cache not updated yet. This explicitly
+            # clears the cache then re-gets from the db
+            g.log.info("Trying cache clear for lookup : "+str((user,self,'click')))
+            Click._uncache(user, self, name='click')
+            if self._tryUpdateClick(user):
+                return
+
+            raise Exception(user,self,e)
 
     def _getLastClickTime(self, user):
         c = Link._clicked(user,self)
