@@ -225,7 +225,6 @@ class Link(Thing, Printable):
 
     def _tryUpdateClick(self, user):
         obj = Link._clicked(user,self)[(user,self,'click')]
-        print "Trying to update click"
         if obj:
             obj._date = datetime.now(g.tz)
             obj._commit()
@@ -237,7 +236,6 @@ class Link(Thing, Printable):
             return
         # No click in the db to update, try and create.
         try:
-            print "Trying to create click"
             saved = Click(user, self, name='click')
             saved._commit()
             return
