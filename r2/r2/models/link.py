@@ -362,8 +362,6 @@ class Link(Thing, Printable):
 
         saved = Link._saved(user, wrapped) if user else {}
         hidden = Link._hidden(user, wrapped) if user else {}
-        clicked = Link._clicked(user, wrapped) if user else {}
-        #clicked = {}
 
         for item in wrapped:
             show_media = False
@@ -392,7 +390,13 @@ class Link(Thing, Printable):
             item.urlprefix = ''
             item.saved = bool(saved.get((user, item, 'save')))
             item.hidden = bool(hidden.get((user, item, 'hide')))
-            item.clicked = clicked.get((user, item, 'click'))
+
+            # Only check "last clicked time" on demand.  Otherwise it is expensive in big listings.  TODO - refactor to use "_getLastClickedTime"
+            def clicked():
+                c = Link._clicked(user, wrapped) if user else {}
+                return c.get((user, item, 'click'))
+            item.clicked = clicked
+
             item.num = None
             item.score_fmt = Score.signed_number
             item.permalink = item.make_permalink(item.subreddit)

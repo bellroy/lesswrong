@@ -93,7 +93,8 @@
   <div class="tools clear">
     ${parent.midcol(thing.votable)}
     %if c.user_is_loggedin and (not c.profilepage):
-      <div style="display: none;" id='lastViewed' time="${ epochtime(thing.clicked._date if thing.clicked else None) }"></div>
+      <% clicked = thing.clicked() if thing.clicked else None %>
+      <div style="display: none;" id='lastViewed' time="${ epochtime(clicked._date if clicked else None) }"></div>
     %endif
     %if thing.comments_enabled:
       <%
