@@ -22,6 +22,12 @@ allWikiPagesCached = \
 
     'comment-help' : { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Commentmarkuphelp',
                        'route' : 'Commentmarkuphelp'
+                       },
+
+    'wiki-stylesheet' : { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Stylesheet',
+                          'route' : 'Stylesheet',
+                          'id' : 'stylesheet',
+                          'content-type' : 'text/css'
                        }
     }
 

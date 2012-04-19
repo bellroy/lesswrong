@@ -525,6 +525,8 @@ body.meetup #map {
 	height: 300px;
 	margin: 0;
 }
+
+
 /* Comments and Messages
 -------------------------------------------------------------------------------------- */
 #comment-controls {
@@ -1178,44 +1180,6 @@ div.articlenavigation #article_nav_controls .loading img {
 	padding-right: 5px;
 }
 
-/* Styling for embedded wiki pages */
-#wiki #jump-to-nav, #wiki #siteSub,
-.wiki-comment-help div#jump-to-nav, .wiki-comment-help #siteSub,
-#wiki h1#firstHeading, .wiki-comment-help h1,
-#wiki #toc,
-#wiki #catlinks, .wiki-comment-help div#catlinks {
-    display: none;
-}
-#wiki .printfooter, .wiki-comment-help .printfooter {
-    display: none;
-}
-#wiki h1 {
-    font-family: Palatino, Palladio, "URW Palladio L", "Book Antiqua", Baskerville, "Bookman Old Style", "Bitstream Charter", "Nimbus Roman No9 L", Garamond, "Apple Garamond", "ITC Garamond Narrow", "New Century Schoolbook", "Century Schoolbook", "Century Schoolbook L", Georgia, serif;
-    font-style: italic;
-    color: #538d4d;
-}
-#wiki .article-list ul {
-    list-style: none;
-    margin-left: 0;
-    font-size: 1.17em;
-    font-weight: bold;
-}
-#wiki .article-list li {
-    border-bottom: 1px solid #D6D5D6;
-    padding: 10px 0;
-}
-#wiki .article-list a {
-    text-decoration: none;
-}
-#wiki hr {
-    border: none;
-    border-bottom: 1px dotted #D6D5D6;
-}
-form.invalidate {
-    float: right;
-    font-size: 6pt;
-}
-
 /* Profile Page
 ----------------------------------------------------------------------------------------------------*/
 
@@ -1277,56 +1241,5 @@ span.deepthread,
 span.morecomments {
     display: block;
     margin: -9px 0 9px;
-}
-
-/* Brain Image */
-
-#brainImage {
-	position: relative;
-	margin-top: 23px;
-	border-bottom: 1px dotted #b6b6b6;
-	height: 558px;
-	background: url(http://wiki.lesswrong.com/mediawiki/images/f/f5/LW-brain.png) no-repeat;
-	font-family: "Helvitica Light", Arial, san-serif;
-	font-size: 25px;
-	line-height: 1;
-	color: #323431;
-	text-align: left;
-}
-
-#brainImage .communityBlog {
-    left: 170px;
-    position: absolute;
-    top: 94px;
-}
-
-#brainImage .discussionBoard {
-    left: 353px;
-    position: absolute;
-    top: 70px;
-}
-
-#brainImage .rationalityMaterials {
-    left: 176px;
-    position: absolute;
-    top: 214px;
-    width: 368px;
-}
-
-#brainImage .meetUps {
-    left: 349px;
-    position: absolute;
-    text-align: right;
-    top: 309px;
-}
-
-#brainImage .lessWrong {
-    color: #CECECE;
-    font-family: "Palatino",Times,serif;
-    font-size: 32px;
-    font-weight: bold;
-    left: 54px;
-    position: absolute;
-    top: 399px;
 }
 
