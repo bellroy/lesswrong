@@ -58,15 +58,15 @@ class WikiPageCached:
                     title = headlines[0].text_content()
 
                 etag = '"%s"' % datetime.utcnow().isoformat()
-                if content_type == 'text/css':
+                if content_type == 'text/html':
+                    content = tostring(elem, method='html', encoding='utf8', with_tail=False)
+                else:
                     # text_content() returns an _ElementStringResult, which derives from str
                     # but scgi_base.py in flup contains the following broken assertion:
                     # assert type(data) is str, 'write() argument must be string'
                     # it should be assert isinstance(data, str)
                     # So we have to force the _ElementStringResult to be a str
                     content = str(elem.text_content())
-                else:
-                    content = tostring(elem, method='html', encoding='utf8', with_tail=False)
                 g.rendercache.set(url, (content,title,etag), cache_time())
             except Exception as e:
                 log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
