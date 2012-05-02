@@ -77,6 +77,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      day          = _('Today'),
                      week         = _('This week'),
                      month        = _('This month'),
+                     quarter      = _('Last three months'),
                      year         = _('This year'),
                      all          = _('All time'),
 
@@ -492,7 +493,7 @@ class TimeMenu(SimpleGetMenu):
     """Menu for setting the time interval of the listing (from 'hour' to 'all')"""
     get_param = 't'
     default   = 'all'
-    options   = ('hour', 'day', 'week', 'month', 'year', 'all')
+    options   = ('hour', 'day', 'week', 'month', 'year', 'quarter', 'all')
 
     def __init__(self, **kw):
         kw.setdefault('title', _("Links from"))

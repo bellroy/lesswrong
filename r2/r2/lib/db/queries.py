@@ -37,6 +37,7 @@ db_times = dict(all = None,
                 day = Thing.c._date >= timeago('1 day'),
                 week = Thing.c._date >= timeago('1 week'),
                 month = Thing.c._date >= timeago('1 month'),
+                quarter = Thing.c._date >= timeago('3 months'),
                 year = Thing.c._date >= timeago('1 year'))
 
 #we need to define the filter functions here so cachedresults can be pickled
