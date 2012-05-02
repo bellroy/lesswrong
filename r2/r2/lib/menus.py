@@ -493,7 +493,7 @@ class TimeMenu(SimpleGetMenu):
     """Menu for setting the time interval of the listing (from 'hour' to 'all')"""
     get_param = 't'
     default   = 'all'
-    options   = ('hour', 'day', 'week', 'month', 'year', 'quarter', 'all')
+    options   = ('hour', 'day', 'week', 'month', 'quarter', 'year', 'all')
 
     def __init__(self, **kw):
         kw.setdefault('title', _("Links from"))
