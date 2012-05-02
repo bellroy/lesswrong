@@ -397,6 +397,7 @@ class TagController(ListingController):
         TagController.title_text = _('Articles Tagged') + u' \N{LEFT SINGLE QUOTATION MARK}' + unicode(tag.name) + u'\N{RIGHT SINGLE QUOTATION MARK}'
         return ListingController.GET_listing(self, **env)
 
+# This class renders /top/
 class BrowseController(ListingController):
     where = 'browse'
 
@@ -409,7 +410,7 @@ class BrowseController(ListingController):
 
     # TODO: this is a hack with sort.
     @validate(sort = VOneOf('sort', ('top', 'controversial')),
-              time = VMenu('where', TimeMenu))
+              time = VMenu('where', TimeMenu, default_item='quarter'))
     def GET_listing(self, sort, time, **env):
         self.sort = sort
         if sort == 'top':

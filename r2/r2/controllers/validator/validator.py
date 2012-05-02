@@ -716,9 +716,10 @@ class VCssName(Validator):
     
 class VMenu(Validator):
 
-    def __init__(self, param, menu_cls, remember = True, **kw):
+    def __init__(self, param, menu_cls, remember = True, default_item = None, **kw):
         self.nav = menu_cls
         self.remember = remember
+        self.default_item = default_item or self.nav.default
         param = (menu_cls.get_param, param)
         Validator.__init__(self, param, **kw)
 
@@ -731,6 +732,9 @@ class VMenu(Validator):
             # check to see if a default param has been set
             if not sort:
                 sort = user_pref
+
+        if not sort:
+            sort = self.default_item
             
         # validate the sort
         if sort not in self.nav.options:
