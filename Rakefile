@@ -140,8 +140,7 @@ namespace :deploy do
       run "#{cmd} --update-crontab #{application}"
     else
       # Don't want the cron jobs running in non-production environments
-      #run "#{cmd} --clear-crontab #{application}"
-      run "#{cmd} --update-crontab #{application}"
+      run "#{cmd} --clear-crontab #{application}"
     end
   end
 
