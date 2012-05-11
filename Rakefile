@@ -114,12 +114,9 @@ namespace :deploy do
 
   desc "Symlink the INI files into the release path"
   task :symlink_ini do
-    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
-      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
-        target = "#{r2_path}/#{$1}.ini"
-        FileUtils.ln_sf(ini, target, :verbose => true)
-      end
-    end
+    ini = shared_path + 'config' + "#{environment}.ini"
+    target = r2_path + "#{environment}.ini"
+    FileUtils.ln_sf(ini, target, :verbose => true)
   end
 
   desc 'Compress and concetenate JS and generate MD5 files'
@@ -143,7 +140,8 @@ namespace :deploy do
       run "#{cmd} --update-crontab #{application}"
     else
       # Don't want the cron jobs running in non-production environments
-      run "#{cmd} --clear-crontab #{application}"
+      #run "#{cmd} --clear-crontab #{application}"
+      run "#{cmd} --update-crontab #{application}"
     end
   end
 
