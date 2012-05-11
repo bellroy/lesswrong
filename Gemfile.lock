@@ -23,12 +23,14 @@ GEM
     celerity (0.8.9)
     childprocess (0.1.9)
       ffi (~> 1.0.6)
+    chronic (0.6.7)
     culerity (0.2.15)
     diff-lcs (1.1.2)
     erubis (2.6.6)
       abstract (>= 1.0.0)
     ffi (1.0.9)
     highline (1.6.2)
+    i18n (0.6.0)
     json_pure (1.5.1)
     mime-types (1.16)
     net-scp (1.0.4)
@@ -63,6 +65,9 @@ GEM
       rubyzip
     treetop (1.4.9)
       polyglot (>= 0.3.1)
+    whenever (0.7.3)
+      activesupport (>= 2.3.4)
+      chronic (~> 0.6.3)
     xpath (0.1.4)
       nokogiri (~> 1.3)
 
@@ -75,8 +80,10 @@ DEPENDENCIES
   capistrano-ext (~> 1.2.1)
   capybara
   erubis (~> 2.6.6)
+  i18n
   rake (~> 0.8.7)
   right_aws (~> 2.0.0)
   rspec
   selenium-webdriver
   treetop (~> 1.4.8)
+  whenever
