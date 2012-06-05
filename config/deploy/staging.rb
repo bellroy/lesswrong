@@ -1,10 +1,10 @@
 require 'socket'
 load 'config/cap-tasks/trike-aws.rb'
 
-set :application, "lesswrong.com"
-set :domains, %w[ lesswrong.com ]
-set :deploy_to, "/srv/www/#{application}"
-set :branch, 'staging'
+#set :application, "lesswrong.com"
+#set :domains, %w[ lesswrong.com ]
+#set :deploy_to, "/srv/www/#{application}"
+set :branch, 'new-staging'
 set :environment, 'staging'
 set :security_group, 'webserver_python_staging'
 
@@ -18,8 +18,10 @@ set :instance, lambda {
   )
 }
 
-role :app, instance, :primary => true
-role :web, instance, :primary => true
+#role :app, instance, :primary => true
+role :app, '23.23.209.219', :primary => true
+#role :web, instance, :primary => true
+role :web, '23.23.209.219', :primary => true
 role :db,  "db.aws.trikeapps.com", :primary => true, :no_release => true
 
 after 'multistage:ensure', :check_hostname
