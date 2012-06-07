@@ -550,7 +550,7 @@ class SubredditMenu(NavMenu):
 class TagSortMenu(SimpleGetMenu):
     """Menu for listings by tag"""
     get_param = 'sort'
-    default   = 'old'
+    default   = 'new'
     options   = ('old', 'new', 'top')
 
     def __init__(self, **kw):
