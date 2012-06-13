@@ -46,31 +46,12 @@ def python_websafe(text):
 def python_websafe_json(text):
     return text.replace('&', "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-try:
-    from Cfilters import uwebsafe as c_websafe, uspace_compress, \
-        uwebsafe_json as c_websafe_json
-    def spaceCompress(text):
-        try:
-            text = unicode(text, 'utf-8')
-        except TypeError:
-            text = unicode(text)
-        return uspace_compress(text)
-except ImportError:
-    c_websafe      = python_websafe
-    c_websafe_json = python_websafe_json
-    _between_tags1 = re.compile('> +')
-    _between_tags2 = re.compile(' +<')
-    _spaces = re.compile('[\s]+')
-    _ignore = re.compile('(' + MD_START + '.*?' + MD_END + ')', re.S | re.I)
-    def spaceCompress(content):
-        res = ''
-        for p in _ignore.split(content):
-            if not p.startswith(MD_START) and not p.endswith(MD_END):
-                p = _spaces.sub(' ', p)
-                p = _between_tags1.sub('>', p)
-                p = _between_tags2.sub('<', p)
-            res += p
-        return res
+# There is an out-of-date, currently unused C implementation of this in Cfilters.
+c_websafe      = python_websafe
+c_websafe_json = python_websafe_json
+_spaces = re.compile(r'(\s)\s+', re.VERBOSE)
+def spaceCompress(content):
+    return _spaces.sub(r'\1', content)
 
 class _Unsafe(unicode): pass
 
