@@ -40,10 +40,10 @@
   <description>
     <% domain = get_domain(cname = c.cname, subreddit = False) %>
     Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
-    &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
     %if hasattr(thing, 'article'):
       ${cleanhtml(thing.article)}
     %endif
+    &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
   </description>
   %if use_thumbs:
     <media:title>${thing.title}</media:title>
