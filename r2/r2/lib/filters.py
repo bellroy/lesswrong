@@ -51,7 +51,7 @@ c_websafe      = python_websafe
 c_websafe_json = python_websafe_json
 _spaces = re.compile(r'(\s)\s+', re.VERBOSE)
 def spaceCompress(content):
-    return _spaces.sub(r'\1', content)
+    return _spaces.sub(r'\1', content.strip())
 
 class _Unsafe(unicode): pass
 
