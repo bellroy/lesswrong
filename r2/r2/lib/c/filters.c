@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 
+/* This code (specifically, filters_u?space_compress) is out-of-date and not currently
+ * used. To fix the issue in http://code.google.com/p/lesswrong/issues/detail?id=304 ,
+ * I updated the pure Python code in r2/r2/lib/filters.py, and left the C code behind.
+ */
 
 PyObject *unicode_arg(PyObject *args) {
   PyObject * com;
