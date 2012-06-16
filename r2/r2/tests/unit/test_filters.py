@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from r2.lib.filters import wrap_urls, killhtml, format_linebreaks
+from r2.lib.filters import wrap_urls, killhtml, format_linebreaks, spaceCompress
 import nose
+import re
 
 def is_equal(output, expected_output):
     assert output == expected_output
@@ -52,6 +53,17 @@ def test_killhtml():
     )
     for input_text, expected_output in test_cases:
         yield is_equal, killhtml(input_text), expected_output
+
+def test_spaceCompress():
+    html = '   \t  test  \n    <br>  <br>  \v     foo    bar  \v\n\t  '
+    shrunk = spaceCompress(html)
+    assert len(shrunk) < len(html)
+    assert re.match(r'test\s*<br>\s+<br>\s*foo\s+bar\s*', shrunk)
+
+def test_spaceCompress_bad_utf8():
+    baddata = '\x80 ; \xbf ; \x80\xbf\x80\xbf\x80 ; \xc0 ; \xe0 ; \xf7\xf0'
+    spaceCompress(baddata)
+    # all we care about is no exception thrown
 
 def test_format_linebreaks():
     """Test replacing of line breaks with br tags"""

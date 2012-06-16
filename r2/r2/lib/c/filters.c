@@ -212,6 +212,7 @@ int whitespace(char c) {
   return (c == '\n' || c == '\r' || c == '\t' || c == ' ');
 }
 
+/* This has diverged with the Python code and is currently unused. */
 
 static PyObject *
 filters_uspace_compress(PyObject * self, PyObject *args) {
@@ -268,6 +269,7 @@ filters_uspace_compress(PyObject * self, PyObject *args) {
   return res;
 }
 
+/* This code appears to be unreferenced. */
 
 static PyObject *
 filters_space_compress(PyObject * self, PyObject *args) 
