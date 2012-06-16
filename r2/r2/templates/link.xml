@@ -38,7 +38,13 @@
   <guid isPermaLink="true">${url}</guid>
   <pubDate>${rfc822format(thing._date)}</pubDate>
   <description>
-    <% domain = get_domain(cname = c.cname, subreddit = False) %>
+    <%
+      domain = get_domain(cname = c.cname, subreddit = False)
+      votes = thing.score_fmt(thing.score)
+      votes_lbl = ungettext("vote", "votes", votes)
+    %>
+    ${votes} ${votes_lbl}
+    &amp;bull;
     Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
     %if hasattr(thing, 'article'):
       ${cleanhtml(thing.article)}
