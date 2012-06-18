@@ -630,7 +630,7 @@ div.retracted {
     text-decoration: line-through;
 }
 div.comment-meta {
-
+	color: #7f7f83;
 }
 div.comment-meta span {
 	float: left;
@@ -639,6 +639,7 @@ div.comment-meta span {
 }
 div.comment-meta span.comment-author a {
 	color: #538d4d;
+	font-weight: bold;
 	text-decoration: none;
 }
 div.comment-meta span.comment-date {
