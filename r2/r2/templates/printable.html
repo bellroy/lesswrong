@@ -147,7 +147,8 @@ ${self.RenderPrintable()}
 </div>
 </%def>
 
-<%def name="author(author = None, friend = False, gray = False, css_base='author', parent=False)" buffered="True">
+<%def name="author(author = None, friend = False, gray = False, css_base='author',
+                   parent=False, label=None)" buffered="True">
   <% author = thing.parent_author if parent else (author or thing.author) %>
   %if thing.deleted and not c.user_is_admin:
     [deleted]
@@ -165,7 +166,12 @@ ${self.RenderPrintable()}
        href = unsafe('href="%s"' % add_sr("/user/%s/" % name, sr_path = False))
        if c.user_is_admin: name += " (%d)" % (author.link_karma)
     %>
-    <span class="${author_cls}"><a id="author_${thing._fullname}" ${href}>${name}</a></span>
+    <span class="${author_cls}">
+      %if label:
+        ${label}:
+      %endif
+      <a id="author_${thing._fullname}" ${href}>${name}</a>
+    </span>
  %endif
 %endif
 </%def>

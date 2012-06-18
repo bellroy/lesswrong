@@ -57,7 +57,7 @@
     %else:
       <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
     %endif
-    ${unsafe(self.author(friend = thing.friend))}
+    ${unsafe(self.author(friend = thing.friend, label = "Post author" if full_article else ""))}
     <span class="date">${prettytime(thing._date)}</span>
   </div><!-- .meta -->
 ##{_RL
