@@ -637,6 +637,9 @@ div.comment-meta span {
 	font-size: 13px;
 	margin: 0 10px 0 0;
 }
+div.comment-meta span.comment-author {
+	text-align: left;
+}
 div.comment-meta span.comment-author a {
 	color: #538d4d;
 	font-weight: bold;
