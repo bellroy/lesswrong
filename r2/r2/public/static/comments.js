@@ -29,7 +29,7 @@ function helpon(link, what, newlabel) {
     show(what+id);
 
     /* If not loaded help content, load it! */
-    if ($(what+id).innerHTML.indexOf('Loading')==0) {
+    if (/\s*Loading/.match($(what+id).innerHTML)) {
       getHelpContent($(what+id))
     }
 
