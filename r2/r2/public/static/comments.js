@@ -1,6 +1,6 @@
 /* Fill in the given help content, and attach a handler for the form invalidate submission */
 function fillInHelpDiv(elem, content) {
-  elem.innerHTML = content
+  elem.innerHTML = content;
   elem.select('.invalidate').first().observe('submit', function(e) {
     e.stop();
     elem.innerHTML = "Loading..."
@@ -35,7 +35,7 @@ function helpon(link, what, newlabel) {
 
     var oldlabel = link.innerHTML;
     if(newlabel) {
-        link.innerHTML = newlabel
+        link.innerHTML = newlabel;
     }
     link.onclick = function() {
         return helpoff(link, what, oldlabel);
@@ -49,7 +49,7 @@ function helpoff(link, what, newlabel) {
     hide(what+id);
     var oldlabel = link.innerHTML;
     if(newlabel) {
-        link.innerHTML = newlabel
+        link.innerHTML = newlabel;
     }
     link.onclick = function() {
         return helpon(link, what, oldlabel);
