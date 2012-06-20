@@ -1,3 +1,12 @@
+"""
+This file is disabled as per the following from Wesley Moore on 2012-06-17:
+
+I'm not bothered by the importer tests not working. The importer was written
+to do a one off import and the tests to ensure it did the right thing. Given
+the import has now run and is unlikely to ever be run again its fine to
+disable these tests.
+"""
+
 # -*- coding: utf-8 -*-
 import nose
 
