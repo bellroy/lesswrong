@@ -134,7 +134,7 @@ function toggle_article_navigation(article_id) {
     state.className = 'dsphead';
   }
   else {
-    if(elem.firstChild.className == 'loading') {
+    if(elem.children.length && elem.children[0].className == 'loading') {
       // Needs to be populated
       new Ajax.Request('/api/article_navigation', {
         method: 'get',
