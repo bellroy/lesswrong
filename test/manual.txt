@@ -21,11 +21,13 @@ The location should be shown in the sidebar.
 - Browsing
 --------------------------------------------------------------------------------
 Click the Less Wrong logo
-Click each of the following:
-  New, Top, Comments, Promoted
+  You should see some introductory text, Recent Promoted Articles, Featured Articles and Upcoming Meetups sections
+Click the MAIN link at the top of the page
+  Click each of the following, each one should load without error:
+    New, Top, Saved, Promoted
 Click on the first article, you should see the article and its comments
-Click "Vote up" on the article, the circle should become filled
-Refresh the page, the "Vote up" circle should still be filled
+Click "Vote up" on the article, the icon should become green
+Refresh the page, the "Vote up" icon should still be green
 Click the Article Navigation link, the navigation options for the article should load
 
 - Commenting
@@ -51,9 +53,9 @@ Click the "Create new article" button in the side bar.
 
 - Karma
 --------------------------------------------------------------------------------
-Login with another user than before
+Login with a different user to before
   The page should refresh and you should be logged in
-Click 'Main' in the top navigation bar
+Click the triangle next 'Main' in the top navigation bar
   You should see a popup with the entries 'Posts' and 'Comments'
   Click 'Comments'
   You should see the two comments of the previous user on top
@@ -62,7 +64,7 @@ Click 'Main' in the top navigation bar
 Click 'Log out'
 Login with the first user
   The page should refresh and you should be logged in
-  You should see a 'Karma Score' of '2'
+  You should see a 'Karma Score' of '2' but this can be unreliable... try logging in and out
 
 - Discussion
 --------------------------------------------------------------------------------
@@ -72,8 +74,7 @@ Click the Discussion link in the nav bar
   The 'discussion' link in the navbar should be highlighted
   The list of recent comments should not include comments from the main site
   There should be a 'Main' link at the beginning of the navbar
-    Check that it links to the root, NOT /r/discussion
-  Log in and ensure you're in the discussion area
+    Check that it links to /promoted, NOT /r/discussion
   Create an article, and go back to the main discussion area
   The list of articles should be a simple list of titles and some meta data
   Click on an article
