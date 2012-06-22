@@ -75,7 +75,6 @@ Click the Discussion link in the nav bar
   The list of recent comments should not include comments from the main site
   There should be a 'Main' link at the beginning of the navbar
     Check that it links to /promoted, NOT /r/discussion
-  Create an article, and go back to the main discussion area
   The list of articles should be a simple list of titles and some meta data
   Click on an article
     It should show as a normal article, with comments
