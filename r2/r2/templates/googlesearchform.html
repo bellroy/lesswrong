@@ -1,13 +1,29 @@
+<%!
+   from r2.lib.template_helpers import json
+%>
 <div id="side-search" class="sidebox">
   <form action="/search/results" id="cse-search-box" onsubmit="return true;">
     <div>
       <input type="hidden" name="cx" value="015839050583929870010:-802ptn4igi" />
       <input type="hidden" name="cof" value="FORID:11" />
       <input type="hidden" name="ie" value="UTF-8" />
+      %if thing.label:
+        <label><div>${thing.label}</div>
+      %endif
       <input type="text" class="text" name="q" size="31" />
+      %if label:
+        </label>
+      %endif
       <input type="submit" class="submit" name="sa" value="Search" />
     </div>
   </form>
 
   <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&lang=en"></script>
+  <script type="text/javascript">
+    Event.observe($("cse-search-box"), "submit", function () {
+      var prefix = ${json(thing.query_prefix)};
+      var suffix = ${json(thing.query_suffix)};
+      this.q.value = prefix + this.q.value + suffix;
+    });
+  </script>
 </div><!-- #side-search -->

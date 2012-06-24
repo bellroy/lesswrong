@@ -57,6 +57,10 @@ def class_dict():
     return unsafe('{ %s }' % res)
 
 
+def json(value):
+    return unsafe(simplejson.dumps(value, separators=(',', ':')))
+
+
 def path_info():
     loc = dict(path = request.path,
                params = dict(request.get))
