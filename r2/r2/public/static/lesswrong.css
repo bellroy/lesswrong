@@ -339,6 +339,9 @@ div.sidebox select {
 div.sidebox label {
     width: 90px;
 }
+div.sidebox label.fullwidth {
+    width: auto;
+}
 
 /* Wiki links */
 #side-wikilinks select {
