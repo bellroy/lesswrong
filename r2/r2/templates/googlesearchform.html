@@ -19,11 +19,36 @@
   </form>
 
   <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&lang=en"></script>
+  <form style="display:none">
+    <input type="hidden" id="cse-search-transformed" value="0" />
+  </form>
   <script type="text/javascript">
-    Event.observe($("cse-search-box"), "submit", function () {
+    // this code handles transforming the query value on submit, and reverting the
+    // transformation when the back button is clicked.
+    (function () {
+      var searchBox = $("cse-search-box");
+      var searchInput = searchBox.q;
       var prefix = ${json(thing.query_prefix)};
       var suffix = ${json(thing.query_suffix)};
-      this.q.value = prefix + this.q.value + suffix;
-    });
+      var transformedInput = $("cse-search-transformed");
+
+      // supress mozilla's bfcache and allow page JS to run when 'back' is clicked
+      // http://stackoverflow.com/questions/2638292/after-travelling-back-in-firefox-history-javascript-wont-run
+      window.onunload = function(){};
+
+      Event.observe(searchBox, "submit", function () {
+        if (transformedInput.value !== "1")
+          searchInput.value = prefix + searchInput.value + suffix;
+        transformedInput.value = "1";
+      });
+
+      if (transformedInput.value === "1") {
+        if (searchInput.value.slice(0, prefix.length) === prefix)
+          searchInput.value = searchInput.value.slice(prefix.length);
+        if (searchInput.value.slice(-prefix.length) === suffix)
+          searchInput.value = searchInput.value.slice(0, -suffix.length);
+        transformedInput.value = "0";
+      }
+    })();
   </script>
 </div><!-- #side-search -->
