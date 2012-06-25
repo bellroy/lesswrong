@@ -700,6 +700,8 @@ class ProfilePage(Reddit):
         rb = Reddit.rightbox(self)
         if self.user != c.user:
             rb.push(ProfileBar(self.user))
+        rb.push(GoogleSearchForm(label="Search this user's posts & comments:",
+                                 query_prefix='"author: ' + self.user.name + '" '))
         return rb
 
 class ProfileBar(Wrapped):
@@ -953,8 +955,8 @@ class SearchForm(Wrapped):
 
 class GoogleSearchForm(Wrapped):
     """Shows Google Custom Search box"""
-    def __init__(self):
-        Wrapped.__init__(self)
+    def __init__(self, label='', query_prefix='', query_suffix=''):
+        Wrapped.__init__(self, label=label, query_prefix=query_prefix, query_suffix=query_suffix)
 
 class WikiPageList(Wrapped):
     """Shows Wiki Page List box"""
