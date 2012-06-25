@@ -21,8 +21,8 @@
            href = unsafe('href="%s"' % "/user/%s/" % name)
            if c.user_is_admin: name += " (%d)" % (author.link_karma)
         %>
+        <span class="author"><a id="author_${meetup._fullname}" ${href}>${name}</a></span>
       %endif
-	    <span class="author"><a id="author_${meetup._fullname}" ${href}>${name}</a></span>
 	    <span class="date">${prettytime(meetup._date)}</span>
 	  </div><!-- .meta -->
 		<%def name="meetup_info(meetup)">
