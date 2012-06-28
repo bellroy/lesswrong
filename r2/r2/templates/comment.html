@@ -112,9 +112,9 @@ ${parent.Child(not thing.collapsed)}
 %endif
 </%def>
 
-<%def name="commentText()">
+<%def name="commentText()">\
 %if c.user == thing.author:
-${edit_comment_filter(thing.body)}
+${edit_comment_filter(thing.body)}\
 %endif
 </%def>
 
