@@ -19,7 +19,7 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from math import log
+from math import log, sqrt
 from datetime import datetime, timedelta
 from r2.config.databases import tz
 
@@ -45,4 +45,38 @@ def hot(ups, downs, date):
 def controversy(ups, downs):
     """The controversy sort."""
     return float(ups + downs) / max(abs(score(ups, downs)), 1)
+
+
+def _confidence(ups, downs):
+    """The confidence sort.
+       http://www.evanmiller.org/how-not-to-sort-by-average-rating.html"""
+    n = ups + downs
+
+    if n == 0:
+        return 0
+
+    z = 1.281551565545 # 80% confidence
+    p = float(ups) / n
+
+    left = p + 1/(2*n)*z*z
+    right = z*sqrt(p*(1-p)/n + z*z/(4*n*n))
+    under = 1+1/n*z*z
+
+    return (left - right) / under
+
+# precompute low values
+up_range = 400
+down_range = 100
+_confidences = []
+for _ups in xrange(up_range):
+    for _downs in xrange(down_range):
+        _confidences.append(_confidence(_ups, _downs))
+
+def confidence(ups, downs):
+    if ups + downs == 0:
+        return 0
+    elif ups < up_range and downs < down_range:  # check if pair is precomputed
+        return _confidences[downs + ups * down_range]
+    else:
+        return _confidence(ups, downs)
 
