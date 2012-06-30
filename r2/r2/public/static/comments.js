@@ -61,15 +61,6 @@ function helpoff(link, what, newlabel) {
 
 function ReplyTemplate() { return $("samplecomment_"); }
 
-function comment_reply(id) {
-    id = id || '';
-    var s = $("samplecomment_" + id);
-    if (!s) {
-        return re_id_node(ReplyTemplate().cloneNode(true), id);
-    }
-    return s;
-};
-
 function Comment(id) {
     this.__init__(id);
     var edit_body = this.get("edit_body");
@@ -82,8 +73,17 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+Comment.getCommentReplyBox = function(id) {
+    id = id || '';
+    var s = $("samplecomment_" + id);
+    if (!s) {
+        return re_id_node(ReplyTemplate().cloneNode(true), id);
+    }
+    return s;
+};
+
 Comment.prototype._edit = function(listing, where, text) {
-    var edit_box = comment_reply(this._id);
+    var edit_box = Comment.getCommentReplyBox(this._id);
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -115,7 +115,7 @@ Comment.prototype.reply = function() {
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = comment_reply(this._id);
+    var edit_box = Comment.getCommentReplyBox(this._id);
     hide(edit_box);
     this.show();
 };
