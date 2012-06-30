@@ -70,10 +70,6 @@ function comment_reply(id) {
     return s;
 };
 
-function _decode(text) {
-    return decodeURIComponent(text.replace(/\+/g, " "));
-}
-
 function Comment(id) {
     this.__init__(id);
     var edit_body = this.get("edit_body");
