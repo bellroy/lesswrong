@@ -648,3 +648,58 @@ function continueEditing(continue_editing) {
     }
     return true;
 };
+
+
+function BeforeUnloadManager() {
+    var attached = false;
+    var handlers = [];
+
+    function makeHandler(argObj) {
+        var args = Array.prototype.slice.call(argObj, 0);
+        return {func: args[0], args: args.slice(1)};
+    }
+
+    function handlersEqual(x, y) {
+        if (x.func !== y.func || x.args.length !== y.args.length)
+            return false;
+        for (var a = 0, al = x.args.length; a < al; ++a)
+            if (x.args[a] !== y.args[a])
+                return false;
+        return true;
+    }
+
+    function onBeforeUnload(event) {
+        for (var h = 0, hl = handlers.length; h < hl; ++h) {
+            var handler = handlers[h];
+            var ret = handler.func.apply(this, handler.args);
+            if (ret)
+                return event.returnValue = ret;
+        }
+    }
+
+    function setAttached(value) {
+        if (value && !attached) {
+            jQuery(window).bind("beforeunload", onBeforeUnload);
+            attached = true;
+        } else if (!value && attached) {
+            jQuery(window).unbind("beforeunload", onBeforeUnload);
+            attached = false;
+        }
+    }
+
+    this.bind = function () {
+        handlers.push(makeHandler(arguments));
+        setAttached(true);
+    };
+
+    this.unbind = function () {
+        var givenHandler = makeHandler(arguments);
+        for (var h = handlers.length - 1; h >= 0; --h)
+            if (handlersEqual(handlers[h], givenHandler))
+                handlers.splice(h, 1);
+        setAttached(handlers.length > 0);
+    };
+}
+
+var beforeUnload = new BeforeUnloadManager();
+

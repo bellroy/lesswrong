@@ -97,7 +97,9 @@ Comment.prototype._edit = function(listing, where, text) {
     var box = $("comment_reply_" + this._id);
     clearTitle(box);
     box.value = text;
+    box.setAttribute("data-orig-value", text);
     show(edit_box);
+    beforeUnload.bind(Comment.checkModified, this._id);
     return edit_box;
 };
 
@@ -116,6 +118,7 @@ Comment.prototype.reply = function() {
 Comment.prototype.cancel = function() {
     var edit_box = Comment.getCommentReplyBox(this._id);
     hide(edit_box);
+    beforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
 
@@ -126,6 +129,13 @@ Comment.comment = function(r) {
     new Listing(parent_id).push(unsafe(r.content));
     new Comment(r.id).show();
     vl[id] = r.vl;
+};
+
+Comment.checkModified = function(id) {
+    var textarea = $("comment_reply_" + id);
+    if (textarea.value !== textarea.getAttribute("data-orig-value"))
+        return "You've started typing a comment but haven't submitted it. " +
+            "Are you sure you want to leave this page?";
 };
 
 /* Commenting on a link is handled by the Comment API so defer to it */
