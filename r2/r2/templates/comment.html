@@ -64,7 +64,8 @@ ${parent.collapsed()}
 <% fullname = thing._fullname %>
   %if not thing.deleted:
     <span class="comment-author">
-      Comment author: ${unsafe(self.author(friend=thing.friend, gray = collapse))}
+      <span class="hide-text">Comment author:</span>
+      ${unsafe(self.author(friend=thing.friend, gray = collapse))}
     </span>
   %else:
      <em>${_("Comment deleted")}</em>&#32;
