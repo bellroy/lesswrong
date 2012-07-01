@@ -477,6 +477,11 @@ function handleResponse(action, cleanup_func) {
     return responseHandler;
 }
 
+// Appends a string to the IDs of all nodes in a DOM tree. When called with
+// id="1_2", and the following node:
+//     <div id="a_"><input id="b_" /></div>
+// it modifies the ID attributes as follows:
+//     <div id="a_1_2"><input id="b_1_2" /></div>
 function re_id_node(node, id) {
     function add_id(s) {
         if(id && s && typeof(s) == "string") {

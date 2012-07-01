@@ -76,10 +76,9 @@ Comment.del = Thing.del;
 Comment.getCommentReplyBox = function(id) {
     id = id || '';
     var s = $("samplecomment_" + id);
-    if (!s) {
-        return re_id_node(ReplyTemplate().cloneNode(true), id);
-    }
-    return s;
+    if (s)
+        return s;
+    return re_id_node(ReplyTemplate().cloneNode(true), id);
 };
 
 Comment.prototype._edit = function(listing, where, text) {
