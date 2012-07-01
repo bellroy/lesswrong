@@ -107,6 +107,11 @@ h2 a:visited {
 div.tools a {
 	color: #8a8a8b;
 }
+.hide-text {
+    position: absolute;
+    width: 0;
+    overflow: hidden;
+}
 
 
 /* Forms
@@ -311,7 +316,7 @@ div.meta {
 	line-height: 22px;
 	margin: 0 0 12px;
 }
-div.meta span {
+div.meta > span {
 	display: block;
 	float: left;
 	margin-right: 15px;
