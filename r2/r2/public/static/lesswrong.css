@@ -519,3 +519,9 @@ div.meta.meetup strong {
   height: 16px;
   padding: 4px 0;
 }
+
+/* Polls */
+.pollbar {
+  background-color: green;
+  height: 10px;
+}
