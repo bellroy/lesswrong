@@ -244,12 +244,14 @@ class ApiController(RedditController):
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
+        import r2.models.poll as poll
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
+          
           #set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
@@ -263,7 +265,7 @@ class ApiController(RedditController):
             edit = Edit._new(l,c.user,new_content)
           old_url = l.url
           l.title = request.post.title
-          l.article = new_content
+          l.set_article(new_content)
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -582,9 +584,8 @@ class ApiController(RedditController):
 
         if not res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG,errors.NOT_AUTHOR),
                            comment._fullname):
-            comment.body = body
             if not c.user_is_admin: comment.editted = True
-            comment._commit()
+            comment.set_body(body)
             res._send_things(comment)
 
             # flag search indexer that something has changed
@@ -777,7 +778,45 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
+    
+    @Json
+    @validate(VUser(), VModhash(),
+              comment = VLinkOrCommentID('comment'),
+              anonymous = VBoolean('anonymous'))
+    def POST_submitballot(self, res, comment, anonymous):
+        import r2.models.poll as poll
+        ip = request.ip
+        user = c.user
+        spam = (c.user._spam or
+                errors.BANNED_IP in c.errors or
+                errors.CHEATER in c.errors)
+        
+        print("anonymous = "+str(anonymous))
+        #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
+        for param in request.POST:
+            ballotparam = re.match("poll_([a-z0-9]+)", param)
+            if(ballotparam and request.POST[param]):
+                pollid = int(ballotparam.group(1), 36)
+                pollobj = poll.Poll._byID(pollid)
+                response = request.POST[param]
+                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
+                if ballot and g.write_query_queue:
+                    queries.new_ballot(ballot)
+        
+        #Return a new rendering, with the results included
+        res._send_things(comment)
 
+    @Json
+    @validate(thing = VLinkOrCommentID('thing'))
+    def GET_rawdata(self, response, thing):
+        import r2.models.poll as poll
+        pollids = poll.getpolls(thing.body)
+        csv = poll.exportvotes(pollids)
+        c.response_content_type = 'text/plain'
+        c.response.content = csv
+        c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'
+        return c.response
+    
     @Json
     @validate(VUser(),
               VModhash(),

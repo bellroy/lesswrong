@@ -35,9 +35,9 @@
   <dc:date>${thing._date.isoformat()}</dc:date>
   <description>
     %if thing.is_html:
-      ${clean_comment_html(format_linebreaks(thing.body))}
+      ${renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing._id)}
     %else:
-      ${safemarkdown(thing.body)}
+      ${pollsandmarkdown(thing.body))}
     %endif
   </description>
 </item>

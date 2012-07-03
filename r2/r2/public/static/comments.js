@@ -157,6 +157,13 @@ Comment.editcomment = function(r) {
     com.show();
 };
 
+Comment.submitballot = function(r) {
+    var com = new Comment(r.id);
+    com.get('body').innerHTML = unsafe(r.contentHTML);
+    com.cancel();
+    com.show();
+};
+
 
 Comment.prototype.collapse = function() { 
     hide(this.get('child'));
