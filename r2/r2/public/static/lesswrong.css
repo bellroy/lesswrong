@@ -468,6 +468,7 @@ div.comment div.parent {
 }
 .edit .orig-author .author {
     margin-right: 0;
+}
 
 /* Meetups */
 #map {
@@ -517,5 +518,4 @@ div.meta.meetup strong {
   width: 16px;
   height: 16px;
   padding: 4px 0;
-}
 }
