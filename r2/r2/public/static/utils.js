@@ -650,7 +650,7 @@ function continueEditing(continue_editing) {
 };
 
 
-function BeforeUnloadManager() {
+var BeforeUnload = (function () {
     var attached = false;
     var handlers = [];
 
@@ -687,19 +687,19 @@ function BeforeUnloadManager() {
         }
     }
 
-    this.bind = function () {
+    function bind(/* arguments */) {
         handlers.push(makeHandler(arguments));
         setAttached(true);
-    };
+    }
 
-    this.unbind = function () {
+    function unbind(/* arguments */) {
         var givenHandler = makeHandler(arguments);
         for (var h = handlers.length - 1; h >= 0; --h)
             if (handlersEqual(handlers[h], givenHandler))
                 handlers.splice(h, 1);
         setAttached(handlers.length > 0);
-    };
-}
+    }
 
-var beforeUnload = new BeforeUnloadManager();
+    return {bind: bind, unbind: unbind};
+})();
 

@@ -99,7 +99,7 @@ Comment.prototype._edit = function(listing, where, text) {
     box.value = text;
     box.setAttribute("data-orig-value", text);
     show(edit_box);
-    beforeUnload.bind(Comment.checkModified, this._id);
+    BeforeUnload.bind(Comment.checkModified, this._id);
     return edit_box;
 };
 
@@ -118,7 +118,7 @@ Comment.prototype.reply = function() {
 Comment.prototype.cancel = function() {
     var edit_box = Comment.getCommentReplyBox(this._id);
     hide(edit_box);
-    beforeUnload.unbind(Comment.checkModified, this._id);
+    BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
 
