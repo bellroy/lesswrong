@@ -4,6 +4,13 @@ function unsafe(text) {
 }
 
 
+function stripHTMLTagsDangerously(text) {
+    // This isn't injection-proof. Use it only where an injection couldn't possibly
+    // do any damage, such as tracking the dirtiness of rich textareas in forms.
+    return text.replace(/<[^>]+>/g, "");
+}
+
+
 function hide () {
     for (var i = 0; i < arguments.length; i++) {
             var e = $(arguments[i]);
@@ -477,6 +484,11 @@ function handleResponse(action, cleanup_func) {
     return responseHandler;
 }
 
+// Appends a string to the IDs of all nodes in a DOM tree. When called with
+// id="1_2", and the following node:
+//     <div id="a_"><input id="b_" /></div>
+// it modifies the ID attributes as follows:
+//     <div id="a_1_2"><input id="b_1_2" /></div>
 function re_id_node(node, id) {
     function add_id(s) {
         if(id && s && typeof(s) == "string") {
@@ -643,3 +655,58 @@ function continueEditing(continue_editing) {
     }
     return true;
 };
+
+
+var BeforeUnload = (function () {
+    var attached = false;
+    var handlers = [];
+
+    function makeHandler(argObj) {
+        var args = Array.prototype.slice.call(argObj, 0);
+        return {func: args[0], args: args.slice(1)};
+    }
+
+    function handlersEqual(x, y) {
+        if (x.func !== y.func || x.args.length !== y.args.length)
+            return false;
+        for (var a = 0, al = x.args.length; a < al; ++a)
+            if (x.args[a] !== y.args[a])
+                return false;
+        return true;
+    }
+
+    function onBeforeUnload(event) {
+        for (var h = 0, hl = handlers.length; h < hl; ++h) {
+            var handler = handlers[h];
+            var ret = handler.func.apply(this, handler.args);
+            if (ret)
+                return event.returnValue = ret;
+        }
+    }
+
+    function setAttached(value) {
+        if (value && !attached) {
+            jQuery(window).bind("beforeunload", onBeforeUnload);
+            attached = true;
+        } else if (!value && attached) {
+            jQuery(window).unbind("beforeunload", onBeforeUnload);
+            attached = false;
+        }
+    }
+
+    function bind(/* arguments */) {
+        handlers.push(makeHandler(arguments));
+        setAttached(true);
+    }
+
+    function unbind(/* arguments */) {
+        var givenHandler = makeHandler(arguments);
+        for (var h = handlers.length - 1; h >= 0; --h)
+            if (handlersEqual(handlers[h], givenHandler))
+                handlers.splice(h, 1);
+        setAttached(handlers.length > 0);
+    }
+
+    return {bind: bind, unbind: unbind};
+})();
+

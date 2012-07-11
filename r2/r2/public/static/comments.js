@@ -61,19 +61,6 @@ function helpoff(link, what, newlabel) {
 
 function ReplyTemplate() { return $("samplecomment_"); }
 
-function comment_reply(id) {
-    id = id || '';
-    var s = $("samplecomment_" + id);
-    if (!s) {
-        return re_id_node(ReplyTemplate().cloneNode(true), id);
-    }
-    return s;
-};
-
-function _decode(text) {
-    return decodeURIComponent(text.replace(/\+/g, " "));
-}
-
 function Comment(id) {
     this.__init__(id);
     var edit_body = this.get("edit_body");
@@ -86,8 +73,16 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+Comment.getCommentReplyBox = function(id) {
+    id = id || '';
+    var s = $("samplecomment_" + id);
+    if (s)
+        return s;
+    return re_id_node(ReplyTemplate().cloneNode(true), id);
+};
+
 Comment.prototype._edit = function(listing, where, text) {
-    var edit_box = comment_reply(this._id);
+    var edit_box = Comment.getCommentReplyBox(this._id);
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -102,7 +97,9 @@ Comment.prototype._edit = function(listing, where, text) {
     var box = $("comment_reply_" + this._id);
     clearTitle(box);
     box.value = text;
+    box.setAttribute("data-orig-value", text);
     show(edit_box);
+    BeforeUnload.bind(Comment.checkModified, this._id);
     return edit_box;
 };
 
@@ -119,8 +116,9 @@ Comment.prototype.reply = function() {
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = comment_reply(this._id);
+    var edit_box = Comment.getCommentReplyBox(this._id);
     hide(edit_box);
+    BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
 
@@ -131,6 +129,13 @@ Comment.comment = function(r) {
     new Listing(parent_id).push(unsafe(r.content));
     new Comment(r.id).show();
     vl[id] = r.vl;
+};
+
+Comment.checkModified = function(id) {
+    var textarea = $("comment_reply_" + id);
+    if (textarea.value !== textarea.getAttribute("data-orig-value"))
+        return "You've started typing a comment but haven't submitted it. " +
+            "Are you sure you want to leave this page?";
 };
 
 /* Commenting on a link is handled by the Comment API so defer to it */
