@@ -4,6 +4,13 @@ function unsafe(text) {
 }
 
 
+function stripHTMLTagsDangerously(text) {
+    // This isn't injection-proof. Use it only where an injection couldn't possibly
+    // do any damage, such as tracking the dirtiness of rich textareas in forms.
+    return text.replace(/<[^>]+>/g, "");
+}
+
+
 function hide () {
     for (var i = 0; i < arguments.length; i++) {
             var e = $(arguments[i]);
