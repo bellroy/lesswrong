@@ -21,7 +21,7 @@
 ################################################################################
 
 <%! 
-   from r2.lib.template_helpers import static, get_domain
+   from r2.lib.template_helpers import static, get_domain, json
    import os
 %>
 <%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links"/>
@@ -105,13 +105,33 @@
   </table>
 
   <script type="text/javascript">
-    init_tinymce("http://${get_domain(subreddit=False)}/");
-    var form = $('newlink');
-    if(form) {
-      setMessage(form.title,
-                 "${_('Enter a title for the article.')}");
-      setMessage(form.tags,
-                 "${_('Enter tags separated by commas or spaces.')}");
-    }
+    (function () {
+      init_tinymce("http://${get_domain(subreddit=False)}/");
+      var form = $('newlink');
+
+      if(form) {
+        setMessage(form.title, ${json(_('Enter a title for the article.'))});
+        setMessage(form.tags, ${json(_('Enter tags separated by commas or spaces.'))});
+
+        form.title.setAttribute("data-orig-value", form.title.value);
+        form.article.setAttribute("data-orig-value", form.article.value);
+        form.tags.setAttribute("data-orig-value", form.tags.value);
+
+        BeforeUnload.bind(function () {
+          var message = "You've made changes to the article, but haven't submitted it. " +
+            "Are you sure you want to leave this page?";
+
+          if ((form.title.value && form.title.value !== form.title.getAttribute("data-orig-value")) ||
+              (form.tags.value && form.tags.value !== form.tags.getAttribute("data-orig-value")))
+            return message;
+
+          // The editor sometimes inserts or modifies extraneous HTML tags, which
+          // we need to ignore to prevent false positives
+          var articleText = stripHTMLTagsDangerously(form.article.value);
+          if (articleText && articleText !== stripHTMLTagsDangerously(form.article.getAttribute("data-orig-value")))
+            return message;
+        });
+      }
+    })();
   </script>
 </%call>
