@@ -124,6 +124,13 @@
               (form.tags.value && form.tags.value !== form.tags.getAttribute("data-orig-value")))
             return message;
 
+          // Ensure that TinyMCE has saved the content back to the textarea
+          // before checking its content
+          var editor = tinyMCE.activeEditor;
+          if (editor && editor.isDirty()) {
+            editor.save();
+          }
+
           // The editor sometimes inserts or modifies extraneous HTML tags, which
           // we need to ignore to prevent false positives
           var articleText = stripHTMLTagsDangerously(form.article.value);
