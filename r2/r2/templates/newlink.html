@@ -118,8 +118,7 @@
         form.tags.setAttribute("data-orig-value", form.tags.value);
 
         BeforeUnload.bind(function () {
-          var message = "You've made changes to the article, but haven't submitted it. " +
-            "Are you sure you want to leave this page?";
+          var message = "You've made changes to the article, but haven't submitted it.";
 
           if ((form.title.value && form.title.value !== form.title.getAttribute("data-orig-value")) ||
               (form.tags.value && form.tags.value !== form.tags.getAttribute("data-orig-value")))

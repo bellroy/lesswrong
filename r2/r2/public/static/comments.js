@@ -134,8 +134,7 @@ Comment.comment = function(r) {
 Comment.checkModified = function(id) {
     var textarea = $("comment_reply_" + id);
     if (textarea.value !== textarea.getAttribute("data-orig-value"))
-        return "You've started typing a comment but haven't submitted it. " +
-            "Are you sure you want to leave this page?";
+        return "You've started typing a comment but haven't submitted it.";
 };
 
 /* Commenting on a link is handled by the Comment API so defer to it */

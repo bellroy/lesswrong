@@ -81,8 +81,7 @@
 
           BeforeUnload.bind(function () {
             if (input.value && input.value !== prompt)
-              return "You've started typing a comment but haven't submitted it. " +
-                "Are you sure you want to leave this page?";
+              return "You've started typing a comment but haven't submitted it.";
           });
         }
       })();
