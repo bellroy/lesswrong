@@ -20,7 +20,7 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 <%!
-   from r2.lib.template_helpers import get_domain, static
+   from r2.lib.template_helpers import get_domain, static, json
 %>
 
 <%namespace file="utils.html" import="error_field"/>
@@ -71,11 +71,20 @@
     </div>
     <div class="clear"></div>
     <script type="text/javascript">
-      var form = $("commentform_${thing.link_name}");
-      if(form) {
-        setMessage(form.comment_reply_${thing.link_name},
-                     "${_('Enter a comment here')}")
-      }
+      (function () {
+        var form = $("commentform_${thing.link_name}");
+        var input = form && form.comment_reply_${thing.link_name};
+        var prompt = ${json(_('Enter a comment here'))};
+
+        if (input) {
+          setMessage(input, prompt);
+
+          BeforeUnload.bind(function () {
+            if (input.value && input.value !== prompt)
+              return "You've started typing a comment but haven't submitted it.";
+          });
+        }
+      })();
     </script>
 
   </form>
