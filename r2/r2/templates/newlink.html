@@ -116,12 +116,7 @@
         form.article.setAttribute("data-orig-value", form.article.value);
         form.tags.setAttribute("data-orig-value", form.tags.value);
 
-        jQuery(form).bind("submit", function () {
-          tinyMCE.get("article").save();
-          return post_form(this, "submit", linkstatus, null, true);
-        });
-
-        BeforeUnload.bind(function () {
+        function unsavedPrompt() {
           var message = "You've made changes to the article, but haven't submitted it.";
 
           if ((form.title.value && form.title.value !== form.title.getAttribute("data-orig-value")) ||
@@ -140,6 +135,13 @@
           var articleText = stripHTMLTagsDangerously(form.article.value);
           if (articleText && articleText !== stripHTMLTagsDangerously(form.article.getAttribute("data-orig-value")))
             return message;
+        }
+
+        BeforeUnload.bind(unsavedPrompt);
+
+        jQuery(form).bind("submit", function () {
+          tinyMCE.get("article").save();
+          return post_form(this, "submit", linkstatus, null, true);
         });
       }
     })();
