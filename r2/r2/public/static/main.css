@@ -133,43 +133,47 @@ input, select, textarea, button {
 /* Header
 -------------------------------------------------------------------------------------- */
 #header {
-	background: url(/static/header_background.jpg) no-repeat top left;
-	height: 103px;
-	text-align: right;
+  background: url(/static/header_background.jpg) no-repeat top left;
+  height: 103px;
+  text-align: right;
 }
 a#logo {
-	display: block;
-	float: left;
-	margin: 35px 10px 0 35px;
+  display: block;
+  float: left;
+  margin: 35px 10px 0 35px;
 }
 img#tagline {
-	display: block;
-	float: left;
-	margin: 59px 0 0;
+  display: block;
+  float: left;
+  margin: 45px 0 0;
 }
 a#siai,
-a#fhi {
-	display: block;
-	float: right;
-        height: 0;
-        padding-top: 69px;
-        overflow: hidden;
+a#fhi,
+a#cfar {
+  display: block;
+  float: right;
+  height: 0;
+  padding-top: 69px;
+  overflow: hidden;
+  margin: 45px 18px 0 0;
 }
 a#siai {
-	background: url(/static/SIAI.png) no-repeat top left;
-        background-position: 0 -69px;
-        width: 121px;
-	margin: 44px 10px 0 0;
+  background: url(/static/SIAI.png?20120720) no-repeat top left;
+  width: 78px;
+  background-position: 0 -78px;
 }
 a#fhi {
-	background: url(/static/FHI_diamond.png) no-repeat top left;
-        background-position: 0 -69px;
-        width: 108px;
-	margin: 40px 20px 0 0;
+  background: url(/static/FHI_diamond.png?20120720) no-repeat top left;
+  width: 67px;
+  background-position: 0 -78px;
 }
-
-a#siai:hover, a#fhi:hover {
-    background-position: 0 0px;
+a#cfar {
+  background: url(/static/cfar.png?20120720) no-repeat top left;
+  width: 69px;
+  background-position: 0 -78px;
+}
+a#siai:hover, a#fhi:hover, a#cfar:hover {
+  background-position: 0 0px;
 }
 
 
