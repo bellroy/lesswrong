@@ -557,7 +557,10 @@ function change_state_by_class(link, type, className) {
     return false;
 }
 
-function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, cleanup_func) {
+function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {
+    var cleanup_func = options["cleanup_func"] || null;
+    var worker_func = options["worker_func"] || null;
+
     var p = {uh: modhash};
     var id = _id(form);
     var status = $("status");
@@ -582,7 +585,7 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, c
             }
         }
     }
-    redditRequest(where, p, null, block, api_loc, cleanup_func);
+    redditRequest(where, p, worker_func, block, api_loc, cleanup_func);
     return false;
 }
 

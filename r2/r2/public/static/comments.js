@@ -247,13 +247,15 @@ function chkcomment(form) {
     }
 
     tagInProgress(form, true);
+    function setTagInProgressToFalse() {
+        tagInProgress(form, false);
+    }
+
     if(form.replace.value) {
-      return post_form(form, 'editcomment', null, null, true, null,
-                       function() { tagInProgress(form, false)});
+      return post_form(form, 'editcomment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
     }
     else {
-      return post_form(form, 'comment', null, null, true, null,
-                       function() { tagInProgress(form, false)});
+      return post_form(form, 'comment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
     }
 };
 
