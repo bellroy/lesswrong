@@ -391,6 +391,7 @@ function handleResponse(action, cleanup_func) {
                 $('status').innerHTML = '';
             return;
         }
+
         // first thing to check is if a redirect has been requested
         if(res_obj.redirect) {
             if(window.location.toString() == unsafe(res_obj.redirect)) {
@@ -400,6 +401,7 @@ function handleResponse(action, cleanup_func) {
             window.location = unsafe(res_obj.redirect);
             return;
         }
+
         // next check for errors
         var error = res_obj.error;
         if(error && error.name) {
@@ -413,11 +415,12 @@ function handleResponse(action, cleanup_func) {
         }
 
         if (cleanup_func) {
-          cleanup_func(res_obj);
+            cleanup_func(res_obj);
         }
   
-      var r = res_obj.response;
-        if(!r) return;
+        var r = res_obj.response;
+        if(!r)
+            return;
         var obj = r.object;
         if(obj) {
             my_iter(tup(obj),
@@ -433,10 +436,10 @@ function handleResponse(action, cleanup_func) {
         }
         // handle applied CSS
         if(r.call) {
-          var calls = r.call;
-          for(var i=0; i<calls.length; i++) {
-              eval(calls[i]);
-          }
+            var calls = r.call;
+            for(var i=0; i<calls.length; i++) {
+                eval(calls[i]);
+            }
         }
         // handle shifts of focus
         if (r.focus) {

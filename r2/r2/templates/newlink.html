@@ -141,7 +141,11 @@
 
         jQuery(form).bind("submit", function () {
           tinyMCE.get("article").save();
-          return post_form(this, "submit", linkstatus, null, true);
+          function prehandle(res_obj) {
+            if (res_obj && !res_obj.error)
+              BeforeUnload.unbind(unsavedPrompt);
+          }
+          return post_form(this, "submit", linkstatus, null, true, null, {prehandle_func: prehandle});
         });
       }
     })();
