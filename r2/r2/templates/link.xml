@@ -43,9 +43,11 @@
       votes = thing.score_fmt(thing.score)
       votes_lbl = ungettext("vote", "votes", votes)
     %>
+    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    &amp;bull;
     ${votes} ${votes_lbl}
     &amp;bull;
-    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
     %if hasattr(thing, 'article'):
       ${cleanhtml(thing.article)}
     %endif

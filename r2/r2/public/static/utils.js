@@ -4,6 +4,13 @@ function unsafe(text) {
 }
 
 
+function stripHTMLTagsDangerously(text) {
+    // This isn't injection-proof. Use it only where an injection couldn't possibly
+    // do any damage, such as tracking the dirtiness of rich textareas in forms.
+    return text.replace(/<[^>]+>/g, "");
+}
+
+
 function hide () {
     for (var i = 0; i < arguments.length; i++) {
             var e = $(arguments[i]);
@@ -88,10 +95,17 @@ function buildParams(parameters) {
 
 /* redditRequest: worker_in - the callback to process the ajax response.
                                if null, will use handleResponse
-                  cleanup_func - if this callback is specified, and worker_in
-                                 is not, then cleanup_func will be called on completion of the ajax call
+                  options - a hash of named arguments
+                  options.cleanup_func - if this callback is specified, and worker_in is not, then
+                                         cleanup_func will be called on completion of the ajax call
+                  options.prehandle_func - similar to cleanup_func, except that it is called
+                                           before processing of errors and redirects
  */
-function redditRequest(op, parameters, worker_in, block, api_loc, cleanup_func) {
+function redditRequest(op, parameters, worker_in, block, options) {
+    var api_loc = options.api_loc;
+    var cleanup_func = options.cleanup_func;
+    var prehandle_func = options.prehandle_func;
+
     var action = op;
     var worker = worker_in;
     if (!api_loc) {
@@ -109,7 +123,7 @@ function redditRequest(op, parameters, worker_in, block, api_loc, cleanup_func) 
     }
     op = api_loc + op;
     if(!worker) {
-        worker = handleResponse(action,cleanup_func);
+        worker = handleResponse(action, cleanup_func, prehandle_func);
     }
     else {
         worker = function(r) {
@@ -367,7 +381,7 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
-function handleResponse(action, cleanup_func) {
+function handleResponse(action, cleanup_func, prehandle_func) {
     var my_iter = function(x, func) {
         if(x) {
             var y = tup(x);
@@ -379,11 +393,17 @@ function handleResponse(action, cleanup_func) {
     var responseHandler = function(r) {
         remove_ajax_work(action);
         var res_obj = parse_response(r);
+
+        if (prehandle_func) {
+            prehandle_func(res_obj);
+        }
+
         if(!res_obj) {
             if($('status'))
                 $('status').innerHTML = '';
             return;
         }
+
         // first thing to check is if a redirect has been requested
         if(res_obj.redirect) {
             if(window.location.toString() == unsafe(res_obj.redirect)) {
@@ -393,6 +413,7 @@ function handleResponse(action, cleanup_func) {
             window.location = unsafe(res_obj.redirect);
             return;
         }
+
         // next check for errors
         var error = res_obj.error;
         if(error && error.name) {
@@ -406,11 +427,12 @@ function handleResponse(action, cleanup_func) {
         }
 
         if (cleanup_func) {
-          cleanup_func(res_obj);
+            cleanup_func(res_obj);
         }
   
-      var r = res_obj.response;
-        if(!r) return;
+        var r = res_obj.response;
+        if(!r)
+            return;
         var obj = r.object;
         if(obj) {
             my_iter(tup(obj),
@@ -426,10 +448,10 @@ function handleResponse(action, cleanup_func) {
         }
         // handle applied CSS
         if(r.call) {
-          var calls = r.call;
-          for(var i=0; i<calls.length; i++) {
-              eval(calls[i]);
-          }
+            var calls = r.call;
+            for(var i=0; i<calls.length; i++) {
+                eval(calls[i]);
+            }
         }
         // handle shifts of focus
         if (r.focus) {
@@ -477,6 +499,11 @@ function handleResponse(action, cleanup_func) {
     return responseHandler;
 }
 
+// Appends a string to the IDs of all nodes in a DOM tree. When called with
+// id="1_2", and the following node:
+//     <div id="a_"><input id="b_" /></div>
+// it modifies the ID attributes as follows:
+//     <div id="a_1_2"><input id="b_1_2" /></div>
 function re_id_node(node, id) {
     function add_id(s) {
         if(id && s && typeof(s) == "string") {
@@ -545,7 +572,11 @@ function change_state_by_class(link, type, className) {
     return false;
 }
 
-function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, cleanup_func) {
+function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {
+    var cleanup_func = options["cleanup_func"] || null;
+    var worker_func = options["worker_func"] || null;
+    var prehandle_func = options["prehandle_func"] || null;
+
     var p = {uh: modhash};
     var id = _id(form);
     var status = $("status");
@@ -570,7 +601,8 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, c
             }
         }
     }
-    redditRequest(where, p, null, block, api_loc, cleanup_func);
+    redditRequest(where, p, worker_func, block,
+        {api_loc: api_loc, cleanup_func: cleanup_func, prehandle_func: prehandle_func});
     return false;
 }
 
@@ -643,3 +675,58 @@ function continueEditing(continue_editing) {
     }
     return true;
 };
+
+
+var BeforeUnload = (function () {
+    var attached = false;
+    var handlers = [];
+
+    function makeHandler(argObj) {
+        var args = Array.prototype.slice.call(argObj, 0);
+        return {func: args[0], args: args.slice(1)};
+    }
+
+    function handlersEqual(x, y) {
+        if (x.func !== y.func || x.args.length !== y.args.length)
+            return false;
+        for (var a = 0, al = x.args.length; a < al; ++a)
+            if (x.args[a] !== y.args[a])
+                return false;
+        return true;
+    }
+
+    function onBeforeUnload(event) {
+        for (var h = 0, hl = handlers.length; h < hl; ++h) {
+            var handler = handlers[h];
+            var ret = handler.func.apply(this, handler.args);
+            if (ret)
+                return event.returnValue = ret;
+        }
+    }
+
+    function setAttached(value) {
+        if (value && !attached) {
+            jQuery(window).bind("beforeunload", onBeforeUnload);
+            attached = true;
+        } else if (!value && attached) {
+            jQuery(window).unbind("beforeunload", onBeforeUnload);
+            attached = false;
+        }
+    }
+
+    function bind(/* arguments */) {
+        handlers.push(makeHandler(arguments));
+        setAttached(true);
+    }
+
+    function unbind(/* arguments */) {
+        var givenHandler = makeHandler(arguments);
+        for (var h = handlers.length - 1; h >= 0; --h)
+            if (handlersEqual(handlers[h], givenHandler))
+                handlers.splice(h, 1);
+        setAttached(handlers.length > 0);
+    }
+
+    return {bind: bind, unbind: unbind};
+})();
+
