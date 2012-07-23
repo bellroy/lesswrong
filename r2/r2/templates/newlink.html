@@ -33,8 +33,7 @@
 ## Exists to be overidden by child templates
 <%def name="form_extra()"></%def>
 
-<%call expr="submit_form(onsubmit='tinyMCE.get(\'article\').save(); return post_form(this, \'submit\', linkstatus, null, true)',
-             action='/submit', _class='long-text content', _id='newlink')">
+<%call expr="submit_form(action='/submit', _class='long-text content', _id='newlink')">
   %if not thing.subreddits:
     <input type="hidden" name="sr" value="${c.site.name}" />
   %endif
@@ -116,6 +115,11 @@
         form.title.setAttribute("data-orig-value", form.title.value);
         form.article.setAttribute("data-orig-value", form.article.value);
         form.tags.setAttribute("data-orig-value", form.tags.value);
+
+        jQuery(form).bind("submit", function () {
+          tinyMCE.get("article").save();
+          return post_form(this, "submit", linkstatus, null, true);
+        });
 
         BeforeUnload.bind(function () {
           var message = "You've made changes to the article, but haven't submitted it.";
