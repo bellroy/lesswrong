@@ -95,10 +95,14 @@ function buildParams(parameters) {
 
 /* redditRequest: worker_in - the callback to process the ajax response.
                                if null, will use handleResponse
-                  cleanup_func - if this callback is specified, and worker_in
-                                 is not, then cleanup_func will be called on completion of the ajax call
+                  options - a hash of named arguments
+                  options.cleanup_func - if this callback is specified, and worker_in is not, then
+                                         cleanup_func will be called on completion of the ajax call
  */
-function redditRequest(op, parameters, worker_in, block, api_loc, cleanup_func) {
+function redditRequest(op, parameters, worker_in, block, options) {
+    var api_loc = options.api_loc;
+    var cleanup_func = options.cleanup_func;
+
     var action = op;
     var worker = worker_in;
     if (!api_loc) {
@@ -588,7 +592,8 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, o
             }
         }
     }
-    redditRequest(where, p, worker_func, block, api_loc, cleanup_func);
+    redditRequest(where, p, worker_func, block,
+        {api_loc: api_loc, cleanup_func: cleanup_func});
     return false;
 }
 
