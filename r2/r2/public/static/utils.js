@@ -98,10 +98,13 @@ function buildParams(parameters) {
                   options - a hash of named arguments
                   options.cleanup_func - if this callback is specified, and worker_in is not, then
                                          cleanup_func will be called on completion of the ajax call
+                  options.prehandle_func - similar to cleanup_func, except that it is called
+                                           before processing of errors and redirects
  */
 function redditRequest(op, parameters, worker_in, block, options) {
     var api_loc = options.api_loc;
     var cleanup_func = options.cleanup_func;
+    var prehandle_func = options.prehandle_func;
 
     var action = op;
     var worker = worker_in;
@@ -120,7 +123,7 @@ function redditRequest(op, parameters, worker_in, block, options) {
     }
     op = api_loc + op;
     if(!worker) {
-        worker = handleResponse(action,cleanup_func);
+        worker = handleResponse(action, cleanup_func, prehandle_func);
     }
     else {
         worker = function(r) {
@@ -378,7 +381,7 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
-function handleResponse(action, cleanup_func) {
+function handleResponse(action, cleanup_func, prehandle_func) {
     var my_iter = function(x, func) {
         if(x) {
             var y = tup(x);
@@ -390,6 +393,11 @@ function handleResponse(action, cleanup_func) {
     var responseHandler = function(r) {
         remove_ajax_work(action);
         var res_obj = parse_response(r);
+
+        if (prehandle_func) {
+            prehandle_func(res_obj);
+        }
+
         if(!res_obj) {
             if($('status'))
                 $('status').innerHTML = '';
@@ -567,6 +575,7 @@ function change_state_by_class(link, type, className) {
 function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {
     var cleanup_func = options["cleanup_func"] || null;
     var worker_func = options["worker_func"] || null;
+    var prehandle_func = options["prehandle_func"] || null;
 
     var p = {uh: modhash};
     var id = _id(form);
@@ -593,7 +602,7 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, o
         }
     }
     redditRequest(where, p, worker_func, block,
-        {api_loc: api_loc, cleanup_func: cleanup_func});
+        {api_loc: api_loc, cleanup_func: cleanup_func, prehandle_func: prehandle_func});
     return false;
 }
 
