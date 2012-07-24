@@ -102,6 +102,7 @@ function buildParams(parameters) {
                                            before processing of errors and redirects
  */
 function redditRequest(op, parameters, worker_in, block, options) {
+    options = options || {};
     var api_loc = options.api_loc;
     var cleanup_func = options.cleanup_func;
     var prehandle_func = options.prehandle_func;
