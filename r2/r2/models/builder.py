@@ -34,6 +34,7 @@ from r2.lib import utils
 from r2.lib.db import operators
 from r2.lib.cache import sgm
 from r2.lib.comment_tree import link_comments
+from r2.lib.menus import CommentSortMenu
 
 from copy import deepcopy, copy
 
@@ -338,6 +339,40 @@ class UnbannedCommentBuilder(QueryBuilder):
             return False
 
         return True
+
+class ContextualCommentBuilder(UnbannedCommentBuilder):
+    def __init__(self, query, sr_ids, **kw):
+        self.nested_wrap = kw.pop('wrap')
+        UnbannedCommentBuilder.__init__(self, query, sr_ids, wrap = None, **kw)
+        self.sort = CommentSortMenu.operator(CommentSortMenu.default)
+
+    def context_from_comment(self, comment):
+        num_to_display = 1
+
+        parent_id = getattr(comment, 'parent_id', None)
+        if parent_id is not None:
+            parent_comment = Comment._byID(parent_id)
+            if parent_comment:
+                comment = parent_comment
+                num_to_display += 1
+
+        link = Link._byID(comment.link_id)
+        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.nested_wrap)
+        tree = tree_builder.get_items(num_to_display)
+        return tree[0]
+
+    def get_items(self, num = None, nested = True):
+        things, prev, next, bcount, acount = UnbannedCommentBuilder.get_items(self)
+        things = map(self.context_from_comment, things)
+        return things
+
+    # Copied from CommentBuilder.item_iter
+    def item_iter(self, a):
+        for i in a:
+            yield i
+            if hasattr(i, 'child'):
+                for j in self.item_iter(i.child.things):
+                    yield j
 
 class SubredditTagBuilder(QueryBuilder):
 
