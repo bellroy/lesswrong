@@ -43,9 +43,10 @@ from admintools import compute_votes, admintools
 
 EXTRA_FACTOR = 1.5
 MAX_RECURSION = 10
+DEFAULT_WRAP = Wrapped
 
 class Builder(object):
-    def __init__(self, wrap = Wrapped, keep_fn = None):
+    def __init__(self, wrap = DEFAULT_WRAP, keep_fn = None):
         self.wrap = wrap
         self.keep_fn = keep_fn
 
@@ -186,7 +187,7 @@ class Builder(object):
             return True
 
 class QueryBuilder(Builder):
-    def __init__(self, query, wrap = Wrapped, keep_fn = None,
+    def __init__(self, query, wrap = DEFAULT_WRAP, keep_fn = None,
                  skip = False, **kw):
         Builder.__init__(self, wrap, keep_fn)
         self.query = query
