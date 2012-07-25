@@ -84,47 +84,47 @@
         <p>${checkbox(_("Don't show articles after i've liked them"), "hide_ups")}</p>
         <p>${checkbox(_("Don't show articles after i've disliked them"), "hide_downs")}</p>
         <%
-           # stuff I can soon delete:
-           _("Display")
-           _("Links at once")
-           _("Don't show me sites with a score less than")
-           _("Don't show me comments with a score less than")
-           _("Comments by default")
-           %>
+          # stuff I can soon delete:
+          _("Display")
+          _("Links at once")
+          _("Don't show me sites with a score less than")
+          _("Don't show me comments with a score less than")
+          _("Comments by default")
+        %>
         <p>
           ${unsafe(_("Display %(num)s articles at once") % \
           dict(num=capture(link_options)))}
         </p>
         <% 
-           input = capture(num_input, c.user.pref_min_link_score,
-           'min_link_score')
-           %>
+          input = capture(num_input, c.user.pref_min_link_score,
+          'min_link_score')
+        %>
         <p>
-        ${unsafe(_("Don't show me articles with a score less than %(num)s") % dict(num = input))}
-        &#32;<span class="little gray">${_("(Blank for none)")}</span>
+          ${unsafe(_("Don't show me articles with a score less than %(num)s") % dict(num = input))}
+          &#32;<span class="little gray">${_("(Blank for none)")}</span>
         </p>
       </td>
     </tr>
     <tr>
       <th>${_("Comment options")}</th>
       <td class="prefright">
-      <% 
-         input = capture(num_input, c.user.pref_min_comment_score,
-                         'min_comment_score')
-         %>
-      <p>
-        ${unsafe(_("Don't show me comments with a score less than %(num)s") % dict(num = input))}
-        &#32;<span class="little gray">${_("(Blank for none)")}</span>
-      </p>
-      <p>
         <% 
-         input = capture(num_input, c.user.pref_num_comments,
-         'num_comments')
-         %>
-      <% s = c.user.pref_num_comments %>
-      ${unsafe(_("Display %(num)s comments by default") % \
-      dict(num = input))}
-    &#32;<span class="little gray">(1 - ${g.max_comments})</span>
+          input = capture(num_input, c.user.pref_min_comment_score,
+                          'min_comment_score')
+        %>
+        <p>
+          ${unsafe(_("Don't show me comments with a score less than %(num)s") % dict(num = input))}
+          &#32;<span class="little gray">${_("(Blank for none)")}</span>
+        </p>
+        <%
+          input = capture(num_input, c.user.pref_num_comments,
+                          'num_comments')
+          s = c.user.pref_num_comments
+        %>
+        <p>
+          ${unsafe(_("Display %(num)s comments by default") % dict(num = input))}
+          &#32;<span class="little gray">(1 - ${g.max_comments})</span>
+        </p>
       </td>
     </tr>
     <tr>
