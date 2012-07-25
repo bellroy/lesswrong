@@ -451,8 +451,7 @@ class CommentBuilderMixin:
 
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
-        self.nested_wrap = kw.pop('wrap')
-        UnbannedCommentBuilder.__init__(self, query, sr_ids, wrap = None, **kw)
+        UnbannedCommentBuilder.__init__(self, query, sr_ids, **kw)
         self.sort = CommentSortMenu.operator(CommentSortMenu.default)
 
     def context_from_comment(self, comment):
@@ -466,12 +465,16 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
                 num_to_display += 1
 
         link = Link._byID(comment.link_id)
-        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.nested_wrap)
+        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.wrap)
         tree = tree_builder.get_items(num_to_display)
         return tree[0]
 
     def get_items(self, num = None, nested = True):
+        # call the base implementation, but defer wrapping until later
+        old_wrap, self.wrap = self.wrap, None
         things, prev, next, bcount, acount = UnbannedCommentBuilder.get_items(self)
+        self.wrap = old_wrap
+
         things = map(self.context_from_comment, things)
         return things
 
