@@ -429,8 +429,8 @@ class SearchBuilder(QueryBuilder):
         return done, new_items
 
 class CommentBuilder(Builder):
-    def __init__(self, link, sort, comment = None, context = None):
-        Builder.__init__(self)
+    def __init__(self, link, sort, comment = None, context = None, wrap = DEFAULT_WRAP):
+        Builder.__init__(self, wrap = wrap)
         self.link = link
         self.comment = comment
         self.context = context
