@@ -340,40 +340,6 @@ class UnbannedCommentBuilder(QueryBuilder):
 
         return True
 
-class ContextualCommentBuilder(UnbannedCommentBuilder):
-    def __init__(self, query, sr_ids, **kw):
-        self.nested_wrap = kw.pop('wrap')
-        UnbannedCommentBuilder.__init__(self, query, sr_ids, wrap = None, **kw)
-        self.sort = CommentSortMenu.operator(CommentSortMenu.default)
-
-    def context_from_comment(self, comment):
-        num_to_display = 1
-
-        parent_id = getattr(comment, 'parent_id', None)
-        if parent_id is not None:
-            parent_comment = Comment._byID(parent_id)
-            if parent_comment:
-                comment = parent_comment
-                num_to_display += 1
-
-        link = Link._byID(comment.link_id)
-        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.nested_wrap)
-        tree = tree_builder.get_items(num_to_display)
-        return tree[0]
-
-    def get_items(self, num = None, nested = True):
-        things, prev, next, bcount, acount = UnbannedCommentBuilder.get_items(self)
-        things = map(self.context_from_comment, things)
-        return things
-
-    # Copied from CommentBuilder.item_iter
-    def item_iter(self, a):
-        for i in a:
-            yield i
-            if hasattr(i, 'child'):
-                for j in self.item_iter(i.child.things):
-                    yield j
-
 class SubredditTagBuilder(QueryBuilder):
 
     def __init__(self, query, sr_ids, **kw):
@@ -463,7 +429,53 @@ class SearchBuilder(QueryBuilder):
 
         return done, new_items
 
-class CommentBuilder(Builder):
+class CommentBuilderMixin:
+    def item_iter(self, a):
+        for i in a:
+            yield i
+            if hasattr(i, 'child'):
+                for j in self.item_iter(i.child.things):
+                    yield j
+
+    def empty_listing(self, *things):
+        parent_name = None
+        for t in things:
+            try:
+                parent_name = t.parent_name
+                break
+            except AttributeError:
+                continue
+        l = Listing(None, None, parent_name = parent_name)
+        l.things = list(things)
+        return Wrapped(l)
+
+class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
+    def __init__(self, query, sr_ids, **kw):
+        self.nested_wrap = kw.pop('wrap')
+        UnbannedCommentBuilder.__init__(self, query, sr_ids, wrap = None, **kw)
+        self.sort = CommentSortMenu.operator(CommentSortMenu.default)
+
+    def context_from_comment(self, comment):
+        num_to_display = 1
+
+        parent_id = getattr(comment, 'parent_id', None)
+        if parent_id is not None:
+            parent_comment = Comment._byID(parent_id)
+            if parent_comment:
+                comment = parent_comment
+                num_to_display += 1
+
+        link = Link._byID(comment.link_id)
+        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.nested_wrap)
+        tree = tree_builder.get_items(num_to_display)
+        return tree[0]
+
+    def get_items(self, num = None, nested = True):
+        things, prev, next, bcount, acount = UnbannedCommentBuilder.get_items(self)
+        things = map(self.context_from_comment, things)
+        return things
+
+class CommentBuilder(CommentBuilderMixin, Builder):
     def __init__(self, link, sort, comment = None, context = None, wrap = DEFAULT_WRAP):
         Builder.__init__(self, wrap = wrap)
         self.link = link
@@ -476,13 +488,6 @@ class CommentBuilder(Builder):
             self.sort_key = lambda x: (getattr(x, sort.col), x._date)
         self.rev_sort = True if isinstance(sort, operators.desc) else False
 
-    def item_iter(self, a):
-        for i in a:
-            yield i
-            if hasattr(i, 'child'):
-                for j in self.item_iter(i.child.things):
-                    yield j
-
     def get_items(self, num, nested = True, starting_depth = 0):
         r = link_comments(self.link._id)
         cids, comment_tree, depth, num_children = r
@@ -491,18 +496,6 @@ class CommentBuilder(Builder):
                                          return_dict = False))
         else:
             comments = ()
-
-        def empty_listing(*things):
-            parent_name = None
-            for t in things:
-                try:
-                    parent_name = t.parent_name
-                    break
-                except AttributeError:
-                    continue
-            l = Listing(None, None, parent_name = parent_name)
-            l.things = list(things)
-            return Wrapped(l)
             
         comment_dict = dict((cm._id, cm) for cm in comments)
 
@@ -594,7 +587,7 @@ class CommentBuilder(Builder):
                 if hasattr(cm, 'parent_id') else None
             if parent:
                 if not hasattr(parent, 'child'):
-                    parent.child = empty_listing()
+                    parent.child = self.empty_listing()
                 parent.child.parent_name = parent._fullname
                 parent.child.things.append(cm)
             else:
@@ -603,7 +596,7 @@ class CommentBuilder(Builder):
         #put the extras in the tree
         for p_id, morelink in extra.iteritems():
             parent = cids[p_id]
-            parent.child = empty_listing(morelink)
+            parent.child = self.empty_listing(morelink)
             parent.child.parent_name = parent._fullname
 
         #put the remaining comments into the tree (the show more comments link)
@@ -639,7 +632,7 @@ class CommentBuilder(Builder):
                     if hasattr(parent, 'child'):
                         parent.child.things.append(w_mc2)
                     else:
-                        parent.child = empty_listing(w_mc2)
+                        parent.child = self.empty_listing(w_mc2)
                         parent.child.parent_name = parent._fullname
 
             #add more children
