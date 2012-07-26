@@ -140,13 +140,13 @@ Comment.checkModified = function(id) {
 /* Commenting on a link is handled by the Comment API so defer to it */
 Link.comment = Comment.comment;
 
-Comment.morechildren = function(r) {
-    var c = new Thing(r.id);
+Comment.morechildren = function(r, context) {
+    var c = new Thing(r.id, context);
     if(c.row) c.del();
-    var parent = new Thing(r.parent).child_listing();
+    var parent = new Thing(r.parent, context).child_listing();
     parent.append(unsafe(r.content));
 
-    var c = new Comment(r.id);
+    c = new Thing(r.id, context);
     c.show(true);
     vl[r.id] = r.vl;
 
@@ -188,8 +188,16 @@ function morechildren(form, link_id, children, depth) {
     //console.log("id="+id+" form="+form+" link_id="+link_id+" children="+children+" depth="+depth);
     form.innerHTML = _global_loading_tag;
     form.style.color="red";
-    redditRequest('morechildren', {link_id: link_id,
-                children: children, depth: depth, id: id});
+    var ajaxData = {link_id: link_id, children: children, depth: depth, id: id};
+    var context = jQuery(form).closest(".comment")[0];
+    redditRequest('morechildren', ajaxData, function (r) {
+        var res_obj = r && r.responseJSON;
+        var obj = res_obj.response && res_obj.response.object;
+        if (obj && obj.length) {
+            for (var o = 0, ol = obj.length; o < ol; ++o)
+                Comment.morechildren(obj[o].data, context);
+        }
+    });
     return false;
 };
 

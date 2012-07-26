@@ -1,11 +1,12 @@
-function Thing(id) {
-    this.__init__(id);
-};
+function Thing(id, context) {
+    this.__init__(id, context);
+}
 
 var reddit_thing_info = {fetch: []};
 Thing.prototype = {
-    __init__: function(id) {
+    __init__: function(id, context) {
         this._id = id;
+        this._context = context;
         this.row = this.$("thingrow");
         if (this.row) {
             /* initialize sizing info for animations if not already */
@@ -36,11 +37,16 @@ Thing.prototype = {
     },
 
     get: function(name) {
-        return $(name + '_' + this._id);
+        return this.$(name);
     },
 
     $: function(name) {
-        return $(name + '_' + this._id);
+        var domID = name + "_" + this._id;
+        if (!this._context)
+            return $(domID);
+        if (this._context.id === domID)
+            return this._context;
+        return jQuery(this._context).find("#" + domID)[0];
     },
 
     _fade_step: function(frac, fading) {
@@ -139,7 +145,7 @@ Thing.prototype = {
             child.insertBefore(l.ajaxHook, child.firstChild);
             child.insertBefore(l.listing,  child.firstChild);
         }
-        return new Listing(this._id);
+        return new Listing(this._id, this._context);
     },
     
     is_visible: function() {
@@ -245,15 +251,16 @@ Thing.del = function(r) {
     new Thing(r.id).del(true);
 };
 
-function Listing(id) {
-    this.__init__(id);
+function Listing(id, context) {
+    this.__init__(id, context);
 };
 
 Listing.prototype = { 
-    __init__: function(id) {
+    __init__: function(id, context) {
         if(id) {
             id = "_" + id;
         }
+        this._context = context;
         this.listing = $('siteTable' + id);
         this.ajax_hook = $('ajaxHook' + id);
         if(this.listing) {
@@ -283,7 +290,7 @@ Listing.prototype = {
         for(var i = 0; i < childs.length; i++) {
             var id = _id(childs[i]);
             if(id) {
-                var t = new Thing(id);
+                var t = new Thing(id, this._context);
                 t.set_height("fit");
                 t.hide();
                 things.unshift(t);
