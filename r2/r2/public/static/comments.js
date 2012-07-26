@@ -227,8 +227,8 @@ document.observe("dom:loaded", function() {
 });
 
 
-function editcomment(id)  {
-    new Comment(id).edit();
+function editcomment(id, link) {
+    new Comment(id, jQuery(link).closest(".comment").parent()[0]).edit();
 };
 
 function cancelReply(canceler) {
