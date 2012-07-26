@@ -73,16 +73,15 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
-Comment.getCommentReplyBox = function(id) {
-    id = id || '';
-    var s = $("samplecomment_" + id);
+Comment.prototype.getCommentReplyBox = function() {
+    var s = this.$("samplecomment");
     if (s)
         return s;
-    return re_id_node(ReplyTemplate().cloneNode(true), id);
+    return re_id_node(ReplyTemplate().cloneNode(true), this._id);
 };
 
 Comment.prototype._edit = function(listing, where, text) {
-    var edit_box = Comment.getCommentReplyBox(this._id);
+    var edit_box = this.getCommentReplyBox();
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -116,7 +115,7 @@ Comment.prototype.reply = function() {
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = Comment.getCommentReplyBox(this._id);
+    var edit_box = this.getCommentReplyBox();
     hide(edit_box);
     BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
