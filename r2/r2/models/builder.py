@@ -455,19 +455,29 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
         self.sort = CommentSortMenu.operator(CommentSortMenu.default)
 
     def context_from_comment(self, comment):
-        num_to_display = 1
+        link = Link._byID(comment.link_id)
+        wrapped, = self.wrap_items((comment,))
 
+        # If there are any child comments, add an expand link
+        children = list(Comment._query(Comment.c.parent_id == comment._id))
+        if children:
+            more = Wrapped(MoreChildren(link, 0))
+            more.children.extend(children)
+            more.count = len(children)
+            wrapped.child = self.empty_listing()
+            wrapped.child.things.append(more)
+
+        # If there's a parent comment, surround the child comment with it
         parent_id = getattr(comment, 'parent_id', None)
         if parent_id is not None:
             parent_comment = Comment._byID(parent_id)
             if parent_comment:
-                comment = parent_comment
-                num_to_display += 1
+                parent_wrapped, = self.wrap_items((parent_comment,))
+                parent_wrapped.child = self.empty_listing()
+                parent_wrapped.child.things.append(wrapped)
+                wrapped = parent_wrapped
 
-        link = Link._byID(comment.link_id)
-        tree_builder = CommentBuilder(link, self.sort, comment, wrap = self.wrap)
-        tree = tree_builder.get_items(num_to_display)
-        return tree[0]
+        return wrapped
 
     def get_items(self, num = None, nested = True):
         # call the base implementation, but defer wrapping until later
