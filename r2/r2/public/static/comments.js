@@ -61,8 +61,8 @@ function helpoff(link, what, newlabel) {
 
 function ReplyTemplate() { return $("samplecomment_"); }
 
-function Comment(id) {
-    this.__init__(id);
+function Comment(id, context) {
+    this.__init__(id, context);
     var edit_body = this.get("edit_body");
     if(edit_body) {
         this.text = decodeURIComponent(edit_body.innerHTML.replace(/\+/g, " "));
@@ -93,7 +93,7 @@ Comment.prototype._edit = function(listing, where, text) {
         p.removeChild(edit_box);
         p.insertBefore(edit_box, p.firstChild);
     }
-    var box = $("comment_reply_" + this._id);
+    var box = this.$("comment_reply");
     clearTitle(box);
     box.value = text;
     box.setAttribute("data-orig-value", text);
@@ -104,14 +104,14 @@ Comment.prototype._edit = function(listing, where, text) {
 
 Comment.prototype.edit = function() {
     this._edit(this.parent_listing(), this.row, this.text);
-    $("commentform_" + this._id).replace.value = "yes";
+    this.$("commentform").replace.value = "yes";
     this.hide();
 };   
 
 Comment.prototype.reply = function() {
     this._edit(this.child_listing(), null, '');
-    $("commentform_" + this._id).replace.value = "";
-    $("comment_reply_" + this._id).focus();
+    this.$("commentform").replace.value = "";
+    this.$("comment_reply").focus();
 };
 
 Comment.prototype.cancel = function() {
@@ -232,13 +232,13 @@ function editcomment(id)  {
 };
 
 function cancelReply(canceler) {
-    new Comment(_id(canceler)).cancel();
+    new Comment(_id(canceler), jQuery(canceler).closest(".comment")[0]).cancel();
 };
 
 
-function reply(id) {
+function reply(id, link) {
     if (logged) {
-        var com = new Comment(id).reply();
+        var com = new Comment(id, jQuery(link).closest(".comment")[0]).reply();
     }
     else {
         showcover(true, 'reply_' + id);

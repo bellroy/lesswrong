@@ -140,8 +140,8 @@ Thing.prototype = {
     
     child_listing: function() {
         var child = this.$("child");
-        if (!Listing.exists(this._id)) {
-            l = Listing.create(this._id);
+        if (!Listing.exists(this._id, this._context)) {
+            l = Listing.create(this._id, this._context);
             child.insertBefore(l.ajaxHook, child.firstChild);
             child.insertBefore(l.listing,  child.firstChild);
         }
@@ -257,19 +257,26 @@ function Listing(id, context) {
 
 Listing.prototype = { 
     __init__: function(id, context) {
-        if(id) {
-            id = "_" + id;
-        }
+        this._id = id;
         this._context = context;
-        this.listing = $('siteTable' + id);
-        this.ajax_hook = $('ajaxHook' + id);
+        this.listing = this.$('siteTable');
+        this.ajax_hook = this.$('ajaxHook');
         if(this.listing) {
             if(! this.listing.start_count) {
                 this.listing.start_count = this.visible_count();
             }
         }
     },
-    
+
+    $: function(name) {
+        var domID = name + (this._id ? "_" + this._id : "");
+        if (!this._context)
+            return $(domID);
+        if (this._context.id === domID)
+            return this._context;
+        return jQuery(this._context).find("#" + domID)[0];
+    },
+
     insert_node_before:  function(node, before_me, append_me) {
         before_me = before_me || this.listing.firstChild;
         if(!append_me && before_me) {
@@ -364,22 +371,22 @@ Listing.prototype = {
     }
 };
 
-Listing.exists = function(id) {
-    return $('siteTable_' + id);
+Listing.exists = function(id, context) {
+    return new Listing(id, context).$('siteTable');
 };
 
 Listing.attach = function(node) {
     var id = /siteTable_?(.*)/.exec(node.id);
     if (id) {
-        var listing = new Listing(id[1]);
+        var listing = new Listing(id[1], node);
         if (listing.listing) {
             return listing;
         }
     }
 };
 
-Listing.create = function(id) {
-    var l = new Listing(id);
+Listing.create = function(id, context) {
+    var l = new Listing(id, context);
     if (!l.listing) {
         l.listing = document.createElement("div");
         l.listing.id = "siteTable_" + id;
