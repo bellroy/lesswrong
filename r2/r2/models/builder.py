@@ -325,7 +325,6 @@ class QueryBuilder(Builder):
                 after_count)
 
 class UnbannedCommentBuilder(QueryBuilder):
-
     def __init__(self, query, sr_ids, **kw):
         self.sr_ids = sr_ids
         QueryBuilder.__init__(self, query, **kw)
@@ -341,7 +340,6 @@ class UnbannedCommentBuilder(QueryBuilder):
         return True
 
 class SubredditTagBuilder(QueryBuilder):
-
     def __init__(self, query, sr_ids, **kw):
         self.sr_ids = sr_ids
         QueryBuilder.__init__(self, query, **kw)
