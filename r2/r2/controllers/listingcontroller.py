@@ -541,6 +541,12 @@ class UserController(ListingController):
 
         return q
 
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        thing.show_response_to = True
+        return thing
+
     @validate(vuser = VExistingUname('username'))
     def GET_listing(self, where, vuser, **env):
         self.where = where
@@ -733,6 +739,15 @@ class CommentsController(ListingController):
                              wrap = self.builder_wrapper,
                              sr_ids = [c.current_or_default_sr._id])
         return b
+
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        if not c.user.pref_show_parent_comments:
+            # In other words, if we're using UnbannedCommentBuilder rather
+            # than ContextualCommentBuilder
+            thing.show_response_to = True
+        return thing
 
     def listing(self):
         """Listing to generate from the builder"""

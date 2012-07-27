@@ -475,6 +475,7 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
                 parent_wrapped.child.things.append(wrapped)
                 wrapped = parent_wrapped
 
+        wrapped.show_response_to = True
         return wrapped
 
     def get_items(self, num = None, nested = True):
