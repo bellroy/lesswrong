@@ -80,15 +80,16 @@ ${parent.collapsed()}
         <em>*</em>&nbsp;
       %endif
     </span>
+
     %if not thing.deleted:
        ${unsafe(self.score(thing, likes = thing.likes, _id = not collapse))}&#32;
     %endif
   %endif
   <a href="#" class="expand"
      %if collapse:
-       onclick="return showcomment('${fullname}')">
+       onclick="return showcomment('${fullname}', this)">
      %else:
-       onclick="return hidecomment('${fullname}')">
+       onclick="return hidecomment('${fullname}', this)">
      %endif
      [${_("+") if collapse else _("-")}]
   %if collapse:

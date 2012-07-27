@@ -291,14 +291,14 @@ function clearTitle(box) {
     }
 }
 
-function hidecomment(id) {
-    var com = new Comment(id);
+function hidecomment(id, link) {
+    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
     com.collapse();
     return false;
 }
 
-function showcomment(id) {
-    var com = new Comment(id);
+function showcomment(id, link) {
+    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
     com.uncollapse();
     return false;
 }
