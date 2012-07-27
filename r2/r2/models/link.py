@@ -910,7 +910,8 @@ class Comment(Thing, Printable):
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
-                     retracted = False)
+                     retracted = False,
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -1018,7 +1019,8 @@ class Comment(Thing, Printable):
                               wrapped.is_html,
                               wrapped.votable,
                               wrapped.retracted,
-                              wrapped.can_be_deleted))
+                              wrapped.can_be_deleted,
+                              wrapped.show_response_to))
         s = ''.join(s)
         return s
 

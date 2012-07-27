@@ -60,6 +60,7 @@ class Account(Thing):
                      pref_show_stylesheets = True,
                      pref_url = '',
                      pref_location = '',
+                     pref_show_parent_comments = False,
                      reported = 0,
                      report_made = 0,
                      report_correct = 0,
