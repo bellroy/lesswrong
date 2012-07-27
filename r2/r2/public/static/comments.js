@@ -127,12 +127,12 @@ Comment.prototype.cancel = function() {
     this.show();
 };
 
-Comment.comment = function(r) {
+Comment.comment = function(r, context) {
     var id = r.id;
     var parent_id = r.parent;
-    new Comment(parent_id).cancel(); 
-    new Listing(parent_id).push(unsafe(r.content));
-    new Comment(r.id).show();
+    new Comment(parent_id, context).cancel();
+    new Listing(parent_id, context).push(unsafe(r.content));
+    new Comment(r.id, context).show();
     vl[id] = r.vl;
 };
 
@@ -158,8 +158,8 @@ Comment.morechildren = function(r, context) {
     highlightNewComments();
 };
 
-Comment.editcomment = function(r) {
-    var com = new Comment(r.id);
+Comment.editcomment = function(r, context) {
+    var com = new Comment(r.id, context);
     com.get('body').innerHTML = unsafe(r.contentHTML);
     com.get('edit_body').innerHTML = unsafe(r.contentTxt);
     com.cancel();
@@ -260,16 +260,19 @@ function chkcomment(form) {
     }
 
     tagInProgress(form, true);
-    function setTagInProgressToFalse() {
-        tagInProgress(form, false);
-    }
 
-    if(form.replace.value) {
-      return post_form(form, 'editcomment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
-    }
-    else {
-      return post_form(form, 'comment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
-    }
+    var action = form.replace.value ? 'editcomment' : 'comment';
+    var context = jQuery(form).closest(".comment")[0];
+
+    return post_form(form, action, null, null, true, null, {worker_func: function (r) {
+        tagInProgress(form, false);
+        handleResponeErrorsRedirects(r);
+        var res_obj = r && r.responseJSON;
+        var obj = res_obj.response && res_obj.response.object;
+        if (obj && obj.length)
+            for (var o = 0, ol = obj.length; o < ol; ++o)
+                Comment[action](obj[o].data, context);
+    }});
 };
 
 function tagInProgress(form, inProgress) {
