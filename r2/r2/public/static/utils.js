@@ -382,6 +382,36 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
+function handleResponeErrorsRedirects(res_obj) {
+    if(!res_obj) {
+        if($('status'))
+            $('status').innerHTML = '';
+        return false;
+    }
+
+    // first thing to check is if a redirect has been requested
+    if(res_obj.redirect) {
+        if(window.location.toString() == unsafe(res_obj.redirect)) {
+            window.location.reload(true);
+            return false;
+        }
+        window.location = unsafe(res_obj.redirect);
+        return false;
+    }
+
+    // next check for errors
+    var error = res_obj.error;
+    if(error && error.name) {
+        var errid = error.name;
+        if (error.id) { errid += "_" + error.id; }
+        errid = $(errid);
+        if (errid) {
+            show(errid);
+            $(errid).innerHTML = error.message;
+        }
+    }
+}
+
 function handleResponse(action, cleanup_func, prehandle_func) {
     var my_iter = function(x, func) {
         if(x) {
@@ -395,41 +425,14 @@ function handleResponse(action, cleanup_func, prehandle_func) {
         remove_ajax_work(action);
         var res_obj = parse_response(r);
 
-        if (prehandle_func) {
+        if (prehandle_func)
             prehandle_func(res_obj);
-        }
 
-        if(!res_obj) {
-            if($('status'))
-                $('status').innerHTML = '';
+        if (handleResponseErrorsRedirects(res_obj) === false)
             return;
-        }
 
-        // first thing to check is if a redirect has been requested
-        if(res_obj.redirect) {
-            if(window.location.toString() == unsafe(res_obj.redirect)) {
-                window.location.reload(true);
-                return;
-            }
-            window.location = unsafe(res_obj.redirect);
-            return;
-        }
-
-        // next check for errors
-        var error = res_obj.error;
-        if(error && error.name) {
-            var errid = error.name;
-            if (error.id) { errid += "_" + error.id; }
-            errid = $(errid);
-            if (errid) {
-                show(errid);
-                $(errid).innerHTML = error.message;
-            }
-        }
-
-        if (cleanup_func) {
+        if (cleanup_func)
             cleanup_func(res_obj);
-        }
   
         var r = res_obj.response;
         if(!r)
