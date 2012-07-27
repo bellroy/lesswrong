@@ -266,8 +266,11 @@ function chkcomment(form) {
 
     return post_form(form, action, null, null, true, null, {worker_func: function (r) {
         tagInProgress(form, false);
-        handleResponeErrorsRedirects(r);
+
         var res_obj = r && r.responseJSON;
+        if (!res_obj)
+            return;
+        handleResponeErrorsRedirects(res_obj);
         var obj = res_obj.response && res_obj.response.object;
         if (obj && obj.length)
             for (var o = 0, ol = obj.length; o < ol; ++o)
