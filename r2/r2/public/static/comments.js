@@ -73,8 +73,14 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+// Works like $(), except uses the parent of context instead of context itself
+Comment.prototype.$parent = function (id, context) {
+    context = context || this._context;
+    return this.$(id, context && context.parentNode);
+}
+
 Comment.prototype.getCommentReplyBox = function() {
-    var s = this.$("samplecomment");
+    var s = this.$parent("samplecomment");
     if (s)
         return s;
     return re_id_node(ReplyTemplate().cloneNode(true), this._id);
@@ -93,7 +99,7 @@ Comment.prototype._edit = function(listing, where, text) {
         p.removeChild(edit_box);
         p.insertBefore(edit_box, p.firstChild);
     }
-    var box = this.$("comment_reply");
+    var box = this.$parent("comment_reply");
     clearTitle(box);
     box.value = text;
     box.setAttribute("data-orig-value", text);
@@ -104,14 +110,14 @@ Comment.prototype._edit = function(listing, where, text) {
 
 Comment.prototype.edit = function() {
     this._edit(this.parent_listing(), this.row, this.text);
-    this.$("commentform").replace.value = "yes";
+    this.$parent("commentform").replace.value = "yes";
     this.hide();
 };   
 
 Comment.prototype.reply = function() {
     this._edit(this.child_listing(), null, '');
-    this.$("commentform").replace.value = "";
-    this.$("comment_reply").focus();
+    this.$parent("commentform").replace.value = "";
+    this.$parent("comment_reply").focus();
 };
 
 Comment.prototype.cancel = function() {
@@ -228,7 +234,7 @@ document.observe("dom:loaded", function() {
 
 
 function editcomment(id, link) {
-    new Comment(id, jQuery(link).closest(".comment").parent()[0]).edit();
+    new Comment(id, jQuery(link).closest(".comment")[0]).edit();
 };
 
 function cancelReply(canceler) {

@@ -40,13 +40,16 @@ Thing.prototype = {
         return this.$(name);
     },
 
-    $: function(name) {
+    $: function(name, context) {
         var domID = name + "_" + this._id;
-        if (!this._context)
+        if (!context)
+            context = this._context;
+
+        if (!context)
             return $(domID);
-        if (this._context.id === domID)
-            return this._context;
-        return jQuery(this._context).find("#" + domID)[0];
+        if (context.id === domID)
+            return context;
+        return jQuery(context).find("#" + domID)[0];
     },
 
     _fade_step: function(frac, fading) {
