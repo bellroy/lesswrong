@@ -541,6 +541,12 @@ class UserController(ListingController):
 
         return q
 
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        thing.show_response_to = True
+        return thing
+
     @validate(vuser = VExistingUname('username'))
     def GET_listing(self, where, vuser, **env):
         self.where = where
@@ -720,7 +726,11 @@ class CommentsController(ListingController):
         return q
 
     def builder(self):
-        b = self.builder_cls(self.query_obj,
+        if c.user.pref_show_parent_comments:
+            builder_cls = ContextualCommentBuilder
+        else:
+            builder_cls = UnbannedCommentBuilder
+        b = builder_cls(self.query_obj,
                              num = self.num,
                              skip = self.skip,
                              after = self.after,
@@ -729,6 +739,23 @@ class CommentsController(ListingController):
                              wrap = self.builder_wrapper,
                              sr_ids = [c.current_or_default_sr._id])
         return b
+
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        if not c.user.pref_show_parent_comments:
+            # In other words, if we're using UnbannedCommentBuilder rather
+            # than ContextualCommentBuilder
+            thing.show_response_to = True
+        return thing
+
+    def listing(self):
+        """Listing to generate from the builder"""
+        if c.user.pref_show_parent_comments:
+            listing = NestedListing(self.builder_obj, show_nums = self.show_nums)
+        else:
+            listing = LinkListing(self.builder_obj, show_nums = self.show_nums)
+        return listing.listing()
 
 
     def content(self):

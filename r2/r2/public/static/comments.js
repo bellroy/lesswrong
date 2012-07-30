@@ -61,8 +61,8 @@ function helpoff(link, what, newlabel) {
 
 function ReplyTemplate() { return $("samplecomment_"); }
 
-function Comment(id) {
-    this.__init__(id);
+function Comment(id, context) {
+    this.__init__(id, context);
     var edit_body = this.get("edit_body");
     if(edit_body) {
         this.text = decodeURIComponent(edit_body.innerHTML.replace(/\+/g, " "));
@@ -73,16 +73,21 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
-Comment.getCommentReplyBox = function(id) {
-    id = id || '';
-    var s = $("samplecomment_" + id);
+// Works like $(), except uses the parent of context instead of context itself
+Comment.prototype.$parent = function (id, context) {
+    context = context || this._context;
+    return this.$(id, context && context.parentNode);
+}
+
+Comment.prototype.getCommentReplyBox = function() {
+    var s = this.$parent("samplecomment");
     if (s)
         return s;
-    return re_id_node(ReplyTemplate().cloneNode(true), id);
+    return re_id_node(ReplyTemplate().cloneNode(true), this._id);
 };
 
 Comment.prototype._edit = function(listing, where, text) {
-    var edit_box = Comment.getCommentReplyBox(this._id);
+    var edit_box = this.getCommentReplyBox();
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -94,7 +99,7 @@ Comment.prototype._edit = function(listing, where, text) {
         p.removeChild(edit_box);
         p.insertBefore(edit_box, p.firstChild);
     }
-    var box = $("comment_reply_" + this._id);
+    var box = this.$parent("comment_reply");
     clearTitle(box);
     box.value = text;
     box.setAttribute("data-orig-value", text);
@@ -105,29 +110,29 @@ Comment.prototype._edit = function(listing, where, text) {
 
 Comment.prototype.edit = function() {
     this._edit(this.parent_listing(), this.row, this.text);
-    $("commentform_" + this._id).replace.value = "yes";
+    this.$parent("commentform").replace.value = "yes";
     this.hide();
 };   
 
 Comment.prototype.reply = function() {
     this._edit(this.child_listing(), null, '');
-    $("commentform_" + this._id).replace.value = "";
-    $("comment_reply_" + this._id).focus();
+    this.$parent("commentform").replace.value = "";
+    this.$parent("comment_reply").focus();
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = Comment.getCommentReplyBox(this._id);
+    var edit_box = this.getCommentReplyBox();
     hide(edit_box);
     BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
 
-Comment.comment = function(r) {
+Comment.comment = function(r, context) {
     var id = r.id;
     var parent_id = r.parent;
-    new Comment(parent_id).cancel(); 
-    new Listing(parent_id).push(unsafe(r.content));
-    new Comment(r.id).show();
+    new Comment(parent_id, context).cancel();
+    new Listing(parent_id, context).push(unsafe(r.content));
+    new Comment(r.id, context).show();
     vl[id] = r.vl;
 };
 
@@ -140,21 +145,21 @@ Comment.checkModified = function(id) {
 /* Commenting on a link is handled by the Comment API so defer to it */
 Link.comment = Comment.comment;
 
-Comment.morechildren = function(r) {
-    var c = new Thing(r.id);
+Comment.morechildren = function(r, context) {
+    var c = new Thing(r.id, context);
     if(c.row) c.del();
-    var parent = new Thing(r.parent).child_listing();
+    var parent = new Thing(r.parent, context).child_listing();
     parent.append(unsafe(r.content));
 
-    var c = new Comment(r.id);
+    c = new Thing(r.id, context);
     c.show(true);
     vl[r.id] = r.vl;
 
     highlightNewComments();
 };
 
-Comment.editcomment = function(r) {
-    var com = new Comment(r.id);
+Comment.editcomment = function(r, context) {
+    var com = new Comment(r.id, context);
     com.get('body').innerHTML = unsafe(r.contentHTML);
     com.get('edit_body').innerHTML = unsafe(r.contentTxt);
     com.cancel();
@@ -188,8 +193,16 @@ function morechildren(form, link_id, children, depth) {
     //console.log("id="+id+" form="+form+" link_id="+link_id+" children="+children+" depth="+depth);
     form.innerHTML = _global_loading_tag;
     form.style.color="red";
-    redditRequest('morechildren', {link_id: link_id,
-                children: children, depth: depth, id: id});
+    var ajaxData = {link_id: link_id, children: children, depth: depth, id: id};
+    var context = jQuery(form).closest(".comment")[0];
+    redditRequest('morechildren', ajaxData, function (r) {
+        var res_obj = r && r.responseJSON;
+        var obj = res_obj.response && res_obj.response.object;
+        if (obj && obj.length) {
+            for (var o = 0, ol = obj.length; o < ol; ++o)
+                Comment.morechildren(obj[o].data, context);
+        }
+    });
     return false;
 };
 
@@ -220,18 +233,18 @@ document.observe("dom:loaded", function() {
 });
 
 
-function editcomment(id)  {
-    new Comment(id).edit();
+function editcomment(id, link) {
+    new Comment(id, jQuery(link).closest(".comment")[0]).edit();
 };
 
 function cancelReply(canceler) {
-    new Comment(_id(canceler)).cancel();
+    new Comment(_id(canceler), jQuery(canceler).closest(".comment")[0]).cancel();
 };
 
 
-function reply(id) {
+function reply(id, link) {
     if (logged) {
-        var com = new Comment(id).reply();
+        var com = new Comment(id, jQuery(link).closest(".comment")[0]).reply();
     }
     else {
         showcover(true, 'reply_' + id);
@@ -247,16 +260,22 @@ function chkcomment(form) {
     }
 
     tagInProgress(form, true);
-    function setTagInProgressToFalse() {
-        tagInProgress(form, false);
-    }
 
-    if(form.replace.value) {
-      return post_form(form, 'editcomment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
-    }
-    else {
-      return post_form(form, 'comment', null, null, true, null, {cleanup_func: setTagInProgressToFalse});
-    }
+    var action = form.replace.value ? 'editcomment' : 'comment';
+    var context = jQuery(form).closest(".comment")[0];
+
+    return post_form(form, action, null, null, true, null, {worker_func: function (r) {
+        tagInProgress(form, false);
+
+        var res_obj = r && r.responseJSON;
+        if (!res_obj)
+            return;
+        handleResponeErrorsRedirects(res_obj);
+        var obj = res_obj.response && res_obj.response.object;
+        if (obj && obj.length)
+            for (var o = 0, ol = obj.length; o < ol; ++o)
+                Comment[action](obj[o].data, context);
+    }});
 };
 
 function tagInProgress(form, inProgress) {
@@ -284,14 +303,14 @@ function clearTitle(box) {
     }
 }
 
-function hidecomment(id) {
-    var com = new Comment(id);
+function hidecomment(id, link) {
+    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
     com.collapse();
     return false;
 }
 
-function showcomment(id) {
-    var com = new Comment(id);
+function showcomment(id, link) {
+    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
     com.uncollapse();
     return false;
 }
