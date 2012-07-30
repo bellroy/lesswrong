@@ -428,13 +428,6 @@ class SearchBuilder(QueryBuilder):
         return done, new_items
 
 class CommentBuilderMixin:
-    def item_iter(self, a):
-        for i in a:
-            yield i
-            if hasattr(i, 'child'):
-                for j in self.item_iter(i.child.things):
-                    yield j
-
     def empty_listing(self, *things):
         parent_name = None
         for t in things:
@@ -478,14 +471,14 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
         wrapped.show_response_to = True
         return wrapped
 
-    def get_items(self, num = None, nested = True):
+    def get_items(self):
         # call the base implementation, but defer wrapping until later
         old_wrap, self.wrap = self.wrap, None
         things, prev, next, bcount, acount = UnbannedCommentBuilder.get_items(self)
         self.wrap = old_wrap
 
         things = map(self.context_from_comment, things)
-        return things
+        return things, prev, next, bcount, acount
 
 class CommentBuilder(CommentBuilderMixin, Builder):
     def __init__(self, link, sort, comment = None, context = None, wrap = DEFAULT_WRAP):
@@ -499,6 +492,13 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         else:
             self.sort_key = lambda x: (getattr(x, sort.col), x._date)
         self.rev_sort = True if isinstance(sort, operators.desc) else False
+
+    def item_iter(self, a):
+        for i in a:
+            yield i
+            if hasattr(i, 'child'):
+                for j in self.item_iter(i.child.things):
+                    yield j
 
     def get_items(self, num, nested = True, starting_depth = 0):
         r = link_comments(self.link._id)
