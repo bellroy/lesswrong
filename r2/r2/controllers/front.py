@@ -125,11 +125,11 @@ class FrontController(RedditController):
     def GET_comments(self, article, comment, context, sort, num_comments):
         """Comment page for a given 'article'."""
         if comment and comment.link_id != article._id:
-            return self.abort404()    
-
-        if not c.default_sr and c.site._id != article.sr_id: 
             return self.abort404()
-        
+
+        if not c.default_sr and c.site._id != article.sr_id:
+            return self.redirect(article.make_permalink_slow(), 301)
+
         # moderator is either reddit's moderator or an admin
         is_moderator = c.user_is_loggedin and c.site.is_moderator(c.user) or c.user_is_admin
         if article._spam and not is_moderator:
