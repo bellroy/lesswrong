@@ -711,6 +711,7 @@ class MyredditsController(ListingController):
 class CommentsController(ListingController):
     title_text = _('Comments')
     builder_cls = UnbannedCommentBuilder
+    show_nums = False
 
     @property
     def header_sub_nav(self):
@@ -748,14 +749,6 @@ class CommentsController(ListingController):
             # than ContextualCommentBuilder
             thing.show_response_to = True
         return thing
-
-    def listing(self):
-        """Listing to generate from the builder"""
-        if c.user.pref_show_parent_comments:
-            listing = NestedListing(self.builder_obj, show_nums = self.show_nums)
-        else:
-            listing = LinkListing(self.builder_obj, show_nums = self.show_nums)
-        return listing.listing()
 
 
     def content(self):
