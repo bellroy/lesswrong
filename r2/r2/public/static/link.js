@@ -144,7 +144,7 @@ Thing.prototype = {
     child_listing: function() {
         var child = this.$("child");
         if (!Listing.exists(this._id, this._context)) {
-            l = Listing.create(this._id, this._context);
+            var l = Listing.create(this._id, this._context);
             child.insertBefore(l.ajaxHook, child.firstChild);
             child.insertBefore(l.listing,  child.firstChild);
         }
