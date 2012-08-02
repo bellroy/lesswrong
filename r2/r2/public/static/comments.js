@@ -259,23 +259,24 @@ function chkcomment(form) {
         return false;
     }
 
-    tagInProgress(form, true);
-
     var action = form.replace.value ? 'editcomment' : 'comment';
     var context = jQuery(form).closest(".comment")[0];
 
-    return post_form(form, action, null, null, true, null, {worker_func: function (r) {
+    tagInProgress(form, true);
+
+    function cleanup_func(res_obj) {
         tagInProgress(form, false);
 
-        var res_obj = r && r.responseJSON;
-        if (!res_obj || handleResponseErrorsRedirects(res_obj) === false)
-            return;
-
-        var obj = res_obj.response && res_obj.response.object;
+        var obj = res_obj && res_obj.response && res_obj.response.object;
         if (obj && obj.length)
             for (var o = 0, ol = obj.length; o < ol; ++o)
                 Comment[action](obj[o].data, context);
-    }});
+    }
+
+    return post_form(form, action, null, null, true, null, {
+        handle_obj: false,
+        cleanup_func: cleanup_func
+    });
 };
 
 function tagInProgress(form, inProgress) {
