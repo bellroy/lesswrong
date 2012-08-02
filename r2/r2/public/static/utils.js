@@ -577,6 +577,7 @@ function change_state_by_class(link, type, className) {
 }
 
 function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {
+    options = options || {};
     var cleanup_func = options["cleanup_func"] || null;
     var worker_func = options["worker_func"] || null;
     var prehandle_func = options["prehandle_func"] || null;
