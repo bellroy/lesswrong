@@ -382,7 +382,7 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
-function handleResponeErrorsRedirects(res_obj) {
+function handleResponseErrorsRedirects(res_obj) {
     if(!res_obj) {
         if($('status'))
             $('status').innerHTML = '';
