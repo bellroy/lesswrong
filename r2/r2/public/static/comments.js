@@ -86,7 +86,7 @@ Comment.prototype.getCommentReplyBox = function() {
     return re_id_node(ReplyTemplate().cloneNode(true), this._id);
 };
 
-Comment.prototype._edit = function(listing, where, text) {
+Comment.prototype.show_editor = function(listing, where, text) {
     var edit_box = this.getCommentReplyBox();
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
@@ -109,13 +109,13 @@ Comment.prototype._edit = function(listing, where, text) {
 };
 
 Comment.prototype.edit = function() {
-    this._edit(this.parent_listing(), this.row, this.text);
+    this.show_editor(this.parent_listing(), this.row, this.text);
     this.$parent("commentform").replace.value = "yes";
     this.hide();
 };   
 
 Comment.prototype.reply = function() {
-    this._edit(this.child_listing(), null, '');
+    this.show_editor(this.child_listing(), null, '');
     this.$parent("commentform").replace.value = "";
     this.$parent("comment_reply").focus();
 };
