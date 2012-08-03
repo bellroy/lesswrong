@@ -226,8 +226,10 @@ function highlightNewComments() {
 
 // Display the 'load all comments' if there any to be loaded
 document.observe("dom:loaded", function() {
-  if ($$('.morechildren a').length > 0)
-    $$('#loadAllComments')[0].show();
+  if ($$('.morechildren a').length > 0) {
+    var loadAll = $$('#loadAllComments').first();
+    if (loadAll) loadAll.show();
+  }
 
   highlightNewComments();
 });
