@@ -631,8 +631,15 @@ class ApiController(RedditController):
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
 
-        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT),
-                          parent._fullname):
+        # assess a tax on replies to downvoted comments
+        if parent_comment and parent_comment._score <= -3:
+            if c.user.safe_karma < 5:
+                c.errors.add(errors.NOT_ENOUGH_KARMA)
+            else:
+                c.user.incr_karma('comment', sr, -5)
+
+        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
+                           parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
         res._show('reply_' + parent._fullname)
