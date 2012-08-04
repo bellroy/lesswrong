@@ -111,12 +111,41 @@ Comment.prototype.edit = function() {
     this.show_editor(this.parent_listing(), this.row, this.text);
     this.$parent("commentform").replace.value = "yes";
     this.hide();
-};   
+};
+
+Comment.prototype.showFlamebaitOverlay = function (edit_box) {
+    var comment = this;
+    var overlay = this.$("flamebaitcommentoverlay");
+    if (overlay)
+        return;
+
+    overlay = this.cloneAndReIDNodeOnce("flamebaitcommentoverlay");
+    jQuery(edit_box).children().hide();
+    edit_box.appendChild(overlay);
+    show(overlay);
+
+    function hideWarning() {
+        overlay.remove();
+        jQuery(edit_box).find("form").show();
+    }
+    function cancel() {
+        comment.cancel();
+    }
+
+    var buttons = jQuery(overlay).find("input");
+    if (buttons) {  // buttons will only exist if user has enough karma
+        jQuery(buttons[0]).bind("click", hideWarning);
+        jQuery(buttons[1]).bind("click", cancel);
+    }
+}
 
 Comment.prototype.reply = function() {
-    this.show_editor(this.child_listing(), null, '');
+    var edit_box = this.show_editor(this.child_listing(), null, '');
     this.$parent("commentform").replace.value = "";
-    this.$parent("comment_reply").focus();
+    if (this.getScore() <= -3)
+        this.showFlamebaitOverlay(edit_box);
+    else
+        this.$parent("comment_reply").focus();
 };
 
 Comment.prototype.cancel = function() {
@@ -165,6 +194,15 @@ Comment.editcomment = function(r, context) {
     com.show();
 };
 
+Comment.prototype.getScore = function (id) {
+    var node = this.get('score');
+    if (!node)
+        throw new Error();
+    var match = /-?\d+/.exec(node.innerHTML);
+    if (!match)
+        throw new Error();
+    return parseInt(match[0], 10);
+}
 
 Comment.prototype.collapse = function() { 
     hide(this.get('child'));

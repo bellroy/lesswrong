@@ -94,3 +94,14 @@
   </div>
 </div>
 
+%if not thing.link_name:
+<div id="flamebaitcommentoverlay_" style="display:none">
+  %if c.user.safe_karma < 5:
+      Replies to downvoted comments are discouraged. You don't have the requisite 5 Karma points to proceed.
+  %else:
+    <div>Replies to downvoted comments are discouraged. Pay 5 Karma points to proceed anyway?</div>
+    <div><input type="button" value="Yes"> <input type="button" value="No"></div>
+  %endif
+</div>
+%endif
+
