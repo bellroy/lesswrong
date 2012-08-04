@@ -59,8 +59,6 @@ function helpoff(link, what, newlabel) {
 }
 
 
-function ReplyTemplate() { return $("samplecomment_"); }
-
 function Comment(id, context) {
     this.__init__(id, context);
     var edit_body = this.get("edit_body");
@@ -79,15 +77,16 @@ Comment.prototype.$parent = function (id, context) {
     return this.$(id, context && context.parentNode);
 }
 
-Comment.prototype.getCommentReplyBox = function() {
-    var s = this.$parent("samplecomment");
+Comment.prototype.cloneAndReIDNodeOnce = function(id) {
+    var s = this.$parent(id);
     if (s)
         return s;
-    return re_id_node(ReplyTemplate().cloneNode(true), this._id);
+    var template = $(id) || $(id + '_');  // '_' is optional, consistent with re_id_node
+    return re_id_node(template.cloneNode(true), this._id);
 };
 
 Comment.prototype.show_editor = function(listing, where, text) {
-    var edit_box = this.getCommentReplyBox();
+    var edit_box = this.cloneAndReIDNodeOnce("samplecomment");
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -121,7 +120,7 @@ Comment.prototype.reply = function() {
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = this.getCommentReplyBox();
+    var edit_box = this.cloneAndReIDNodeOnce("samplecomment");
     hide(edit_box);
     BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
