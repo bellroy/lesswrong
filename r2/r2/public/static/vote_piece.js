@@ -52,9 +52,8 @@ function readCookie(name) {
     createCookie("mod", readCookie("mod") + id + "=" + c + ":");
     }*/
 
-function set_score(id, dir) 
-{
-   var label = vl[id];
+function set_score(id, dir) {
+    var label = vl[id];
     var score = $("score_" + id);
     if(score) {
         score.className = scorecls[dir+1];
