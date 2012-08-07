@@ -255,7 +255,7 @@ Thing.del = function(r) {
 };
 
 // Given any node, return its containing thingrow
-Thing.findContext = function(element) {
+Thing.findThingRow = function(element) {
     do {
         if (/^thingrow_/.test(element.id))
             return element;
