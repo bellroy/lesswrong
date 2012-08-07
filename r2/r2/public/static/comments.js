@@ -194,7 +194,7 @@ function morechildren(form, link_id, children, depth) {
     form.innerHTML = _global_loading_tag;
     form.style.color="red";
     var ajaxData = {link_id: link_id, children: children, depth: depth, id: id};
-    var context = jQuery(form).closest(".comment")[0];
+    var context = Thing.findContext(form);
     redditRequest('morechildren', ajaxData, function (r) {
         var res_obj = r && r.responseJSON;
         var obj = res_obj.response && res_obj.response.object;
@@ -236,17 +236,17 @@ document.observe("dom:loaded", function() {
 
 
 function editcomment(id, link) {
-    new Comment(id, jQuery(link).closest(".comment")[0]).edit();
+    new Comment(id, Thing.findContext(link)).edit();
 };
 
 function cancelReply(canceler) {
-    new Comment(_id(canceler), jQuery(canceler).closest(".comment")[0]).cancel();
+    new Comment(_id(canceler), Thing.findContext(canceler)).cancel();
 };
 
 
 function reply(id, link) {
     if (logged) {
-        var com = new Comment(id, jQuery(link).closest(".comment")[0]).reply();
+        var com = new Comment(id, Thing.findContext(link)).reply();
     }
     else {
         showcover(true, 'reply_' + id);
@@ -262,7 +262,7 @@ function chkcomment(form) {
     }
 
     var action = form.replace.value ? 'editcomment' : 'comment';
-    var context = jQuery(form).closest(".comment")[0];
+    var context = Thing.findContext(form);
 
     tagInProgress(form, true);
 
@@ -307,13 +307,13 @@ function clearTitle(box) {
 }
 
 function hidecomment(id, link) {
-    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
+    var com = new Comment(id, Thing.findContext(link));
     com.collapse();
     return false;
 }
 
 function showcomment(id, link) {
-    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
+    var com = new Comment(id, Thing.findContext(link));
     com.uncollapse();
     return false;
 }

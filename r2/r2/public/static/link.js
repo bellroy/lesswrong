@@ -254,6 +254,14 @@ Thing.del = function(r) {
     new Thing(r.id).del(true);
 };
 
+// Given any node, return its containing thingrow
+Thing.findContext = function(element) {
+    do {
+        if (/^thingrow_/.test(element.id))
+            return element;
+    } while (element = element.parentNode);
+}
+
 function Listing(id, context) {
     this.__init__(id, context);
 };
