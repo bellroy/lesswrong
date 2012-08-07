@@ -52,9 +52,9 @@ function readCookie(name) {
     createCookie("mod", readCookie("mod") + id + "=" + c + ":");
     }*/
 
-function set_score(id, dir) {
+function set_score(id, dir, context) {
     var label = vl[id];
-    var score = $("score_" + id);
+    var score = context ? jQuery(context).find("#score_" + id)[0] : $("score_" + id);
     if(score) {
         score.className = scorecls[dir+1];
         score.innerHTML = label   [dir+1];
@@ -92,7 +92,7 @@ function castVote(button, voteHash) {
                 // buttons and the score.
                 up.className    = upcls   [old_dir+1];
                 down.className  = downcls [old_dir+1];
-                set_score(id, old_dir);
+                set_score(id, old_dir, thing.row);
             }
         }
 
@@ -103,5 +103,5 @@ function castVote(button, voteHash) {
     // Update the vote buttons and the score.
     up.className    = upcls   [dir+1];
     down.className  = downcls [dir+1];
-    set_score(id, dir);
+    set_score(id, dir, thing.row);
 }
