@@ -62,33 +62,15 @@ function set_score(id, dir)
     }
 }
 
-// Vote a thing up or down
-// id - thing's fullname
-// uc - 1 for up, 0 for down
-// vh - vote hash
-function castVote(id, uc, vh) {
-    if (vh == null) vh = '';
-
+function castVote(button, voteHash) {
     //logged is global
-    var up = $("up_" + id);
-    var down = $("down_" + id);
-    var status = $("status_" + id);
-    var dir = -1;
-    var old_dir = 0;
-
-    if (uc && up.className == upm || !uc && down.className == downm) {
-        dir = 0;
-    }
-    else if (uc) {
-        dir = 1;
-    }
-
-    if (up.className == upm) {
-        old_dir = 1;
-    }
-    else if (down.className == downm) {
-        old_dir = -1;
-    }
+    var id = _id(button)
+    var thing = new Thing(id, Thing.findThingRow(button))
+    var up = thing.$("up");
+    var down = thing.$("down");
+    var status = thing.$("status");
+    var dir = /\bmod\b/.test(button.className) ? 0 : button === up ? 1 : -1;
+    var old_dir = up.className === upm ? 1 : down.className === downm ? -1 : 0;
 
     if (logged) {
         // Ensure the status field for this vote is hidden.
@@ -116,7 +98,7 @@ function castVote(id, uc, vh) {
         }
 
         // Initiate the ajax request to vote.
-        redditRequest(action, {id: id, uh: modhash, dir: dir, vh: vh}, hard_worker);
+        redditRequest(action, {id: id, uh: modhash, dir: dir, vh: voteHash || ""}, hard_worker);
     }
 
     // Update the vote buttons and the score.
