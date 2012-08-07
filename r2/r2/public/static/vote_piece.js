@@ -62,7 +62,11 @@ function set_score(id, dir)
     }
 }
 
-function mod(id, uc, vh) {
+// Vote a thing up or down
+// id - thing's fullname
+// uc - 1 for up, 0 for down
+// vh - vote hash
+function castVote(id, uc, vh) {
     if (vh == null) vh = '';
 
     //logged is global
