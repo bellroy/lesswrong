@@ -77,10 +77,14 @@ function castVote(button, voteHash) {
         hide(status);
 
     function cleanup_func(r) {
-        if (!r.update) {  // r.update is only set on errors
-            up.className    = upcls   [dir+1];
-            down.className  = downcls [dir+1];
-            set_score(id, dir, thing.row);
+        if (r.response && r.response.update)  // "update" is only set on errors
+            return;
+
+        var things = Thing.findAll(id);
+        for (var t = 0, tl = things.length; t < tl; ++t) {
+            things[t].$("up").className    = upcls   [dir+1];
+            things[t].$("down").className  = downcls [dir+1];
+            set_score(id, dir, things[t].row);
         }
     }
 
