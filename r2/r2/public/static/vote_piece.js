@@ -62,46 +62,30 @@ function set_score(id, dir, context) {
 }
 
 function castVote(button, voteHash) {
-    //logged is global
-    var id = _id(button)
-    var thing = new Thing(id, Thing.findThingRow(button))
+    if (!logged)
+        return
+
+    voteHash = voteHash || "";
+    var id = _id(button);
+    var thing = new Thing(id, Thing.findThingRow(button));
     var up = thing.$("up");
     var down = thing.$("down");
     var status = thing.$("status");
     var dir = /\bmod\b/.test(button.className) ? 0 : button === up ? 1 : -1;
     var old_dir = up.className === upm ? 1 : down.className === downm ? -1 : 0;
 
-    if (logged) {
-        // Ensure the status field for this vote is hidden.
-        if (status) hide(status);
+    if (status)
+        hide(status);
 
-        // Create the standard worker fn to handle the response.  It
-        // will take care of updating and showing the status field.
-        var action = 'vote';
-        worker = handleResponse(action);
-
-        function hard_worker(r) {
-            // Invoke the standard worker to update and show the
-            // status field if appropriate.
-            worker(r);
-
-            var r = parse_response(r).response;
-            if (r && r.update) {
-                // The ajax response did update and show the status
-                // field so the vote was unsuccessful.  Update the vote
-                // buttons and the score.
-                up.className    = upcls   [old_dir+1];
-                down.className  = downcls [old_dir+1];
-                set_score(id, old_dir, thing.row);
-            }
+    function cleanup_func(r) {
+        if (!r.update) {  // r.update is only set on errors
+            up.className    = upcls   [dir+1];
+            down.className  = downcls [dir+1];
+            set_score(id, dir, thing.row);
         }
-
-        // Initiate the ajax request to vote.
-        redditRequest(action, {id: id, uh: modhash, dir: dir, vh: voteHash || ""}, hard_worker);
     }
 
-    // Update the vote buttons and the score.
-    up.className    = upcls   [dir+1];
-    down.className  = downcls [dir+1];
-    set_score(id, dir, thing.row);
+    // Initiate the ajax request to vote.
+    var data = {id: id, uh: modhash, dir: dir, vh: voteHash};
+    redditRequest("vote", data, null, false, {cleanup_func: cleanup_func});
 }
