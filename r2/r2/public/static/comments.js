@@ -194,15 +194,17 @@ function morechildren(form, link_id, children, depth) {
     form.innerHTML = _global_loading_tag;
     form.style.color="red";
     var ajaxData = {link_id: link_id, children: children, depth: depth, id: id};
-    var context = Thing.getThingRow(form);
-    redditRequest('morechildren', ajaxData, function (r) {
-        var res_obj = r && r.responseJSON;
+    var context = jQuery(form).closest(".comment")[0];
+
+    function showChildren(res_obj) {
         var obj = res_obj.response && res_obj.response.object;
         if (obj && obj.length) {
             for (var o = 0, ol = obj.length; o < ol; ++o)
                 Comment.morechildren(obj[o].data, context);
         }
-    });
+    }
+
+    redditRequest('morechildren', ajaxData, null, false, {cleanup_func: showChildren, handle_obj: false});
     return false;
 };
 
