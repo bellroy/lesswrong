@@ -67,7 +67,7 @@ function castVote(button, voteHash) {
 
     voteHash = voteHash || "";
     var id = _id(button);
-    var thing = new Thing(id, Thing.findThingRow(button));
+    var thing = new Thing(id, Thing.getThingRow(button));
     var up = thing.$("up");
     var down = thing.$("down");
     var status = thing.$("status");

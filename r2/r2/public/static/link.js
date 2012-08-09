@@ -255,7 +255,7 @@ Thing.del = function(r) {
 };
 
 // Given any node, return its containing thingrow
-Thing.findThingRow = function(element) {
+Thing.getThingRow = function(element) {
     do {
         if (/^thingrow_/.test(element.id))
             return element;
