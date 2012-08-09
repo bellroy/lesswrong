@@ -82,9 +82,13 @@ function castVote(button, voteHash) {
 
         var things = Thing.findAll(id);
         for (var t = 0, tl = things.length; t < tl; ++t) {
-            things[t].$("up").className    = upcls   [dir+1];
-            things[t].$("down").className  = downcls [dir+1];
-            set_score(id, dir, things[t].row);
+            var up = things[t].$("up"),
+                down = things[t].$("down");
+            if (up && down) {
+                things[t].$("up").className    = upcls   [dir+1];
+                things[t].$("down").className  = downcls [dir+1];
+                set_score(id, dir, things[t].row);
+            }
         }
     }
 
