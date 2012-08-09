@@ -72,7 +72,6 @@ function castVote(button, voteHash) {
     var down = thing.$("down");
     var status = thing.$("status");
     var dir = /\bmod\b/.test(button.className) ? 0 : button === up ? 1 : -1;
-    var old_dir = up.className === upm ? 1 : down.className === downm ? -1 : 0;
 
     if (status)
         hide(status);
