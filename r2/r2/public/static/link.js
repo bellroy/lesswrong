@@ -256,8 +256,7 @@ Thing.del = function(r) {
 
 // Find all instances of the Thing with the given ID on the page
 Thing.findAll = function(id) {
-    // HACK: use a leading space to avoid jQuery shortcutting to getElementById
-    var elements = jQuery(" #thingrow_" + id);
+    var elements = jQuery(document.body).find("#thingrow_" + id);
     var things = [];
     for (var e = 0, el = elements.length; e < el; ++e)
         things.push(new Thing(id, elements[e]));
