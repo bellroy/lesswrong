@@ -71,6 +71,8 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+//Comment.downvotedReplyScoreThreshold is set elsewhere
+
 // Works like $(), except uses the parent of context instead of context itself
 Comment.prototype.$parent = function (id, context) {
     context = context || this._context;
@@ -142,7 +144,7 @@ Comment.prototype.showFlamebaitOverlay = function (edit_box) {
 Comment.prototype.reply = function() {
     var edit_box = this.show_editor(this.child_listing(), null, '');
     this.$parent("commentform").replace.value = "";
-    if (this.getScore() <= -3)
+    if (this.getScore() <= Comment.downvotedReplyScoreThreshold)
         this.showFlamebaitOverlay(edit_box);
     else
         this.$parent("comment_reply").focus();

@@ -632,11 +632,11 @@ class ApiController(RedditController):
             c.errors.remove(errors.RATELIMIT)
 
         # assess a tax on replies to downvoted comments
-        if parent_comment and parent_comment._score <= -3:
-            if c.user.safe_karma < 5:
+        if parent_comment and parent_comment._score <= g.downvoted_reply_score_threshold:
+            if c.user.safe_karma < g.downvoted_reply_karma_cost:
                 c.errors.add(errors.NOT_ENOUGH_KARMA)
             else:
-                c.user.incr_karma('comment', sr, -5)
+                c.user.incr_karma('comment', sr, -g.downvoted_reply_karma_cost)
 
         if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
                            parent._fullname):
