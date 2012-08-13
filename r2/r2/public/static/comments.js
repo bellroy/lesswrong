@@ -134,11 +134,8 @@ Comment.prototype.showFlamebaitOverlay = function (edit_box) {
         comment.cancel();
     }
 
-    var buttons = jQuery(overlay).find("input");
-    if (buttons) {  // buttons will only exist if user has enough karma
-        jQuery(buttons[0]).bind("click", hideWarning);
-        jQuery(buttons[1]).bind("click", cancel);
-    }
+    jQuery(overlay).find(".flamebaitcomment-yes").bind("click", hideWarning);
+    jQuery(overlay).find(".flamebaitcomment-no").bind("click", cancel);
 }
 
 Comment.prototype.reply = function() {
