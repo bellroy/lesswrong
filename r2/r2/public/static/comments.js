@@ -195,14 +195,16 @@ function morechildren(form, link_id, children, depth) {
     form.style.color="red";
     var ajaxData = {link_id: link_id, children: children, depth: depth, id: id};
     var context = jQuery(form).closest(".comment")[0];
-    redditRequest('morechildren', ajaxData, function (r) {
-        var res_obj = r && r.responseJSON;
+
+    function showChildren(res_obj) {
         var obj = res_obj.response && res_obj.response.object;
         if (obj && obj.length) {
             for (var o = 0, ol = obj.length; o < ol; ++o)
                 Comment.morechildren(obj[o].data, context);
         }
-    });
+    }
+
+    redditRequest('morechildren', ajaxData, null, false, {cleanup_func: showChildren, handle_obj: false});
     return false;
 };
 
@@ -236,17 +238,17 @@ document.observe("dom:loaded", function() {
 
 
 function editcomment(id, link) {
-    new Comment(id, jQuery(link).closest(".comment")[0]).edit();
+    new Comment(id, Thing.getThingRow(link)).edit();
 };
 
 function cancelReply(canceler) {
-    new Comment(_id(canceler), jQuery(canceler).closest(".comment")[0]).cancel();
+    new Comment(_id(canceler), Thing.getThingRow(canceler)).cancel();
 };
 
 
 function reply(id, link) {
     if (logged) {
-        var com = new Comment(id, jQuery(link).closest(".comment")[0]).reply();
+        var com = new Comment(id, Thing.getThingRow(link)).reply();
     }
     else {
         showcover(true, 'reply_' + id);
@@ -262,7 +264,7 @@ function chkcomment(form) {
     }
 
     var action = form.replace.value ? 'editcomment' : 'comment';
-    var context = jQuery(form).closest(".comment")[0];
+    var context = Thing.getThingRow(form);
 
     tagInProgress(form, true);
 
@@ -307,13 +309,13 @@ function clearTitle(box) {
 }
 
 function hidecomment(id, link) {
-    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
+    var com = new Comment(id, Thing.getThingRow(link));
     com.collapse();
     return false;
 }
 
 function showcomment(id, link) {
-    var com = new Comment(id, jQuery(link).closest(".comment")[0]);
+    var com = new Comment(id, Thing.getThingRow(link));
     com.uncollapse();
     return false;
 }

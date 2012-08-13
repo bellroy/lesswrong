@@ -86,6 +86,17 @@ class Memcache(CacheUtils, memcache.Client):
         memcache.Client.delete_multi(self, keys, seconds = time,
                                      key_prefix = prefix)
 
+    def incr(self, key, delta):
+        # The memcached server errors with a negative incr/decr, so
+        # translate negative deltas to the opposite method
+        if delta >= 0:
+            memcache.Client.incr(self, key, delta)
+        else:
+            memcache.Client.decr(self, key, -delta)
+
+    def decr(self, key, delta):
+        self.incr(key, -delta)
+
 class LocalCache(dict, CacheUtils):
     def __init__(self, *a, **kw):
         return dict.__init__(self, *a, **kw)

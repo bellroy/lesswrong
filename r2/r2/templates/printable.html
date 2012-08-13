@@ -185,7 +185,7 @@ ${self.RenderPrintable()}
 %>
   <a id="${_type}_${fullname}" class="${_class}"
   %if c.user_is_loggedin:
-    onclick="mod('${fullname}', ${dir}, '$votehash')"
+    onclick="castVote(this, '$votehash')"
   %else:
     onclick="showcover(true, 'vote_${fullname}')"
   %endif
