@@ -95,6 +95,7 @@ function buildParams(parameters) {
 
 /* redditRequest: worker_in - the callback to process the ajax response.
                                if null, will use handleResponse
+                  block - if true, only one request with the given 'action' can be active at a time
                   options - a hash of named arguments
                   options.cleanup_func - if this callback is specified, and worker_in is not, then
                                          cleanup_func will be called on completion of the ajax call
@@ -133,7 +134,7 @@ function redditRequest(action, parameters, worker_in, block, options) {
             return worker_in(r);
         }
     }
-    if(block == null || add_ajax_work(action)) {
+    if(!block || add_ajax_work(action)) {
         new Ajax.Request(op, {
             parameters: make_get_params(parameters),
             onComplete: worker
