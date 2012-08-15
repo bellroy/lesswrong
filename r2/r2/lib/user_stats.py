@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 import sqlalchemy as sa
-from r2.models import Account, Vote, Link, Subreddit, Comment
+from r2.models import Account, Vote, Link, Subreddit, Comment, KarmaAdjustment
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
 import time
@@ -113,6 +113,10 @@ def all_user_change(period = '1 day'):
     for name, val in comment_karma:
         res[name] = val + res.get(name,0)
 
+    adjustments = user_karma_adjustments(period)
+    for name, val in adjustments:
+        res[name] = val + res.get(name,0)
+
     return res
 
 
@@ -170,6 +174,29 @@ def user_vote_change_comments(period = '1 day'):
                           comment_tt.c.thing_id == rt.c.thing2_id,
                           comment_tt.c.date >= date),
                   group_by = author_dt.c.value)
+
+    rows = s.execute().fetchall()
+
+    return [(int(r.value), r.sum) for r in rows]
+
+def user_karma_adjustments(period = '1 day'):
+    acct_info = tdb.types_id[Account._type_id]
+    acct_thing, acct_data = acct_info.thing_table, acct_info.data_table[0]
+    adj_info = tdb.types_id[KarmaAdjustment._type_id]
+    adj_thing, adj_data = adj_info.thing_table, adj_info.data_table[0]
+
+    aliases = tdb.alias_generator()
+    adj_data_2 = adj_data.alias(aliases.next())
+
+    date = utils.timeago(period)
+
+    s = sa.select([adj_data.c.value, sa.func.sum(sa.cast(adj_data_2.c.value, sa.Integer))],
+                  sa.and_(adj_thing.c.date >= date,
+                          adj_data.c.thing_id == adj_thing.c.thing_id,
+                          adj_data.c.key == 'account_id',
+                          adj_data.c.thing_id == adj_data_2.c.thing_id,
+                          adj_data_2.c.key == 'amount'),
+                  group_by = adj_data.c.value)
 
     rows = s.execute().fetchall()
 

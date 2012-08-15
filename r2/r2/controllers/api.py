@@ -636,7 +636,8 @@ class ApiController(RedditController):
             if c.user.safe_karma < g.downvoted_reply_karma_cost:
                 c.errors.add(errors.NOT_ENOUGH_KARMA)
             else:
-                c.user.incr_karma('comment', sr, -g.downvoted_reply_karma_cost)
+                KarmaAdjustment.store(c.user, sr, -g.downvoted_reply_karma_cost)
+                c.user.incr_karma('adjustment', sr, -g.downvoted_reply_karma_cost)
 
         if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
                            parent._fullname):

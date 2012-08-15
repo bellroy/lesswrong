@@ -37,7 +37,7 @@ class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
-    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma',
+    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma', 'adjustment_karma',
                                                'report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
@@ -120,8 +120,12 @@ class Account(Thing):
         return self.karma('comment')
 
     @property
+    def adjustment_karma(self):
+        return self.karma('adjustment')
+
+    @property
     def safe_karma(self):
-        karma = self.link_karma + self.comment_karma
+        karma = self.link_karma + self.comment_karma + self.adjustment_karma
         return max(karma, 0) if karma > -1000 else karma
 
     @property
