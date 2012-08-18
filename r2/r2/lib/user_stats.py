@@ -28,6 +28,7 @@ import time
 from pylons import g 
 cache = g.cache
 
+
 def subreddits_with_custom_karma_multiplier():
     type = tdb.types_id[Subreddit._type_id]
     tt, dt = type.thing_table, type.data_table[0]
@@ -46,6 +47,7 @@ def subreddits_with_custom_karma_multiplier():
 
     sr_ids = [r.thing_id for r in q.execute().fetchall()]
     return Subreddit._byID(sr_ids, True, return_dict = False)
+
 
 def top_users():
     type = tdb.types_id[Account._type_id]
@@ -155,6 +157,7 @@ def user_vote_change_links(period = '1 day'):
     rows = s.execute().fetchall()
     return [(int(r.value), r.sum) for r in rows]
 
+
 def user_vote_change_comments(period = '1 day'):
     rel = Vote.rel(Account, Comment)
     type = tdb.rel_types_id[rel._type_id]
@@ -179,6 +182,7 @@ def user_vote_change_comments(period = '1 day'):
 
     return [(int(r.value), r.sum) for r in rows]
 
+
 def user_karma_adjustments(period = '1 day'):
     acct_info = tdb.types_id[Account._type_id]
     acct_thing, acct_data = acct_info.thing_table, acct_info.data_table[0]
@@ -202,9 +206,10 @@ def user_karma_adjustments(period = '1 day'):
 
     return [(int(r.value), r.sum) for r in rows]
 
+
 USER_CHANGE_CACHE_KEY = 'all_user_change'
 
-def cached_all_user_change():
+def cached_monthly_stats():
     r = cache.get(USER_CHANGE_CACHE_KEY)
     if not r:
         start_time = time.time()
@@ -216,11 +221,11 @@ def cached_all_user_change():
         g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
     return r
 
-# def calc_stats():
-#     top = top_users()
-#     top_day = top_user_change('1 day')
-#     top_week = top_user_change('1 week')
-#     return (top, top_day, top_week)
 
-# def set_stats():
-#     cache.set('stats', calc_stats())
+def cached_monthly_user_change():
+    return cached_monthly_stats()[0]
+
+
+def cached_monthly_top_users():
+    return cached_monthly_stats()[1]
+

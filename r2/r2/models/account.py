@@ -130,8 +130,8 @@ class Account(Thing):
 
     @property
     def monthly_karma(self):
-        from r2.lib.user_stats import cached_all_user_change
-        return cached_all_user_change()[0].get(self._id, 0)
+        from r2.lib.user_stats import cached_monthly_user_change
+        return cached_monthly_user_change().get(self._id, 0)
 
     def all_karmas(self):
         """returns a list of tuples in the form (name, link_karma,
