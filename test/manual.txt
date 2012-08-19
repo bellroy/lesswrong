@@ -64,7 +64,7 @@ Click the triangle next 'Main' in the top navigation bar
 Click 'Log out'
 Login with the first user
   The page should refresh and you should be logged in
-  You should see a 'Karma Score' of '2' but this can be unreliable... try logging in and out
+  Your 'Karma Score' and 'Last 30 Days Karma' should be '2'
 
 - Discussion
 --------------------------------------------------------------------------------

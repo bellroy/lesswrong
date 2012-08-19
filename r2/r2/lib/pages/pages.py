@@ -368,8 +368,8 @@ class TopContributors(SpaceCompressedWrapped):
 
 class TopMonthlyContributors(SpaceCompressedWrapped):
     def __init__(self, *args, **kwargs):
-        from r2.lib.user_stats import cached_all_user_change
-        uids_karma = cached_all_user_change()[1]
+        from r2.lib.user_stats import cached_monthly_top_users
+        uids_karma = cached_monthly_top_users()
         uids = map(lambda x: x[0], uids_karma)
         users = Account._byID(uids, data=True, return_dict=False)
 
