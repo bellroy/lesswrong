@@ -59,8 +59,6 @@ function helpoff(link, what, newlabel) {
 }
 
 
-function ReplyTemplate() { return $("samplecomment_"); }
-
 function Comment(id, context) {
     this.__init__(id, context);
     var edit_body = this.get("edit_body");
@@ -73,21 +71,24 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
+//Comment.downvotedReplyScoreThreshold is set elsewhere
+
 // Works like $(), except uses the parent of context instead of context itself
 Comment.prototype.$parent = function (id, context) {
     context = context || this._context;
     return this.$(id, context && context.parentNode);
 }
 
-Comment.prototype.getCommentReplyBox = function() {
-    var s = this.$parent("samplecomment");
+Comment.prototype.cloneAndReIDNodeOnce = function(id) {
+    var s = this.$parent(id);
     if (s)
         return s;
-    return re_id_node(ReplyTemplate().cloneNode(true), this._id);
+    var template = $(id) || $(id + '_');  // '_' is optional, consistent with re_id_node
+    return re_id_node(template.cloneNode(true), this._id);
 };
 
-Comment.prototype._edit = function(listing, where, text) {
-    var edit_box = this.getCommentReplyBox();
+Comment.prototype.show_editor = function(listing, where, text) {
+    var edit_box = this.cloneAndReIDNodeOnce("samplecomment");
     if (edit_box.parentNode != listing.listing) {
         if (edit_box.parentNode) {
             edit_box.parentNode.removeChild(edit_box);
@@ -109,19 +110,45 @@ Comment.prototype._edit = function(listing, where, text) {
 };
 
 Comment.prototype.edit = function() {
-    this._edit(this.parent_listing(), this.row, this.text);
+    this.show_editor(this.parent_listing(), this.row, this.text);
     this.$parent("commentform").replace.value = "yes";
     this.hide();
-};   
+};
+
+Comment.prototype.showFlamebaitOverlay = function (edit_box) {
+    var comment = this;
+    var overlay = this.$("flamebaitcommentoverlay");
+    if (overlay)
+        return;
+
+    overlay = this.cloneAndReIDNodeOnce("flamebaitcommentoverlay");
+    jQuery(edit_box).children().hide();
+    edit_box.appendChild(overlay);
+    show(overlay);
+
+    function hideWarning() {
+        overlay.remove();
+        jQuery(edit_box).find("form").show();
+    }
+    function cancel() {
+        comment.cancel();
+    }
+
+    jQuery(overlay).find(".flamebaitcomment-yes").bind("click", hideWarning);
+    jQuery(overlay).find(".flamebaitcomment-no").bind("click", cancel);
+}
 
 Comment.prototype.reply = function() {
-    this._edit(this.child_listing(), null, '');
+    var edit_box = this.show_editor(this.child_listing(), null, '');
     this.$parent("commentform").replace.value = "";
-    this.$parent("comment_reply").focus();
+    if (this.getScore() <= Comment.downvotedReplyScoreThreshold)
+        this.showFlamebaitOverlay(edit_box);
+    else
+        this.$parent("comment_reply").focus();
 };
 
 Comment.prototype.cancel = function() {
-    var edit_box = this.getCommentReplyBox();
+    var edit_box = this.cloneAndReIDNodeOnce("samplecomment");
     hide(edit_box);
     BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
@@ -166,6 +193,15 @@ Comment.editcomment = function(r, context) {
     com.show();
 };
 
+Comment.prototype.getScore = function (id) {
+    var node = this.get('score');
+    if (!node)
+        throw new Error();
+    var match = /-?\d+/.exec(node.innerHTML);
+    if (!match)
+        throw new Error();
+    return parseInt(match[0], 10);
+}
 
 Comment.prototype.collapse = function() { 
     hide(this.get('child'));
