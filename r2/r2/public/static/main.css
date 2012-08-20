@@ -1241,11 +1241,11 @@ div.footer ul.footer-links li a {
 	text-decoration: none;
 }
 
-.commentreply .loading {
+* .loading {
     display: none;
 }
 
-.commentreply.inprogress .loading {
+.inprogress .loading {
     display: inline;
 }
 

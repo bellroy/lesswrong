@@ -71,12 +71,15 @@ function castVote(button, voteHash) {
     var up = thing.$("up");
     var down = thing.$("down");
     var status = thing.$("status");
+    var spinner = thing.$("votespinner");
     var dir = /\bmod\b/.test(button.className) ? 0 : button === up ? 1 : -1;
 
     if (status)
         hide(status);
 
     function cleanup_func(r) {
+        $(spinner.parentNode).removeClassName("inprogress");
+
         if (r.response && r.response.update)  // "update" is only set on errors
             return;
 
@@ -95,4 +98,5 @@ function castVote(button, voteHash) {
     // Initiate the ajax request to vote.
     var data = {id: id, uh: modhash, dir: dir, vh: voteHash};
     redditRequest("vote", data, null, false, {cleanup_func: cleanup_func});
+    $(spinner.parentNode).addClassName("inprogress");
 }
