@@ -19,7 +19,7 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from collections import Counter
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 import sqlalchemy as sa
@@ -111,7 +111,7 @@ def top_users():
 # Calculate the karma change for the given period and/or user
 # TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)
 def all_user_change(*args, **kwargs):
-    ret = Counter()
+    ret = defaultdict(int)
 
     for meth in user_vote_change_links, user_vote_change_comments, user_karma_adjustments:
         for aid, karma in meth(*args, **kwargs):
@@ -234,7 +234,8 @@ def cached_monthly_top_users():
     if ret is not None:
         return ret
 
-    ret = all_user_change(period=SECONDS_PER_MONTH).most_common(NUM_TOP_USERS)
+    ret = list(all_user_change(period=SECONDS_PER_MONTH).iteritems())
+    ret.sort(key=lambda pair: -pair[1])
     cache.set(key, ret, CACHE_EXPIRY)
     return ret
 
