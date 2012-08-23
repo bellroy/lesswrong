@@ -91,6 +91,10 @@ class Reddit(Wrapped):
         self.top_filter     = top_filter
         self.header_sub_nav = header_sub_nav
 
+        # by default, assume the canonical URLs are the ones without query params
+        if request.GET:
+            self.canonical_link = request.path
+
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None
 
