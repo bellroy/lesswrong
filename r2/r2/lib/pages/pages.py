@@ -142,7 +142,7 @@ class Reddit(Wrapped):
             ps.append(SubredditInfoBar())
 
         if self.extension_handling:
-            ps.append(FeedLinkBar())
+            ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
@@ -1392,7 +1392,10 @@ class PromoteLinkForm(Wrapped):
                          listing = listing,
                          *a, **kw)
 
-class FeedLinkBar(Wrapped): pass
+class FeedLinkBar(Wrapped):
+    def __init__(self, request_path, *a, **kw):
+        self.request_path = request_path
+        Wrapped.__init__(self, *a, **kw)
 
 class AboutBox(Wrapped): pass
 
