@@ -210,7 +210,7 @@ def user_karma_adjustments(period=None, user=None):
 
 
 def cache_key_user_karma(user, period):
-    return 'account_{}_karma_past_{}'.format(user._id, period)
+    return 'account_{0}_karma_past_{1}'.format(user._id, period)
 
 
 def cached_monthly_user_change(user):
@@ -229,7 +229,7 @@ def expire_user_change(user):
 
 
 def cached_monthly_top_users():
-    key = 'top_{}_account_monthly_karma'.format(NUM_TOP_USERS)
+    key = 'top_{0}_account_monthly_karma'.format(NUM_TOP_USERS)
     ret = cache.get(key)
     if ret is not None:
         return ret
