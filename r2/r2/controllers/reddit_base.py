@@ -458,6 +458,10 @@ class RedditController(BaseController):
         if not c.error_page:
             ratelimit_agents()
 
+        # we like our trailing slashes
+        if request.path[-1] != '/' and request.method == 'GET':
+            redirect_to(request.path + '/' + utils.query_string(request.get), _code=301)
+
         # the domain has to be set before Cookies get initialized
         set_subreddit()
         set_cnameframe()

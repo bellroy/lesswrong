@@ -207,13 +207,12 @@ class FrontController(RedditController):
         else:
             content = PaneStack()
 
-        # is_canonical indicates if the page is the canonical location for
-        # the resource. The canonical location is deemed to be one with
-        # no query string arguments
+        is_canonical = article.canonical_url.endswith(request.path) and not request.GET
+
         res = LinkInfoPage(link = article, comment = comment,
                            content = content, 
                            infotext = infotext,
-                           is_canonical = bool(not request.GET)).render()
+                           is_canonical = is_canonical).render()
 
         if c.user_is_loggedin:
             article._click(c.user)

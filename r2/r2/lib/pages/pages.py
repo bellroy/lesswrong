@@ -91,6 +91,10 @@ class Reddit(Wrapped):
         self.top_filter     = top_filter
         self.header_sub_nav = header_sub_nav
 
+        # by default, assume the canonical URLs are the ones without query params
+        if request.GET:
+            self.canonical_link = request.path
+
         #put the sort menus at the top
         self.nav_menu = MenuArea(menus = nav_menus) if nav_menus else None
 
@@ -138,7 +142,7 @@ class Reddit(Wrapped):
             ps.append(SubredditInfoBar())
 
         if self.extension_handling:
-            ps.append(FeedLinkBar())
+            ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
@@ -1388,7 +1392,10 @@ class PromoteLinkForm(Wrapped):
                          listing = listing,
                          *a, **kw)
 
-class FeedLinkBar(Wrapped): pass
+class FeedLinkBar(Wrapped):
+    def __init__(self, request_path, *a, **kw):
+        self.request_path = request_path
+        Wrapped.__init__(self, *a, **kw)
 
 class AboutBox(Wrapped): pass
 
