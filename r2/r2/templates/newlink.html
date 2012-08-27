@@ -58,16 +58,16 @@
     </tr>
     <tr>
       <td>
-      <label for="tags">${_("Tags:")}</label>
-      <input id="tags" name="tags" value="${', '.join(thing.tags)}"
-                 onfocus="clearTitle(this)" type="text" />
-      <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
+        <label for="tags">${_("Tags:")}</label>
+        <input id="tags" name="tags" value="${', '.join(thing.tags)}"
+                   onfocus="clearTitle(this)" type="text" />
+        <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
       </td>
     </tr>
     %if thing.subreddits:
       <tr>
         <td>
-        <label for="sr">${_("Post to")}</label>
+          <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
               <option value="${sr.name}"
