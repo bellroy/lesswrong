@@ -939,12 +939,7 @@ class Comment(Thing, Printable):
 
         link._incr('num_comments', 1)
 
-        inbox_rel = None
-        if parent:
-            to = Account._byID(parent.author_id)
-            # only global admins can be message spammed.
-            if not comment._spam or to.name in g.admins:
-                inbox_rel = Inbox._add(to, comment, 'inbox')
+        inbox_rel = comment._send_post_notifications(link, parent)
 
         #clear that chache
         clear_memo('builder.link_comments2', link._id)
@@ -962,6 +957,18 @@ class Comment(Thing, Printable):
         add_comment(comment)
 
         return (comment, inbox_rel)
+
+    def _send_post_notifications(self, link, parent):
+        if parent:
+            to = Account._byID(parent.author_id)
+        else:
+            to = Account._byID(link.author_id)
+
+        # only global admins can be message spammed.
+        if self._spam and to.name not in g.admins:
+            return None
+
+        return Inbox._add(to, self, 'inbox')
 
     def has_children(self):
         q = Comment._query(Comment.c.parent_id == self._id, limit=1)
