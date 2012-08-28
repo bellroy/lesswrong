@@ -67,7 +67,8 @@ class Globals(object):
                   'write_query_queue',
                   'css_killswitch',
                   'disable_captcha',
-                  'disable_tracking_js'
+                  'disable_tracking_js',
+                  'default_notify_on_link_comments',
                   ]
 
     tuple_props = ['memcaches',

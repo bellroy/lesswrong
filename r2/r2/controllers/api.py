@@ -206,8 +206,9 @@ class ApiController(RedditController):
               new_content = nop('article'),
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
+              notify_on_comment = VBoolean('notify_on_comment'),
               tags = VTags('tags'))
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
 
@@ -245,7 +246,8 @@ class ApiController(RedditController):
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
         if not l:
-          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
+          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
+                           notify_on_comment=notify_on_comment)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
@@ -264,6 +266,7 @@ class ApiController(RedditController):
           old_url = l.url
           l.title = request.post.title
           l.article = new_content
+          l.notify_on_comment = notify_on_comment
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)

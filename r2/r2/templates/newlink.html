@@ -83,6 +83,17 @@
         </td>
       </tr>
     %endif
+    <tr>
+      <td>
+        <label>
+          <%
+            notify_on_comment = getattr(thing, 'notify_on_comment', g.default_notify_on_link_comments)
+          %>
+          <input type="checkbox" name="notify_on_comment"${('', ' checked')[notify_on_comment]} />
+          Notify me of new top level comments on this post
+        </label>
+      </td>
+    </tr>
     %if thing.captcha:
       <tr>
         <td>

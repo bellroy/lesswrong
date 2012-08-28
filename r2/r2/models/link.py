@@ -147,7 +147,7 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None, **kwargs):
         # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
@@ -157,7 +157,8 @@ class Link(Thing, Printable):
                 lang = sr.lang,
                 ip = ip,
                 article = article,
-                date = date
+                date = date,
+                **kwargs
                 )
         l._commit()
 
@@ -962,6 +963,8 @@ class Comment(Thing, Printable):
         if parent:
             to = Account._byID(parent.author_id)
         else:
+            if not getattr(link, 'notify_on_comment', g.default_notify_on_link_comments):
+                return None
             to = Account._byID(link.author_id)
 
         # only global admins can be message spammed.
