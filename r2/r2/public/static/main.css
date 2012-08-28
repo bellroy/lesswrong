@@ -1245,7 +1245,8 @@ div.footer ul.footer-links li a {
     display: none;
 }
 
-.inprogress .loading {
+.inprogress .loading,
+.articlenavigation .loading {
     display: inline;
 }
 
