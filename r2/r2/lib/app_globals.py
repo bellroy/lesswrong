@@ -58,7 +58,8 @@ class Globals(object):
                  'meetups_radius',
                  ]
     
-    bool_props = ['debug', 'translator', 
+    bool_props = ['debug',
+                  'translator',
                   'sqlprinting',
                   'template_debug',
                   'uncompressedJS',
