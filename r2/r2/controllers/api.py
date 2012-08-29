@@ -609,6 +609,7 @@ class ApiController(RedditController):
 
         #check the parent type here cause we need that for the
         #ratelimit checks
+        parent_comment = None
         if isinstance(parent, Message):
             is_message = True
             should_ratelimit = False
@@ -618,7 +619,6 @@ class ApiController(RedditController):
             is_comment = True
             if isinstance(parent, Link):
                 link = parent
-                parent_comment = None
             else:
                 link = Link._byID(parent.link_id, data = True)
                 parent_comment = parent
