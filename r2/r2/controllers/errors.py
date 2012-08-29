@@ -76,6 +76,7 @@ error_list = dict((
         ('INVALID_DATE', _('Must be a valid date and time')),
         ('NO_DESCRIPTION', _('You must supply a description')),
         ('CANNOT_DELETE', _('Cannot delete that comment')),
+        ('NOT_ENOUGH_KARMA', _('You do not have enough karma')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 

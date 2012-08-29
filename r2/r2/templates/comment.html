@@ -23,6 +23,7 @@
 <%!
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, clean_comment_html, unsafe_wrap_md, format_linebreaks
    from r2.lib.utils import to36, prettytime, epochtime
+   from r2.lib.template_helpers import static
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -133,6 +134,7 @@ ${parent.midcol()}
         <ul class="votes">
           <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
           <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>
+          <li class="loading" id="votespinner_${thing._fullname}"><img src="${static('ajax-loader.gif')}" alt="" /></li>
         </ul>
       %endif
       <% fullname = thing._fullname %>

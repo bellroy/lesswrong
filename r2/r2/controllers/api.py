@@ -605,6 +605,8 @@ class ApiController(RedditController):
         res._update('status_' + parent._fullname, innerHTML = '')
 
         should_ratelimit = True
+        adjust_karma = 0
+
         #check the parent type here cause we need that for the
         #ratelimit checks
         if isinstance(parent, Message):
@@ -631,12 +633,23 @@ class ApiController(RedditController):
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
 
-        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT),
-                          parent._fullname):
+        # assess a tax on replies to downvoted comments
+        if parent_comment and parent_comment._score <= g.downvoted_reply_score_threshold:
+            if c.user.safe_karma < g.downvoted_reply_karma_cost:
+                c.errors.add(errors.NOT_ENOUGH_KARMA)
+            else:
+                adjust_karma = -g.downvoted_reply_karma_cost
+
+        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
+                           parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
         res._show('reply_' + parent._fullname)
         res._update("comment_reply_" + parent._fullname, rows = '2')
+
+        if adjust_karma:
+            KarmaAdjustment.store(c.user, sr, adjust_karma)
+            c.user.incr_karma('adjustment', sr, adjust_karma)
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)

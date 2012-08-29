@@ -37,7 +37,7 @@ class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
-    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma',
+    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma', 'adjustment_karma',
                                                'report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
@@ -105,11 +105,13 @@ class Account(Thing):
     def incr_karma(self, kind, sr, amt):
         prop = '%s_%s_karma' % (sr.name, kind)
         if hasattr(self, prop):
-            return self._incr(prop, amt)
+            self._incr(prop, amt)
         else:
             default_val = self.karma(kind, sr)
             setattr(self, prop, default_val + amt)
             self._commit()
+        from r2.lib.user_stats import expire_user_change  # prevent circular import
+        expire_user_change(self)
 
     @property
     def link_karma(self):
@@ -120,14 +122,18 @@ class Account(Thing):
         return self.karma('comment')
 
     @property
+    def adjustment_karma(self):
+        return self.karma('adjustment')
+
+    @property
     def safe_karma(self):
-        karma = self.link_karma + self.comment_karma
+        karma = self.link_karma + self.comment_karma + self.adjustment_karma
         return max(karma, 0) if karma > -1000 else karma
 
     @property
     def monthly_karma(self):
-        from r2.lib.user_stats import cached_all_user_change
-        return cached_all_user_change()[0].get(self._id, 0)
+        from r2.lib.user_stats import cached_monthly_user_change
+        return cached_monthly_user_change(self)
 
     def all_karmas(self):
         """returns a list of tuples in the form (name, link_karma,
