@@ -66,7 +66,8 @@ class Link(Thing, Printable):
                      render_full = False,
                      images = None,
                      blessed = False,
-                     comments_enabled = True)
+                     comments_enabled = True,
+                     notify_on_comment = True)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -963,7 +964,7 @@ class Comment(Thing, Printable):
         if parent:
             to = Account._byID(parent.author_id)
         else:
-            if not getattr(link, 'notify_on_comment', g.default_notify_on_link_comments):
+            if not link.notify_on_comment:
                 return None
             to = Account._byID(link.author_id)
 
