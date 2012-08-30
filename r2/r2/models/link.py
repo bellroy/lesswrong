@@ -67,7 +67,7 @@ class Link(Thing, Printable):
                      images = None,
                      blessed = False,
                      comments_enabled = True,
-                     notify_on_comment = True)
+                     notify_on_comment = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'

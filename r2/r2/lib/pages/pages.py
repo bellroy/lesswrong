@@ -1031,13 +1031,11 @@ class FrameToolbar(Wrapped):
 
 
 class NewLink(Wrapped):
-    notify_on_comment = Link._defaults['notify_on_comment']
-
     """Render the link submission form"""
     def __init__(self, captcha = None, article = '', title= '', subreddits = (), tags = (), sr_id = None):
         Wrapped.__init__(self, captcha = captcha, article = article,
                          title = title, subreddits = subreddits, tags = tags,
-                         sr_id = sr_id)
+                         sr_id = sr_id, notify_on_comment = True)
 
 class EditLink(Wrapped):
     """Render the edit link form"""
