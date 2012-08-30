@@ -236,6 +236,7 @@ def cached_monthly_top_users():
 
     ret = list(all_user_change(period=SECONDS_PER_MONTH).iteritems())
     ret.sort(key=lambda pair: -pair[1])
+    ret = ret[0:NUM_TOP_USERS]
     cache.set(key, ret, CACHE_EXPIRY)
     return ret
 
