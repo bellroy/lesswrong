@@ -113,9 +113,9 @@ def top_users():
 def all_user_change(*args, **kwargs):
     ret = defaultdict(int)
 
-    # for meth in user_vote_change_links, user_vote_change_comments, user_karma_adjustments:
-    #     for aid, karma in meth(*args, **kwargs):
-    #         ret[aid] += karma
+    for meth in user_vote_change_links, user_vote_change_comments, user_karma_adjustments:
+        for aid, karma in meth(*args, **kwargs):
+            ret[aid] += karma
 
     return ret
 
