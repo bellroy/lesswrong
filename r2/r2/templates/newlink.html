@@ -58,16 +58,16 @@
     </tr>
     <tr>
       <td>
-      <label for="tags">${_("Tags:")}</label>
-      <input id="tags" name="tags" value="${', '.join(thing.tags)}"
-                 onfocus="clearTitle(this)" type="text" />
-      <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
+        <label for="tags">${_("Tags:")}</label>
+        <input id="tags" name="tags" value="${', '.join(thing.tags)}"
+                   onfocus="clearTitle(this)" type="text" />
+        <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
       </td>
     </tr>
     %if thing.subreddits:
       <tr>
         <td>
-        <label for="sr">${_("Post to")}</label>
+          <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
               <option value="${sr.name}"
@@ -83,6 +83,14 @@
         </td>
       </tr>
     %endif
+    <tr>
+      <td>
+        <label>
+          <input type="checkbox" name="notify_on_comment"${('', ' checked')[thing.notify_on_comment]} />
+          Notify me of new top level comments on this post
+        </label>
+      </td>
+    </tr>
     %if thing.captcha:
       <tr>
         <td>
