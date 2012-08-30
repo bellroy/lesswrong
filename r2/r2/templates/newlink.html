@@ -24,7 +24,7 @@
    from r2.lib.template_helpers import static, get_domain, json
    import os
 %>
-<%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links"/>
+<%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links, checkbox"/>
 <%namespace file="printable.html" import="yes_no_button"/>
 
 <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
@@ -85,10 +85,7 @@
     %endif
     <tr>
       <td>
-        <label>
-          <input type="checkbox" name="notify_on_comment"${('', ' checked')[thing.notify_on_comment]} />
-          Notify me of new top level comments on this post
-        </label>
+        ${checkbox("notify_on_comment", _("Notify me of new top level comments on this post"), thing.notify_on_comment)}
       </td>
     </tr>
     %if thing.captcha:
