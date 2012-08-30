@@ -58,7 +58,8 @@ class Globals(object):
                  'meetups_radius',
                  ]
     
-    bool_props = ['debug', 'translator', 
+    bool_props = ['debug',
+                  'translator',
                   'sqlprinting',
                   'template_debug',
                   'uncompressedJS',
@@ -67,7 +68,7 @@ class Globals(object):
                   'write_query_queue',
                   'css_killswitch',
                   'disable_captcha',
-                  'disable_tracking_js'
+                  'disable_tracking_js',
                   ]
 
     tuple_props = ['memcaches',
