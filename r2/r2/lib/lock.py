@@ -33,7 +33,7 @@ class MemcacheLock(object):
     attempt to grab a lock by 'adding' the lock name. If the response
     is True, we have the lock. If it's False, someone else has it."""
 
-    def __init__(self, key, cache, time = 30, timeout = 30):
+    def __init__(self, key, cache, time = 20, timeout = 30):
         self.key = key
         self.cache = cache
         self.time = time
