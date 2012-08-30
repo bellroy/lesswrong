@@ -941,7 +941,7 @@ class Comment(Thing, Printable):
 
         link._incr('num_comments', 1)
 
-        inbox_rel = comment._send_post_notifications(link, parent)
+        inbox_rel = comment._send_post_notifications(link, comment, parent)
 
         #clear that chache
         clear_memo('builder.link_comments2', link._id)
@@ -960,13 +960,17 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
-    def _send_post_notifications(self, link, parent):
+    def _send_post_notifications(self, link, comment, parent):
         if parent:
             to = Account._byID(parent.author_id)
         else:
             if not link.notify_on_comment:
                 return None
-            to = Account._byID(link.author_id)
+            elif comment.author_id != link.author_id:
+                # Send notification if the comment wasn't by the link author
+                to = Account._byID(link.author_id)
+            else:
+                return None
 
         # only global admins can be message spammed.
         if self._spam and to.name not in g.admins:
