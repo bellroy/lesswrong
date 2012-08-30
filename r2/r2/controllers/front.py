@@ -27,6 +27,7 @@ from r2 import config
 from r2.models import *
 from r2.lib.pages import *
 from r2.lib.menus import *
+from r2.lib.filters import _force_unicode
 from r2.lib.utils import to36, sanitize_url, check_cheating, title_to_url, query_string, UrlParser
 from r2.lib.template_helpers import get_domain
 from r2.lib.emailer import has_opted_out, Email
@@ -207,7 +208,7 @@ class FrontController(RedditController):
         else:
             content = PaneStack()
 
-        is_canonical = article.canonical_url.endswith(request.path) and not request.GET
+        is_canonical = article.canonical_url.endswith(_force_unicode(request.path)) and not request.GET
 
         res = LinkInfoPage(link = article, comment = comment,
                            content = content, 
