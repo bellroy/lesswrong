@@ -26,6 +26,7 @@ import sqlalchemy as sa
 from r2.models import Account, Vote, Link, Subreddit, Comment, KarmaAdjustment
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
+import time
 
 from pylons import g 
 cache = g.cache
@@ -234,9 +235,11 @@ def cached_monthly_top_users():
     if ret is not None:
         return ret
 
+    start_time = time.time()
     ret = list(all_user_change(period=SECONDS_PER_MONTH).iteritems())
     ret.sort(key=lambda pair: -pair[1])
     ret = ret[0:NUM_TOP_USERS]
     cache.set(key, ret, CACHE_EXPIRY)
+    g.log.info("Calculate monthly_top_users took : %.2fs"%(time.time()-start_time))
     return ret
 
