@@ -4,7 +4,7 @@ import datetime
 from pylons import c, g, request
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationError
 from account import Account
-from r2.lib.utils import to36
+from r2.lib.utils import to36, median
 from r2.lib.wrapped import Wrapped
 from r2.lib.pages import MultipleChoicePollBallot, MultipleChoicePollResults, ScalePollBallot, ScalePollResults, ProbabilityPollBallot, ProbabilityPollResults, NumberPollBallot, NumberPollResults
 from r2.lib.filters import safemarkdown
@@ -16,6 +16,13 @@ poll_re = re.compile(r"""
 poll_options_re = re.compile(r"""
     {([^}]+)}
     """, re.VERBOSE)
+pollid_re = re.compile(r"""
+    \[pollid:([a-zA-Z0-9]*)\]
+    """, re.VERBOSE)
+scalepoll_re = re.compile(r"""
+    ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
+    """, re.VERBOSE)
+
 
 def parsepolls(text, thing):
     # Look for markup that looks like a poll specification, ie "[poll:polltype]{poll options}",
@@ -29,13 +36,10 @@ def parsepolls(text, thing):
 
     return re.sub(poll_re, checkmatch, text)
 
-pollid_re = re.compile(r"""
-    \[pollid:([a-zA-Z0-9]*)\]
-    """, re.VERBOSE)
-
 def pollsandmarkdown(text, commentid):
     ret = renderpolls(safemarkdown(text), commentid)
     return ret
+
 
 # Look for poll IDs in a comment/article, like "[pollid:123]", find the
 # matching poll in the database, and convert it into an HTML implementation
@@ -53,7 +57,7 @@ def renderpolls(text, commentid):
             if poll.thingid != commentid:
                 return "Error: Poll belongs to a different comment"
             
-            if(poll.user_has_voted(c.user)):
+            if poll.user_has_voted(c.user):
                 polls_voted.append(pollid)
                 return poll.render_results()
             else:
@@ -64,18 +68,17 @@ def renderpolls(text, commentid):
     
     rendered_body = re.sub(pollid_re, checkmatch, text)
     
-    if(len(polls_not_voted) > 0):
+    if polls_not_voted:
         return wrap_ballot(commentid, rendered_body)
-    elif(len(polls_voted) > 0):
+    elif polls_voted:
         return wrap_results(commentid, rendered_body)
     else:
         return rendered_body
 
+
 def getpolls(text):
     polls = []
     matches = re.findall(pollid_re, text)
-    if not matches:
-        return []
     for match in matches:
         try:
             pollid = int(str(match))
@@ -84,12 +87,8 @@ def getpolls(text):
     return polls
 
 def containspolls(text):
-    if re.match(poll_re, text):
-        return True
-    elif re.match(pollid_re, text):
-        return True
-    else:
-        return False
+    return bool(re.match(poll_re, text) or re.match(pollid_re, text))
+
 
 def wrap_ballot(commentid, body):
     return """
@@ -102,11 +101,13 @@ def wrap_ballot(commentid, body):
 def wrap_results(commentid, body):
      return """{0} <a href="/api/rawdata?thing={1}">Raw poll data</a>""".format(body, to36(commentid))
 
+
 def createpoll(thing, polltype, args):
     poll = Poll.createpoll(thing, polltype, args)
     if g.write_query_queue:
         queries.new_poll(poll)
     return poll._id
+
 
 def exportvotes(pollids):
     csv_rows = []
@@ -134,29 +135,42 @@ def exportheader():
 #
 """
 
-scalepoll_re = re.compile(r"""
-    ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
-    """, re.VERBOSE)
 
-class MultipleChoicePoll:
+class PollType:
+    ballot_class = None
+    results_class = None
+
+    def render(self, poll):
+        return self.ballot_class(poll).render('html')
+
+    def render_results(self, poll):
+        return self.results_class(poll).render('html')
+
+
+class MultipleChoicePoll(PollType):
+    ballot_class = MultipleChoicePollBallot
+    results_class = MultipleChoicePollResults
+
     def init_blank(self, poll):
         poll.votes_for_choice = []
         for choice in poll.choices:
             poll.votes_for_choice.append(0)
+
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
+
     def validate_response(self, poll, response):
         try:
             choiceindex = int(response)
             return (choiceindex >= 0 and choiceindex < len(choices))
         except:
              return False
-    def render(self, poll):
-        return MultipleChoicePollBallot(poll).render('html')
-    def render_results(self, poll):
-        return MultipleChoicePollResults(poll).render('html')
 
-class ScalePoll:
+
+class ScalePoll(PollType):
+    ballot_class = ScalePollBallot
+    results_class = ScalePollResults
+
     def init_blank(self, poll):
         parsed_poll = re.match(scalepoll_re, poll.polltypestring)
         poll.scalesize = len(parsed_poll.group(2))
@@ -165,23 +179,26 @@ class ScalePoll:
         poll.votes_for_choice = []
         for choice in range(poll.scalesize):
             poll.votes_for_choice.append(0)
+
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
+
     def validate_response(self, poll, response):
         try:
             choiceindex = int(response)
             return (choiceindex >= 0 and choiceindex < scalesize)
         except:
              return False
-    def render(self, poll):
-        return ScalePollBallot(poll).render('html')
-    def render_results(self, poll):
-        return ScalePollResults(poll).render('html')
 
-class NumberPoll:
+
+class NumberPoll(PollType):
+    ballot_class = NumberPollBallot
+    results_class = NumberPollResults
+
     def init_blank(self, poll):
         poll.sum = 0
         poll.median = 0
+
     def add_response(self, poll, response):
         responsenum = float(response)
         poll.sum = poll.sum + responsenum
@@ -201,28 +218,24 @@ class NumberPoll:
             return True
         except:
              return False
-    def render(self, poll):
-        return NumberPollBallot(poll).render('html')
-    def render_results(self, poll):
-        return NumberPollResults(poll).render('html')
+
 
 class ProbabilityPoll(NumberPoll):
+    ballot_class = ProbabilityPollBallot
+    results_class = ProbabilityPollResults
+
     def validate_response(self, poll, response):
         try:
             prob = float(response)
             return (response >= 0 and response <= 1)
         except:
              return False
-    def render(self, poll):
-        return ProbabilityPollBallot(poll).render('html')
-    def render_results(self, poll):
-        return ProbabilityPollResults(poll).render('html')
 
 
 class Poll(Thing):
     @classmethod
     def createpoll(cls, thing, polltypestring, options):
-        polltype = Poll.normalize_polltype(polltypestring)
+        polltype = cls.normalize_polltype(polltypestring)
         poll = cls(thingid = thing._id,
                    polltype = polltype,
                    polltypestring = polltypestring,
@@ -231,40 +244,40 @@ class Poll(Thing):
         poll.init_blank()
         poll._commit()
         return poll
-    
-    def polltype_class(self):
-        polltype = self.polltype
-        if(polltype == 'multiplechoice'):
-            return MultipleChoicePoll()
-        elif(polltype == 'scale'):
-            return ScalePoll()
-        elif(polltype == 'probability'):
-            return ProbabilityPoll()
-        elif(polltype == 'number'):
-            return NumberPoll()
 
     @classmethod
     def normalize_polltype(self, polltype):
         #If not specified, default to multiplechoice
-        if not polltype or polltype == None or polltype == '':
-            return "multiplechoice"
+        if not polltype:
+            return 'multiplechoice'
         
-        #Make lower-case
-        polltype = str(polltype).lower()
+        polltype = polltype.lower()
         
         #If the poll type has a dot in it, then it's a scale, like 'agree.....disagree'
-        if(re.match(scalepoll_re, polltype)):
+        if re.match(scalepoll_re, polltype):
             return 'scale'
         
         #Check against lists of synonyms
-        if(polltype in {'multiplechoice':1, 'choice':1, 'multiple':1, 'list':1}):
+        if polltype in {'multiplechoice':1, 'choice':1, 'multiple':1, 'list':1}:
             return 'multiplechoice'
-        elif(polltype in {'probability':1, 'prob':1, 'p':1, 'likelihood':1}):
+        elif polltype in {'probability':1, 'prob':1, 'p':1, 'likelihood':1}:
             return 'probability'
-        elif(polltype in {'number':1, 'numeric':1, 'num':1, 'int':1, 'float':1, 'double':1}):
+        elif polltype in {'number':1, 'numeric':1, 'num':1, 'int':1, 'float':1, 'double':1}:
             return 'number'
         else:
             return 'invalid'
+
+    def polltype_class(self):
+        if self.polltype == 'multiplechoice':
+            return MultipleChoicePoll()
+        elif self.polltype == 'scale' :
+            return ScalePoll()
+        elif self.polltype == 'probability' :
+            return ProbabilityPoll()
+        elif self.polltype == 'number':
+            return NumberPoll()
+        else:
+            return None
     
     def init_blank(self):
         self.num_votes = 0
@@ -301,7 +314,7 @@ class Poll(Thing):
                                   data = True))
     
     def num_votes_for(self, choice):
-        if (self.votes_for_choice):
+        if self.votes_for_choice:
             return self.votes_for_choice[choice]
         else:
             return -1
@@ -310,7 +323,7 @@ class Poll(Thing):
         max_votes = 0
         for otherchoice in self.votes_for_choice:
              votes = self.num_votes_for(otherchoice)
-             if(votes > max_votes):
+             if votes > max_votes:
                  max_votes = votes
         if max_votes == 0:
             return 0
@@ -325,16 +338,17 @@ class Poll(Thing):
     
     #Get the total number of votes on this poll as a correctly-pluralized noun phrase, ie "123 votes" or "1 vote"
     def num_votes_string(self):
-        if(self.num_votes == 1):
+        if self.num_votes == 1:
             return "1 vote"
         else:
             return str(self.num_votes) + " votes"
     
     def get_property(self, property):
-        if(property == 'mean'):
+        if property == 'mean':
             return self.sum / self.num_votes
-        elif(property == 'median'):
+        elif property == 'median':
             return self.median
+
 
 class Ballot(Relation(Account, Poll)):
     @classmethod
