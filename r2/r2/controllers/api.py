@@ -245,7 +245,6 @@ class ApiController(RedditController):
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
-        import r2.models.poll as poll
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
                            notify_on_comment=notify_on_comment)
@@ -801,7 +800,6 @@ class ApiController(RedditController):
               comment = VLinkOrCommentID('comment'),
               anonymous = VBoolean('anonymous'))
     def POST_submitballot(self, res, comment, anonymous):
-        import r2.models.poll as poll
         ip = request.ip
         user = c.user
         spam = (c.user._spam or
@@ -814,9 +812,9 @@ class ApiController(RedditController):
             ballotparam = re.match("poll_([a-z0-9]+)", param)
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
-                pollobj = poll.Poll._byID(pollid)
+                pollobj = Poll._byID(pollid)
                 response = request.POST[param]
-                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
+                ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
                 if ballot and g.write_query_queue:
                     queries.new_ballot(ballot)
         
@@ -826,9 +824,8 @@ class ApiController(RedditController):
     @Json
     @validate(thing = VLinkOrCommentID('thing'))
     def GET_rawdata(self, response, thing):
-        import r2.models.poll as poll
-        pollids = poll.getpolls(thing.body)
-        csv = poll.exportvotes(pollids)
+        pollids = getpolls(thing.body)
+        csv = exportvotes(pollids)
         c.response_content_type = 'text/plain'
         c.response.content = csv
         c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'

@@ -6,8 +6,8 @@ from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationEr
 from account import Account
 from r2.lib.utils import to36, median
 from r2.lib.wrapped import Wrapped
-from r2.lib.pages import MultipleChoicePollBallot, MultipleChoicePollResults, ScalePollBallot, ScalePollResults, ProbabilityPollBallot, ProbabilityPollResults, NumberPollBallot, NumberPollResults
 from r2.lib.filters import safemarkdown
+pages = None  # r2.lib.pages imported dynamically further down
 
 
 class PollError(Exception):
@@ -143,20 +143,28 @@ def exportheader():
 """
 
 
+def _get_pageclass(name):
+    # sidestep circular import issues
+    global pages
+    if not pages:
+        from r2.lib import pages
+    return getattr(pages, name)
+
+
 class PollType:
     ballot_class = None
     results_class = None
 
     def render(self, poll):
-        return self.ballot_class(poll).render('html')
+        return _get_pageclass(self.ballot_class)(poll).render('html')
 
     def render_results(self, poll):
-        return self.results_class(poll).render('html')
+        return _get_pageclass(self.results_class)(poll).render('html')
 
 
 class MultipleChoicePoll(PollType):
-    ballot_class = MultipleChoicePollBallot
-    results_class = MultipleChoicePollResults
+    ballot_class = 'MultipleChoicePollBallot'
+    results_class = 'MultipleChoicePollResults'
 
     def init_blank(self, poll):
         poll.votes_for_choice = []
@@ -175,8 +183,8 @@ class MultipleChoicePoll(PollType):
 
 
 class ScalePoll(PollType):
-    ballot_class = ScalePollBallot
-    results_class = ScalePollResults
+    ballot_class = 'ScalePollBallot'
+    results_class = 'ScalePollResults'
 
     def init_blank(self, poll):
         parsed_poll = re.match(scalepoll_re, poll.polltypestring)
@@ -199,8 +207,8 @@ class ScalePoll(PollType):
 
 
 class NumberPoll(PollType):
-    ballot_class = NumberPollBallot
-    results_class = NumberPollResults
+    ballot_class = 'NumberPollBallot'
+    results_class = 'NumberPollResults'
 
     def init_blank(self, poll):
         poll.sum = 0
@@ -223,8 +231,8 @@ class NumberPoll(PollType):
 
 
 class ProbabilityPoll(NumberPoll):
-    ballot_class = ProbabilityPollBallot
-    results_class = ProbabilityPollResults
+    ballot_class = 'ProbabilityPollBallot'
+    results_class = 'ProbabilityPollResults'
 
     def validate_response(self, poll, response):
         try:

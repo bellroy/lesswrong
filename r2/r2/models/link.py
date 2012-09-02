@@ -37,6 +37,7 @@ from r2.lib.db.operators import lower
 from r2.lib.db import operators
 from r2.lib.filters import _force_unicode
 from r2.models.subreddit import FakeSubreddit
+from r2.models.poll import containspolls, parsepolls
 
 from pylons import c, g, request
 from pylons.i18n import ungettext
@@ -948,9 +949,7 @@ class Comment(Thing, Printable):
 
         comment._commit()
 
-        #Parse the comment for polls
-        import r2.models.poll as poll
-        comment.body = poll.parsepolls(body, comment)
+        comment.body = parsepolls(body, comment)
         
         comment._commit()
 
@@ -1008,9 +1007,8 @@ class Comment(Thing, Printable):
     # Changes the body of this comment, parsing the new body for polls and
     # creating them if found, and commits.
     def set_body(self, body):
-        import r2.models.poll as poll
-        self.has_polls = poll.containspolls(body)
-        self.body = poll.parsepolls(body, self)
+        self.has_polls = containspolls(body)
+        self.body = parsepolls(body, self)
         self._commit()
 
     @property
