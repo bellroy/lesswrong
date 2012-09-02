@@ -438,6 +438,15 @@ def usformat(date):
   """
   return date.strftime('%m-%d-%Y %H:%M:%S')
 
+def median(nums):
+    """Find the median of a list of numbers, which is assumed to already be sorted."""
+    count = len(nums)
+    mid = count // 2
+    if count % 2:
+        return nums[mid]
+    else:
+        return (nums[mid - 1] + nums[mid]) / 2
+
 def to_base(q, alphabet):
     if q < 0: raise ValueError, "must supply a positive integer"
     l = len(alphabet)

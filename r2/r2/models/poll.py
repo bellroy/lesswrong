@@ -208,16 +208,11 @@ class NumberPoll(PollType):
 
     def add_response(self, poll, response):
         responsenum = float(response)
-        poll.sum = poll.sum + responsenum
-        responses = []
-        for ballot in poll.get_ballots():
-            responses.append(float(ballot.response))
+        poll.sum += responsenum
+        responses = [float(ballot.response) for ballot in poll.get_ballots()]
         responses.append(responsenum)
         responses.sort()
-        if len(responses) % 2:
-            poll.median = responses[len(responses)/2]
-        else:
-            poll.median = (float(responses[len(responses)/2]) + float(responses[len(responses)/2 - 1])) / 2
+        poll.median = median(responses)
         
     def validate_response(self, poll, response):
         try:
