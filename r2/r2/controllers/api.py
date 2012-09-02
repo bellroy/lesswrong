@@ -206,8 +206,9 @@ class ApiController(RedditController):
               new_content = nop('article'),
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
+              notify_on_comment = VBoolean('notify_on_comment'),
               tags = VTags('tags'))
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
 
@@ -246,7 +247,8 @@ class ApiController(RedditController):
         # print "\n".join(request.post.va)
         import r2.models.poll as poll
         if not l:
-          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
+          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
+                           notify_on_comment=notify_on_comment)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
@@ -266,6 +268,7 @@ class ApiController(RedditController):
           old_url = l.url
           l.title = request.post.title
           l.set_article(new_content)
+          l.notify_on_comment = notify_on_comment
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -606,8 +609,11 @@ class ApiController(RedditController):
         res._update('status_' + parent._fullname, innerHTML = '')
 
         should_ratelimit = True
+        adjust_karma = 0
+
         #check the parent type here cause we need that for the
         #ratelimit checks
+        parent_comment = None
         if isinstance(parent, Message):
             is_message = True
             should_ratelimit = False
@@ -617,7 +623,6 @@ class ApiController(RedditController):
             is_comment = True
             if isinstance(parent, Link):
                 link = parent
-                parent_comment = None
             else:
                 link = Link._byID(parent.link_id, data = True)
                 parent_comment = parent
@@ -632,12 +637,23 @@ class ApiController(RedditController):
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
 
-        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT),
-                          parent._fullname):
+        # assess a tax on replies to downvoted comments
+        if parent_comment and parent_comment._score <= g.downvoted_reply_score_threshold:
+            if c.user.safe_karma < g.downvoted_reply_karma_cost:
+                c.errors.add(errors.NOT_ENOUGH_KARMA)
+            else:
+                adjust_karma = -g.downvoted_reply_karma_cost
+
+        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
+                           parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
         res._show('reply_' + parent._fullname)
         res._update("comment_reply_" + parent._fullname, rows = '2')
+
+        if adjust_karma:
+            KarmaAdjustment.store(c.user, sr, adjust_karma)
+            c.user.incr_karma('adjustment', sr, adjust_karma)
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)

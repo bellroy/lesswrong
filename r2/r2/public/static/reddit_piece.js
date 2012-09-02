@@ -242,7 +242,8 @@ function chklogin(form) {
         }
         else {
             post_form(form, 'register');
-            pageTracker._trackPageview('/NewSignup');
+            if (window.pageTracker)
+                window.pageTracker._trackPageview('/NewSignup');
         }
         return false;
     }

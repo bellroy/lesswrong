@@ -98,6 +98,7 @@ class PostController(ApiController):
                                        default = g.num_comments),
               pref_url = VUserWebsiteUrl('url'),
               pref_location = VLocation('location'),
+              pref_show_parent_comments = VBoolean('show_parent_comments'),
               all_langs = nop('all-langs', default = 'all'))
     def POST_options(self, all_langs, pref_lang, **kw):
         errors = list(c.errors)

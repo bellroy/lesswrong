@@ -95,22 +95,21 @@ function buildParams(parameters) {
 
 /* redditRequest: worker_in - the callback to process the ajax response.
                                if null, will use handleResponse
+                  block - if true, only one request with the given 'action' can be active at a time
                   options - a hash of named arguments
                   options.cleanup_func - if this callback is specified, and worker_in is not, then
                                          cleanup_func will be called on completion of the ajax call
                   options.prehandle_func - similar to cleanup_func, except that it is called
                                            before processing of errors and redirects
  */
-function redditRequest(op, parameters, worker_in, block, options) {
-    var api_loc = options.api_loc;
-    var cleanup_func = options.cleanup_func;
+function redditRequest(action, parameters, worker_in, block, options) {
+    options = options || {};
+    var api_loc = options.api_loc || '/api/';
     var prehandle_func = options.prehandle_func;
-
-    var action = op;
+    var cleanup_func = options.cleanup_func;
+    var handle_obj = options.handle_obj;
+    var op = api_loc + action;
     var worker = worker_in;
-    if (!api_loc) {
-      api_loc = '/api/';
-    }
 
     if (!parameters) {
         parameters = {};
@@ -121,9 +120,13 @@ function redditRequest(op, parameters, worker_in, block, options) {
     if (cnameframe) {
         parameters.cnameframe = 1;
     }
-    op = api_loc + op;
+
     if(!worker) {
-        worker = handleResponse(action, cleanup_func, prehandle_func);
+        worker = handleResponse(action, {
+            cleanup_func: cleanup_func,
+            prehandle_func: prehandle_func,
+            handle_obj: handle_obj
+        });
     }
     else {
         worker = function(r) {
@@ -131,9 +134,11 @@ function redditRequest(op, parameters, worker_in, block, options) {
             return worker_in(r);
         }
     }
-    if(block == null || add_ajax_work(action)) {
-        new Ajax.Request(op, {parameters: make_get_params(parameters),
-                    onComplete: worker});
+    if(!block || add_ajax_work(action)) {
+        new Ajax.Request(op, {
+            parameters: make_get_params(parameters),
+            onComplete: worker
+        });
     }
 }
 
@@ -381,7 +386,42 @@ function completedUploadImage(status, img_src, name, errors) {
   }
 }
 
-function handleResponse(action, cleanup_func, prehandle_func) {
+function handleResponseErrorsRedirects(res_obj) {
+    if(!res_obj) {
+        if($('status'))
+            $('status').innerHTML = '';
+        return false;
+    }
+
+    // first thing to check is if a redirect has been requested
+    if(res_obj.redirect) {
+        if(window.location.toString() == unsafe(res_obj.redirect)) {
+            window.location.reload(true);
+            return false;
+        }
+        window.location = unsafe(res_obj.redirect);
+        return false;
+    }
+
+    // next check for errors
+    var error = res_obj.error;
+    if(error && error.name) {
+        var errid = error.name;
+        if (error.id) { errid += "_" + error.id; }
+        errid = $(errid);
+        if (errid) {
+            show(errid);
+            $(errid).innerHTML = error.message;
+        }
+    }
+}
+
+function handleResponse(action, options) {
+    options = options || {};
+    var prehandle_func = options.prehandle_func;
+    var cleanup_func = options.cleanup_func;
+    var handle_obj = options.handle_obj !== void 0 ? options.handle_obj : true;
+
     var my_iter = function(x, func) {
         if(x) {
             var y = tup(x);
@@ -394,47 +434,20 @@ function handleResponse(action, cleanup_func, prehandle_func) {
         remove_ajax_work(action);
         var res_obj = parse_response(r);
 
-        if (prehandle_func) {
+        if (prehandle_func)
             prehandle_func(res_obj);
-        }
 
-        if(!res_obj) {
-            if($('status'))
-                $('status').innerHTML = '';
+        if (handleResponseErrorsRedirects(res_obj) === false)
             return;
-        }
 
-        // first thing to check is if a redirect has been requested
-        if(res_obj.redirect) {
-            if(window.location.toString() == unsafe(res_obj.redirect)) {
-                window.location.reload(true);
-                return;
-            }
-            window.location = unsafe(res_obj.redirect);
-            return;
-        }
-
-        // next check for errors
-        var error = res_obj.error;
-        if(error && error.name) {
-            var errid = error.name;
-            if (error.id) { errid += "_" + error.id; }
-            errid = $(errid);
-            if (errid) {
-                show(errid);
-                $(errid).innerHTML = error.message;
-            }
-        }
-
-        if (cleanup_func) {
+        if (cleanup_func)
             cleanup_func(res_obj);
-        }
   
         var r = res_obj.response;
         if(!r)
             return;
         var obj = r.object;
-        if(obj) {
+        if(handle_obj && obj) {
             my_iter(tup(obj),
                     function(u) {
                         if(u && u.kind && class_dict[u.kind]) {
@@ -573,9 +586,11 @@ function change_state_by_class(link, type, className) {
 }
 
 function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {
-    var cleanup_func = options["cleanup_func"] || null;
-    var worker_func = options["worker_func"] || null;
-    var prehandle_func = options["prehandle_func"] || null;
+    options = options || {};
+    var cleanup_func = options.cleanup_func;
+    var worker_func = options.worker_func;
+    var prehandle_func = options.prehandle_func;
+    var handle_obj = options.handle_obj;
 
     var p = {uh: modhash};
     var id = _id(form);
@@ -601,8 +616,12 @@ function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, o
             }
         }
     }
-    redditRequest(where, p, worker_func, block,
-        {api_loc: api_loc, cleanup_func: cleanup_func, prehandle_func: prehandle_func});
+    redditRequest(where, p, worker_func, block, {
+        api_loc: api_loc,
+        cleanup_func: cleanup_func,
+        prehandle_func: prehandle_func,
+        handle_obj: handle_obj
+    });
     return false;
 }
 

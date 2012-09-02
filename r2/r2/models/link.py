@@ -66,7 +66,8 @@ class Link(Thing, Printable):
                      render_full = False,
                      images = None,
                      blessed = False,
-                     comments_enabled = True)
+                     comments_enabled = True,
+                     notify_on_comment = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -147,7 +148,7 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None, **kwargs):
         # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
@@ -157,7 +158,8 @@ class Link(Thing, Printable):
                 lang = sr.lang,
                 ip = ip,
                 article = article,
-                date = date
+                date = date,
+                **kwargs
                 )
         l._commit()
 
@@ -919,7 +921,8 @@ class Comment(Thing, Printable):
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
-                     retracted = False)
+                     retracted = False,
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -953,12 +956,7 @@ class Comment(Thing, Printable):
 
         link._incr('num_comments', 1)
 
-        inbox_rel = None
-        if parent:
-            to = Account._byID(parent.author_id)
-            # only global admins can be message spammed.
-            if not comment._spam or to.name in g.admins:
-                inbox_rel = Inbox._add(to, comment, 'inbox')
+        inbox_rel = comment._send_post_notifications(link, comment, parent)
 
         #clear that chache
         clear_memo('builder.link_comments2', link._id)
@@ -976,6 +974,24 @@ class Comment(Thing, Printable):
         add_comment(comment)
 
         return (comment, inbox_rel)
+
+    def _send_post_notifications(self, link, comment, parent):
+        if parent:
+            to = Account._byID(parent.author_id)
+        else:
+            if not link.notify_on_comment:
+                return None
+            elif comment.author_id != link.author_id:
+                # Send notification if the comment wasn't by the link author
+                to = Account._byID(link.author_id)
+            else:
+                return None
+
+        # only global admins can be message spammed.
+        if self._spam and to.name not in g.admins:
+            return None
+
+        return Inbox._add(to, self, 'inbox')
 
     def has_children(self):
         q = Comment._query(Comment.c.parent_id == self._id, limit=1)
@@ -1043,7 +1059,8 @@ class Comment(Thing, Printable):
                               wrapped.is_html,
                               wrapped.votable,
                               wrapped.retracted,
-                              wrapped.can_be_deleted))
+                              wrapped.can_be_deleted,
+                              wrapped.show_response_to))
         s = ''.join(s)
         return s
 

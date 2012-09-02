@@ -227,10 +227,11 @@ ${unsafe(txt)}
 </%def>
 
 <%def name="checkbox(name, text, val)">
-  <input type="checkbox" ${'checked="checked"' if val else ''}
-    name="${name}">
+  <label for="${name}">
+    <input type="checkbox" id="${name}" name="${name}"
+      ${'checked="checked"' if val else ''} />
     ${text}
-  </input>
+  </label>
 </%def>
 
 <%def name="image_upload(post_target, current_image = None)">

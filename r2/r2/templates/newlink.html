@@ -24,7 +24,7 @@
    from r2.lib.template_helpers import static, get_domain, json
    import os
 %>
-<%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links"/>
+<%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links, checkbox"/>
 <%namespace file="printable.html" import="yes_no_button"/>
 
 <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
@@ -58,16 +58,16 @@
     </tr>
     <tr>
       <td>
-      <label for="tags">${_("Tags:")}</label>
-      <input id="tags" name="tags" value="${', '.join(thing.tags)}"
-                 onfocus="clearTitle(this)" type="text" />
-      <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
+        <label for="tags">${_("Tags:")}</label>
+        <input id="tags" name="tags" value="${', '.join(thing.tags)}"
+                   onfocus="clearTitle(this)" type="text" />
+        <span class="gray">${_('Enter tags separated by commas or spaces.')}</span>
       </td>
     </tr>
     %if thing.subreddits:
       <tr>
         <td>
-        <label for="sr">${_("Post to")}</label>
+          <label for="sr">${_("Post to")}</label>
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
               <option value="${sr.name}"
@@ -83,6 +83,11 @@
         </td>
       </tr>
     %endif
+    <tr>
+      <td>
+        ${checkbox("notify_on_comment", _("Notify me of new top level comments on this article"), thing.notify_on_comment)}
+      </td>
+    </tr>
     %if thing.captcha:
       <tr>
         <td>

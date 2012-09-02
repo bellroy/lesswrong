@@ -27,6 +27,7 @@ from r2 import config
 from r2.models import *
 from r2.lib.pages import *
 from r2.lib.menus import *
+from r2.lib.filters import _force_unicode
 from r2.lib.utils import to36, sanitize_url, check_cheating, title_to_url, query_string, UrlParser
 from r2.lib.template_helpers import get_domain
 from r2.lib.emailer import has_opted_out, Email
@@ -125,11 +126,11 @@ class FrontController(RedditController):
     def GET_comments(self, article, comment, context, sort, num_comments):
         """Comment page for a given 'article'."""
         if comment and comment.link_id != article._id:
-            return self.abort404()    
-
-        if not c.default_sr and c.site._id != article.sr_id: 
             return self.abort404()
-        
+
+        if not c.default_sr and c.site._id != article.sr_id:
+            return self.redirect(article.make_permalink_slow(), 301)
+
         # moderator is either reddit's moderator or an admin
         is_moderator = c.user_is_loggedin and c.site.is_moderator(c.user) or c.user_is_admin
         if article._spam and not is_moderator:
@@ -207,13 +208,12 @@ class FrontController(RedditController):
         else:
             content = PaneStack()
 
-        # is_canonical indicates if the page is the canonical location for
-        # the resource. The canonical location is deemed to be one with
-        # no query string arguments
+        is_canonical = article.canonical_url.endswith(_force_unicode(request.path)) and not request.GET
+
         res = LinkInfoPage(link = article, comment = comment,
                            content = content, 
                            infotext = infotext,
-                           is_canonical = bool(not request.GET)).render()
+                           is_canonical = is_canonical).render()
 
         if c.user_is_loggedin:
             article._click(c.user)

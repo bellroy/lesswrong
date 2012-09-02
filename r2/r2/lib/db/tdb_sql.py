@@ -100,6 +100,9 @@ def index_commands(table, type):
         #base_url
         commands.append(index_str(table, 'base_url', 'base_url(lower(value))',
                                   where = "key = 'url'"))
+        #author_id (or votes)
+        commands.append(index_str(table, 'author_id', 'value',
+                                  where = "key = 'author_id'"))
     elif type == 'rel':
         commands.append(index_str(table, 'thing1_name_date', 'thing1_id, name, date'))
         commands.append(index_str(table, 'thing2_name_date', 'thing2_id, name, date'))

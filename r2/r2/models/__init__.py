@@ -30,5 +30,6 @@ from mail_queue import Email, has_opted_out, opt_count
 from admintools import *
 from edit import *
 from meetup import *
+from karma_adjustment import *
 import thing_changes
 
