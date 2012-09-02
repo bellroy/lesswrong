@@ -604,7 +604,6 @@ class ApiController(RedditController):
               parent = VSubmitParent('id'),
               comment = VComment('comment'))
     def POST_comment(self, res, parent, comment, ip):
-
         #wipe out the status message
         res._update('status_' + parent._fullname, innerHTML = '')
 
@@ -650,6 +649,8 @@ class ApiController(RedditController):
             return
         res._show('reply_' + parent._fullname)
         res._update("comment_reply_" + parent._fullname, rows = '2')
+
+        # now that all inputs are verified, we can begin performing destructive updates:
 
         if adjust_karma:
             KarmaAdjustment.store(c.user, sr, adjust_karma)
