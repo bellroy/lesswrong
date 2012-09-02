@@ -9,6 +9,13 @@ from r2.lib.wrapped import Wrapped
 from r2.lib.pages import MultipleChoicePollBallot, MultipleChoicePollResults, ScalePollBallot, ScalePollResults, ProbabilityPollBallot, ProbabilityPollResults, NumberPollBallot, NumberPollResults
 from r2.lib.filters import safemarkdown
 
+
+class PollError(Exception):
+    def __init__(self, message):
+        Exception.__init__(self)
+        self.message = message
+
+
 poll_re = re.compile(r"""
     \[\s*poll\s*(?::\s*([a-zA-Z0-9_\.]*))?\s*\]    # Starts with [poll] or [poll:polltype]
     ((?:\s*{[^}]+})*)                             # Poll options enclosed in curly braces
@@ -236,10 +243,16 @@ class Poll(Thing):
     @classmethod
     def createpoll(cls, thing, polltypestring, options):
         polltype = cls.normalize_polltype(polltypestring)
+
         poll = cls(thingid = thing._id,
                    polltype = polltype,
                    polltypestring = polltypestring,
                    choices = options)
+
+        polltype_class = poll.polltype_class()
+        if not polltype_class:
+            raise PollError("Invalid poll type '{0}'".format(polltypestring))
+
         thing.has_polls = True
         poll.init_blank()
         poll._commit()
