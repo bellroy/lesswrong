@@ -642,7 +642,16 @@ class ApiController(RedditController):
             else:
                 adjust_karma = -g.downvoted_reply_karma_cost
 
-        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT, errors.NOT_ENOUGH_KARMA),
+        # make sure there are no errors in poll syntax
+        if comment:
+            try:
+                parsepolls(comment, None, dry_run = True)
+            except PollError as ex:
+                c.errors.add(errors.POLL_ERROR)
+                res._update('POLL_ERROR_' + parent._fullname, textContent = ex.message)
+
+        if res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.RATELIMIT,
+                            errors.NOT_ENOUGH_KARMA, errors.POLL_ERROR),
                            parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
@@ -670,6 +679,7 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
+            item.set_body(comment)  # some markup requires the comment to exist and have an ID before it can be parsed
             res._update("comment_reply_" + parent._fullname,
                         innerHTML='', value='')
             res._send_things(item)

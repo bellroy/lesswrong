@@ -949,10 +949,6 @@ class Comment(Thing, Printable):
 
         comment._commit()
 
-        comment.body = parsepolls(body, comment)
-        
-        comment._commit()
-
         link._incr('num_comments', 1)
 
         inbox_rel = comment._send_post_notifications(link, comment, parent)

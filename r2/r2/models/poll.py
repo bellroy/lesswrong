@@ -31,15 +31,21 @@ scalepoll_re = re.compile(r"""
     """, re.VERBOSE)
 
 
-def parsepolls(text, thing):
-    # Look for markup that looks like a poll specification, ie "[poll:polltype]{poll options}",
-    # parse the descriptions and create poll objects, and replace the specifications with IDs,
-    # ie "[pollid:123]". Returns the adjusted text.
+def parsepolls(text, thing, dry_run = False):
+    """
+    Look for poll markup syntax, ie "[poll:polltype]{options}". Parse it,
+    create a poll object, and replace the raw syntax with "[pollid:123]".
+    `PollError` is raised if there are any errors in the syntax.
+
+    :param dry_run: If true, the syntax is still checked, but no database objects are created.
+    """
+
     def checkmatch(match):
         optionsText = match.group(2)
         options = poll_options_re.findall(optionsText)
-        pollid = createpoll(thing, match.group(1), options)
-        return "[pollid:" + str(pollid) + "]"
+        poll = createpoll(thing, match.group(1), options, dry_run = dry_run)
+        pollid = "" if dry_run else str(poll._id)
+        return "[pollid:" + pollid + "]"
 
     return re.sub(poll_re, checkmatch, text)
 
@@ -109,11 +115,11 @@ def wrap_results(commentid, body):
      return """{0} <a href="/api/rawdata?thing={1}">Raw poll data</a>""".format(body, to36(commentid))
 
 
-def createpoll(thing, polltype, args):
-    poll = Poll.createpoll(thing, polltype, args)
+def createpoll(thing, polltype, args, dry_run = False):
+    poll = Poll.createpoll(thing, polltype, args, dry_run = dry_run)
     if g.write_query_queue:
         queries.new_poll(poll)
-    return poll._id
+    return poll
 
 
 def exportvotes(pollids):
@@ -244,10 +250,12 @@ class ProbabilityPoll(NumberPoll):
 
 class Poll(Thing):
     @classmethod
-    def createpoll(cls, thing, polltypestring, options):
+    def createpoll(cls, thing, polltypestring, options, dry_run = False):
+        assert dry_run == (thing is None)
+
         polltype = cls.normalize_polltype(polltypestring)
 
-        poll = cls(thingid = thing._id,
+        poll = cls(thingid = thing and thing._id,
                    polltype = polltype,
                    polltypestring = polltypestring,
                    choices = options)
@@ -256,9 +264,11 @@ class Poll(Thing):
         if not polltype_class:
             raise PollError("Invalid poll type '{0}'".format(polltypestring))
 
-        thing.has_polls = True
-        poll.init_blank()
-        poll._commit()
+        if not dry_run:
+            thing.has_polls = True
+            poll.init_blank()
+            poll._commit()
+
         return poll
 
     @classmethod
