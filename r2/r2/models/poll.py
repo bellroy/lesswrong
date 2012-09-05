@@ -174,6 +174,8 @@ class MultipleChoicePoll(PollType):
 
     def init_blank(self, poll):
         poll.votes_for_choice = []
+        if len(poll.choices) < 2:
+            raise PollError('Multiple choice polls must have at least two choices')
         for choice in poll.choices:
             poll.votes_for_choice.append(0)
 
@@ -264,9 +266,10 @@ class Poll(Thing):
         if not polltype_class:
             raise PollError("Invalid poll type '{0}'".format(polltypestring))
 
+        poll.init_blank()
+
         if not dry_run:
             thing.has_polls = True
-            poll.init_blank()
             poll._commit()
 
         return poll
