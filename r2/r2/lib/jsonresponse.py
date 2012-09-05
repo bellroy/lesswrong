@@ -101,7 +101,7 @@ class JsonResponse():
             self.error_thing_id = '';
             self.error = None
 
-    def _set_error(self, error, err_on_thing = ''):
+    def _set_error_obj(self, error, err_on_thing = ''):
         if not self.error:
             self.error = error
             self.error_thing_id = err_on_thing;
@@ -110,7 +110,7 @@ class JsonResponse():
         from pylons import c
         if error_name in c.errors:
             error = c.errors[error_name]
-            self._set_error(error, err_on_thing)
+            self._set_error_obj(error, err_on_thing)
             return True
         else:
             self._clear_error(error_name, err_on_thing)
