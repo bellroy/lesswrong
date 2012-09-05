@@ -98,13 +98,13 @@ class JsonResponse():
         self._update(errid, innerHTML='')
         self._hide(errid)
         if self.error and self.error.name == error_name:
-            self.error_thing_id = '';
+            self.error_thing_id = ''
             self.error = None
 
     def _set_error_obj(self, error, err_on_thing = ''):
         if not self.error:
             self.error = error
-            self.error_thing_id = err_on_thing;
+            self.error_thing_id = err_on_thing
 
     def _chk_error(self, error_name, err_on_thing = ''):
         from pylons import c
