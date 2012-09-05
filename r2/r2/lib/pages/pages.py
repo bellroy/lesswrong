@@ -1415,6 +1415,13 @@ class SiteMeter(Wrapped):
         Wrapped.__init__(self, *a, **kw)
 
 
+class PollWrapper(Wrapped):
+    def __init__(self, outer_thing, outer_body, voted_on_all, *a, **kw):
+        Wrapped.__init__(self, *a, **kw)
+        self.outer_thing = outer_thing
+        self.outer_body = outer_body
+        self.voted_on_all = voted_on_all
+
 class PollBallot(Wrapped):
     def __init__(self, poll, *a, **kw):
         self.poll = poll

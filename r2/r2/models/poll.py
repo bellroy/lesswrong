@@ -5,7 +5,6 @@ from pylons import c, g, request
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationError
 from account import Account
 from r2.lib.utils import to36, median
-from r2.lib.wrapped import Wrapped
 from r2.lib.filters import safemarkdown
 pages = None  # r2.lib.pages imported dynamically further down
 
@@ -49,10 +48,6 @@ def parsepolls(text, thing, dry_run = False):
 
     return re.sub(poll_re, checkmatch, text)
 
-def pollsandmarkdown(text, commentid):
-    ret = renderpolls(safemarkdown(text), commentid)
-    return ret
-
 
 def getpolls(text):
     polls = []
@@ -72,18 +67,18 @@ def containspolls(text):
 # matching poll in the database, and convert it into an HTML implementation
 # of that poll. If there was at least one poll, puts poll options ('[]Vote
 # Anonymously [Submit]/[View Results] [Raw Data]') at the bottom
-def renderpolls(text, commentid):
+def renderpolls(text, thing):
     polls_not_voted = []
     polls_voted = []
     oldballots = []
-    
+
     def checkmatch(match):
         pollid = match.group(1)
         try:
             poll = Poll._byID(pollid, True)
-            if poll.thingid != commentid:
+            if poll.thingid != thing._id:
                 return "Error: Poll belongs to a different comment"
-            
+
             if poll.user_has_voted(c.user):
                 polls_voted.append(pollid)
                 return poll.render_results()
@@ -92,26 +87,19 @@ def renderpolls(text, commentid):
                 return poll.render()
         except NotFound:
             return "Error: Poll not found!"
-    
-    rendered_body = re.sub(pollid_re, checkmatch, text)
-    
-    if polls_not_voted:
-        return wrap_ballot(commentid, rendered_body)
-    elif polls_voted:
-        return wrap_results(commentid, rendered_body)
-    else:
-        return rendered_body
 
-def wrap_ballot(commentid, body):
-    return """
-        <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">
-            {1}
-        <input type="checkbox" checked="1" name="anonymous" value="1">Vote anonymously</input><br>
-        <button type="Submit">Submit</button>
-        </form>""".format(to36(commentid), body)
+    text = re.sub(pollid_re, checkmatch, text)
 
-def wrap_results(commentid, body):
-     return """{0} <a href="/api/rawdata?thing={1}">Raw poll data</a>""".format(body, to36(commentid))
+    if polls_voted or polls_not_voted:
+        voted_on_all = not polls_not_voted
+        page = _get_pageclass('PollWrapper')(thing, text, voted_on_all)
+        text = page.render('html')
+
+    return text
+
+def pollsandmarkdown(text, thing):
+    ret = renderpolls(safemarkdown(text), thing)
+    return ret
 
 
 def createpoll(thing, polltype, args, dry_run = False):

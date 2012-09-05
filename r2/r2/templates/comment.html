@@ -109,9 +109,9 @@ ${parent.Child(not thing.collapsed)}
 <%def name="commentBody()">
 %if not thing.deleted:
   %if thing.is_html:
-    ${unsafe_wrap_md(renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing._id))}
+    ${unsafe_wrap_md(renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing))}
   %else:
-    ${unsafe(pollsandmarkdown(thing.body, thing._id))}
+    ${unsafe(pollsandmarkdown(thing.body, thing))}
   %endif
 %endif
 </%def>

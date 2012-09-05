@@ -138,11 +138,11 @@
 </%def>
 
 <%def name="article()">
-  ${unsafe(renderpolls(cleanhtml(thing.article), thing._id))}
+  ${unsafe(renderpolls(cleanhtml(thing.article), thing))}
 </%def>
 
 <%def name="summary()">
-  ${unsafe(cleanhtml(renderpolls(thing._summary(), thing._id)))}
+  ${unsafe(cleanhtml(renderpolls(thing._summary(), thing)))}
   % if thing._has_more():
     <%call expr="make_link('read_more', 'more', 'more')">
       continue reading &raquo;
@@ -200,7 +200,7 @@
   </ul>
   % if thing.render_full:
     <div class="md">
-      ${unsafe(cleanhtml(renderpolls(thing.article, thing._id)))}
+      ${unsafe(cleanhtml(renderpolls(thing.article, thing)))}
     </div>
     <% tags = thing.get_tags() %>
     %if len(tags):
@@ -215,7 +215,7 @@
   %else:
     % if hasattr(thing, '_summary'):
       <div class="md">
-        ${unsafe(cleanhtml(renderpolls(thing._summary(), thing._id)))}
+        ${unsafe(cleanhtml(renderpolls(thing._summary(), thing)))}
       </div>
       % if thing._has_more():
         <%call expr="make_link('read_more', 'md', 'more')">
