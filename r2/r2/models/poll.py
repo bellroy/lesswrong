@@ -54,6 +54,20 @@ def pollsandmarkdown(text, commentid):
     return ret
 
 
+def getpolls(text):
+    polls = []
+    matches = re.findall(pollid_re, text)
+    for match in matches:
+        try:
+            pollid = int(str(match))
+            polls.append(pollid)
+        except: pass
+    return polls
+
+def containspolls(text):
+    return bool(re.match(poll_re, text) or re.match(pollid_re, text))
+
+
 # Look for poll IDs in a comment/article, like "[pollid:123]", find the
 # matching poll in the database, and convert it into an HTML implementation
 # of that poll. If there was at least one poll, puts poll options ('[]Vote
@@ -87,21 +101,6 @@ def renderpolls(text, commentid):
         return wrap_results(commentid, rendered_body)
     else:
         return rendered_body
-
-
-def getpolls(text):
-    polls = []
-    matches = re.findall(pollid_re, text)
-    for match in matches:
-        try:
-            pollid = int(str(match))
-            polls.append(pollid)
-        except: pass
-    return polls
-
-def containspolls(text):
-    return bool(re.match(poll_re, text) or re.match(pollid_re, text))
-
 
 def wrap_ballot(commentid, body):
     return """
