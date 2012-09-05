@@ -577,22 +577,35 @@ class ApiController(RedditController):
         Report.new(c.user, thing)
 
 
+    def _validate_comment_text(self, res, error_thing, comment):
+        # This needs access to `res` to edit the displayed message, so a Validator isn't enough
+        if not comment:
+            return
+
+        try:
+            parsepolls(comment, None, dry_run = True)
+        except PollError as ex:
+            c.errors.add(errors.POLL_ERROR)
+            res._update('POLL_ERROR_' + error_thing._fullname, textContent = ex.message)
+
+
     @Json
     @validate(VUser(), VModhash(),
               comment = VByNameIfAuthor('id'),
               body = VComment('comment'))
     def POST_editcomment(self, res, comment, body):
+        self._validate_comment_text(res, comment, body)
+
         res._update('status_' + comment._fullname, innerHTML = '')
 
-        if not res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG,errors.NOT_AUTHOR),
-                           comment._fullname):
+        if not res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.NOT_AUTHOR, errors.POLL_ERROR),
+                               comment._fullname):
             if not c.user_is_admin: comment.editted = True
             comment.set_body(body)
             res._send_things(comment)
 
             # flag search indexer that something has changed
             tc.changed(comment)
-
 
 
     @Json
@@ -643,12 +656,7 @@ class ApiController(RedditController):
                 adjust_karma = -g.downvoted_reply_karma_cost
 
         # make sure there are no errors in poll syntax
-        if comment:
-            try:
-                parsepolls(comment, None, dry_run = True)
-            except PollError as ex:
-                c.errors.add(errors.POLL_ERROR)
-                res._update('POLL_ERROR_' + parent._fullname, textContent = ex.message)
+        self._validate_comment_text(res, parent, comment)
 
         if res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.RATELIMIT,
                             errors.NOT_ENOUGH_KARMA, errors.POLL_ERROR),
