@@ -1,3 +1,6 @@
+<%namespace name="utils" file="utils.html" import="error_field"/>
+
+
 %if thing.voted_on_all:
   ${unsafe(thing.outer_body)}
   <a href="/api/rawdata?thing=${thing.outer_thing._id36}">Raw poll data</a>
@@ -6,5 +9,6 @@
     ${unsafe(thing.outer_body)}
     <input type="checkbox" checked="checked" name="anonymous">Vote anonymously</input><br>
     <button type="Submit">Submit</button>
+    ${error_field('BAD_POLL_BALLOT_' + thing.outer_thing._fullname)}
   </form>
 %endif

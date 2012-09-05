@@ -824,7 +824,9 @@ class ApiController(RedditController):
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
-        
+
+        any_submitted = False
+
         #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
         for param in request.POST:
             ballotparam = re.match("poll_([a-z0-9]+)", param)
@@ -833,9 +835,17 @@ class ApiController(RedditController):
                 pollobj = Poll._byID(pollid)
                 response = request.POST[param]
                 ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
-                if ballot and g.write_query_queue:
-                    queries.new_ballot(ballot)
-        
+                if ballot:
+                    any_submitted = True
+                    if g.write_query_queue:
+                        queries.new_ballot(ballot)
+
+        if not any_submitted:
+            c.errors.add(errors.BAD_POLL_BALLOT)
+            res._chk_error(errors.BAD_POLL_BALLOT, comment._fullname)
+            res._update('BAD_POLL_SYNTAX_' + comment._fullname, textContent = ex.message)
+            return
+
         #Return a new rendering, with the results included
         res._send_things(comment)
 
