@@ -84,10 +84,10 @@ errors = Storage([(e, e) for e in error_list.keys()])
 
 class Error(object):
     #__slots__ = ('name', 'message')
-    def __init__(self, name, i18n_message, msg_params):
+    def __init__(self, name, i18n_message, msg_params = None):
         self.name = name
         self.i18n_message = i18n_message
-        self.msg_params = msg_params
+        self.msg_params = msg_params or {}
         
     @property
     def message(self):
@@ -118,10 +118,10 @@ class ErrorSet(object):
         for x in self.errors:
             yield x
         
-    def _add(self, error_name, msg, msg_params = {}):
+    def _add(self, error_name, msg, msg_params = None):
         self.errors[error_name] = Error(error_name, msg, msg_params)
         
-    def add(self, error_name, msg_params = {}):
+    def add(self, error_name, msg_params = None):
         msg = error_list[error_name]
         self._add(error_name,  msg, msg_params = msg_params)
 
