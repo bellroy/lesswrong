@@ -77,7 +77,7 @@ error_list = dict((
         ('NO_DESCRIPTION', _('You must supply a description')),
         ('CANNOT_DELETE', _('Cannot delete that comment')),
         ('NOT_ENOUGH_KARMA', _('You do not have enough karma')),
-        ('POLL_ERROR', _('Error in poll syntax')),
+        ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 

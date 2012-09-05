@@ -585,8 +585,8 @@ class ApiController(RedditController):
         try:
             parsepolls(comment, None, dry_run = True)
         except PollError as ex:
-            c.errors.add(errors.POLL_ERROR)
-            res._update('POLL_ERROR_' + error_thing._fullname, textContent = ex.message)
+            c.errors.add(errors.BAD_POLL_SYNTAX)
+            res._update('BAD_POLL_SYNTAX_' + error_thing._fullname, textContent = ex.message)
 
 
     @Json
@@ -598,7 +598,8 @@ class ApiController(RedditController):
 
         res._update('status_' + comment._fullname, innerHTML = '')
 
-        if not res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.NOT_AUTHOR, errors.POLL_ERROR),
+        if not res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.NOT_AUTHOR,
+                                errors.BAD_POLL_SYNTAX),
                                comment._fullname):
             if not c.user_is_admin: comment.editted = True
             comment.set_body(body)
@@ -659,7 +660,7 @@ class ApiController(RedditController):
         self._validate_comment_text(res, parent, comment)
 
         if res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.RATELIMIT,
-                            errors.NOT_ENOUGH_KARMA, errors.POLL_ERROR),
+                            errors.NOT_ENOUGH_KARMA, errors.BAD_POLL_SYNTAX),
                            parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
