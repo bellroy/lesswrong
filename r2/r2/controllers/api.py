@@ -829,15 +829,20 @@ class ApiController(RedditController):
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
                 pollobj = Poll._byID(pollid)
-                response = request.POST[param]
-                ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
-                if ballot:
+                try:
+                    response = pollobj.validate_response(request.POST[param])
+                    ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
+                except PollError as ex:
+                    res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, ex.message)
+                else:
                     any_submitted = True
                     if g.write_query_queue:
                         queries.new_ballot(ballot)
 
         if not any_submitted:
             res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, 'No valid votes found')
+
+        if res._chk_errors((errors.BAD_POLL_BALLOT,), comment._fullname):
             return
 
         #Return a new rendering, with the results included

@@ -154,6 +154,15 @@ class PollType:
     def render_results(self, poll):
         return _get_pageclass(self.results_class)(poll).render('html')
 
+    def _check_range(self, num, func, min, max, message):
+        try:
+            num = func(num)
+            if min <= num <= max:
+                return str(num)
+        except:
+             pass
+        raise PollError(message)
+
 
 class MultipleChoicePoll(PollType):
     ballot_class = 'MultipleChoicePollBallot'
@@ -170,11 +179,7 @@ class MultipleChoicePoll(PollType):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
 
     def validate_response(self, poll, response):
-        try:
-            choiceindex = int(response)
-            return (choiceindex >= 0 and choiceindex < len(choices))
-        except:
-             return False
+        return self._check_range(response, int, 0, len(poll.choices) - 1, 'Invalid choice')
 
 
 class ScalePoll(PollType):
@@ -194,11 +199,7 @@ class ScalePoll(PollType):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
 
     def validate_response(self, poll, response):
-        try:
-            choiceindex = int(response)
-            return (choiceindex >= 0 and choiceindex < scalesize)
-        except:
-             return False
+        return self._check_range(response, int, 0, poll.scalesize - 1, 'Invalid choice')
 
 
 class NumberPoll(PollType):
@@ -218,11 +219,7 @@ class NumberPoll(PollType):
         poll.median = median(responses)
         
     def validate_response(self, poll, response):
-        try:
-            response = float(response)
-            return True
-        except:
-             return False
+        return self._check_range(response, float, -2**64, 2**64, 'Invalid number')
 
 
 class ProbabilityPoll(NumberPoll):
@@ -230,11 +227,7 @@ class ProbabilityPoll(NumberPoll):
     results_class = 'ProbabilityPollResults'
 
     def validate_response(self, poll, response):
-        try:
-            prob = float(response)
-            return (response >= 0 and response <= 1)
-        except:
-             return False
+        return self._check_range(response, float, 0, 1, 'Probability must be between 0 and 1')
 
 
 class Poll(Thing):
@@ -374,15 +367,15 @@ class Ballot(Relation(Account, Poll)):
             oldballot = list(cls._query(cls.c._thing1_id == user._id,
                                         cls.c._thing2_id == pollid))
             if len(oldballot):
-                return
-            else:
-                ballot = Ballot(user, pollobj, response)
-                ballot.ip = ip
-                ballot.anonymous = anonymous
-                ballot.date = datetime.datetime.now().isoformat()
-                pollobj.add_response(response)
+                raise PollError('You already voted on this poll')
+
+            ballot = Ballot(user, pollobj, response)
+            ballot.ip = ip
+            ballot.anonymous = anonymous
+            ballot.date = datetime.datetime.now().isoformat()
             ballot.response = response
             ballot._commit()
+            pollobj.add_response(response)
         return ballot
     
     def export_row(self, aliases):
