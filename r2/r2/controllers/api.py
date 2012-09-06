@@ -531,8 +531,7 @@ class ApiController(RedditController):
 
         # Special check if comment can be deleted
         if isinstance(thing, Comment) and (not thing.can_delete()):
-            c.errors.add(errors.CANNOT_DELETE)
-            res._chk_error(errors.CANNOT_DELETE)
+            res._set_error(errors.CANNOT_DELETE)
             return
 
         thing._deleted = True
@@ -577,16 +576,13 @@ class ApiController(RedditController):
         Report.new(c.user, thing)
 
 
-    def _validate_comment_text(self, res, error_thing, comment):
-        # This needs access to `res` to edit the displayed message, so a Validator isn't enough
-        if not comment:
-            return
-
-        try:
-            parsepolls(comment, None, dry_run = True)
-        except PollError as ex:
-            c.errors.add(errors.BAD_POLL_SYNTAX)
-            res._update('BAD_POLL_SYNTAX_' + error_thing._fullname, textContent = ex.message)
+    def _validate_comment_text(self, res, error_thing, text):
+        # This needs access to `res` to set the displayed message. A Validator isn't flexible enough
+        if text:
+            try:
+                parsepolls(text, None, dry_run = True)
+            except PollError as ex:
+                res._set_error(errors.BAD_POLL_SYNTAX, error_thing._fullname, ex.message)
 
 
     @Json
@@ -841,9 +837,7 @@ class ApiController(RedditController):
                         queries.new_ballot(ballot)
 
         if not any_submitted:
-            c.errors.add(errors.BAD_POLL_BALLOT)
-            res._chk_error(errors.BAD_POLL_BALLOT, comment._fullname)
-            res._update('BAD_POLL_SYNTAX_' + comment._fullname, textContent = ex.message)
+            res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, 'No valid votes found')
             return
 
         #Return a new rendering, with the results included
