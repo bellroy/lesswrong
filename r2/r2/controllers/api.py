@@ -839,14 +839,17 @@ class ApiController(RedditController):
                     if g.write_query_queue:
                         queries.new_ballot(ballot)
 
-        if not any_submitted:
+        if any_submitted:
+            res._send_things(comment)
+        else:
             res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, 'No valid votes found')
 
-        if res._chk_errors((errors.BAD_POLL_BALLOT,), comment._fullname):
-            return
+        # A comment might have multiple polls, with only some of them voted on, and others
+        # with errors. The above call to res._send_things causes JS to erase the error
+        # message. So if there were errors, make sure they're visible.
 
-        #Return a new rendering, with the results included
-        res._send_things(comment)
+        if res.error:
+            res._update(res.error.name + '_' + comment._fullname, textContent = res.error.message)
 
     @Json
     @validate(thing = VLinkOrCommentID('thing'))
