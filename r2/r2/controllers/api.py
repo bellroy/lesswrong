@@ -821,6 +821,11 @@ class ApiController(RedditController):
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
 
+        if c.user.safe_karma < g.karma_to_vote:
+            res._set_error(errors.BAD_POLL_BALLOT, comment._fullname,
+                           'You do not have the required {0} karma to vote'.format(g.karma_to_vote))
+            return
+
         any_submitted = False
 
         #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
