@@ -520,7 +520,22 @@ div.meta.meetup strong {
 }
 
 /* Polls */
+.poll-ballot, .poll-results {
+  margin: 0 0 1em;
+}
+.poll-ballot ul, .poll-results ul {
+  margin: 0;
+  list-style: none;
+}
+.poll-results td {
+  padding: 0 4px;
+}
 .pollbar {
-  background-color: green;
-  height: 10px;
+  background: #0B8040;
+  height: 12px;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
 }
