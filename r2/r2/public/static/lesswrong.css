@@ -527,8 +527,11 @@ div.meta.meetup strong {
   margin: 0;
   list-style: none;
 }
-.poll-results td {
-  padding: 0 4px;
+.poll-results td, .poll-results th {
+  padding: 0 6px;
+}
+.poll-results td:first-child, .poll-results th:first-child {
+  text-align: right;
 }
 .pollbar {
   background: #0B8040;

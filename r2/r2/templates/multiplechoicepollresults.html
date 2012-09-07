@@ -5,9 +5,14 @@
         <td>${thing.poll.choices[ii]}</td>
         <td>${thing.poll.num_votes_for(ii)}</td>
         <td>(${thing.poll.rendered_percentage_for(ii)})</td>
-        <td style="width: 300px"><div class="pollbar" style="width: ${thing.poll.bar_length(ii, 300)}px">&nbsp;</div></td>
+        <td style="width:300px"><div class="pollbar" style="width:${thing.poll.bar_length(ii, 300)}px">&nbsp;</div></td>
       </tr>
     %endfor
+    <tr class="total-row">
+      <th>Total</th>
+      <th>${thing.poll.num_votes}</th>
+      <th>(100%)</th>
+      <th>&nbsp;</th>
+    </tr>
   </table>
-  ${thing.poll.num_votes_string()}
 </div>

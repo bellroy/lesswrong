@@ -2,7 +2,7 @@
   <table>
     %for ii in range(thing.poll.scalesize):
       <tr>
-        <td align="right">
+        <th>
           %if ii == 0:
             ${thing.poll.leftlabel}
           %elif ii == thing.poll.scalesize - 1:
@@ -10,7 +10,7 @@
           %else:
             &bull;
           %endif
-        </td>
+        </th>
         <td><span class="scalepoll_numvotes">${thing.poll.num_votes_for(ii)}</span></td>
         <td style="width:300px"><div class="pollbar" style="width:${thing.poll.bar_length(ii, 300)}px">&nbsp;</div></td>
       </tr>
