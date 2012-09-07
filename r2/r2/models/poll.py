@@ -326,18 +326,13 @@ class Poll(Thing):
         if self.votes_for_choice:
             return self.votes_for_choice[choice]
         else:
-            return -1
+            raise TypeError
 
     def bar_length(self, choice, max_length):
-        max_votes = 0
-        for otherchoice in self.votes_for_choice:
-             votes = self.num_votes_for(otherchoice)
-             if votes > max_votes:
-                 max_votes = votes
+        max_votes = max(self.votes_for_choice)
         if max_votes == 0:
             return 0
-        ret = int(float(self.num_votes_for(choice)) / max_votes * max_length)
-        return ret
+        return int(float(self.num_votes_for(choice)) / max_votes * max_length)
 
     def fraction_for(self, choice):
         return float(self.num_votes_for(choice)) / self.num_votes * 100
