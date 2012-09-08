@@ -9,6 +9,9 @@ from r2.lib.filters import safemarkdown
 pages = None  # r2.lib.pages imported dynamically further down
 
 
+MAX_POLL_CHOICES = 20
+
+
 class PollError(Exception):
     def __init__(self, message):
         Exception.__init__(self)
@@ -154,6 +157,12 @@ class PollType:
     def render_results(self, poll):
         return _get_pageclass(self.results_class)(poll).render('html')
 
+    def _check_num_choices(self, num):
+        if num < 2:
+            raise PollError('Polls must have at least two choices')
+        if num > MAX_POLL_CHOICES:
+            raise PollError('Polls cannot have more than {0} choices'.format(MAX_POLL_CHOICES))
+
     def _check_range(self, num, func, min, max, message):
         try:
             num = func(num)
@@ -169,11 +178,8 @@ class MultipleChoicePoll(PollType):
     results_class = 'MultipleChoicePollResults'
 
     def init_blank(self, poll):
-        poll.votes_for_choice = []
-        if len(poll.choices) < 2:
-            raise PollError('Multiple choice polls must have at least two choices')
-        for choice in poll.choices:
-            poll.votes_for_choice.append(0)
+        self._check_num_choices(len(poll.choices))
+        poll.votes_for_choice = [0 for _ in poll.choices]
 
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
@@ -191,9 +197,9 @@ class ScalePoll(PollType):
         poll.scalesize = len(parsed_poll.group(2))
         poll.leftlabel = parsed_poll.group(1)
         poll.rightlabel = parsed_poll.group(3)
-        poll.votes_for_choice = []
-        for choice in range(poll.scalesize):
-            poll.votes_for_choice.append(0)
+
+        self._check_num_choices(poll.scalesize)
+        poll.votes_for_choice = [0 for _ in range(poll.scalesize)]
 
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
