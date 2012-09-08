@@ -535,10 +535,6 @@ function re_id_node(node, id) {
 }
 
 
-function Thing(id) {
-    this.__init__(id);
-};
-
 function field(form_field) {
     if (form_field == null || form_field.value == null ||
         ((form_field.type == 'text'  || form_field.type == 'textarea')
