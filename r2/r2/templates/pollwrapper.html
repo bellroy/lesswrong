@@ -1,3 +1,6 @@
+<%!
+    from r2.lib.template_helpers import static
+%>
 <%namespace name="utils" file="utils.html" import="error_field"/>
 
 
@@ -12,6 +15,7 @@
     <div class="poll-voting-area">
       <div><label><input type="checkbox" checked="checked" name="anonymous"> Vote anonymously</label></div>
       <button type="submit">Vote</button>
+      <span class="loading"><img src="${static('ajax-loader.gif')}" alt="Submitting..." /></span>
       ${error_field('BAD_POLL_BALLOT_' + thing.outer_thing._fullname)}
     </div>
   </form>
