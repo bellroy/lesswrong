@@ -535,6 +535,7 @@ function re_id_node(node, id) {
 }
 
 
+// Return the value of an input element, unless that input element is in a "placeholder text"-like state
 function field(form_field) {
     if (form_field == null || form_field.value == null ||
         ((form_field.type == 'text'  || form_field.type == 'textarea')
