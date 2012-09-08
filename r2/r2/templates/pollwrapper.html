@@ -3,12 +3,16 @@
 
 %if thing.voted_on_all:
   ${unsafe(thing.outer_body)}
-  <a href="/api/rawdata?thing=${thing.outer_thing._id36}">Raw poll data</a>
+  <div class="poll-voting-area">
+    <a href="/api/rawdata?thing=${thing.outer_thing._id36}">Raw poll data</a>
+  </div>
 %else:
   <form id="${thing.outer_thing._id36}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">
     ${unsafe(thing.outer_body)}
-    <div><label><input type="checkbox" checked="checked" name="anonymous"> Vote anonymously</label></div>
-    <button type="Submit">Submit</button>
-    ${error_field('BAD_POLL_BALLOT_' + thing.outer_thing._fullname)}
+    <div class="poll-voting-area">
+      <div><label><input type="checkbox" checked="checked" name="anonymous"> Vote anonymously</label></div>
+      <button type="Submit">Submit</button>
+      ${error_field('BAD_POLL_BALLOT_' + thing.outer_thing._fullname)}
+    </div>
   </form>
 %endif

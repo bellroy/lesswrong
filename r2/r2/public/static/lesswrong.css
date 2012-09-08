@@ -533,6 +533,12 @@ div.meta.meetup strong {
 .poll-results td:first-child, .poll-results th:first-child {
   text-align: right;
 }
+.poll-voting-area {
+  margin: 0 0 1.3em;
+}
+.poll-voting-area button {
+  margin: 2px 0 0;
+}
 .pollbar {
   background: #0B8040;
   height: 12px;
