@@ -1,21 +1,25 @@
+var Poll = {};
 
-function submitballot(form)
-{
-    var ballots = {uh: modhash};
-    ballots.comment = form.id
-    
+Poll.submitBallot = function (form) {
+    var ownerThing = Thing.getThingRow(form);
+    var ownerThingID = _id(ownerThing);
+
+    if (!logged) {
+        showcover(true, "vote_" + ownerThingID);
+        return;
+    }
+
+    var data = {uh: modhash, owner_thing: ownerThingID};
+
     for(var i = 0; i < form.elements.length; i++) {
         if(! form.elements[i].id || !id || 
            _id(form.elements[i]) == id) {
             var f = field(form.elements[i]);
             if (f) {
-            	//ballots.append({"name": form.elements[i].name, "response": f});
-                ballots[form.elements[i].name] = f;
+                data[form.elements[i].name] = f;
             }
         }
     }
-    
-    result = redditRequest('submitballot', ballots, null, true); 
-    return false;
-}
 
+    result = redditRequest('submitballot', data, null, true);
+};

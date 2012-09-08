@@ -812,7 +812,7 @@ class ApiController(RedditController):
     
     @Json
     @validate(VUser(), VModhash(),
-              comment = VLinkOrCommentID('comment'),
+              comment = VCommentFullName('owner_thing'),
               anonymous = VBoolean('anonymous'))
     def POST_submitballot(self, res, comment, anonymous):
         ip = request.ip
@@ -820,6 +820,9 @@ class ApiController(RedditController):
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
+
+        if not comment:
+            return
 
         if c.user.safe_karma < g.karma_to_vote:
             res._set_error(errors.BAD_POLL_BALLOT, comment._fullname,
@@ -857,7 +860,7 @@ class ApiController(RedditController):
             res._update(res.error.name + '_' + comment._fullname, textContent = res.error.message)
 
     @Json
-    @validate(thing = VLinkOrCommentID('thing'))
+    @validate(thing = VCommentFullName('thing'))
     def GET_rawdata(self, response, thing):
         pollids = getpolls(thing.body)
         csv = exportvotes(pollids)
