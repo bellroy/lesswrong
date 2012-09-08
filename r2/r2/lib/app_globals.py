@@ -47,6 +47,7 @@ class Globals(object):
                  'karma_to_post',
                  'discussion_karma_to_post',
                  'karma_to_vote',
+                 'poll_max_choices',
                  'downvoted_reply_score_threshold',
                  'downvoted_reply_karma_cost',
                  'side_meetups_max_age',

@@ -9,9 +9,6 @@ from r2.lib.filters import safemarkdown
 pages = None  # r2.lib.pages imported dynamically further down
 
 
-MAX_POLL_CHOICES = 20
-
-
 class PollError(Exception):
     def __init__(self, message):
         Exception.__init__(self)
@@ -160,8 +157,8 @@ class PollType:
     def _check_num_choices(self, num):
         if num < 2:
             raise PollError('Polls must have at least two choices')
-        if num > MAX_POLL_CHOICES:
-            raise PollError('Polls cannot have more than {0} choices'.format(MAX_POLL_CHOICES))
+        if num > g.poll_max_choices:
+            raise PollError('Polls cannot have more than {0} choices'.format(g.poll_max_choices))
 
     def _check_range(self, num, func, min, max, message):
         try:
