@@ -10,7 +10,7 @@
     <a href="/api/rawdata?thing=${thing.outer_thing._fullname}">Raw poll data</a>
   </div>
 %else:
-  <form method="post" action="/api/submitballot" onsubmit="Poll.submitBallot(this);event.preventDefault()">
+  <form method="post" action="/api/submitballot" onsubmit="Poll.submitBallot(this);return false">
     ${unsafe(thing.outer_body)}
     <div class="poll-voting-area">
       <div><label><input type="checkbox" checked="checked" name="anonymous"> Vote anonymously</label></div>
