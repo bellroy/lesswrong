@@ -31,6 +31,7 @@ from r2.lib.memoize import memoize, clear_memo
 from r2.lib.utils import tup
 from r2.lib.strings import strings, Score
 from r2.lib.filters import _force_unicode
+from r2.lib.errors import UserRequiredException
 
 import os.path
 import random
@@ -494,7 +495,6 @@ class FriendsSR(FakeSubreddit):
     def get_links(self, sort, time, link_cls = None):
         from r2.lib.db import queries
         from r2.models import Link
-        from r2.controllers.errors import UserRequiredException
 
         if not c.user_is_loggedin:
             raise UserRequiredException

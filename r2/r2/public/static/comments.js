@@ -201,7 +201,14 @@ Comment.prototype.getScore = function (id) {
     if (!match)
         throw new Error();
     return parseInt(match[0], 10);
-}
+};
+
+Comment.submitballot = function(r) {
+    var com = new Comment(r.id);
+    com.get('body').innerHTML = unsafe(r.contentHTML);
+    com.cancel();
+    com.show();
+};
 
 Comment.prototype.collapse = function() { 
     hide(this.get('child'));

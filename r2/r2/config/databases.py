@@ -100,4 +100,6 @@ dbm.relation('report_account_comment', 'account', 'comment', comment_engine)
 dbm.relation('report_account_message', 'account', 'message', main_engine)
 dbm.relation('report_account_subreddit', 'account', 'subreddit', main_engine)
 
+dbm.thing('poll', main_engine, main_engine)
+dbm.relation('ballot', 'account', 'poll', main_engine)
 
