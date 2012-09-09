@@ -270,11 +270,11 @@ class Poll(Thing):
             return 'scale'
         
         #Check against lists of synonyms
-        if polltype in {'multiplechoice':1, 'choice':1, 'multiple':1, 'list':1}:
+        if polltype in {'choice':1, 'c':1, 'list':1}:
             return 'multiplechoice'
-        elif polltype in {'probability':1, 'prob':1, 'p':1, 'likelihood':1}:
+        elif polltype in {'probability':1, 'prob':1, 'p':1, 'chance':1, 'likelihood':1}:
             return 'probability'
-        elif polltype in {'number':1, 'numeric':1, 'num':1, 'int':1, 'float':1, 'double':1}:
+        elif polltype in {'number':1, 'numeric':1, 'num':1, 'n':1, 'float':1, 'double':1}:
             return 'number'
         else:
             return 'invalid'
