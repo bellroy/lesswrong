@@ -2,7 +2,7 @@
    from r2.lib.template_helpers import static, get_rss_path
 %>
 <div id="side-feed" class="sidebox">
-  <a href="${get_rss_path(request.path)}">
+  <a href="${get_rss_path(thing.request_path)}">
     <img src="${static('feed.png')}" alt="Feed icon" />
     Subscribe to RSS Feed
   </a>

@@ -46,6 +46,10 @@ class Globals(object):
                  'max_sr_images',
                  'karma_to_post',
                  'discussion_karma_to_post',
+                 'karma_to_vote',
+                 'poll_max_choices',
+                 'downvoted_reply_score_threshold',
+                 'downvoted_reply_karma_cost',
                  'side_meetups_max_age',
                  'side_comments_max_age',
                  'side_posts_max_age',
@@ -56,7 +60,8 @@ class Globals(object):
                  'meetups_radius',
                  ]
     
-    bool_props = ['debug', 'translator', 
+    bool_props = ['debug',
+                  'translator',
                   'sqlprinting',
                   'template_debug',
                   'uncompressedJS',
@@ -65,7 +70,7 @@ class Globals(object):
                   'write_query_queue',
                   'css_killswitch',
                   'disable_captcha',
-                  'disable_tracking_js'
+                  'disable_tracking_js',
                   ]
 
     tuple_props = ['memcaches',

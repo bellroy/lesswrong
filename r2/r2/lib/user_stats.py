@@ -19,14 +19,22 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
+from collections import defaultdict
+from datetime import datetime, timedelta
+
 import sqlalchemy as sa
-from r2.models import Account, Vote, Link, Subreddit, Comment
+from r2.models import Account, Vote, Link, Subreddit, Comment, KarmaAdjustment
 from r2.lib.db import tdb_sql as tdb
 from r2.lib import utils
 import time
 
 from pylons import g 
 cache = g.cache
+
+SECONDS_PER_MONTH = 86400 * 30
+NUM_TOP_USERS = 5
+CACHE_EXPIRY = 3600
+
 
 def subreddits_with_custom_karma_multiplier():
     type = tdb.types_id[Subreddit._type_id]
@@ -46,6 +54,7 @@ def subreddits_with_custom_karma_multiplier():
 
     sr_ids = [r.thing_id for r in q.execute().fetchall()]
     return Subreddit._byID(sr_ids, True, return_dict = False)
+
 
 def top_users():
     type = tdb.types_id[Account._type_id]
@@ -100,23 +109,19 @@ def top_users():
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
 
-# Calculate the karma change for the given period for all users
+# Calculate the karma change for the given period and/or user
 # TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)
-def all_user_change(period = '1 day'):
-    res={}
+def all_user_change(*args, **kwargs):
+    ret = defaultdict(int)
 
-    link_karma = user_vote_change_links(period)
-    for name,val in link_karma:
-        res[name]=val
+    for meth in user_vote_change_links, user_vote_change_comments, user_karma_adjustments:
+        for aid, karma in meth(*args, **kwargs):
+            ret[aid] += karma
 
-    comment_karma = user_vote_change_comments(period)
-    for name, val in comment_karma:
-        res[name] = val + res.get(name,0)
-
-    return res
+    return ret
 
 
-def user_vote_change_links(period = '1 day'):
+def user_vote_change_links(period=None, user=None):
     rel = Vote.rel(Account, Link)
     type = tdb.rel_types_id[rel._type_id]
     # rt = rel table
@@ -135,23 +140,25 @@ def user_vote_change_links(period = '1 day'):
                       subreddit.post_karma_multiplier) )
     cases.append( (True, g.post_karma_multiplier) )       # The default article multiplier
 
+    query = sa.and_(author_dt.c.thing_id == rt.c.rel_id,
+                    author_dt.c.key == 'author_id',
+                    link_tt.c.thing_id == rt.c.thing2_id,
+                    link_dt.c.key == 'sr_id',
+                    link_dt.c.thing_id == rt.c.thing2_id)
+    if period is not None:
+        earliest = datetime.now(g.tz) - timedelta(0, period)
+        query.clauses.extend((rt.c.date >= earliest, link_tt.c.date >= earliest))
+    if user is not None:
+        query.clauses.append(author_dt.c.value == str(user._id))
 
-    date = utils.timeago(period)
-    
     s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer) * sa.case(cases))],
-                  sa.and_(rt.c.date >= date,
-                          author_dt.c.thing_id == rt.c.rel_id,
-                          author_dt.c.key == 'author_id',
-                          link_tt.c.thing_id == rt.c.thing2_id,
-                          link_tt.c.date >= date,
-                          link_dt.c.key == 'sr_id',
-                          link_dt.c.thing_id == rt.c.thing2_id),
-                  group_by = author_dt.c.value)
+                  query, group_by=author_dt.c.value)
 
     rows = s.execute().fetchall()
     return [(int(r.value), r.sum) for r in rows]
 
-def user_vote_change_comments(period = '1 day'):
+
+def user_vote_change_comments(period=None, user=None):
     rel = Vote.rel(Account, Comment)
     type = tdb.rel_types_id[rel._type_id]
     # rt = rel table
@@ -161,39 +168,78 @@ def user_vote_change_comments(period = '1 day'):
     aliases = tdb.alias_generator()
     author_dt = dt.alias(aliases.next())
 
-    date = utils.timeago(period)
-    
+    query = sa.and_(author_dt.c.thing_id == rt.c.rel_id,
+                    author_dt.c.key == 'author_id',
+                    comment_tt.c.thing_id == rt.c.thing2_id)
+    if period is not None:
+        earliest = datetime.now(g.tz) - timedelta(0, period)
+        query.clauses.extend((rt.c.date >= earliest, comment_tt.c.date >= earliest))
+    if user is not None:
+        query.clauses.append(author_dt.c.value == str(user._id))
+
     s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer))],
-                  sa.and_(rt.c.date >= date,
-                          author_dt.c.thing_id == rt.c.rel_id,
-                          author_dt.c.key == 'author_id',
-                          comment_tt.c.thing_id == rt.c.thing2_id,
-                          comment_tt.c.date >= date),
-                  group_by = author_dt.c.value)
+                  query, group_by=author_dt.c.value)
 
     rows = s.execute().fetchall()
-
     return [(int(r.value), r.sum) for r in rows]
 
-USER_CHANGE_CACHE_KEY = 'all_user_change'
 
-def cached_all_user_change():
-    r = cache.get(USER_CHANGE_CACHE_KEY)
-    if not r:
-        start_time = time.time()
-        changes = all_user_change('30 days')
-        s = sorted(changes.iteritems(), key=lambda x: x[1])
-        s.reverse()
-        r = [changes, s[0:5]]
-        cache.set(USER_CHANGE_CACHE_KEY, r, 3600)
-        g.log.info("Calculate all users karma change took : %.2fs"%(time.time()-start_time))
-    return r
+def user_karma_adjustments(period=None, user=None):
+    acct_info = tdb.types_id[Account._type_id]
+    acct_thing, acct_data = acct_info.thing_table, acct_info.data_table[0]
+    adj_info = tdb.types_id[KarmaAdjustment._type_id]
+    adj_thing, adj_data = adj_info.thing_table, adj_info.data_table[0]
 
-# def calc_stats():
-#     top = top_users()
-#     top_day = top_user_change('1 day')
-#     top_week = top_user_change('1 week')
-#     return (top, top_day, top_week)
+    aliases = tdb.alias_generator()
+    adj_data_2 = adj_data.alias(aliases.next())
 
-# def set_stats():
-#     cache.set('stats', calc_stats())
+    query = sa.and_(adj_data.c.thing_id == adj_thing.c.thing_id,
+                    adj_data.c.key == 'account_id',
+                    adj_data.c.thing_id == adj_data_2.c.thing_id,
+                    adj_data_2.c.key == 'amount')
+    if period is not None:
+        earliest = datetime.now(g.tz) - timedelta(0, period)
+        query.clauses.append(adj_thing.c.date >= earliest)
+    if user is not None:
+        query.clauses.append(adj_data.c.value == str(user._id))
+
+    s = sa.select([adj_data.c.value, sa.func.sum(sa.cast(adj_data_2.c.value, sa.Integer))],
+                  query, group_by=adj_data.c.value)
+
+    rows = s.execute().fetchall()
+    return [(int(r.value), r.sum) for r in rows]
+
+
+def cache_key_user_karma(user, period):
+    return 'account_{0}_karma_past_{1}'.format(user._id, period)
+
+
+def cached_monthly_user_change(user):
+    key = cache_key_user_karma(user, SECONDS_PER_MONTH)
+    ret = cache.get(key)
+    if ret is not None:
+        return ret
+
+    ret = all_user_change(period=SECONDS_PER_MONTH, user=user)[user._id]
+    cache.set(key, ret, CACHE_EXPIRY)
+    return ret
+
+
+def expire_user_change(user):
+    cache.delete(cache_key_user_karma(user, SECONDS_PER_MONTH))
+
+
+def cached_monthly_top_users():
+    key = 'top_{0}_account_monthly_karma'.format(NUM_TOP_USERS)
+    ret = cache.get(key)
+    if ret is not None:
+        return ret
+
+    start_time = time.time()
+    ret = list(all_user_change(period=SECONDS_PER_MONTH).iteritems())
+    ret.sort(key=lambda pair: -pair[1])
+    ret = ret[0:NUM_TOP_USERS]
+    cache.set(key, ret, CACHE_EXPIRY)
+    g.log.info("Calculate monthly_top_users took : %.2fs"%(time.time()-start_time))
+    return ret
+

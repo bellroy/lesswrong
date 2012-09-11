@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.template_helpers import add_sr
+   from r2.lib.template_helpers import add_sr, static
    from r2.lib.strings import strings
 %>
 
@@ -185,7 +185,7 @@ ${self.RenderPrintable()}
 %>
   <a id="${_type}_${fullname}" class="${_class}"
   %if c.user_is_loggedin:
-    onclick="mod('${fullname}', ${dir}, '$votehash')"
+    onclick="castVote(this, '$votehash')"
   %else:
     onclick="showcover(true, 'vote_${fullname}')"
   %endif
@@ -221,6 +221,7 @@ ${self.RenderPrintable()}
          ${not display and "style='display:none'" or ''}>
       ${self.arrow(thing, 1, thing.likes)}
       ${self.arrow(thing, 0, thing.likes == False)}
+      <span class="loading" id="votespinner_${thing._fullname}"><img src="${static('ajax-loader.gif')}" alt="" /></span>
     </div>
   %endif
 </%def>
@@ -270,9 +271,9 @@ ${state_button(name, fullname, title, onclick, executed,
 </%def>
 
 <%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None)">
-<a id="${nameFunc}_a_${fullname}" class="" \
+<a id="${nameFunc}_a_${fullname}" class="" href="#" \
    ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" } \
-   href="javascript:${nameFunc}('${fullname}')">\
+   onclick="${nameFunc}('${fullname}', this);return false">\
   ${title}</a>
 </%def>
 

@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.template_helpers import static, get_domain
+   from r2.lib.template_helpers import static, get_domain, json
    from r2.models import Link, Comment, Subreddit
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -56,6 +56,7 @@
     
     ##things here may depend on globals, or included js, so we run them last
     <script type="text/javascript">
+      Comment.downvotedReplyScoreThreshold = ${json(g.downvoted_reply_score_threshold)};
       ${self.javascript_run()}
     </script>
     

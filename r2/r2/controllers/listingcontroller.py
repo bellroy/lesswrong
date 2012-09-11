@@ -541,6 +541,12 @@ class UserController(ListingController):
 
         return q
 
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        thing.show_response_to = True
+        return thing
+
     @validate(vuser = VExistingUname('username'))
     def GET_listing(self, where, vuser, **env):
         self.where = where
@@ -705,6 +711,7 @@ class MyredditsController(ListingController):
 class CommentsController(ListingController):
     title_text = _('Comments')
     builder_cls = UnbannedCommentBuilder
+    show_nums = False
 
     @property
     def header_sub_nav(self):
@@ -720,7 +727,11 @@ class CommentsController(ListingController):
         return q
 
     def builder(self):
-        b = self.builder_cls(self.query_obj,
+        if c.user.pref_show_parent_comments:
+            builder_cls = ContextualCommentBuilder
+        else:
+            builder_cls = UnbannedCommentBuilder
+        b = builder_cls(self.query_obj,
                              num = self.num,
                              skip = self.skip,
                              after = self.after,
@@ -729,6 +740,15 @@ class CommentsController(ListingController):
                              wrap = self.builder_wrapper,
                              sr_ids = [c.current_or_default_sr._id])
         return b
+
+    @staticmethod
+    def builder_wrapper(thing):
+        thing = ListingController.builder_wrapper(thing)
+        if not c.user.pref_show_parent_comments:
+            # In other words, if we're using UnbannedCommentBuilder rather
+            # than ContextualCommentBuilder
+            thing.show_response_to = True
+        return thing
 
 
     def content(self):

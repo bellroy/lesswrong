@@ -206,8 +206,9 @@ class ApiController(RedditController):
               new_content = nop('article'),
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
+              notify_on_comment = VBoolean('notify_on_comment'),
               tags = VTags('tags'))
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags):
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
 
@@ -244,9 +245,9 @@ class ApiController(RedditController):
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
-        import r2.models.poll as poll
         if not l:
-          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam)
+          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
+                           notify_on_comment=notify_on_comment)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
@@ -266,6 +267,7 @@ class ApiController(RedditController):
           old_url = l.url
           l.title = request.post.title
           l.set_article(new_content)
+          l.notify_on_comment = notify_on_comment
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -529,8 +531,7 @@ class ApiController(RedditController):
 
         # Special check if comment can be deleted
         if isinstance(thing, Comment) and (not thing.can_delete()):
-            c.errors.add(errors.CANNOT_DELETE)
-            res._chk_error(errors.CANNOT_DELETE)
+            res._set_error(errors.CANNOT_DELETE)
             return
 
         thing._deleted = True
@@ -575,22 +576,33 @@ class ApiController(RedditController):
         Report.new(c.user, thing)
 
 
+    def _validate_comment_text(self, res, error_thing, text):
+        # This needs access to `res` to set the displayed message. A Validator isn't flexible enough
+        if text:
+            try:
+                parsepolls(text, None, dry_run = True)
+            except PollError as ex:
+                res._set_error(errors.BAD_POLL_SYNTAX, error_thing._fullname, ex.message)
+
+
     @Json
     @validate(VUser(), VModhash(),
               comment = VByNameIfAuthor('id'),
               body = VComment('comment'))
     def POST_editcomment(self, res, comment, body):
+        self._validate_comment_text(res, comment, body)
+
         res._update('status_' + comment._fullname, innerHTML = '')
 
-        if not res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG,errors.NOT_AUTHOR),
-                           comment._fullname):
+        if not res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.NOT_AUTHOR,
+                                errors.BAD_POLL_SYNTAX),
+                               comment._fullname):
             if not c.user_is_admin: comment.editted = True
             comment.set_body(body)
             res._send_things(comment)
 
             # flag search indexer that something has changed
             tc.changed(comment)
-
 
 
     @Json
@@ -601,13 +613,15 @@ class ApiController(RedditController):
               parent = VSubmitParent('id'),
               comment = VComment('comment'))
     def POST_comment(self, res, parent, comment, ip):
-
         #wipe out the status message
         res._update('status_' + parent._fullname, innerHTML = '')
 
         should_ratelimit = True
+        adjust_karma = 0
+
         #check the parent type here cause we need that for the
         #ratelimit checks
+        parent_comment = None
         if isinstance(parent, Message):
             is_message = True
             should_ratelimit = False
@@ -617,7 +631,6 @@ class ApiController(RedditController):
             is_comment = True
             if isinstance(parent, Link):
                 link = parent
-                parent_comment = None
             else:
                 link = Link._byID(parent.link_id, data = True)
                 parent_comment = parent
@@ -632,12 +645,29 @@ class ApiController(RedditController):
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
 
-        if res._chk_errors((errors.BAD_COMMENT,errors.COMMENT_TOO_LONG, errors.RATELIMIT),
-                          parent._fullname):
+        # assess a tax on replies to downvoted comments
+        if parent_comment and parent_comment._score <= g.downvoted_reply_score_threshold:
+            if c.user.safe_karma < g.downvoted_reply_karma_cost:
+                c.errors.add(errors.NOT_ENOUGH_KARMA)
+            else:
+                adjust_karma = -g.downvoted_reply_karma_cost
+
+        # make sure there are no errors in poll syntax
+        self._validate_comment_text(res, parent, comment)
+
+        if res._chk_errors((errors.BAD_COMMENT, errors.COMMENT_TOO_LONG, errors.RATELIMIT,
+                            errors.NOT_ENOUGH_KARMA, errors.BAD_POLL_SYNTAX),
+                           parent._fullname):
             res._focus("comment_reply_" + parent._fullname)
             return
         res._show('reply_' + parent._fullname)
         res._update("comment_reply_" + parent._fullname, rows = '2')
+
+        # now that all inputs are verified, we can begin performing destructive updates:
+
+        if adjust_karma:
+            KarmaAdjustment.store(c.user, sr, adjust_karma)
+            c.user.incr_karma('adjustment', sr, adjust_karma)
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)
@@ -654,6 +684,7 @@ class ApiController(RedditController):
         else:
             item, inbox_rel =  Comment._new(c.user, link, parent_comment, comment,
                                             ip, spam)
+            item.set_body(comment)  # some markup requires the comment to exist and have an ID before it can be parsed
             res._update("comment_reply_" + parent._fullname,
                         innerHTML='', value='')
             res._send_things(item)
@@ -781,37 +812,58 @@ class ApiController(RedditController):
     
     @Json
     @validate(VUser(), VModhash(),
-              comment = VLinkOrCommentID('comment'),
+              comment = VCommentFullName('owner_thing'),
               anonymous = VBoolean('anonymous'))
     def POST_submitballot(self, res, comment, anonymous):
-        import r2.models.poll as poll
         ip = request.ip
         user = c.user
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors or
                 errors.CHEATER in c.errors)
-        
-        print("anonymous = "+str(anonymous))
+
+        if not comment:
+            return
+
+        if c.user.safe_karma < g.karma_to_vote:
+            res._set_error(errors.BAD_POLL_BALLOT, comment._fullname,
+                           'You do not have the required {0} karma to vote'.format(g.karma_to_vote))
+            return
+
+        any_submitted = False
+
         #Save a ballot for each poll answered (corresponding to POST parameters named poll_[id36])
         for param in request.POST:
             ballotparam = re.match("poll_([a-z0-9]+)", param)
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
-                pollobj = poll.Poll._byID(pollid)
-                response = request.POST[param]
-                ballot = poll.Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
-                if ballot and g.write_query_queue:
-                    queries.new_ballot(ballot)
-        
-        #Return a new rendering, with the results included
-        res._send_things(comment)
+                pollobj = Poll._byID(pollid)
+                try:
+                    response = pollobj.validate_response(request.POST[param])
+                    ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
+                except PollError as ex:
+                    res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, ex.message)
+                else:
+                    any_submitted = True
+                    if g.write_query_queue:
+                        queries.new_ballot(ballot)
+
+        if any_submitted:
+            res._send_things(comment)
+        else:
+            res._set_error(errors.BAD_POLL_BALLOT, comment._fullname, 'No valid votes found')
+
+        # A comment might have multiple polls, with only some of them voted on, and others
+        # with errors. The above call to res._send_things causes JS to erase the error
+        # message. So if there were errors, make sure they're visible.
+
+        if res.error:
+            res._update(res.error.name + '_' + comment._fullname, textContent = res.error.message)
 
     @Json
-    @validate(thing = VLinkOrCommentID('thing'))
+    @validate(thing = VCommentFullName('thing'))
     def GET_rawdata(self, response, thing):
-        import r2.models.poll as poll
-        pollids = poll.getpolls(thing.body)
-        csv = poll.exportvotes(pollids)
+        pollids = getpolls(thing.body)
+        csv = exportvotes(pollids)
         c.response_content_type = 'text/plain'
         c.response.content = csv
         c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'

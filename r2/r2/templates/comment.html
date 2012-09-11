@@ -23,6 +23,7 @@
 <%!
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, clean_comment_html, unsafe_wrap_md, format_linebreaks
    from r2.lib.utils import to36, prettytime, epochtime
+   from r2.lib.template_helpers import static
    from r2.models.poll import renderpolls, pollsandmarkdown
 %>
 <%inherit file="comment_skeleton.html"/>
@@ -38,7 +39,7 @@ ${parent.midcol(not thing.collapsed)}
 <%def name="ParentDiv()">
   ${parent.ParentDiv()}
   <a name="${thing._id36}" ></a>
-  %if c.profilepage or c.full_comment_listing:
+  %if thing.show_response_to:
     %if thing.link:
       %if thing.link.title:
         ${_('In response to')}&#32;
@@ -81,15 +82,16 @@ ${parent.collapsed()}
         <em>*</em>&nbsp;
       %endif
     </span>
+
     %if not thing.deleted:
        ${unsafe(self.score(thing, likes = thing.likes, _id = not collapse))}&#32;
     %endif
   %endif
   <a href="#" class="expand"
      %if collapse:
-       onclick="return showcomment('${fullname}')">
+       onclick="return showcomment('${fullname}', this)">
      %else:
-       onclick="return hidecomment('${fullname}')">
+       onclick="return hidecomment('${fullname}', this)">
      %endif
      [${_("+") if collapse else _("-")}]
   %if collapse:
@@ -107,9 +109,9 @@ ${parent.Child(not thing.collapsed)}
 <%def name="commentBody()">
 %if not thing.deleted:
   %if thing.is_html:
-    ${unsafe_wrap_md(renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing._id))}
+    ${unsafe_wrap_md(renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing))}
   %else:
-    ${unsafe(pollsandmarkdown(thing.body, thing._id))}
+    ${unsafe(pollsandmarkdown(thing.body, thing))}
   %endif
 %endif
 </%def>
@@ -133,6 +135,7 @@ ${parent.midcol()}
         <ul class="votes">
           <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
           <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>
+          <li class="loading" id="votespinner_${thing._fullname}"><img src="${static('ajax-loader.gif')}" alt="" /></li>
         </ul>
       %endif
       <% fullname = thing._fullname %>

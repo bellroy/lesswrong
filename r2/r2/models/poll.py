@@ -4,10 +4,16 @@ import datetime
 from pylons import c, g, request
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationError
 from account import Account
-from r2.lib.utils import to36
-from r2.lib.wrapped import Wrapped
-from r2.lib.pages import MultipleChoicePollBallot, MultipleChoicePollResults, ScalePollBallot, ScalePollResults, ProbabilityPollBallot, ProbabilityPollResults, NumberPollBallot, NumberPollResults
+from r2.lib.utils import to36, median
 from r2.lib.filters import safemarkdown
+pages = None  # r2.lib.pages imported dynamically further down
+
+
+class PollError(Exception):
+    def __init__(self, message):
+        Exception.__init__(self)
+        self.message = message
+
 
 poll_re = re.compile(r"""
     \[\s*poll\s*(?::\s*([a-zA-Z0-9_\.]*))?\s*\]    # Starts with [poll] or [poll:polltype]
@@ -16,66 +22,36 @@ poll_re = re.compile(r"""
 poll_options_re = re.compile(r"""
     {([^}]+)}
     """, re.VERBOSE)
-
-def parsepolls(text, thing):
-    # Look for markup that looks like a poll specification, ie "[poll:polltype]{poll options}",
-    # parse the descriptions and create poll objects, and replace the specifications with IDs,
-    # ie "[pollid:123]". Returns the adjusted text.
-    def checkmatch(match):
-        optionsText = match.group(2)
-        options = poll_options_re.findall(optionsText)
-        pollid = createpoll(thing, match.group(1), options)
-        return "[pollid:" + str(pollid) + "]"
-
-    return re.sub(poll_re, checkmatch, text)
-
 pollid_re = re.compile(r"""
     \[pollid:([a-zA-Z0-9]*)\]
     """, re.VERBOSE)
+scalepoll_re = re.compile(r"""
+    ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
+    """, re.VERBOSE)
 
-def pollsandmarkdown(text, commentid):
-    ret = renderpolls(safemarkdown(text), commentid)
-    return ret
 
-# Look for poll IDs in a comment/article, like "[pollid:123]", find the
-# matching poll in the database, and convert it into an HTML implementation
-# of that poll. If there was at least one poll, puts poll options ('[]Vote
-# Anonymously [Submit]/[View Results] [Raw Data]') at the bottom
-def renderpolls(text, commentid):
-    polls_not_voted = []
-    polls_voted = []
-    oldballots = []
-    
+def parsepolls(text, thing, dry_run = False):
+    """
+    Look for poll markup syntax, ie "[poll:polltype]{options}". Parse it,
+    create a poll object, and replace the raw syntax with "[pollid:123]".
+    `PollError` is raised if there are any errors in the syntax.
+
+    :param dry_run: If true, the syntax is still checked, but no database objects are created.
+    """
+
     def checkmatch(match):
-        pollid = match.group(1)
-        try:
-            poll = Poll._byID(pollid, True)
-            if poll.thingid != commentid:
-                return "Error: Poll belongs to a different comment"
-            
-            if(poll.user_has_voted(c.user)):
-                polls_voted.append(pollid)
-                return poll.render_results()
-            else:
-                polls_not_voted.append(pollid)
-                return poll.render()
-        except NotFound:
-            return "Error: Poll not found!"
-    
-    rendered_body = re.sub(pollid_re, checkmatch, text)
-    
-    if(len(polls_not_voted) > 0):
-        return wrap_ballot(commentid, rendered_body)
-    elif(len(polls_voted) > 0):
-        return wrap_results(commentid, rendered_body)
-    else:
-        return rendered_body
+        optionsText = match.group(2)
+        options = poll_options_re.findall(optionsText)
+        poll = createpoll(thing, match.group(1), options, dry_run = dry_run)
+        pollid = "" if dry_run else str(poll._id)
+        return "[pollid:" + pollid + "]"
+
+    return re.sub(poll_re, checkmatch, text)
+
 
 def getpolls(text):
     polls = []
     matches = re.findall(pollid_re, text)
-    if not matches:
-        return []
     for match in matches:
         try:
             pollid = int(str(match))
@@ -84,29 +60,54 @@ def getpolls(text):
     return polls
 
 def containspolls(text):
-    if re.match(poll_re, text):
-        return True
-    elif re.match(pollid_re, text):
-        return True
-    else:
-        return False
+    return bool(re.match(poll_re, text) or re.match(pollid_re, text))
 
-def wrap_ballot(commentid, body):
-    return """
-        <form id="{0}" method="post" action="/api/submitballot" onsubmit="return submitballot(this)">
-            {1}
-        <input type="checkbox" checked="1" name="anonymous" value="1">Vote anonymously</input><br>
-        <button type="Submit">Submit</button>
-        </form>""".format(to36(commentid), body)
 
-def wrap_results(commentid, body):
-     return """{0} <a href="/api/rawdata?thing={1}">Raw poll data</a>""".format(body, to36(commentid))
+# Look for poll IDs in a comment/article, like "[pollid:123]", find the
+# matching poll in the database, and convert it into an HTML implementation
+# of that poll. If there was at least one poll, puts poll options ('[]Vote
+# Anonymously [Submit]/[View Results] [Raw Data]') at the bottom
+def renderpolls(text, thing):
+    polls_not_voted = []
+    polls_voted = []
+    oldballots = []
 
-def createpoll(thing, polltype, args):
-    poll = Poll.createpoll(thing, polltype, args)
+    def checkmatch(match):
+        pollid = match.group(1)
+        try:
+            poll = Poll._byID(pollid, True)
+            if poll.thingid != thing._id:
+                return "Error: Poll belongs to a different comment"
+
+            if poll.user_has_voted(c.user):
+                polls_voted.append(pollid)
+                return poll.render_results()
+            else:
+                polls_not_voted.append(pollid)
+                return poll.render()
+        except NotFound:
+            return "Error: Poll not found!"
+
+    text = re.sub(pollid_re, checkmatch, text)
+
+    if polls_voted or polls_not_voted:
+        voted_on_all = not polls_not_voted
+        page = _get_pageclass('PollWrapper')(thing, text, voted_on_all)
+        text = page.render('html')
+
+    return text
+
+def pollsandmarkdown(text, thing):
+    ret = renderpolls(safemarkdown(text), thing)
+    return ret
+
+
+def createpoll(thing, polltype, args, dry_run = False):
+    poll = Poll.createpoll(thing, polltype, args, dry_run = dry_run)
     if g.write_query_queue:
         queries.new_poll(poll)
-    return poll._id
+    return poll
+
 
 def exportvotes(pollids):
     csv_rows = []
@@ -134,137 +135,161 @@ def exportheader():
 #
 """
 
-scalepoll_re = re.compile(r"""
-    ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
-    """, re.VERBOSE)
 
-class MultipleChoicePoll:
+def _get_pageclass(name):
+    # sidestep circular import issues
+    global pages
+    if not pages:
+        from r2.lib import pages
+    return getattr(pages, name)
+
+
+class PollType:
+    ballot_class = None
+    results_class = None
+
+    def render(self, poll):
+        return _get_pageclass(self.ballot_class)(poll).render('html')
+
+    def render_results(self, poll):
+        return _get_pageclass(self.results_class)(poll).render('html')
+
+    def _check_num_choices(self, num):
+        if num < 2:
+            raise PollError('Polls must have at least two choices')
+        if num > g.poll_max_choices:
+            raise PollError('Polls cannot have more than {0} choices'.format(g.poll_max_choices))
+
+    def _check_range(self, num, func, min, max, message):
+        try:
+            num = func(num)
+            if min <= num <= max:
+                return str(num)
+        except:
+             pass
+        raise PollError(message)
+
+
+class MultipleChoicePoll(PollType):
+    ballot_class = 'MultipleChoicePollBallot'
+    results_class = 'MultipleChoicePollResults'
+
     def init_blank(self, poll):
-        poll.votes_for_choice = []
-        for choice in poll.choices:
-            poll.votes_for_choice.append(0)
+        self._check_num_choices(len(poll.choices))
+        poll.votes_for_choice = [0 for _ in poll.choices]
+
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
-    def validate_response(self, poll, response):
-        try:
-            choiceindex = int(response)
-            return (choiceindex >= 0 and choiceindex < len(choices))
-        except:
-             return False
-    def render(self, poll):
-        return MultipleChoicePollBallot(poll).render('html')
-    def render_results(self, poll):
-        return MultipleChoicePollResults(poll).render('html')
 
-class ScalePoll:
+    def validate_response(self, poll, response):
+        return self._check_range(response, int, 0, len(poll.choices) - 1, 'Invalid choice')
+
+
+class ScalePoll(PollType):
+    ballot_class = 'ScalePollBallot'
+    results_class = 'ScalePollResults'
+
     def init_blank(self, poll):
         parsed_poll = re.match(scalepoll_re, poll.polltypestring)
         poll.scalesize = len(parsed_poll.group(2))
         poll.leftlabel = parsed_poll.group(1)
         poll.rightlabel = parsed_poll.group(3)
-        poll.votes_for_choice = []
-        for choice in range(poll.scalesize):
-            poll.votes_for_choice.append(0)
+
+        self._check_num_choices(poll.scalesize)
+        poll.votes_for_choice = [0 for _ in range(poll.scalesize)]
+
     def add_response(self, poll, response):
         poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
-    def validate_response(self, poll, response):
-        try:
-            choiceindex = int(response)
-            return (choiceindex >= 0 and choiceindex < scalesize)
-        except:
-             return False
-    def render(self, poll):
-        return ScalePollBallot(poll).render('html')
-    def render_results(self, poll):
-        return ScalePollResults(poll).render('html')
 
-class NumberPoll:
+    def validate_response(self, poll, response):
+        return self._check_range(response, int, 0, poll.scalesize - 1, 'Invalid choice')
+
+
+class NumberPoll(PollType):
+    ballot_class = 'NumberPollBallot'
+    results_class = 'NumberPollResults'
+
     def init_blank(self, poll):
         poll.sum = 0
         poll.median = 0
+
     def add_response(self, poll, response):
         responsenum = float(response)
-        poll.sum = poll.sum + responsenum
-        responses = []
-        for ballot in poll.get_ballots():
-            responses.append(float(ballot.response))
+        poll.sum += responsenum
+        responses = [float(ballot.response) for ballot in poll.get_ballots()]
         responses.append(responsenum)
         responses.sort()
-        if len(responses) % 2:
-            poll.median = responses[len(responses)/2]
-        else:
-            poll.median = (float(responses[len(responses)/2]) + float(responses[len(responses)/2 - 1])) / 2
+        poll.median = median(responses)
         
     def validate_response(self, poll, response):
-        try:
-            response = float(response)
-            return True
-        except:
-             return False
-    def render(self, poll):
-        return NumberPollBallot(poll).render('html')
-    def render_results(self, poll):
-        return NumberPollResults(poll).render('html')
+        return self._check_range(response, float, -2**64, 2**64, 'Invalid number')
+
 
 class ProbabilityPoll(NumberPoll):
+    ballot_class = 'ProbabilityPollBallot'
+    results_class = 'ProbabilityPollResults'
+
     def validate_response(self, poll, response):
-        try:
-            prob = float(response)
-            return (response >= 0 and response <= 1)
-        except:
-             return False
-    def render(self, poll):
-        return ProbabilityPollBallot(poll).render('html')
-    def render_results(self, poll):
-        return ProbabilityPollResults(poll).render('html')
+        return self._check_range(response, float, 0, 1, 'Probability must be between 0 and 1')
 
 
 class Poll(Thing):
     @classmethod
-    def createpoll(cls, thing, polltypestring, options):
-        polltype = Poll.normalize_polltype(polltypestring)
-        poll = cls(thingid = thing._id,
+    def createpoll(cls, thing, polltypestring, options, dry_run = False):
+        assert dry_run == (thing is None)
+
+        polltype = cls.normalize_polltype(polltypestring)
+
+        poll = cls(thingid = thing and thing._id,
                    polltype = polltype,
                    polltypestring = polltypestring,
                    choices = options)
-        thing.has_polls = True
+
+        polltype_class = poll.polltype_class()
+        if not polltype_class:
+            raise PollError("Invalid poll type '{0}'".format(polltypestring))
+
         poll.init_blank()
-        poll._commit()
+
+        if not dry_run:
+            thing.has_polls = True
+            poll._commit()
+
         return poll
-    
-    def polltype_class(self):
-        polltype = self.polltype
-        if(polltype == 'multiplechoice'):
-            return MultipleChoicePoll()
-        elif(polltype == 'scale'):
-            return ScalePoll()
-        elif(polltype == 'probability'):
-            return ProbabilityPoll()
-        elif(polltype == 'number'):
-            return NumberPoll()
 
     @classmethod
     def normalize_polltype(self, polltype):
         #If not specified, default to multiplechoice
-        if not polltype or polltype == None or polltype == '':
-            return "multiplechoice"
+        if not polltype:
+            return 'multiplechoice'
         
-        #Make lower-case
-        polltype = str(polltype).lower()
+        polltype = polltype.lower()
         
         #If the poll type has a dot in it, then it's a scale, like 'agree.....disagree'
-        if(re.match(scalepoll_re, polltype)):
+        if re.match(scalepoll_re, polltype):
             return 'scale'
         
         #Check against lists of synonyms
-        if(polltype in {'multiplechoice':1, 'choice':1, 'multiple':1, 'list':1}):
+        if polltype in {'choice':1, 'c':1, 'list':1}:
             return 'multiplechoice'
-        elif(polltype in {'probability':1, 'prob':1, 'p':1, 'likelihood':1}):
+        elif polltype in {'probability':1, 'prob':1, 'p':1, 'chance':1, 'likelihood':1}:
             return 'probability'
-        elif(polltype in {'number':1, 'numeric':1, 'num':1, 'int':1, 'float':1, 'double':1}):
+        elif polltype in {'number':1, 'numeric':1, 'num':1, 'n':1, 'float':1, 'double':1}:
             return 'number'
         else:
             return 'invalid'
+
+    def polltype_class(self):
+        if self.polltype == 'multiplechoice':
+            return MultipleChoicePoll()
+        elif self.polltype == 'scale' :
+            return ScalePoll()
+        elif self.polltype == 'probability' :
+            return ProbabilityPoll()
+        elif self.polltype == 'number':
+            return NumberPoll()
+        else:
+            return None
     
     def init_blank(self):
         self.num_votes = 0
@@ -301,21 +326,16 @@ class Poll(Thing):
                                   data = True))
     
     def num_votes_for(self, choice):
-        if (self.votes_for_choice):
+        if self.votes_for_choice:
             return self.votes_for_choice[choice]
         else:
-            return -1
+            raise TypeError
 
     def bar_length(self, choice, max_length):
-        max_votes = 0
-        for otherchoice in self.votes_for_choice:
-             votes = self.num_votes_for(otherchoice)
-             if(votes > max_votes):
-                 max_votes = votes
+        max_votes = max(self.votes_for_choice)
         if max_votes == 0:
             return 0
-        ret = int(float(self.num_votes_for(choice)) / max_votes * max_length)
-        return ret
+        return int(float(self.num_votes_for(choice)) / max_votes * max_length)
 
     def fraction_for(self, choice):
         return float(self.num_votes_for(choice)) / self.num_votes * 100
@@ -325,16 +345,17 @@ class Poll(Thing):
     
     #Get the total number of votes on this poll as a correctly-pluralized noun phrase, ie "123 votes" or "1 vote"
     def num_votes_string(self):
-        if(self.num_votes == 1):
+        if self.num_votes == 1:
             return "1 vote"
         else:
             return str(self.num_votes) + " votes"
     
     def get_property(self, property):
-        if(property == 'mean'):
+        if property == 'mean':
             return self.sum / self.num_votes
-        elif(property == 'median'):
+        elif property == 'median':
             return self.median
+
 
 class Ballot(Relation(Account, Poll)):
     @classmethod
@@ -344,15 +365,15 @@ class Ballot(Relation(Account, Poll)):
             oldballot = list(cls._query(cls.c._thing1_id == user._id,
                                         cls.c._thing2_id == pollid))
             if len(oldballot):
-                return
-            else:
-                ballot = Ballot(user, pollobj, response)
-                ballot.ip = ip
-                ballot.anonymous = anonymous
-                ballot.date = datetime.datetime.now().isoformat()
-                pollobj.add_response(response)
+                raise PollError('You already voted on this poll')
+
+            ballot = Ballot(user, pollobj, response)
+            ballot.ip = ip
+            ballot.anonymous = anonymous
+            ballot.date = datetime.datetime.now().isoformat()
             ballot.response = response
             ballot._commit()
+            pollobj.add_response(response)
         return ballot
     
     def export_row(self, aliases):

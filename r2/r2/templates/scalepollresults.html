@@ -1,18 +1,18 @@
-<div class="scalepoll pollresults">
+<div class="poll-results">
   <table>
     %for ii in range(thing.poll.scalesize):
       <tr>
-        <td align="right">
+        <th>
           %if ii == 0:
-            <span class="scalepoll_label">${thing.poll.leftlabel}</span>
-          %elif ii == thing.poll.scalesize-1:
-            <span class="scalepoll_label">${thing.poll.rightlabel}</span>
+            ${thing.poll.leftlabel}
+          %elif ii == thing.poll.scalesize - 1:
+            ${thing.poll.rightlabel}
           %else:
-            <span class="scalepoll_label">*</span>
+            &bull;
           %endif
-        </td>
+        </th>
         <td><span class="scalepoll_numvotes">${thing.poll.num_votes_for(ii)}</span></td>
-        <td width="300"><div class="pollbar" style="width: ${thing.poll.bar_length(ii, 300)}pt">&nbsp;</div></td>
+        <td style="width:300px"><div class="pollbar" style="width:${thing.poll.bar_length(ii, 300)}px">&nbsp;</div></td>
       </tr>
     %endfor
   </table>

@@ -5,6 +5,7 @@
 *.so
 *.o
 *.orig
+*.log
 *.tmp
 *.md5
 *.swp
@@ -25,9 +26,11 @@ r2/r2/public/static/reddit.js
 r2/r2/public/static/vote.js
 r2/r2/public/static/reddit_rtl.css
 r2/r2/public/static/lesswrong.js
-public/files/wiki.lesswrong.xml*
+public/files/
 r2/r2admin
 r2/reddit_i18n
+r2/build/
+r2/dist/
 r2/data/*
 r2/count.pickle
 r2/srcount.pickle

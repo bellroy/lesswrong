@@ -72,7 +72,7 @@
         type="image/x-icon" />
   %if thing.extension_handling:
     <link rel="alternate" type="application/rss+xml" title="RSS"
-          href="${get_rss_path(request.path)}" />
+          href="${get_rss_path(getattr(thing, 'canonical_link', request.path))}" />
   %endif
   %if hasattr(thing, 'canonical_link'):
     <link rel="canonical" href="${thing.canonical_link}" />

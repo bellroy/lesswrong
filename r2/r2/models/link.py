@@ -37,6 +37,7 @@ from r2.lib.db.operators import lower
 from r2.lib.db import operators
 from r2.lib.filters import _force_unicode
 from r2.models.subreddit import FakeSubreddit
+from r2.models.poll import containspolls, parsepolls
 
 from pylons import c, g, request
 from pylons.i18n import ungettext
@@ -66,7 +67,8 @@ class Link(Thing, Printable):
                      render_full = False,
                      images = None,
                      blessed = False,
-                     comments_enabled = True)
+                     comments_enabled = True,
+                     notify_on_comment = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -147,7 +149,7 @@ class Link(Thing, Printable):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
+    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None, **kwargs):
         # Create the Post and commit to db.
         l = cls(title = title,
                 url = 'self',
@@ -157,7 +159,8 @@ class Link(Thing, Printable):
                 lang = sr.lang,
                 ip = ip,
                 article = article,
-                date = date
+                date = date,
+                **kwargs
                 )
         l._commit()
 
@@ -919,7 +922,8 @@ class Comment(Thing, Printable):
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
-                     retracted = False)
+                     retracted = False,
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -945,20 +949,9 @@ class Comment(Thing, Printable):
 
         comment._commit()
 
-        #Parse the comment for polls
-        import r2.models.poll as poll
-        comment.body = poll.parsepolls(body, comment)
-        
-        comment._commit()
-
         link._incr('num_comments', 1)
 
-        inbox_rel = None
-        if parent:
-            to = Account._byID(parent.author_id)
-            # only global admins can be message spammed.
-            if not comment._spam or to.name in g.admins:
-                inbox_rel = Inbox._add(to, comment, 'inbox')
+        inbox_rel = comment._send_post_notifications(link, comment, parent)
 
         #clear that chache
         clear_memo('builder.link_comments2', link._id)
@@ -977,6 +970,24 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
+    def _send_post_notifications(self, link, comment, parent):
+        if parent:
+            to = Account._byID(parent.author_id)
+        else:
+            if not link.notify_on_comment:
+                return None
+            elif comment.author_id != link.author_id:
+                # Send notification if the comment wasn't by the link author
+                to = Account._byID(link.author_id)
+            else:
+                return None
+
+        # only global admins can be message spammed.
+        if self._spam and to.name not in g.admins:
+            return None
+
+        return Inbox._add(to, self, 'inbox')
+
     def has_children(self):
         q = Comment._query(Comment.c.parent_id == self._id, limit=1)
         child = list(q)
@@ -992,9 +1003,8 @@ class Comment(Thing, Printable):
     # Changes the body of this comment, parsing the new body for polls and
     # creating them if found, and commits.
     def set_body(self, body):
-        import r2.models.poll as poll
-        self.has_polls = poll.containspolls(body)
-        self.body = poll.parsepolls(body, self)
+        self.has_polls = containspolls(body)
+        self.body = parsepolls(body, self)
         self._commit()
 
     @property
@@ -1043,7 +1053,8 @@ class Comment(Thing, Printable):
                               wrapped.is_html,
                               wrapped.votable,
                               wrapped.retracted,
-                              wrapped.can_be_deleted))
+                              wrapped.can_be_deleted,
+                              wrapped.show_response_to))
         s = ''.join(s)
         return s
 

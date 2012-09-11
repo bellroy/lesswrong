@@ -41,6 +41,8 @@
     ${error_field("BAD_COMMENT_" + thing.link_name)}
     ${error_field("COMMENT_TOO_LONG_" + thing.link_name)}
     ${error_field("RATELIMIT_" + thing.link_name)}
+    ${error_field("NOT_ENOUGH_KARMA_" + thing.link_name)}
+    ${error_field("BAD_POLL_SYNTAX_" + thing.link_name)}
     ## I know we don't need this div.  You know we don't need this div.  IE
     ## begs to differ.
     <div>
@@ -93,4 +95,27 @@
     Loading...
   </div>
 </div>
+
+%if not thing.link_name:
+<div id="flamebaitcommentoverlay_" style="display:none">
+  %if c.user.safe_karma < g.downvoted_reply_karma_cost:
+    <div>
+      Replies to downvoted comments are discouraged.
+      You don't have the requisite ${g.downvoted_reply_karma_cost} Karma points to proceed.
+    </div>
+    <div>
+      <input type="button" value="Close" class="flamebaitcomment-no">
+    </div>
+  %else:
+    <div>
+      Replies to downvoted comments are discouraged.
+      Pay ${g.downvoted_reply_karma_cost} Karma points to proceed anyway?
+    </div>
+    <div>
+      <input type="button" value="Proceed Anyway" class="flamebaitcomment-yes">
+      <input type="button" value="Cancel" class="flamebaitcomment-no">
+    </div>
+  %endif
+</div>
+%endif
 
