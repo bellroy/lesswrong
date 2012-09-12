@@ -26,6 +26,7 @@ from r2.lib.filters import websafe_json
 from r2.lib.template_helpers import replace_render
 from r2.lib.jsontemplates import get_api_subtype
 from r2.lib.base import BaseController
+from r2.lib.errors import Error, error_list
 import simplejson
 
 def json_respond(x):
@@ -98,19 +99,27 @@ class JsonResponse():
         self._update(errid, innerHTML='')
         self._hide(errid)
         if self.error and self.error.name == error_name:
-            self.error_thing_id = '';
+            self.error_thing_id = ''
             self.error = None
 
-    def _set_error(self, error, err_on_thing = ''):
+    def _set_error_obj(self, error, err_on_thing = ''):
         if not self.error:
             self.error = error
-            self.error_thing_id = err_on_thing;
+            self.error_thing_id = err_on_thing
+
+    def _set_error(self, error_name, err_on_thing = '', msg = None):
+        from pylons import c
+        if not self.error:
+            c.errors.add(error_name)
+            msg = msg or error_list[error_name]
+            obj = Error(error_name, msg)
+            self._set_error_obj(obj, err_on_thing)
 
     def _chk_error(self, error_name, err_on_thing = ''):
         from pylons import c
         if error_name in c.errors:
             error = c.errors[error_name]
-            self._set_error(error, err_on_thing)
+            self._set_error_obj(error, err_on_thing)
             return True
         else:
             self._clear_error(error_name, err_on_thing)

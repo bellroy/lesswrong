@@ -1,0 +1,9 @@
+<div class="poll-ballot">
+  <ul>
+    %for ii in range(len(thing.poll.choices)):
+      <li>
+        <label><input type="radio" name="poll_${thing.poll._id36}" value="${ii}" /> ${thing.poll.choices[ii]}</label>
+      </li>
+    %endfor
+  </ul>
+</div>

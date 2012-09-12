@@ -26,6 +26,7 @@
    from r2.lib.filters import safemarkdown, cleanhtml
    from r2.lib.utils import prettytime, epochtime
    from r2.lib.strings import strings
+   from r2.models.poll import renderpolls
  %>
 
 <%namespace file="utils.html" import="separator,plain_link"/>
@@ -137,11 +138,11 @@
 </%def>
 
 <%def name="article()">
-  ${unsafe(cleanhtml(thing.article))}
+  ${unsafe(renderpolls(cleanhtml(thing.article), thing))}
 </%def>
 
 <%def name="summary()">
-  ${unsafe(cleanhtml(thing._summary()))}
+  ${unsafe(cleanhtml(renderpolls(thing._summary(), thing)))}
   % if thing._has_more():
     <%call expr="make_link('read_more', 'more', 'more')">
       continue reading &raquo;
@@ -199,7 +200,7 @@
   </ul>
   % if thing.render_full:
     <div class="md">
-      ${unsafe(cleanhtml(thing.article))}
+      ${unsafe(cleanhtml(renderpolls(thing.article, thing)))}
     </div>
     <% tags = thing.get_tags() %>
     %if len(tags):
@@ -214,7 +215,7 @@
   %else:
     % if hasattr(thing, '_summary'):
       <div class="md">
-        ${unsafe(cleanhtml(thing._summary()))}
+        ${unsafe(cleanhtml(renderpolls(thing._summary(), thing)))}
       </div>
       % if thing._has_more():
         <%call expr="make_link('read_more', 'md', 'more')">

@@ -1,0 +1,22 @@
+<%!
+    from r2.lib.template_helpers import static
+%>
+<%namespace name="utils" file="utils.html" import="error_field"/>
+
+
+%if thing.voted_on_all:
+  ${unsafe(thing.outer_body)}
+  <div class="poll-voting-area">
+    <a href="/api/rawdata?thing=${thing.outer_thing._fullname}">Raw poll data</a>
+  </div>
+%else:
+  <form method="post" action="/api/submitballot" onsubmit="Poll.submitBallot(this);return false">
+    ${unsafe(thing.outer_body)}
+    <div class="poll-voting-area">
+      <div><label><input type="checkbox" checked="checked" name="anonymous"> Vote anonymously</label></div>
+      <button type="submit">Vote</button>
+      <span class="loading"><img src="${static('ajax-loader.gif')}" alt="Submitting..." /></span>
+      ${error_field('BAD_POLL_BALLOT_' + thing.outer_thing._fullname)}
+    </div>
+  </form>
+%endif

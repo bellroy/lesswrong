@@ -33,7 +33,7 @@ from r2.models.account import valid_cookie, FakeAccount
 from r2.models.subreddit import Subreddit
 import r2.config as config
 from r2.models import *
-from errors import ErrorSet
+from r2.lib.errors import ErrorSet
 from validator import *
 from r2.lib.template_helpers import add_sr
 from r2.lib.jsontemplates import api_type
