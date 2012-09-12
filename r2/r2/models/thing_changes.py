@@ -21,18 +21,10 @@
 ################################################################################
 from r2.config.databases import change_engine
 import sqlalchemy as sa
-from r2.lib.db.tdb_sql import make_metadata, settings
+from r2.lib.db.tdb_sql import make_metadata, settings, index_str
 from r2.lib.utils import worker
 
 
-def index_str(table, name, on, where = None):
-    index_str = 'create index idx_%s_' % name
-    index_str += table.name
-    index_str += ' on '+ table.name + ' (%s)' % on
-    if where:
-        index_str += ' where %s' % where
-    return index_str
-    
 def create_table(table, index_commands=None, force = False):
     t = table
     if settings.DB_CREATE_TABLES:

@@ -378,18 +378,13 @@ class ApiController(RedditController):
         c.user = user
 
         # Create a drafts subredit for this user
-        sr = Subreddit._new(
-            name = user.draft_sr_name,
-            title = "Drafts for " + user.name,
-            type = "private",
-            default_listing = 'new',
+        sr = Subreddit._create_and_subscribe(
+            user.draft_sr_name, user, {
+                'title': "Drafts for " + user.name,
+                'type': "private",
+                'default_listing': 'new',
+            }
         )
-        Subreddit.subscribe_defaults(user)
-        # make sure this user is on the admin list of that site!
-        if sr.add_subscriber(user):
-            sr._incr('_ups', 1)
-        sr.add_moderator(user)
-        sr.add_contributor(user)
 
         if reason:
             if reason[0] == 'redirect':
