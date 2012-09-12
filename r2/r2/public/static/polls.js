@@ -1,4 +1,4 @@
-var Poll = {};
+window.Poll = {};
 
 Poll.submitBallot = function (form) {
     var ownerThing = Thing.getThingRow(form);
