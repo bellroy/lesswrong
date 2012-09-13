@@ -249,7 +249,7 @@ class Poll(Thing):
 
         polltype_class = poll.polltype_class()
         if not polltype_class:
-            raise PollError("Invalid poll type '{0}'".format(polltypestring))
+            raise PollError(u"Invalid poll type '{0}'".format(polltypestring))
 
         poll.init_blank()
 
