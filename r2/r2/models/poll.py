@@ -16,18 +16,20 @@ class PollError(Exception):
 
 
 poll_re = re.compile(r"""
-    \[\s*poll\s*(?::\s*([a-zA-Z0-9_\.]*))?\s*\]    # Starts with [poll] or [poll:polltype]
-    ((?:\s*{[^}]+})*)                             # Poll options enclosed in curly braces
+    \[\s*poll\s*                                   # [poll] or [polltype]
+        (?::\s* ([^\]]*?) )?
+    \s*\]
+    ((?:\s* {\s*[^}]+\s*} )*)                        # Poll options enclosed in curly braces
     """, re.VERBOSE)
 poll_options_re = re.compile(r"""
-    {([^}]+)}
+    {\s*([^}]+)\s*}
     """, re.VERBOSE)
 pollid_re = re.compile(r"""
-    \[pollid:([a-zA-Z0-9]*)\]
+    \[\s*pollid\s*:\s*([a-zA-Z0-9]+)\s*\]
     """, re.VERBOSE)
-scalepoll_re = re.compile(r"""
-    ([a-zA-Z0-9_]+)(\.\.+)([a-zA-Z0-9_]+)
-    """, re.VERBOSE)
+scalepoll_re = re.compile(r"""^
+    \s*([^.]+)\s*(\.{2,})\s*([^.]+)\s*
+    $""", re.VERBOSE)
 
 
 def parsepolls(text, thing, dry_run = False):
@@ -247,7 +249,7 @@ class Poll(Thing):
 
         polltype_class = poll.polltype_class()
         if not polltype_class:
-            raise PollError("Invalid poll type '{0}'".format(polltypestring))
+            raise PollError(u"Invalid poll type '{0}'".format(polltypestring))
 
         poll.init_blank()
 
