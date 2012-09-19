@@ -142,7 +142,7 @@ div.inline-listing a:hover {
 .commentreply .buttons {
     float: left;
 }
-.commentreply .buttons button, .commentreply .help-toggle button {
+.commentreply .buttons button, .commentreply .help-toggle button, .poll-voting-area button {
 	background: #f0eeee; /* Old browsers */
 	background: -moz-linear-gradient(top, #f0eeee 0%, #c1c1c1 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0eeee), color-stop(100%,#c1c1c1)); /* Chrome,Safari4+ */
@@ -208,7 +208,6 @@ div.comment .focal {
 .md h3 { font-size: 15px; }
 .md h4 { font-size: 14px; }
 .md strong { font-weight: bold; }
-.md div { margin-bottom: 1em; }
 .md em, .help em { font-style: italic; }
 .md strong em { font-style: italic; font-weight: bold }
 .md ol, .md ul, .help ul { margin: 10px 2em; }
@@ -518,4 +517,34 @@ div.meta.meetup strong {
   width: 16px;
   height: 16px;
   padding: 4px 0;
+}
+
+/* Polls */
+.poll-ballot, .poll-results {
+  margin: 0 0 1em;
+}
+.poll-ballot ul, .poll-results ul {
+  margin: 0;
+  list-style: none;
+}
+.poll-results td, .poll-results th {
+  padding: 0 6px;
+}
+.poll-results td:first-child, .poll-results th:first-child {
+  text-align: right;
+}
+.poll-voting-area {
+  margin: 0 0 1.3em;
+}
+.poll-voting-area button {
+  margin: 2px 0 0;
+}
+.pollbar {
+  background: #0B8040;
+  height: 12px;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
 }

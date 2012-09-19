@@ -1,7 +1,7 @@
 from reddit_base import RedditController
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
 from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
-from errors import errors
+from r2.lib.errors import errors
 from r2.lib.jsonresponse import Json
 from routes.util import url_for
 from r2.models import Meetup,Link,Subreddit,CommentBuilder

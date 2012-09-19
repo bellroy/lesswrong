@@ -1414,6 +1414,57 @@ class SiteMeter(Wrapped):
         self.codename = codename
         Wrapped.__init__(self, *a, **kw)
 
+
+class PollWrapper(Wrapped):
+    def __init__(self, outer_thing, outer_body, voted_on_all, *a, **kw):
+        Wrapped.__init__(self, *a, **kw)
+        self.outer_thing = outer_thing
+        self.outer_body = outer_body
+        self.voted_on_all = voted_on_all
+
+class PollBallot(Wrapped):
+    def __init__(self, poll, *a, **kw):
+        self.poll = poll
+        Wrapped.__init__(self, *a, **kw)
+
+class PollResults(Wrapped):
+    def __init__(self, poll, *a, **kw):
+        self.poll = poll
+        Wrapped.__init__(self, *a, **kw)
+
+class MultipleChoicePollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class MultipleChoicePollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class ScalePollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class ScalePollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class ProbabilityPollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class ProbabilityPollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+class NumberPollBallot(PollBallot):
+    def __init__(self, poll, *a, **kw):
+        PollBallot.__init__(self, poll, *a, **kw)
+
+class NumberPollResults(PollResults):
+    def __init__(self, poll, *a, **kw):
+        PollResults.__init__(self, poll, *a, **kw)
+
+
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
         meetups = Meetup.upcoming_meetups_near(location, max_distance, 2)

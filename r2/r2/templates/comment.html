@@ -24,6 +24,7 @@
    from r2.lib.filters import edit_comment_filter, unsafe, safemarkdown, clean_comment_html, unsafe_wrap_md, format_linebreaks
    from r2.lib.utils import to36, prettytime, epochtime
    from r2.lib.template_helpers import static
+   from r2.models.poll import renderpolls, pollsandmarkdown
 %>
 <%inherit file="comment_skeleton.html"/>
 
@@ -108,9 +109,9 @@ ${parent.Child(not thing.collapsed)}
 <%def name="commentBody()">
 %if not thing.deleted:
   %if thing.is_html:
-    ${unsafe_wrap_md(clean_comment_html(format_linebreaks(thing.body)))}
+    ${unsafe_wrap_md(renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing))}
   %else:
-    ${unsafe(safemarkdown(thing.body))}
+    ${unsafe(pollsandmarkdown(thing.body, thing))}
   %endif
 %endif
 </%def>
