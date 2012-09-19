@@ -386,6 +386,6 @@ class Ballot(Relation(Account, Poll)):
                 aliases['next_alias'] = aliases['next_alias'] + 1
             username = aliases[userid]
         else:
-            username = Account._byID(userid).name
+            username = Account._byID(userid, data = True).name
         return "\"{0}\",\"{1}\",\"{2}\",\"{3}\"".format(username, pollid, self.response, self.date)
 
