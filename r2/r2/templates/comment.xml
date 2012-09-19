@@ -23,6 +23,7 @@
 <%!
    from r2.lib.filters import safemarkdown, clean_comment_html, format_linebreaks
    from r2.lib.template_helpers import add_sr
+   from r2.models.poll import renderpolls, pollsandmarkdown
 %>
 <%
    url = add_sr(thing.permalink, force_hostname = True)
@@ -37,7 +38,7 @@
     %if thing.is_html:
       ${renderpolls(clean_comment_html(format_linebreaks(thing.body)), thing)}
     %else:
-      ${pollsandmarkdown(thing.body))}
+      ${pollsandmarkdown(thing.body, thing)}
     %endif
   </description>
 </item>
