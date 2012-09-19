@@ -219,7 +219,6 @@ class NumberPoll(PollType):
         responsenum = float(response)
         poll.sum += responsenum
         responses = [float(ballot.response) for ballot in poll.get_ballots()]
-        responses.append(responsenum)
         responses.sort()
         poll.median = median(responses)
         
