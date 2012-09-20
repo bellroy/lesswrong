@@ -181,7 +181,11 @@ class MultipleChoicePoll(PollType):
         poll.votes_for_choice = [0 for _ in poll.choices]
 
     def add_response(self, poll, response):
-        poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
+        # Make a new votes_for_choice array with the updated counts, rather than updating
+        # in-place, because in-place update confuses the ORM's dirty-values detection
+        new_votes = poll.votes_for_choice[:]
+        new_votes[int(response)] += 1
+        poll.votes_for_choice = new_votes
 
     def validate_response(self, poll, response):
         return self._check_range(response, int, 0, len(poll.choices) - 1, 'Invalid choice')
@@ -201,7 +205,9 @@ class ScalePoll(PollType):
         poll.votes_for_choice = [0 for _ in range(poll.scalesize)]
 
     def add_response(self, poll, response):
-        poll.votes_for_choice[int(response)] = poll.votes_for_choice[int(response)] + 1
+        new_votes = poll.votes_for_choice[:]
+        new_votes[int(response)] += 1
+        poll.votes_for_choice = new_votes
 
     def validate_response(self, poll, response):
         return self._check_range(response, int, 0, poll.scalesize - 1, 'Invalid choice')
@@ -297,10 +303,14 @@ class Poll(Thing):
         self.polltype_class().init_blank(self)
         
     def add_response(self, response):
-        self.num_votes = self.num_votes + 1
-        self.polltype_class().add_response(self, response)
-        self._commit()
+        with g.make_lock(self.lock_key()):
+            self.num_votes = self.num_votes + 1
+            self.polltype_class().add_response(self, response)
+            self._commit()
     
+    def lock_key(self):
+        return 'poll_lock_' + str(self._id)
+
     def validate_response(self, response):
         return self.polltype_class().validate_response(self, response)
     
