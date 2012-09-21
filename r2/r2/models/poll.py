@@ -301,7 +301,8 @@ class Poll(Thing):
         self.polltype_class().add_response(self, response)
 
         # Mark the votes_for_choice list as dirty to ensure it gets persisted
-        self._dirties['votes_for_choice'] = self.votes_for_choice
+        if hasattr(self, 'votes_for_choice'):
+          self._dirties['votes_for_choice'] = self.votes_for_choice
         self._commit()
     
     def validate_response(self, response):
