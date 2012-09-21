@@ -299,6 +299,9 @@ class Poll(Thing):
     def add_response(self, response):
         self.num_votes = self.num_votes + 1
         self.polltype_class().add_response(self, response)
+
+        # Mark the votes_for_choice list as dirty to ensure it gets persisted
+        self._dirties['votes_for_choice'] = self.votes_for_choice
         self._commit()
     
     def validate_response(self, response):
