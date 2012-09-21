@@ -831,7 +831,7 @@ class ApiController(RedditController):
             ballotparam = re.match("poll_([a-z0-9]+)", param)
             if(ballotparam and request.POST[param]):
                 pollid = int(ballotparam.group(1), 36)
-                pollobj = Poll._byID(pollid)
+                pollobj = Poll._byID(pollid, data = True)
                 try:
                     response = pollobj.validate_response(request.POST[param])
                     ballot = Ballot.submitballot(user, comment, pollobj, response, anonymous, ip, spam)
