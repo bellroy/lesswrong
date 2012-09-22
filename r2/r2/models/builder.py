@@ -438,7 +438,7 @@ class UnbannedCommentBuilder(QueryBuilder):
         if item.sr_id not in self.sr_ids:
             return False
 
-        return True
+        return super(UnbannedCommentBuilder, self).keep_item(item)
 
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
