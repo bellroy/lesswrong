@@ -324,21 +324,6 @@ class QueryBuilder(Builder):
                 before_count,
                 after_count)
 
-class UnbannedCommentBuilder(QueryBuilder):
-    def __init__(self, query, sr_ids, **kw):
-        self.sr_ids = sr_ids
-        QueryBuilder.__init__(self, query, **kw)
-
-    def keep_item(self, item):
-        link = Link._byID(item.link_id)
-        if link._spam:
-            return False
-
-        if item.sr_id not in self.sr_ids:
-            return False
-
-        return True
-
 class SubredditTagBuilder(QueryBuilder):
     def __init__(self, query, sr_ids, **kw):
         self.sr_ids = sr_ids
@@ -439,6 +424,21 @@ class CommentBuilderMixin:
         l = Listing(None, None, parent_name = parent_name)
         l.things = list(things)
         return Wrapped(l)
+
+class UnbannedCommentBuilder(QueryBuilder):
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
+        QueryBuilder.__init__(self, query, **kw)
+
+    def keep_item(self, item):
+        link = Link._byID(item.link_id)
+        if link._spam:
+            return False
+
+        if item.sr_id not in self.sr_ids:
+            return False
+
+        return True
 
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
