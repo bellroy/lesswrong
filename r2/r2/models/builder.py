@@ -504,12 +504,9 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         r = link_comments(self.link._id)
         cids, comment_tree, depth, num_children = r
         if cids:
-            comments = set(Comment._byID(cids, data = True, 
-                                         return_dict = False))
+            comment_dict = Comment._byID(cids, data = True, return_dict = True)
         else:
-            comments = ()
-            
-        comment_dict = dict((cm._id, cm) for cm in comments)
+            comment_dict = {}
 
         #convert tree into objects
         for k, v in comment_tree.iteritems():
@@ -563,7 +560,6 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         sort_candidates()
         while num_have < num and candidates:
             to_add = candidates.pop(0)
-            comments.remove(to_add)
             if to_add._deleted and not comment_tree.has_key(to_add._id):
                 pass
             elif depth[to_add._id] < MAX_RECURSION:
