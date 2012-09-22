@@ -928,7 +928,7 @@ class Comment(Thing, Printable):
             self._load()
         return (c.user_is_loggedin and self.author_id == c.user._id and \
                 self.retracted and not self.has_children())
-        
+
 
     # Changes the body of this comment, parsing the new body for polls and
     # creating them if found, and commits.
@@ -953,6 +953,12 @@ class Comment(Thing, Printable):
         return Subreddit._byID(sr_id, True, return_dict = False)
 
     def keep_item(self, wrapped):
+        if self._score <= g.hide_comment_threshold:
+            return False
+        if getattr(self, 'parent_id', None) is not None:
+            parent = type(self)._byID(self.parent_id)
+            if not parent.keep_item(parent):
+                return False
         return True
 
     @staticmethod
