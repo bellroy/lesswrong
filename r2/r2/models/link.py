@@ -900,6 +900,16 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
+    def try_parent(self, func, default):
+        """
+        If this comment has a parent, return `func(parent)`; otherwise
+        return `default`.
+        """
+        if getattr(self, 'parent_id', None) is not None:
+            parent = type(self)._byID(self.parent_id)
+            return func(parent)
+        return default
+
     def _send_post_notifications(self, link, comment, parent):
         if parent:
             to = Account._byID(parent.author_id)
@@ -956,16 +966,18 @@ class Comment(Thing, Printable):
     def collapse_in_link_threads(self):
         return self._score <= g.hide_comment_threshold
 
+    @property
+    def reply_costs_karma(self):
+        if self._score <= g.downvoted_reply_score_threshold:
+            return True
+        return self.try_parent(lambda p: p.reply_costs_karma, False)
+
     def keep_item(self, wrapped):
         if c.user_is_admin:
             return True
         if self.collapse_in_link_threads:
             return False
-        if getattr(self, 'parent_id', None) is not None:
-            parent = type(self)._byID(self.parent_id)
-            if not parent.keep_item(parent):
-                return False
-        return True
+        return self.try_parent(lambda p: p.keep_item(p), True)
 
     @staticmethod
     def cache_key(wrapped):

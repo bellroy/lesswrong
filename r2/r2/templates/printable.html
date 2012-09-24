@@ -21,7 +21,7 @@
 ################################################################################
 
 <%!
-   from r2.lib.template_helpers import add_sr, static
+   from r2.lib.template_helpers import add_sr, json, static
    from r2.lib.strings import strings
 %>
 
@@ -270,11 +270,15 @@ ${state_button(name, fullname, title, onclick, executed,
                clicked=clicked, **kw)}
 </%def>
 
-<%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None)">
-<a id="${nameFunc}_a_${fullname}" class="" href="#" \
-   ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" } \
-   onclick="${nameFunc}('${fullname}', this);return false">\
-  ${title}</a>
+<%def name="simple_button(name, fullname, title, nameFunc=None, tool_tip=None, extra_args=None)">
+  <%
+    xargs = ''.join(',' + json(x) for x in extra_args) if extra_args else ''
+    js = '{0}("{1}",this{2});return false'.format(nameFunc, fullname, xargs)
+  %>
+  <a id="${nameFunc}_a_${fullname}" class="" href="#" \
+      ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" } onclick="${js}">\
+    ${title}
+  </a>
 </%def>
 
 <%def name="tags(**kw)">
