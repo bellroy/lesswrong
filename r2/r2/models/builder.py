@@ -508,9 +508,6 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         else:
             comment_dict = {}
 
-        for comment in list(comment_dict.itervalues()):
-            if not self.keep_item(comment):
-                del comment_dict[comment._id]
         #convert tree from lists of IDs into lists of objects
         for pid, cids in comment_tree.iteritems():
             tree = [comment_dict.get(cid) for cid in cids]
@@ -592,11 +589,14 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             # don't show spam with no children
             if cm.deleted and not comment_tree.has_key(cm._id):
                 continue
+
             cm.num_children = num_children[cm._id]
             if cm.collapsed and cm._id in dont_collapse:
                 cm.collapsed = False
-            parent = cids.get(cm.parent_id) \
-                if hasattr(cm, 'parent_id') else None
+            if cm.collapse_in_link_threads:
+                cm.collapsed = True
+
+            parent = cids.get(cm.parent_id) if hasattr(cm, 'parent_id') else None
             if parent:
                 if not hasattr(parent, 'child'):
                     parent.child = self.empty_listing()

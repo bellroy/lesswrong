@@ -952,8 +952,14 @@ class Comment(Thing, Printable):
             sr_id = l.sr_id
         return Subreddit._byID(sr_id, True, return_dict = False)
 
+    @property
+    def collapse_in_link_threads(self):
+        return self._score <= g.hide_comment_threshold
+
     def keep_item(self, wrapped):
-        if self._score <= g.hide_comment_threshold:
+        if c.user_is_admin:
+            return True
+        if self.collapse_in_link_threads:
             return False
         if getattr(self, 'parent_id', None) is not None:
             parent = type(self)._byID(self.parent_id)
