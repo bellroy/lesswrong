@@ -511,10 +511,10 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         for comment in list(comment_dict.itervalues()):
             if not self.keep_item(comment):
                 del comment_dict[comment._id]
-
         #convert tree from lists of IDs into lists of objects
         for pid, cids in comment_tree.iteritems():
-            comment_tree[pid] = [c for c in [comment_dict.get(cid) for cid in cids] if c]
+            tree = [comment_dict.get(cid) for cid in cids]
+            comment_tree[pid] = [c for c in tree if c is not None]
 
         items = []
         extra = {}
