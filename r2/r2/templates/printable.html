@@ -277,12 +277,6 @@ ${state_button(name, fullname, title, onclick, executed,
   ${title}</a>
 </%def>
 
-<%def name="advanced_button(fullname, args, title, nameFunc=None)">
-<a id="${nameFunc}_a_${fullname}" class="" \
-   href="javascript:${nameFunc}(${args})">\
-  ${title}</a>
-</%def>
-
 <%def name="tags(**kw)">
 %for k, v in kw.iteritems():
 %if v is not None:
