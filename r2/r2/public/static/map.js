@@ -46,10 +46,11 @@
   };
 
   window.makeGeocodedInputWidget = function (options) {
+    var prompt = options.prompt || "";
     var inputElement = options.input;
     var iconElement = jQuery('<img id="geocoded_status" src="/static/spinner.gif"' +
                                ' alt="status" style="display:none">')[0];
-    var messageElement = jQuery('<div id="geocoded_location">')[0];
+    var messageElement = jQuery('<div id="geocoded_location">').text(prompt)[0];
     jQuery(inputElement).after(messageElement).after(iconElement);
 
     var statusIcons = {
@@ -62,7 +63,7 @@
       iconElement.writeAttribute("src", statusIcons[status]);
       iconElement.show();
 
-      if (message) {
+      if (message !== void 0) {
         messageElement.update(message);
       }
     }
@@ -84,7 +85,7 @@
           jQuery(options.latitude).val(location.lat());
           jQuery(options.longitude).val(location.lng());
         } else {
-          updateGeocodeStatus('error');
+          updateGeocodeStatus('error', prompt);
         }
       });
     }

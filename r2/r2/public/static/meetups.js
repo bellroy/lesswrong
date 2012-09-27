@@ -20,7 +20,8 @@
       makeGeocodedInputWidget({
         input:    $('location'),
         latitude: $$('input[name="latitude"]').first(),
-        latitude: $$('input[name="longitude"]').first()
+        latitude: $$('input[name="longitude"]').first(),
+        prompt:   "Enter the meetup address above"
       });
 
       Protoplasm.use('timepicker', function() { /* Used by datepicker below */
