@@ -94,6 +94,7 @@
 
     loadMaps(function() {
       inputElement.observe('change', geocodeLocation);
+      geocodeLocation.call(inputElement);
     });
   };
 })(jQuery);
