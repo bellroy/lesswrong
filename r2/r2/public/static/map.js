@@ -86,6 +86,8 @@
           jQuery(options.longitude).val(location.lng());
         } else {
           updateGeocodeStatus('error', prompt);
+          jQuery(options.latitude).val('');
+          jQuery(options.longitude).val('');
         }
       });
     }
