@@ -48,47 +48,54 @@
   window.makeGeocodedInputWidget = function (options) {
     var prompt = options.prompt || "";
     var inputElement = options.input;
-    var iconElement = jQuery('<img id="geocoded_status" src="/static/spinner.gif"' +
-                               ' alt="status" style="display:none">')[0];
+    var iconElement = jQuery('<img id="geocoded_status" src="about:blank"' +
+                               ' alt="" style="display:none">')[0];
     var messageElement = jQuery('<div id="geocoded_location">').text(prompt)[0];
     jQuery(inputElement).after(messageElement).after(iconElement);
 
     var statusIcons = {
-      "spinner": "/static/spinner.gif",
-      "ok":      "/static/accept.png",
-      "error":   "/static/exclamation.png"
+      "none":    {show: false, blank: true,  src: "about:blank"},
+      "spinner": {show: true,  blank: true,  src: "/static/spinner.gif"},
+      "ok":      {show: true,  blank: false, src: "/static/accept.png"},
+      "error":   {show: true,  blank: true,  src: "/static/exclamation.png"}
     };
 
     function updateGeocodeStatus(status, message) {
-      iconElement.writeAttribute("src", statusIcons[status]);
-      iconElement.show();
+      var st = statusIcons[status];
+      iconElement.writeAttribute("src", st.src);
+      iconElement[st.show ? "show" : "hide"]();
 
+      if (st.blank) {
+        jQuery([options.latitude, options.longitude]).val('');
+      }
       if (message !== void 0) {
         messageElement.update(message);
       }
     }
 
     function geocodeLocation() {
-      var el = this;
-      updateGeocodeStatus('spinner');
+      var addr = this.getValue();
+
+      if (!addr) {
+        updateGeocodeStatus("none", prompt);
+        return;
+      }
 
       /* Geocode the address with Google */
+      updateGeocodeStatus("spinner");
       var geocoder = new google.maps.Geocoder();
-      var request = {
-        address: el.getValue()
-      };
+      var request = {address: addr};
       geocoder.geocode(request, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-          var result = results.first();
-          var location = result.geometry.location;
-          updateGeocodeStatus('ok', result.formatted_address);
-          jQuery(options.latitude).val(location.lat());
-          jQuery(options.longitude).val(location.lng());
-        } else {
-          updateGeocodeStatus('error', prompt);
-          jQuery(options.latitude).val('');
-          jQuery(options.longitude).val('');
+        if (status !== google.maps.GeocoderStatus.OK) {
+        updateGeocodeStatus("error", prompt);
+          return;
         }
+
+        var result = results.first();
+        var location = result.geometry.location;
+        updateGeocodeStatus("ok", result.formatted_address);
+        jQuery(options.latitude).val(location.lat());
+        jQuery(options.longitude).val(location.lng());
       });
     }
 
