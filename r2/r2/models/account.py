@@ -19,7 +19,14 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from pylons import c
+
+from copy import copy
+import time, hashlib
+
+from geolocator import gislib
+from pylons import c, g
+from pylons.i18n import _
+
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
@@ -28,10 +35,6 @@ from r2.lib.utils        import randstr
 from r2.lib.strings      import strings, plurals
 from r2.lib.base         import current_login_cookie
 
-from pylons import g
-from pylons.i18n import _
-import time, hashlib
-from copy import copy
 
 class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
