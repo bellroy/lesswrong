@@ -62,6 +62,8 @@ class Account(Thing):
                      pref_location = '',
                      pref_latitude = None,
                      pref_longitude = None,
+                     pref_meetup_notify_enabled = False,
+                     pref_meetup_notify_radius = 50,
                      pref_show_parent_comments = False,
                      reported = 0,
                      report_made = 0,

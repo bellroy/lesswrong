@@ -100,6 +100,8 @@ class PostController(ApiController):
               pref_location = VLocation('location'),
               pref_latitude = ValueOrBlank('latitude'),
               pref_longitude = ValueOrBlank('longitude'),
+              pref_meetup_notify_enabled = VBoolean('meetup_notify_enabled'),
+              pref_meetup_notify_radius = VInt('meetup_notify_radius', 1, 40000),
               pref_show_parent_comments = VBoolean('show_parent_comments'),
               all_langs = nop('all-langs', default = 'all'))
     def POST_options(self, all_langs, pref_lang, **kw):
