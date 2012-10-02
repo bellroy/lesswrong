@@ -2,8 +2,10 @@
 
 """
 This script is run periodically by cron. It scans through a database table of
-pending jobs and executes them. If an error occurs while running a job, a message
-will be logged and the job will not be removed from the queue.
+pending jobs and executes them. A memcache lock is used to ensure that each job
+is claimed by only one node. If an exception occurs while running a job, an
+error will be logged and the job will remain in the queue to be attempted next
+time this script is run.
 """
 
 from datetime import datetime
@@ -32,18 +34,22 @@ class JobProcessor:
             g.log.error('Unknown job action {0!r}'.format(job.action))
             return
 
+        # If we can't acquire the lock, the job has already been claimed,
+        # so we skip it.
         lock = g.make_lock('pending_job_{0}'.format(job._id))
-        if lock.try_acquire():
-            try:
-                data = pickle.loads(job.data) if job.data else {}
-                runner(**data)
-            except Exception as ex:
-                g.log.error('Exception while running job id {0} ({1}): {2}'.format(
-                    job._id, job.action, ex))
-            else:
-                self.mark_as_completed(job)
-            finally:
-                lock.release()
+        if not lock.try_acquire():
+            return
+
+        try:
+            data = pickle.loads(job.data) if job.data else {}
+            runner(**data)
+        except Exception as ex:
+            g.log.error('Exception while running job id {0} ({1}): {2}'.format(
+                job._id, job.action, ex))
+        else:
+            self.mark_as_completed(job)
+        finally:
+            lock.release()
 
     def mark_as_completed(self, job):
         job._delete_from_db()
