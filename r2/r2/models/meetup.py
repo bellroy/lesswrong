@@ -103,8 +103,7 @@ class Meetup(Thing):
   @property
   def canonical_url(self):
     domain = get_domain(subreddit=False)
-    path = url_for(controller='meetups', action='show', id=self._id36)
-    return 'http://' + domain + path
+    return 'http://{0}/meetups/{1}'.format(domain, self._id36)
 
 
   @staticmethod
