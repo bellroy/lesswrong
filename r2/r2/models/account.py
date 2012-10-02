@@ -281,6 +281,16 @@ class Account(Thing):
     def draft_sr_name(self):
       return self.name + "-drafts"
 
+    @property
+    def coords(self):
+        if self.pref_latitude is not None and self.pref_longitude is not None:
+            return (self.pref_latitude, self.pref_longitude)
+        return None
+
+    def is_within_radius(self, coords, radius):
+        return self.coords is not None and \
+            gislib.getDistance(self.coords, coords) <= radius
+
     def recent_share_emails(self):
         return self.share.get('recent', set([]))
 

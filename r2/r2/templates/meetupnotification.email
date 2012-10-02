@@ -1,0 +1,4 @@
+Someone recently posted a new meetup in your area:
+
+    Where: ${thing.meetup.location}
+    When:  ${thing.meetup.timestamp}

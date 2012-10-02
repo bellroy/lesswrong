@@ -527,6 +527,13 @@ def get_thing(type_id, thing_id):
             res[row.thing_id] = stor
     return res
 
+def del_thing(type_id, thing_id):
+    thing_table = types_id[type_id].thing_table
+    data_table = types_id[type_id].data_table[0]
+
+    thing_table.delete(thing_table.c.thing_id == thing_id).execute()
+    data_table.delete(data_table.c.thing_id == thing_id).execute()
+
 def set_rel_data(rel_type_id, thing_id, **vals):
     table = rel_types_id[rel_type_id].rel_table[3]
     return set_data(table, rel_type_id, thing_id, **vals)

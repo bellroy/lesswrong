@@ -95,6 +95,10 @@ class Meetup(Thing):
   def author(self):
     return Account._byID(self.author_id, True)
 
+  @property
+  def coords(self):
+    return (self.latitude, self.longitude)
+
   @staticmethod
   def geoLocateIp(ip):
     geo = MaxMindCityDataProvider(g.geoip_db_path, "GEOIP_STANDARD")

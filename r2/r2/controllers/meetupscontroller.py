@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 
 from mako.template import Template
@@ -10,7 +11,7 @@ from r2.lib.filters import python_websafe
 from r2.lib.jsonresponse import Json
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
-from r2.models import Meetup,Link,Subreddit,CommentBuilder
+from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob
 from r2.models.listing import NestedListing
 from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
 from routes.util import url_for
@@ -94,6 +95,10 @@ class MeetupsController(RedditController):
     l._commit()
     meetup.assoc_link = l._id
     meetup._commit()
+
+    when = datetime.now(g.tz) + timedelta(0, 3600)  # Leave a short window of time before notification, in case
+                                                    # the meetup is edited/deleted soon after its creation
+    PendingJob.store(when, 'process_new_meetup', {'meetup_id': meetup._id})
 
     #update the queries
     if g.write_query_queue:
