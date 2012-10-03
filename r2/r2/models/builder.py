@@ -324,21 +324,6 @@ class QueryBuilder(Builder):
                 before_count,
                 after_count)
 
-class UnbannedCommentBuilder(QueryBuilder):
-    def __init__(self, query, sr_ids, **kw):
-        self.sr_ids = sr_ids
-        QueryBuilder.__init__(self, query, **kw)
-
-    def keep_item(self, item):
-        link = Link._byID(item.link_id)
-        if link._spam:
-            return False
-
-        if item.sr_id not in self.sr_ids:
-            return False
-
-        return True
-
 class SubredditTagBuilder(QueryBuilder):
     def __init__(self, query, sr_ids, **kw):
         self.sr_ids = sr_ids
@@ -440,6 +425,21 @@ class CommentBuilderMixin:
         l.things = list(things)
         return Wrapped(l)
 
+class UnbannedCommentBuilder(QueryBuilder):
+    def __init__(self, query, sr_ids, **kw):
+        self.sr_ids = sr_ids
+        QueryBuilder.__init__(self, query, **kw)
+
+    def keep_item(self, item):
+        link = Link._byID(item.link_id)
+        if link._spam:
+            return False
+
+        if item.sr_id not in self.sr_ids:
+            return False
+
+        return super(UnbannedCommentBuilder, self).keep_item(item)
+
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
         UnbannedCommentBuilder.__init__(self, query, sr_ids, **kw)
@@ -504,16 +504,14 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         r = link_comments(self.link._id)
         cids, comment_tree, depth, num_children = r
         if cids:
-            comments = set(Comment._byID(cids, data = True, 
-                                         return_dict = False))
+            comment_dict = Comment._byID(cids, data = True, return_dict = True)
         else:
-            comments = ()
-            
-        comment_dict = dict((cm._id, cm) for cm in comments)
+            comment_dict = {}
 
-        #convert tree into objects
-        for k, v in comment_tree.iteritems():
-            comment_tree[k] = [comment_dict[cid] for cid in comment_tree[k]]
+        #convert tree from lists of IDs into lists of objects
+        for pid, cids in comment_tree.iteritems():
+            tree = [comment_dict.get(cid) for cid in cids]
+            comment_tree[pid] = [c for c in tree if c is not None]
 
         items = []
         extra = {}
@@ -563,7 +561,6 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         sort_candidates()
         while num_have < num and candidates:
             to_add = candidates.pop(0)
-            comments.remove(to_add)
             if to_add._deleted and not comment_tree.has_key(to_add._id):
                 pass
             elif depth[to_add._id] < MAX_RECURSION:
@@ -592,11 +589,14 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             # don't show spam with no children
             if cm.deleted and not comment_tree.has_key(cm._id):
                 continue
+
             cm.num_children = num_children[cm._id]
             if cm.collapsed and cm._id in dont_collapse:
                 cm.collapsed = False
-            parent = cids.get(cm.parent_id) \
-                if hasattr(cm, 'parent_id') else None
+            if cm.collapse_in_link_threads:
+                cm.collapsed = True
+
+            parent = cids.get(cm.parent_id) if hasattr(cm, 'parent_id') else None
             if parent:
                 if not hasattr(parent, 'child'):
                     parent.child = self.empty_listing()

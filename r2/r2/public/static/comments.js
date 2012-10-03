@@ -71,8 +71,6 @@ Comment.prototype = new Thing();
 
 Comment.del = Thing.del;
 
-//Comment.downvotedReplyScoreThreshold is set elsewhere
-
 // Works like $(), except uses the parent of context instead of context itself
 Comment.prototype.$parent = function (id, context) {
     context = context || this._context;
@@ -136,12 +134,12 @@ Comment.prototype.showFlamebaitOverlay = function (edit_box) {
 
     jQuery(overlay).find(".flamebaitcomment-yes").bind("click", hideWarning);
     jQuery(overlay).find(".flamebaitcomment-no").bind("click", cancel);
-}
+};
 
-Comment.prototype.reply = function() {
+Comment.prototype.reply = function (showFlamebaitOverlay) {
     var edit_box = this.show_editor(this.child_listing(), null, '');
     this.$parent("commentform").replace.value = "";
-    if (this.getScore() <= Comment.downvotedReplyScoreThreshold)
+    if (showFlamebaitOverlay)
         this.showFlamebaitOverlay(edit_box);
     else
         this.$parent("comment_reply").focus();
@@ -191,16 +189,6 @@ Comment.editcomment = function(r, context) {
     com.get('edit_body').innerHTML = unsafe(r.contentTxt);
     com.cancel();
     com.show();
-};
-
-Comment.prototype.getScore = function (id) {
-    var node = this.get('score');
-    if (!node)
-        throw new Error();
-    var match = /-?\d+/.exec(node.innerHTML);
-    if (!match)
-        throw new Error();
-    return parseInt(match[0], 10);
 };
 
 Comment.submitballot = function(r) {
@@ -289,9 +277,9 @@ function cancelReply(canceler) {
 };
 
 
-function reply(id, link) {
+function reply(id, link, showFlamebaitOverlay) {
     if (logged) {
-        var com = new Comment(id, Thing.getThingRow(link)).reply();
+        var com = new Comment(id, Thing.getThingRow(link)).reply(showFlamebaitOverlay);
     }
     else {
         showcover(true, 'reply_' + id);
