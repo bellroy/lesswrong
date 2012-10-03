@@ -147,7 +147,8 @@ ${parent.midcol()}
             </li>
           %endif
           <li class="reply">
-            ${parent.simple_button("reply", fullname, _("Reply"), "reply", tool_tip=_("Reply"))}
+            ${parent.simple_button("reply", fullname, _("Reply"), "reply", tool_tip=_("Reply"),
+              extra_args=[thing.reply_costs_karma])}
           </li>
         %endif
         <li class="permalink">
