@@ -964,6 +964,8 @@ class Comment(Thing, Printable):
 
     @property
     def collapse_in_link_threads(self):
+        if c.user_is_admin:
+            return False
         return self._score <= g.hide_comment_threshold
 
     @property
