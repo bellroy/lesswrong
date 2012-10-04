@@ -151,7 +151,7 @@
       <th>${_("Location")}</th>
       <td class="prefright">
         <input name="location" type="text" size="40" value="${c.user.pref_location}" />
-        ${error_field("LOCATION_TOO_LONG", kind="span")}
+        ${error_field("LOCATION_TOO_LONG", kind="p", cls="form-info-line")}
         <%
           lat = c.user.pref_latitude if c.user.pref_latitude is not None else ''
           lng = c.user.pref_longitude if c.user.pref_longitude is not None else ''
@@ -186,6 +186,7 @@
   </form>
   <script type="text/javascript">
     makeGeocodedInputWidget({
+      prompt:    "Enter your location above",
       input:     $$('input[name="location"]').first(),
       latitude:  $$('input[name="latitude"]').first(),
       longitude: $$('input[name="longitude"]').first()

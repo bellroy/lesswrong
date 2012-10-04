@@ -508,15 +508,20 @@ div.meta.meetup strong {
   margin: 0 0 5px 106px;
   display: block;
 }
-.pretty-form.meetup #geocoded_location {
-  margin-left: 106px;
-  clear: left;
-}
-.pretty-form.meetup #geocode_status {
-  display: block;
+.pretty-form .field-status-icon {
   width: 16px;
   height: 16px;
-  padding: 4px 0;
+  vertical-align: top;
+  margin: 5px .5em 0;
+}
+.pretty-form .form-info-line {
+  clear: left;
+}
+.pretty-form fieldset .form-info-line {
+  margin-left: 106px;
+}
+.pretty-form td .form-info-line {
+  margin-left: 8px;
 }
 
 /* Polls */

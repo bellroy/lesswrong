@@ -48,9 +48,9 @@
   window.makeGeocodedInputWidget = function (options) {
     var prompt = options.prompt || "";
     var inputElement = options.input;
-    var iconElement = jQuery('<img id="geocoded_status" src="about:blank"' +
+    var iconElement = jQuery('<img class="field-status-icon" src="about:blank"' +
                                ' alt="" style="display:none">')[0];
-    var messageElement = jQuery('<div id="geocoded_location">').text(prompt)[0];
+    var messageElement = jQuery('<div class="form-info-line" />').text(prompt)[0];
     jQuery(inputElement).after(messageElement).after(iconElement);
 
     var statusIcons = {
