@@ -23,6 +23,7 @@ class JobProcessor:
         jobs = PendingJob._query()
 
         for job in jobs:
+            job._safe_load()
             self.process_job(job)
 
     def process_job(self, job):
@@ -59,7 +60,7 @@ def job_process_new_meetup(meetup_id):
     # Find all users near the meetup who opted to be notified, and add a child
     # job for each of them, so that the scope of any problems is limited.
     # These child jobs will run on the next run-through of this script.
-    meetup = Meetup._byID(meetup_id)
+    meetup = Meetup._byID(meetup_id, data=True)
     users = notify.get_users_to_notify_for_meetup(meetup.coords)
     for user in users:
         data = {'username': user.name, 'meetup_id': meetup._id}
@@ -67,7 +68,7 @@ def job_process_new_meetup(meetup_id):
 
 
 def job_send_meetup_email_to_user(meetup_id, username):
-    meetup = Meetup._byID(meetup_id)
+    meetup = Meetup._byID(meetup_id, data=True)
     user = Account._by_name(username)
     notify.email_user_about_meetup(user, meetup)
 
