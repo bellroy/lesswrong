@@ -9,7 +9,6 @@ time this script is run.
 """
 
 from datetime import datetime
-import pickle
 
 from pylons import g
 
@@ -42,7 +41,7 @@ class JobProcessor:
             return
 
         try:
-            data = pickle.loads(job.data) if job.data else {}
+            data = job.data or {}
             runner(**data)
         except Exception as ex:
             g.log.error('Exception while running job id {0} ({1}): {2}'.format(
