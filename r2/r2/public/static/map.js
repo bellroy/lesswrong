@@ -53,6 +53,9 @@
     var messageElement = jQuery('<div class="form-info-line" />').text(prompt)[0];
     jQuery(inputElement).after(messageElement).after(iconElement);
 
+    var cancelSubmit = false;
+    var onComplete = null;
+
     var statusIcons = {
       "none":    {show: false, blank: true,  src: "about:blank"},
       "spinner": {show: true,  blank: true,  src: "/static/spinner.gif"},
@@ -85,23 +88,39 @@
       updateGeocodeStatus("spinner");
       var geocoder = new google.maps.Geocoder();
       var request = {address: addr};
+      cancelSubmit = true;
       geocoder.geocode(request, function(results, status) {
-        if (status !== google.maps.GeocoderStatus.OK) {
-        updateGeocodeStatus("error", prompt);
-          return;
+        if (status === google.maps.GeocoderStatus.OK) {
+          var result = results.first();
+          var location = result.geometry.location;
+          updateGeocodeStatus("ok", result.formatted_address);
+          jQuery(options.latitude).val(location.lat());
+          jQuery(options.longitude).val(location.lng());
+        } else {
+          updateGeocodeStatus("error", prompt);
         }
 
-        var result = results.first();
-        var location = result.geometry.location;
-        updateGeocodeStatus("ok", result.formatted_address);
-        jQuery(options.latitude).val(location.lat());
-        jQuery(options.longitude).val(location.lng());
+        cancelSubmit = false;
+        if (onComplete)
+          onComplete();
       });
     }
 
     loadMaps(function() {
-      inputElement.observe('change', geocodeLocation);
+      inputElement.observe("change", geocodeLocation);
       geocodeLocation.call(inputElement);
+
+      // If the form is submitted while we're waiting for geocoded
+      // coordinates, defer the submission until afterwards.
+      jQuery(inputElement).closest("form").bind("submit", function (event) {
+        inputElement.blur();
+        if (cancelSubmit) {
+          event.preventDefault();
+          onComplete = function () {
+            jQuery(inputElement).closest("form").submit();
+          };
+        }
+      });
     });
   };
 })(jQuery);
