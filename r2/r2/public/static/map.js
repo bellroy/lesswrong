@@ -16,7 +16,7 @@
         markers.each(function(i,m) {
           var lat = $(m).attr('data-latitude');
           var lng = $(m).attr('data-longitude');
-          latlng = new google.maps.LatLng(lat, lng);
+          var latlng = new google.maps.LatLng(lat, lng);
           bounds.extend(latlng);
           if (!first)
             first = latlng;
@@ -36,8 +36,8 @@
         });
 
         /* Show all markers, and center on the first */
-        if (bounds.getNorthEast().lat() != bounds.getSouthWest().lat() ||
-            bounds.getNorthEast().lng() != bounds.getSouthWest().lng())
+        if (bounds.getNorthEast().lat() !== bounds.getSouthWest().lat() ||
+            bounds.getNorthEast().lng() !== bounds.getSouthWest().lng())
           gMap.fitBounds(bounds);
         if (first)
           gMap.setCenter(first);
