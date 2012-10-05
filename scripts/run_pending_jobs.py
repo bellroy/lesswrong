@@ -19,10 +19,9 @@ from r2.models import Account, Meetup, PendingJob
 
 class JobProcessor:
     def run(self):
-        jobs = PendingJob._query()
+        jobs = PendingJob._query(data=True)
 
         for job in jobs:
-            job._safe_load()
             self.process_job(job)
 
     def process_job(self, job):
