@@ -531,6 +531,9 @@ def del_thing(type_id, thing_id):
     thing_table = types_id[type_id].thing_table
     data_table = types_id[type_id].data_table[0]
 
+    transactions.add_engine(thing_table.engine)
+    transactions.add_engine(data_table.engine)
+
     thing_table.delete(thing_table.c.thing_id == thing_id).execute()
     data_table.delete(data_table.c.thing_id == thing_id).execute()
 
