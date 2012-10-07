@@ -616,6 +616,18 @@ class MessageController(ListingController):
 
         return q
 
+    def builder(self):
+        # This is (almost) copied and pasted from ListingController.builder.
+        b = QueryBuilder(self.query_obj,
+                         num = self.num,
+                         skip = self.skip,
+                         after = self.after,
+                         count = self.count,
+                         reverse = self.reverse,
+                         wrap = self.builder_wrapper,
+                         keep_fn = lambda i: True)
+        return b
+
     @validate(VUser())
     def GET_listing(self, where, **env):
         self.where = where
