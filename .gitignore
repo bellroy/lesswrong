@@ -50,4 +50,5 @@ notes/*
 attic/*
 .dir-locals.el
 .Trashes/*
+.apdisk
 spec/selenium-override.rb
