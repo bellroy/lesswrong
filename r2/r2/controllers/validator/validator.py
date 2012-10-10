@@ -695,14 +695,17 @@ class VInt(Validator):
             c.errors.add(errors.BAD_NUMBER)
 
 class VFloat(Validator):
-    def __init__(self, param, min=None, max=None, error=errors.BAD_NUMBER, *a, **kw):
+    def __init__(self, param, min=None, max=None, allow_none=False, error=errors.BAD_NUMBER, *a, **kw):
         self.min = min
         self.max = max
+        self.allow_none = allow_none
         self.error = error
         Validator.__init__(self, param, *a, **kw)
 
     def run(self, val):
         if not val:
+            if self.allow_none:
+                return None
             c.errors.add(self.error)
             return
 
