@@ -14,6 +14,7 @@ from pylons import g
 
 from r2.lib.lock import MemcacheLock
 from r2.lib import notify
+from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
 
 
@@ -67,8 +68,12 @@ def job_process_new_meetup(meetup_id):
 
 def job_send_meetup_email_to_user(meetup_id, username):
     meetup = Meetup._byID(meetup_id, data=True)
-    user = Account._by_name(username)
-    notify.email_user_about_meetup(user, meetup)
+    try:
+      user = Account._by_name(username)
+      notify.email_user_about_meetup(user, meetup)
+    except NotFound:
+      # Users can get deleted so ignore if not found
+      pass
 
 
 try:
