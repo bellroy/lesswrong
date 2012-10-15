@@ -15,5 +15,5 @@ def get_users_to_notify_for_meetup(coords):
 
 
 def email_user_about_meetup(user, meetup):
-    if user.email:
+    if meetup.author_id != user._id && user.email:
         emailer.meetup_email(user=user, meetup=meetup)
