@@ -41,32 +41,54 @@ class MemcacheLock(object):
         self.have_lock = False
 
     def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, type, value, tb):
+        self.release()
+
+    def acquire(self):
+        """
+        Repeatedly try to acquire the lock, for `self.timeout` seconds, before
+        giving up and raising an exception.
+        """
         start = datetime.now()
 
+        # try and fetch the lock, looping until it's available
+        while not self.try_acquire():
+            if (datetime.now() - start).seconds > self.timeout:
+                raise TimeoutExpired
+            sleep(0.1)
+
+    def try_acquire(self):
+        """
+        Make one attempt to acquire the lock, and return immediately. Return
+        `True` if we hold the lock upon returning from this method, and `False`
+        if it's currently held elsewhere.
+        """
         if not c.locks:
             c.locks = {}
 
-        #if this thread already has this lock, move on
+        # if this thread already has this lock, move on
         if c.locks.get(self.key):
-            return
+            return True
 
-        #try and fetch the lock, looping until it's available
-        while not self.cache.add(self.key, 1, time = self.time):
-            if (datetime.now() - start).seconds > self.timeout:
-                raise TimeoutExpired
+        # memcached will return true if the key was added, and false if it
+        # already existed
+        if not self.cache.add(self.key, 1, time = self.time):
+            return False
 
-            sleep(.1)
-
-        #tell this thread we have this lock so we can avoid deadlocks
-        #of requests for the same lock in the same thread
+        # tell this thread we have this lock so we can avoid deadlocks
+        # of requests for the same lock in the same thread
         c.locks[self.key] = True
         self.have_lock = True
+        return True
 
-    def __exit__(self, type, value, tb):
-        #only release the lock if we gained it in the first place
+    def release(self):
+        # only release the lock if we gained it in the first place
         if self.have_lock:
             self.cache.delete(self.key)
             del c.locks[self.key]
+
 
 def make_lock_factory(cache):
     def factory(key):

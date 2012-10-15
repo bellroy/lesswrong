@@ -32,5 +32,6 @@ from edit import *
 from meetup import *
 from karma_adjustment import *
 from poll import *
+from pending_job import *
 import thing_changes
 
