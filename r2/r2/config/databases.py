@@ -77,6 +77,7 @@ dbm.thing('tag', main_engine, main_engine)
 dbm.thing('edit', main_engine, main_engine)
 dbm.thing('meetup', main_engine, main_engine)
 dbm.thing('karmaadjustment', main_engine, main_engine)
+dbm.thing('pendingjob', main_engine, main_engine)
 
 dbm.relation('savehide', 'account', 'link', main_engine)
 dbm.relation('click', 'account', 'link', main_engine)

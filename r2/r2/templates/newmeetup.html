@@ -23,9 +23,7 @@
   <fieldset>
     <label for="location">${_("Location")}:</label>
     <input id="location" name="location" value="${thing.location}" type="text" />
-    <img id="geocode_status" src="${static('spinner.gif')}" alt="status" style="display: none;" />
-    <div id="geocoded_location">Enter the meetup address above</div>
-    ${error_field("NO_LOCATION", "span")}
+    ${error_field("NO_LOCATION", "p", cls="form-info-line")}
   </fieldset>
 
   <fieldset>

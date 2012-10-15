@@ -1,0 +1,8 @@
+Someone recently posted a new meetup in your area:
+
+    Where: ${thing.meetup.location}
+    When:  ${thing.meetup.datetime().strftime('%d %B %Y %I:%M%p')}
+
+Visit this link to view the meetup page:
+
+    ${thing.meetup.canonical_url}
