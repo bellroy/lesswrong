@@ -1,4 +1,4 @@
 # IF YOU STUMBLE UPON THIS FILE YOU MAY NOT HAVE NOTICED THAT IT IS SYMLINKED
 # INTO THE APP REPO. MAKE SURE THAT IT GETS COMMITED IF YOU MAKE ANY CHANGES.
 23   * * * * www-data /srv/www/lesswrong.com/current/scripts/sync_wiki_export.sh
-*/30 * * * * www-data /usr/local/bin/paster run production.ini /srv/www/lesswrong.com/current/scripts/run_pending_jobs.py
+*/30 * * * * www-data cd /srv/www/lesswrong.com/current/r2 && /usr/local/bin/paster run production.ini ../scripts/run_pending_jobs.py
