@@ -8,6 +8,7 @@ error will be logged and the job will remain in the queue to be attempted next
 time this script is run.
 """
 
+from sys import stderr
 from datetime import datetime
 
 from pylons import g
@@ -31,7 +32,7 @@ class JobProcessor:
 
         runner = globals().get('job_' + job.action)
         if not runner:
-            g.log.error('Unknown job action {0!r}'.format(job.action))
+            print >>stderr, 'Unknown job action {0!r}'.format(job.action))
             return
 
         # If we can't acquire the lock, the job has already been claimed,
@@ -44,7 +45,7 @@ class JobProcessor:
             data = job.data or {}
             runner(**data)
         except Exception as ex:
-            g.log.error('Exception while running job id {0} ({1}): {2}'.format(
+            print >>stderr, 'Exception while running job id {0} ({1}): {2}'.format(
                 job._id, job.action, ex))
         else:
             self.mark_as_completed(job)
@@ -79,4 +80,4 @@ def job_send_meetup_email_to_user(meetup_id, username):
 try:
     JobProcessor().run()
 except Exception as ex:
-    g.log.error('Critical failure processing job queue: {0}'.format(ex))
+    print >>stderr, 'Critical failure processing job queue: {0}'.format(ex))
