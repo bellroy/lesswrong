@@ -69,8 +69,9 @@ ${first_defined(kw[1:])}
 %endif
 </%def>
 
-<%def name="error_field(name, kind='p')">
-  <${kind} id="${name}" class="error">
+<%def name="error_field(name, kind='p', cls='')">
+  <% className = 'error' + (' ' + cls if cls else '') %>
+  <${kind} id="${name}" class="${className}">
    %if name in c.errors:
      ${c.errors[name].message}
    %endif

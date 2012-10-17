@@ -1,0 +1,14 @@
+A new meetup has been posted in your area:
+
+    Where: ${thing.meetup.location}
+    When:  ${thing.meetup.datetime().strftime('%d %B %Y %I:%M%p')}
+
+Visit this link to view the meetup page:
+
+    ${thing.meetup.canonical_url}
+
+--
+
+You are receiving this email because you enabled the, "Email me about meetups",
+option in your Less Wrong account preferences. If you no longer wish to receive
+these emails you turn can this option off at: http://lesswrong.com/prefs/

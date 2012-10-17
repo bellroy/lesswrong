@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from r2.lib.utils import FixedOffset
 from r2.lib.db.operators import desc
+from r2.lib.template_helpers import get_domain
 from geolocator import gislib
 # must be here to stop bizarre NotImplementedErrors being raise in the datetime
 # method below
@@ -94,6 +95,16 @@ class Meetup(Thing):
 
   def author(self):
     return Account._byID(self.author_id, True)
+
+  @property
+  def coords(self):
+    return (self.latitude, self.longitude)
+    
+  @property
+  def canonical_url(self):
+    domain = get_domain(subreddit=False)
+    return 'http://{0}/meetups/{1}'.format(domain, self._id36)
+
 
   @staticmethod
   def geoLocateIp(ip):

@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+ignore =
+  [/^\s*$/,
+   'DeprecationWarning',
+   'webhelpers.',
+   'from routes',
+   /JavaScript/i,
+   'import md5',
+   'from sha import'
+  ]
+
+$this_host = `hostname`.strip
+
+def match_rule(l,rule)
+  case rule
+  when Regexp
+    return l.match(rule)
+  when String
+    return l.match(Regexp.quote(rule))
+  when Array
+    return rule.any? { |r| match_rule(l,r) }
+  when Hash
+    rule.each do |host, r|
+      next if !$this_host.match(host)
+      return true if match_rule(l,r)
+    end
+  else
+    puts "ERROR. Unknown rule : #{rule}"
+  end
+  false
+end
+
+STDIN.each do |l|
+  skip = match_rule(l,ignore)
+  puts l if !skip
+end
