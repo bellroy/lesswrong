@@ -151,7 +151,22 @@
       <th>${_("Location")}</th>
       <td class="prefright">
         <input name="location" type="text" size="40" value="${c.user.pref_location}" />
-        ${error_field("LOCATION_TOO_LONG", kind="span")}
+        ${error_field("LOCATION_TOO_LONG", kind="p", cls="form-info-line")}
+        <%
+          lat = c.user.pref_latitude if c.user.pref_latitude is not None else ''
+          lng = c.user.pref_longitude if c.user.pref_longitude is not None else ''
+        %>
+        <input name="latitude" type="hidden" value="${lat}" />
+        <input name="longitude" type="hidden" value="${lng}" />
+        <p>
+          <label>
+            <input type="checkbox" name="meetup_notify_enabled"
+              ${'checked="checked"' if c.user.pref_meetup_notify_enabled else ''} />
+            Email me about meetups within
+          </label>
+          ${num_input(c.user.pref_meetup_notify_radius, 'meetup_notify_radius')}
+          km of me
+        </p>
       </td>
     </tr>
     <tr>
@@ -169,4 +184,12 @@
   </table>
    
   </form>
+  <script type="text/javascript">
+    makeGeocodedInputWidget({
+      prompt:    "Enter your location above",
+      input:     $$('input[name="location"]').first(),
+      latitude:  $$('input[name="latitude"]').first(),
+      longitude: $$('input[name="longitude"]').first()
+    });
+  </script>
 %endif

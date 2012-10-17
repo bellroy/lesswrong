@@ -19,7 +19,14 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from pylons import c
+
+from copy import copy
+import time, hashlib
+
+from geolocator import gislib
+from pylons import c, g
+from pylons.i18n import _
+
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
@@ -28,10 +35,6 @@ from r2.lib.utils        import randstr
 from r2.lib.strings      import strings, plurals
 from r2.lib.base         import current_login_cookie
 
-from pylons import g
-from pylons.i18n import _
-import time, hashlib
-from copy import copy
 
 class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
@@ -60,6 +63,10 @@ class Account(Thing):
                      pref_show_stylesheets = True,
                      pref_url = '',
                      pref_location = '',
+                     pref_latitude = None,
+                     pref_longitude = None,
+                     pref_meetup_notify_enabled = False,
+                     pref_meetup_notify_radius = 50,
                      pref_show_parent_comments = False,
                      reported = 0,
                      report_made = 0,
@@ -273,6 +280,16 @@ class Account(Thing):
     @property
     def draft_sr_name(self):
       return self.name + "-drafts"
+
+    @property
+    def coords(self):
+        if self.pref_latitude is not None and self.pref_longitude is not None:
+            return (self.pref_latitude, self.pref_longitude)
+        return None
+
+    def is_within_radius(self, coords, radius):
+        return self.coords is not None and \
+            gislib.getDistance(self.coords, coords) <= radius
 
     def recent_share_emails(self):
         return self.share.get('recent', set([]))

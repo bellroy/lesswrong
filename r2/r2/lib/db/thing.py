@@ -162,6 +162,17 @@ class DataThing(object):
         # always set the cache
         cache.set(thing_prefix(self.__class__.__name__, self._id), self)
 
+    def _delete_from_db(self):
+        """
+        Usually Things are soft-deleted, so this should be called rarely, and
+        only in cases where you're sure the Thing isn't referenced anywhere else.
+        """
+        if not self._created:
+            return
+
+        tdb.del_thing(self._type_id, self._id)
+        cache.delete(thing_prefix(self.__class__.__name__, self._id))
+
     @classmethod
     def _load_multi(cls, need):
         need = tup(need)
