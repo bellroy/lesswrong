@@ -201,10 +201,11 @@ ${self.RenderPrintable()}
    # figure out alterna-points
    score = this.score
    base_score = score - 1 if likes else score if likes is None else score + 1
-   base_score = [base_score + x for x in range(-1, 2)];
-
+   base_score = [base_score + x for x in range(-1, 2)]
+   tot_votes = this._ups + this._downs
+   pos_pct = '{0:.0%}'.format(tot_votes and float(this._ups) / tot_votes)
  %>
-  <${tag} class="votes ${_class}" ${_id}>
+  <${tag} class="votes ${_class}" ${_id} title="${pos_pct} positive">
     ${thing.score_fmt(this.score)}
   </${tag}>
   <script type="text/javascript">
