@@ -57,7 +57,8 @@ function set_score(id, dir, context) {
     var score = context ? jQuery(context).find("#score_" + id)[0] : $("score_" + id);
     if(score) {
         score.className = scorecls[dir+1];
-        score.innerHTML = label   [dir+1];
+        score.textContent = label[dir+1]['label'];
+        jQuery(score).qtip('option', 'content.text', label[dir+1]['hover']);
     }
 }
 
