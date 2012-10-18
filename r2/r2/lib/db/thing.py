@@ -455,6 +455,12 @@ class Thing(DataThing):
     def _confidence(self):
         return sorts.confidence(self._ups, self._downs)
 
+    def score_triplet(self, likes = None):
+        ups = self._ups - (likes == True)
+        downs = self._downs - (likes == False)
+        base = ups - downs
+        return [base - 1, base, base + 1]
+
     @classmethod
     def _build(cls, id, bases):
         return cls(bases.ups, bases.downs, bases.date,

@@ -199,9 +199,7 @@ ${self.RenderPrintable()}
    _id = ("id='score_%s'" % this._fullname) if _id else ""
 
    # figure out alterna-points
-   score = this.score
-   base_score = score - 1 if likes else score if likes is None else score + 1
-   base_score = [base_score + x for x in range(-1, 2)]
+   scores = this.score_triplet(likes)
    tot_votes = this._ups + this._downs
    pos_pct = '{0:.0%}'.format(tot_votes and float(this._ups) / tot_votes)
  %>
@@ -209,9 +207,7 @@ ${self.RenderPrintable()}
     ${thing.score_fmt(this.score)}
   </${tag}>
   <script type="text/javascript">
-    vl['${this._fullname}'] = ['${thing.score_fmt(base_score[0])}',
-                               '${thing.score_fmt(base_score[1])}',
-                               '${thing.score_fmt(base_score[2])}' ];
+    vl['${this._fullname}'] = ${json(map(thing.score_fmt, scores))};
   </script>
 </%def>
 
