@@ -108,14 +108,13 @@ class Vote(MultiRelation('vote',
 
             v._commit()
 
-            # Record that this account has made a downvote and
-            # immediately release the lock since both the downvote
-            # count and the vote have been updated.
+            # Record that this account has made a downvote.
             up_change, down_change = score_changes(amount, oldamount)
             if down_change:
                 sub.incr_downvote(down_change, kind)
 
-        # Continue by updating karmas.
+        # Release the lock since both the downvote count and the vote count
+        # have been updated, and then continue by updating karmas.
         update_score(obj, up_change, down_change,
                      v.valid_thing, old_valid_thing)
 
