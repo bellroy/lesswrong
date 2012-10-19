@@ -170,7 +170,7 @@ class Account(Thing):
 
         return karmas
 
-    def vote_cache_key(self, kind):
+    def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
 
@@ -187,12 +187,13 @@ class Account(Thing):
 
         def get_cached_downvotes(content_cls):
             kind = content_cls.__name__.lower()
-            downvotes = g.cache.get(self.vote_cache_key(kind))
+            cache_key = self.downvote_cache_key(kind)
+            downvotes = g.cache.get(cache_key)
             if downvotes is None:
                 vote_cls = Vote.rel(Account, content_cls)
                 downvotes = len(list(vote_cls._query(Vote.c._thing1_id == self._id,
                                                           Vote.c._name == str(-1))))
-                g.cache.set(self.vote_cache_key(kind), downvotes)
+                g.cache.set(cache_key, downvotes)
             return downvotes
 
         link_downvote_karma = get_cached_downvotes(Link) * c.current_or_default_sr.post_karma_multiplier
@@ -209,7 +210,7 @@ class Account(Thing):
     def incr_downvote(self, delta, kind):
         """kind is link or comment"""
         try:
-            g.cache.incr(self.vote_cache_key(kind), delta)
+            g.cache.incr(self.downvote_cache_key(kind), delta)
         except ValueError, e:
             print 'Account.incr_downvote failed with: %s' % e
 
