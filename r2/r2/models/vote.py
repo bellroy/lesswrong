@@ -120,7 +120,7 @@ class Vote(MultiRelation('vote',
 
         if v.valid_user:
             author = Account._byID(obj.author_id, data=True)
-            author.incr_karma(kind, sr, up_change - down_change)
+            author.incr_karma(kind, sr, up_change, down_change)
 
         #update the sr's valid vote count
         if is_new and v.valid_thing and kind == 'link':

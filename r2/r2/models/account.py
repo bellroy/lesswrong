@@ -109,7 +109,8 @@ class Account(Thing):
                 else:
                     return 0
 
-    def incr_karma(self, kind, sr, amt):
+    def incr_karma(self, kind, sr, amt_up, amt_down):
+        amt = amt_up - amt_down
         prop = '%s_%s_karma' % (sr.name, kind)
         if hasattr(self, prop):
             self._incr(prop, amt)
