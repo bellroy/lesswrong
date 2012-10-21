@@ -44,7 +44,7 @@ class Account(Thing):
                                                'report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
-    _int_prop_suffix = '_karma'
+    _int_prop_suffixes = ('_karma',)
     _defaults = dict(pref_numsites = 10,
                      pref_frame = False,
                      pref_newwindow = False,
