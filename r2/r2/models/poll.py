@@ -5,7 +5,7 @@ from pylons import c, g, request
 from r2.lib.db.thing import Thing, Relation, NotFound, MultiRelation, CreationError
 from account import Account
 from r2.lib.utils import to36, median
-from r2.lib.filters import safemarkdown
+from r2.lib.filters import safemarkdown, _force_unicode
 pages = None  # r2.lib.pages imported dynamically further down
 
 
@@ -90,7 +90,7 @@ def renderpolls(text, thing):
         except NotFound:
             return "Error: Poll not found!"
 
-    text = re.sub(pollid_re, checkmatch, text)
+    text = re.sub(pollid_re, checkmatch, _force_unicode(text))
 
     if polls_voted or polls_not_voted:
         voted_on_all = not polls_not_voted
