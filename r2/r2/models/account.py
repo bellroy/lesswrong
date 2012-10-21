@@ -143,34 +143,6 @@ class Account(Thing):
         from r2.lib.user_stats import cached_monthly_user_change
         return cached_monthly_user_change(self)
 
-    def all_karmas(self):
-        """returns a list of tuples in the form (name, link_karma,
-        comment_karma)"""
-        link_suffix = '_link_karma'
-        comment_suffix = '_comment_karma'
-        karmas = []
-        sr_names = set()
-        for k in self._t.keys():
-            if k.endswith(link_suffix):
-                sr_names.add(k[:-len(link_suffix)])
-            elif k.endswith(comment_suffix):
-                sr_names.add(k[:-len(comment_suffix)])
-        for sr_name in sr_names:
-            karmas.append((sr_name,
-                           self._t.get(sr_name + link_suffix, 0),
-                           self._t.get(sr_name + comment_suffix, 0)))
-        karmas.sort(key = lambda x: x[1] + x[2])
-
-        karmas.insert(0, ('total',
-                          self.karma('link'),
-                          self.karma('comment')))
-
-        karmas.append(('old',
-                       self._t.get('link_karma', 0),
-                       self._t.get('comment_karma', 0)))
-
-        return karmas
-
     def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
