@@ -65,4 +65,9 @@ end
 
 before 'deploy:update_code', 'git:ensure_pushed'
 after "deploy:update_code", "deploy:rake_after_update_code"
+after 'deploy:cleanup', :admin_message
+
+task :admin_message, :roles => :app, :only => :primary do
+  logger.info "\033[31mEnsure Alex_Altair's admin status remains\033[0m"
+end
 
