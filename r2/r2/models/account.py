@@ -117,10 +117,12 @@ class Account(Thing):
 
     def incr_karma(self, kind, sr, amt_up, amt_down):
         def do_incr(prop, amt):
-            if not hasattr(self, prop):
-                # Make sure prop exists, so we don't try to incr a missing value
-                setattr(self, prop, self.karma(kind, sr))
-            self._incr(prop, amt)
+            if hasattr(self, prop):
+                self._incr(prop, amt)
+            else:
+                assert self._loaded
+                setattr(self, prop, amt)
+                self._commit()
 
         if amt_up:
             do_incr('karma_ups_{0}_{1}'.format(kind, sr.name), amt_up)
