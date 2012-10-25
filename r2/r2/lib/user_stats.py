@@ -56,58 +56,40 @@ def subreddits_with_custom_karma_multiplier():
     return Subreddit._byID(sr_ids, True, return_dict = False)
 
 
+def karma_sr_weight_cases(table):
+    key = table.c.key
+    value_int = sa.cast(table.c.value, sa.Integer)
+    cases = []
+
+    for subreddit in subreddits_with_custom_karma_multiplier():
+        mult = subreddit.post_karma_multiplier
+        cases.append((key == subreddit.name + '_link_ups', value_int * mult))
+        cases.append((key == subreddit.name + '_link_downs', value_int * -mult))
+    cases.append((key.like('%_link_ups'), value_int * g.post_karma_multiplier))
+    cases.append((key.like('%_link_downs'), value_int * -g.post_karma_multiplier))
+    cases.append((key.like('%_ups'), value_int))
+    cases.append((key.like('%_downs'), value_int * -1))
+    return sa.case(cases, else_ = 0)
+
+
 def top_users():
     type = tdb.types_id[Account._type_id]
     tt, dt = type.thing_table, type.data_table[0]
 
     aliases = tdb.alias_generator()
-    karma = dt.alias(aliases.next())
-
-    cases = [
-        (karma.c.key.like('%_link_karma'),
-            sa.cast(karma.c.value, sa.Integer) * g.post_karma_multiplier)
-    ]
-
-    for subreddit in subreddits_with_custom_karma_multiplier():
-        key = "%s_link_karma" % subreddit.name
-        cases.insert(0, (karma.c.key == key,
-            sa.cast(karma.c.value, sa.Integer) * subreddit.post_karma_multiplier))
+    account_data = dt.alias(aliases.next())
 
     s = sa.select(
         [tt.c.thing_id],
         sa.and_(tt.c.spam == False,
               tt.c.deleted == False,
-              karma.c.thing_id == tt.c.thing_id,
-              karma.c.key.like('%_karma')),
+              account_data.c.thing_id == tt.c.thing_id),
         group_by = [tt.c.thing_id],
-        order_by = sa.desc(sa.func.sum(
-            sa.case(cases, else_ = sa.cast(karma.c.value, sa.Integer))
-        )),
-        limit = 10)
-    # Translation of query:
-    # SELECT
-    #  reddit_thing_account.thing_id
-    # FROM
-    #   reddit_thing_account,
-    #   reddit_data_account
-    # WHERE
-    #  (reddit_thing_account.spam = 'f' AND
-    #   reddit_thing_account.deleted = 'f' AND
-    #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
-    #   reddit_data_account.key LIKE '%_karma')
-    # GROUP BY
-    #   reddit_thing_account.thing_id
-    # ORDER BY
-    #  sum(
-    #    CASE
-    #      WHEN reddit_data_account.key = 'lesswrong_link_karma' THEN
-    #        CAST(reddit_data_account.value AS INTEGER) * 10
-    #      ELSE CAST(reddit_data_account.value AS INTEGER)
-    #    END
-    #  ) DESC
-    # LIMIT 10
+        order_by = sa.desc(sa.func.sum(karma_sr_weight_cases(account_data))),
+        limit = NUM_TOP_USERS)
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
+
 
 # Calculate the karma change for the given period and/or user
 # TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)

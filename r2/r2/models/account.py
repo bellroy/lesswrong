@@ -40,11 +40,10 @@ class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
-    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma', 'adjustment_karma',
-                                               'report_made', 'report_correct',
+    _data_int_props = Thing._data_int_props + ('report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
-    _int_prop_suffixes = ('_karma',)
+    _int_prop_suffixes = ('_ups', '_downs')
     _defaults = dict(pref_numsites = 10,
                      pref_frame = False,
                      pref_newwindow = False,
@@ -80,44 +79,53 @@ class Account(Thing):
                      )
 
     def karma(self, kind, sr = None):
-        from subreddit import Subreddit
-        suffix = '_' + kind + '_karma'
-        
-        #if no sr, return the sum
-        if sr is None:
-            total = 0
-            for k, v in self._t.iteritems():
-                if k.endswith(suffix):
-                    if kind == 'link':
-                        try:
-                            karma_sr_name = k[0:k.rfind(suffix)]
-                            karma_sr = Subreddit._by_name(karma_sr_name)
-                            multiplier = karma_sr.post_karma_multiplier
-                        except NotFound:
-                            multiplier = 1
-                    else:
-                        multiplier = 1
-                    total += v * multiplier
-            return total
-        else:
-            try:
-                return getattr(self, sr.name + suffix)
-            except AttributeError:
-                #if positive karma elsewhere, you get min_up_karma
-                if self.karma(kind) > 0:
-                    return g.MIN_UP_KARMA
-                else:
-                    return 0
+        # NOTE: There is a legacy inconsistency in this method. If no subreddit
+        # is specified, karma from all subreddits will be totaled, with each
+        # scaled according to its karma multiplier before being summed. But if
+        # a subreddit IS specified, the return value will NOT be scaled.
+
+        assert kind in ('link', 'comment', 'adjustment')
+
+        from subreddit import Subreddit  # prevent circular import
+
+        # If getting karma for a single sr, it's easy
+        if sr is not None:
+            ups = getattr(self, '{0}_{1}_ups'.format(sr.name, kind), 0)
+            downs = getattr(self, '{0}_{1}_downs'.format(sr.name, kind), 0)
+            return ups - downs
+
+        # Otherwise, loop through attributes and sum all karmas
+        total = 0
+        for k, v in self._t.iteritems():
+            for suf, mult in (('_' + kind + '_ups', 1), ('_' + kind + '_downs', -1)):
+                if k.endswith(suf):
+                    karma_sr_name = k[0:-len(suf)]
+                    multiplier = mult
+                    break
+            else:
+                continue
+
+            if kind == 'link':
+                try:
+                    karma_sr = Subreddit._by_name(karma_sr_name)
+                    multiplier *= karma_sr.post_karma_multiplier
+                except NotFound:
+                    pass
+            total += v * multiplier
+        return total
 
     def incr_karma(self, kind, sr, amt_up, amt_down):
-        amt = amt_up - amt_down
-        prop = '%s_%s_karma' % (sr.name, kind)
-        if hasattr(self, prop):
+        def do_incr(prop, amt):
+            if not hasattr(self, prop):
+                # Make sure prop exists, so we don't try to incr a missing value
+                setattr(self, prop, self.karma(kind, sr))
             self._incr(prop, amt)
-        else:
-            default_val = self.karma(kind, sr)
-            setattr(self, prop, default_val + amt)
-            self._commit()
+
+        if amt_up:
+            do_incr('{0}_{1}_ups'.format(sr.name, kind), amt_up)
+        if amt_down:
+            do_incr('{0}_{1}_downs'.format(sr.name, kind), amt_down)
+
         from r2.lib.user_stats import expire_user_change  # prevent circular import
         expire_user_change(self)
 
