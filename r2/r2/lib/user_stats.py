@@ -63,12 +63,12 @@ def karma_sr_weight_cases(table):
 
     for subreddit in subreddits_with_custom_karma_multiplier():
         mult = subreddit.post_karma_multiplier
-        cases.append((key == subreddit.name + '_link_ups', value_int * mult))
-        cases.append((key == subreddit.name + '_link_downs', value_int * -mult))
-    cases.append((key.like('%_link_ups'), value_int * g.post_karma_multiplier))
-    cases.append((key.like('%_link_downs'), value_int * -g.post_karma_multiplier))
-    cases.append((key.like('%_ups'), value_int))
-    cases.append((key.like('%_downs'), value_int * -1))
+        cases.append((key == 'karma_ups_link_' + subreddit.name, value_int * mult))
+        cases.append((key == 'karma_downs_link_' + subreddit.name, value_int * -mult))
+    cases.append((key.like('karma_ups_link_%'), value_int * g.post_karma_multiplier))
+    cases.append((key.like('karma_downs_link_%'), value_int * -g.post_karma_multiplier))
+    cases.append((key.like('karma_ups_%'), value_int))
+    cases.append((key.like('karma_downs_%'), value_int * -1))
     return sa.case(cases, else_ = 0)
 
 
@@ -82,8 +82,9 @@ def top_users():
     s = sa.select(
         [tt.c.thing_id],
         sa.and_(tt.c.spam == False,
-              tt.c.deleted == False,
-              account_data.c.thing_id == tt.c.thing_id),
+                tt.c.deleted == False,
+                account_data.c.thing_id == tt.c.thing_id,
+                account_data.c.key.like('karma_%')),
         group_by = [tt.c.thing_id],
         order_by = sa.desc(sa.func.sum(karma_sr_weight_cases(account_data))),
         limit = NUM_TOP_USERS)

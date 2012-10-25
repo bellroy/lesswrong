@@ -72,7 +72,7 @@ class DataThing(object):
     _base_props = ()
     _int_props = ()
     _data_int_props = ()
-    _int_prop_suffixes = ()
+    _int_prop_prefixes = ()
     _defaults = {}
     c = operators.Slots()
     __safe__ = False
@@ -202,7 +202,7 @@ class DataThing(object):
         #int props based on the suffix
         for i in need:
             for prop, val in i._t.iteritems():
-                if any(prop.endswith(s) for s in cls._int_prop_suffixes):
+                if any(prop.startswith(s) for s in cls._int_prop_prefixes):
                     to_save[pp(prop, i._id)] = val
 
         cache.set_multi(to_save, prefix)

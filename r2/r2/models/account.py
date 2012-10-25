@@ -43,7 +43,7 @@ class Account(Thing):
     _data_int_props = Thing._data_int_props + ('report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
-    _int_prop_suffixes = ('_ups', '_downs')
+    _int_prop_prefixes = ('karma_',)
     _defaults = dict(pref_numsites = 10,
                      pref_frame = False,
                      pref_newwindow = False,
@@ -90,16 +90,17 @@ class Account(Thing):
 
         # If getting karma for a single sr, it's easy
         if sr is not None:
-            ups = getattr(self, '{0}_{1}_ups'.format(sr.name, kind), 0)
-            downs = getattr(self, '{0}_{1}_downs'.format(sr.name, kind), 0)
+            ups = getattr(self, 'karma_ups_{0}_{1}'.format(kind, sr.name), 0)
+            downs = getattr(self, 'karma_downs_{0}_{1}'.format(kind, sr.name), 0)
             return ups - downs
 
         # Otherwise, loop through attributes and sum all karmas
         total = 0
         for k, v in self._t.iteritems():
-            for suf, mult in (('_' + kind + '_ups', 1), ('_' + kind + '_downs', -1)):
-                if k.endswith(suf):
-                    karma_sr_name = k[0:-len(suf)]
+            for pre, mult in (('karma_ups_' + kind + '_', 1),
+                              ('karma_downs_' + kind + '_', -1)):
+                if k.startswith(pre):
+                    karma_sr_name = k[len(pre):]
                     multiplier = mult
                     break
             else:
@@ -122,9 +123,9 @@ class Account(Thing):
             self._incr(prop, amt)
 
         if amt_up:
-            do_incr('{0}_{1}_ups'.format(sr.name, kind), amt_up)
+            do_incr('karma_ups_{0}_{1}'.format(kind, sr.name), amt_up)
         if amt_down:
-            do_incr('{0}_{1}_downs'.format(sr.name, kind), amt_down)
+            do_incr('karma_downs_{0}_{1}'.format(kind, sr.name), amt_down)
 
         from r2.lib.user_stats import expire_user_change  # prevent circular import
         expire_user_change(self)
