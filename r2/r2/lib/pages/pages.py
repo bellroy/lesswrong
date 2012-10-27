@@ -380,7 +380,8 @@ class TopMonthlyContributors(SpaceCompressedWrapped):
         # Add the monthly karma to the account objects
         karma_lookup = dict(uids_karma)
         for u in users:
-            u.monthly_karma = karma_lookup[u._id]
+            pair = karma_lookup[u._id]
+            u.monthly_karma = pair[0] - pair[1]
 
         # Filter out accounts banned from the default subreddit
         sr = Subreddit._by_name(g.default_sr)

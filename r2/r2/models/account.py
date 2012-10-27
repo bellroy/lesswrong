@@ -78,7 +78,7 @@ class Account(Thing):
                      share = {},
                      )
 
-    def karma(self, kind, sr = None):
+    def karma_ups_downs(self, kind, sr = None):
         # NOTE: There is a legacy inconsistency in this method. If no subreddit
         # is specified, karma from all subreddits will be totaled, with each
         # scaled according to its karma multiplier before being summed. But if
@@ -92,28 +92,33 @@ class Account(Thing):
         if sr is not None:
             ups = getattr(self, 'karma_ups_{0}_{1}'.format(kind, sr.name), 0)
             downs = getattr(self, 'karma_downs_{0}_{1}'.format(kind, sr.name), 0)
-            return ups - downs
+            return (ups, downs)
 
         # Otherwise, loop through attributes and sum all karmas
-        total = 0
+        totals = [0, 0]
         for k, v in self._t.iteritems():
-            for pre, mult in (('karma_ups_' + kind + '_', 1),
-                              ('karma_downs_' + kind + '_', -1)):
+            for pre, idx in (('karma_ups_' + kind + '_', 0),
+                              ('karma_downs_' + kind + '_', 1)):
                 if k.startswith(pre):
                     karma_sr_name = k[len(pre):]
-                    multiplier = mult
+                    index = idx
                     break
             else:
                 continue
 
+            multiplier = 1
             if kind == 'link':
                 try:
                     karma_sr = Subreddit._by_name(karma_sr_name)
-                    multiplier *= karma_sr.post_karma_multiplier
+                    multiplier = karma_sr.post_karma_multiplier
                 except NotFound:
                     pass
-            total += v * multiplier
-        return total
+            totals[index] += v * multiplier
+        return tuple(totals)
+
+    def karma(self, *args):
+        ud = self.karma_ups_downs(*args)
+        return ud[0] - ud[1]
 
     def incr_karma(self, kind, sr, amt_up, amt_down):
         def do_incr(prop, amt):
@@ -145,14 +150,25 @@ class Account(Thing):
         return self.karma('adjustment')
 
     @property
+    def safe_karma_ups_downs(self):
+        karmas = [self.karma_ups_downs(kind) for kind in 'link', 'comment', 'adjustment']
+        return tuple(map(sum, zip(*karmas)))
+
+    @property
     def safe_karma(self):
-        karma = self.link_karma + self.comment_karma + self.adjustment_karma
+        pair = self.safe_karma_ups_downs
+        karma = pair[0] - pair[1]
         return max(karma, 0) if karma > -1000 else karma
 
     @property
-    def monthly_karma(self):
+    def monthly_karma_ups_downs(self):
         from r2.lib.user_stats import cached_monthly_user_change
         return cached_monthly_user_change(self)
+
+    @property
+    def monthly_karma(self):
+        ret = self.monthly_karma_ups_downs
+        return ret[0] - ret[1]
 
     def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
