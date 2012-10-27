@@ -139,7 +139,7 @@ def user_vote_change_links(period=None, user=None):
                     link_dt.c.thing_id == rt.c.thing2_id)
     if period is not None:
         earliest = datetime.now(g.tz) - timedelta(0, period)
-        query.clauses.extend((rt.c.date >= earliest, link_tt.c.date >= earliest))
+        query.clauses.append(rt.c.date >= earliest)
     if user is not None:
         query.clauses.append(author_dt.c.value == str(user._id))
 
@@ -171,7 +171,7 @@ def user_vote_change_comments(period=None, user=None):
                     comment_tt.c.thing_id == rt.c.thing2_id)
     if period is not None:
         earliest = datetime.now(g.tz) - timedelta(0, period)
-        query.clauses.extend((rt.c.date >= earliest, comment_tt.c.date >= earliest))
+        query.clauses.append(rt.c.date >= earliest)
     if user is not None:
         query.clauses.append(author_dt.c.value == str(user._id))
 
