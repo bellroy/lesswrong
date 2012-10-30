@@ -200,12 +200,15 @@ class Score(object):
     @staticmethod
     def number_only(pair):
         total = pair[0] - pair[1]
-        return {'label': max(total, 0), 'hover': ''}
+        return {'label': str(max(total, 0)), 'hover': ''}
 
     @staticmethod
     def signed_number(pair):
         total = pair[0] - pair[1]
-        return {'label': total, 'hover': ''}
+        return {
+            'label': str(total),
+            'hover': '{0:.0%} positive'.format(sum(pair) and float(pair[0]) / sum(pair)),
+        }
 
     @staticmethod
     def points(pair):
