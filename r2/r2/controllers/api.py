@@ -661,8 +661,9 @@ class ApiController(RedditController):
         # now that all inputs are verified, we can begin performing destructive updates:
 
         if adjust_karma:
+            assert adjust_karma < 0  # If not, need to fix the call to incr_karma
             KarmaAdjustment.store(c.user, sr, adjust_karma)
-            c.user.incr_karma('adjustment', sr, adjust_karma)
+            c.user.incr_karma('adjustment', sr, 0, -adjust_karma)
 
         spam = (c.user._spam or
                 errors.BANNED_IP in c.errors)

@@ -56,67 +56,51 @@ def subreddits_with_custom_karma_multiplier():
     return Subreddit._byID(sr_ids, True, return_dict = False)
 
 
+def karma_sr_weight_cases(table):
+    key = table.c.key
+    value_int = sa.cast(table.c.value, sa.Integer)
+    cases = []
+
+    for subreddit in subreddits_with_custom_karma_multiplier():
+        mult = subreddit.post_karma_multiplier
+        cases.append((key == 'karma_ups_link_' + subreddit.name, value_int * mult))
+        cases.append((key == 'karma_downs_link_' + subreddit.name, value_int * -mult))
+    cases.append((key.like('karma_ups_link_%'), value_int * g.post_karma_multiplier))
+    cases.append((key.like('karma_downs_link_%'), value_int * -g.post_karma_multiplier))
+    cases.append((key.like('karma_ups_%'), value_int))
+    cases.append((key.like('karma_downs_%'), value_int * -1))
+    return sa.case(cases, else_ = 0)
+
+
 def top_users():
     type = tdb.types_id[Account._type_id]
     tt, dt = type.thing_table, type.data_table[0]
 
     aliases = tdb.alias_generator()
-    karma = dt.alias(aliases.next())
-
-    cases = [
-        (karma.c.key.like('%_link_karma'),
-            sa.cast(karma.c.value, sa.Integer) * g.post_karma_multiplier)
-    ]
-
-    for subreddit in subreddits_with_custom_karma_multiplier():
-        key = "%s_link_karma" % subreddit.name
-        cases.insert(0, (karma.c.key == key,
-            sa.cast(karma.c.value, sa.Integer) * subreddit.post_karma_multiplier))
+    account_data = dt.alias(aliases.next())
 
     s = sa.select(
         [tt.c.thing_id],
         sa.and_(tt.c.spam == False,
-              tt.c.deleted == False,
-              karma.c.thing_id == tt.c.thing_id,
-              karma.c.key.like('%_karma')),
+                tt.c.deleted == False,
+                account_data.c.thing_id == tt.c.thing_id,
+                account_data.c.key.like('karma_%')),
         group_by = [tt.c.thing_id],
-        order_by = sa.desc(sa.func.sum(
-            sa.case(cases, else_ = sa.cast(karma.c.value, sa.Integer))
-        )),
-        limit = 10)
-    # Translation of query:
-    # SELECT
-    #  reddit_thing_account.thing_id
-    # FROM
-    #   reddit_thing_account,
-    #   reddit_data_account
-    # WHERE
-    #  (reddit_thing_account.spam = 'f' AND
-    #   reddit_thing_account.deleted = 'f' AND
-    #   reddit_thing_account.thing_id = reddit_data_account.thing_id AND
-    #   reddit_data_account.key LIKE '%_karma')
-    # GROUP BY
-    #   reddit_thing_account.thing_id
-    # ORDER BY
-    #  sum(
-    #    CASE
-    #      WHEN reddit_data_account.key = 'lesswrong_link_karma' THEN
-    #        CAST(reddit_data_account.value AS INTEGER) * 10
-    #      ELSE CAST(reddit_data_account.value AS INTEGER)
-    #    END
-    #  ) DESC
-    # LIMIT 10
+        order_by = sa.desc(sa.func.sum(karma_sr_weight_cases(account_data))),
+        limit = NUM_TOP_USERS)
     rows = s.execute().fetchall()
     return [r.thing_id for r in rows]
+
 
 # Calculate the karma change for the given period and/or user
 # TODO:  handle deleted users, spam articles and deleted articles, (and deleted comments?)
 def all_user_change(*args, **kwargs):
-    ret = defaultdict(int)
+    ret = defaultdict(lambda: (0, 0))
 
     for meth in user_vote_change_links, user_vote_change_comments, user_karma_adjustments:
         for aid, karma in meth(*args, **kwargs):
-            ret[aid] += karma
+            karma_old = ret[aid]
+            ret[aid] = (karma_old[0] + karma[0], karma_old[1] + karma[1])
 
     return ret
 
@@ -139,6 +123,14 @@ def user_vote_change_links(period=None, user=None):
         cases.append( (sa.cast(link_dt.c.value,sa.Integer) == subreddit._id,
                       subreddit.post_karma_multiplier) )
     cases.append( (True, g.post_karma_multiplier) )       # The default article multiplier
+    weight_cases = sa.case(cases)
+
+    amount = sa.cast(rt.c.name, sa.Integer)
+    cols = [
+        author_dt.c.value,
+        sa.func.sum(sa.case([(amount > 0, amount * weight_cases)], else_=0)),
+        sa.func.sum(sa.case([(amount < 0, amount * -1 * weight_cases)], else_=0)),
+    ]
 
     query = sa.and_(author_dt.c.thing_id == rt.c.rel_id,
                     author_dt.c.key == 'author_id',
@@ -147,15 +139,14 @@ def user_vote_change_links(period=None, user=None):
                     link_dt.c.thing_id == rt.c.thing2_id)
     if period is not None:
         earliest = datetime.now(g.tz) - timedelta(0, period)
-        query.clauses.extend((rt.c.date >= earliest, link_tt.c.date >= earliest))
+        query.clauses.append(rt.c.date >= earliest)
     if user is not None:
         query.clauses.append(author_dt.c.value == str(user._id))
 
-    s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer) * sa.case(cases))],
-                  query, group_by=author_dt.c.value)
+    s = sa.select(cols, query, group_by=author_dt.c.value)
 
     rows = s.execute().fetchall()
-    return [(int(r.value), r.sum) for r in rows]
+    return [(int(r[0]), (r[1], r[2])) for r in rows]
 
 
 def user_vote_change_comments(period=None, user=None):
@@ -168,20 +159,26 @@ def user_vote_change_comments(period=None, user=None):
     aliases = tdb.alias_generator()
     author_dt = dt.alias(aliases.next())
 
+    amount = sa.cast(rt.c.name, sa.Integer)
+    cols = [
+        author_dt.c.value,
+        sa.func.sum(sa.case([(amount > 0, amount)], else_=0)),
+        sa.func.sum(sa.case([(amount < 0, amount * -1)], else_=0)),
+    ]
+
     query = sa.and_(author_dt.c.thing_id == rt.c.rel_id,
                     author_dt.c.key == 'author_id',
                     comment_tt.c.thing_id == rt.c.thing2_id)
     if period is not None:
         earliest = datetime.now(g.tz) - timedelta(0, period)
-        query.clauses.extend((rt.c.date >= earliest, comment_tt.c.date >= earliest))
+        query.clauses.append(rt.c.date >= earliest)
     if user is not None:
         query.clauses.append(author_dt.c.value == str(user._id))
 
-    s = sa.select([author_dt.c.value, sa.func.sum(sa.cast(rt.c.name, sa.Integer))],
-                  query, group_by=author_dt.c.value)
+    s = sa.select(cols, query, group_by=author_dt.c.value)
 
     rows = s.execute().fetchall()
-    return [(int(r.value), r.sum) for r in rows]
+    return [(int(r[0]), (r[1], r[2])) for r in rows]
 
 
 def user_karma_adjustments(period=None, user=None):
@@ -193,6 +190,13 @@ def user_karma_adjustments(period=None, user=None):
     aliases = tdb.alias_generator()
     adj_data_2 = adj_data.alias(aliases.next())
 
+    amount = sa.cast(adj_data_2.c.value, sa.Integer)
+    cols = [
+        adj_data.c.value,
+        sa.func.sum(sa.case([(amount > 0, amount)], else_=0)),
+        sa.func.sum(sa.case([(amount < 0, amount * -1)], else_=0)),
+    ]
+
     query = sa.and_(adj_data.c.thing_id == adj_thing.c.thing_id,
                     adj_data.c.key == 'account_id',
                     adj_data.c.thing_id == adj_data_2.c.thing_id,
@@ -203,15 +207,14 @@ def user_karma_adjustments(period=None, user=None):
     if user is not None:
         query.clauses.append(adj_data.c.value == str(user._id))
 
-    s = sa.select([adj_data.c.value, sa.func.sum(sa.cast(adj_data_2.c.value, sa.Integer))],
-                  query, group_by=adj_data.c.value)
+    s = sa.select(cols, query, group_by=adj_data.c.value)
 
     rows = s.execute().fetchall()
-    return [(int(r.value), r.sum) for r in rows]
+    return [(int(r[0]), (r[1], r[2])) for r in rows]
 
 
 def cache_key_user_karma(user, period):
-    return 'account_{0}_karma_past_{1}'.format(user._id, period)
+    return 'account_{0}_karma_past_{1}_v2'.format(user._id, period)
 
 
 def cached_monthly_user_change(user):
@@ -230,16 +233,15 @@ def expire_user_change(user):
 
 
 def cached_monthly_top_users():
-    key = 'top_{0}_account_monthly_karma'.format(NUM_TOP_USERS)
+    key = 'top_{0}_account_monthly_karma_v2'.format(NUM_TOP_USERS)
     ret = cache.get(key)
     if ret is not None:
         return ret
 
     start_time = time.time()
     ret = list(all_user_change(period=SECONDS_PER_MONTH).iteritems())
-    ret.sort(key=lambda pair: -pair[1])
+    ret.sort(key=lambda pair: -(pair[1][0] - pair[1][1]))  # karma, highest to lowest
     ret = ret[0:NUM_TOP_USERS]
     cache.set(key, ret, CACHE_EXPIRY)
     g.log.info("Calculate monthly_top_users took : %.2fs"%(time.time()-start_time))
     return ret
-

@@ -40,11 +40,10 @@ class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
-    _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma', 'adjustment_karma',
-                                               'report_made', 'report_correct',
+    _data_int_props = Thing._data_int_props + ('report_made', 'report_correct',
                                                'report_ignored', 'spammer',
                                                'reported')
-    _int_prop_suffix = '_karma'
+    _int_prop_prefixes = ('karma_',)
     _defaults = dict(pref_numsites = 10,
                      pref_frame = False,
                      pref_newwindow = False,
@@ -79,44 +78,62 @@ class Account(Thing):
                      share = {},
                      )
 
-    def karma(self, kind, sr = None):
-        from subreddit import Subreddit
-        suffix = '_' + kind + '_karma'
-        
-        #if no sr, return the sum
-        if sr is None:
-            total = 0
-            for k, v in self._t.iteritems():
-                if k.endswith(suffix):
-                    if kind == 'link':
-                        try:
-                            karma_sr_name = k[0:k.rfind(suffix)]
-                            karma_sr = Subreddit._by_name(karma_sr_name)
-                            multiplier = karma_sr.post_karma_multiplier
-                        except NotFound:
-                            multiplier = 1
-                    else:
-                        multiplier = 1
-                    total += v * multiplier
-            return total
-        else:
-            try:
-                return getattr(self, sr.name + suffix)
-            except AttributeError:
-                #if positive karma elsewhere, you get min_up_karma
-                if self.karma(kind) > 0:
-                    return g.MIN_UP_KARMA
-                else:
-                    return 0
+    def karma_ups_downs(self, kind, sr = None):
+        # NOTE: There is a legacy inconsistency in this method. If no subreddit
+        # is specified, karma from all subreddits will be totaled, with each
+        # scaled according to its karma multiplier before being summed. But if
+        # a subreddit IS specified, the return value will NOT be scaled.
 
-    def incr_karma(self, kind, sr, amt):
-        prop = '%s_%s_karma' % (sr.name, kind)
-        if hasattr(self, prop):
-            self._incr(prop, amt)
-        else:
-            default_val = self.karma(kind, sr)
-            setattr(self, prop, default_val + amt)
-            self._commit()
+        assert kind in ('link', 'comment', 'adjustment')
+
+        from subreddit import Subreddit  # prevent circular import
+
+        # If getting karma for a single sr, it's easy
+        if sr is not None:
+            ups = getattr(self, 'karma_ups_{0}_{1}'.format(kind, sr.name), 0)
+            downs = getattr(self, 'karma_downs_{0}_{1}'.format(kind, sr.name), 0)
+            return (ups, downs)
+
+        # Otherwise, loop through attributes and sum all karmas
+        totals = [0, 0]
+        for k, v in self._t.iteritems():
+            for pre, idx in (('karma_ups_' + kind + '_', 0),
+                              ('karma_downs_' + kind + '_', 1)):
+                if k.startswith(pre):
+                    karma_sr_name = k[len(pre):]
+                    index = idx
+                    break
+            else:
+                continue
+
+            multiplier = 1
+            if kind == 'link':
+                try:
+                    karma_sr = Subreddit._by_name(karma_sr_name)
+                    multiplier = karma_sr.post_karma_multiplier
+                except NotFound:
+                    pass
+            totals[index] += v * multiplier
+        return tuple(totals)
+
+    def karma(self, *args):
+        ud = self.karma_ups_downs(*args)
+        return ud[0] - ud[1]
+
+    def incr_karma(self, kind, sr, amt_up, amt_down):
+        def do_incr(prop, amt):
+            if hasattr(self, prop):
+                self._incr(prop, amt)
+            else:
+                assert self._loaded
+                setattr(self, prop, amt)
+                self._commit()
+
+        if amt_up:
+            do_incr('karma_ups_{0}_{1}'.format(kind, sr.name), amt_up)
+        if amt_down:
+            do_incr('karma_downs_{0}_{1}'.format(kind, sr.name), amt_down)
+
         from r2.lib.user_stats import expire_user_change  # prevent circular import
         expire_user_change(self)
 
@@ -133,44 +150,27 @@ class Account(Thing):
         return self.karma('adjustment')
 
     @property
+    def safe_karma_ups_downs(self):
+        karmas = [self.karma_ups_downs(kind) for kind in 'link', 'comment', 'adjustment']
+        return tuple(map(sum, zip(*karmas)))
+
+    @property
     def safe_karma(self):
-        karma = self.link_karma + self.comment_karma + self.adjustment_karma
+        pair = self.safe_karma_ups_downs
+        karma = pair[0] - pair[1]
         return max(karma, 0) if karma > -1000 else karma
 
     @property
-    def monthly_karma(self):
+    def monthly_karma_ups_downs(self):
         from r2.lib.user_stats import cached_monthly_user_change
         return cached_monthly_user_change(self)
 
-    def all_karmas(self):
-        """returns a list of tuples in the form (name, link_karma,
-        comment_karma)"""
-        link_suffix = '_link_karma'
-        comment_suffix = '_comment_karma'
-        karmas = []
-        sr_names = set()
-        for k in self._t.keys():
-            if k.endswith(link_suffix):
-                sr_names.add(k[:-len(link_suffix)])
-            elif k.endswith(comment_suffix):
-                sr_names.add(k[:-len(comment_suffix)])
-        for sr_name in sr_names:
-            karmas.append((sr_name,
-                           self._t.get(sr_name + link_suffix, 0),
-                           self._t.get(sr_name + comment_suffix, 0)))
-        karmas.sort(key = lambda x: x[1] + x[2])
+    @property
+    def monthly_karma(self):
+        ret = self.monthly_karma_ups_downs
+        return ret[0] - ret[1]
 
-        karmas.insert(0, ('total',
-                          self.karma('link'),
-                          self.karma('comment')))
-
-        karmas.append(('old',
-                       self._t.get('link_karma', 0),
-                       self._t.get('comment_karma', 0)))
-
-        return karmas
-
-    def vote_cache_key(self, kind):
+    def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
 
@@ -187,12 +187,13 @@ class Account(Thing):
 
         def get_cached_downvotes(content_cls):
             kind = content_cls.__name__.lower()
-            downvotes = g.cache.get(self.vote_cache_key(kind))
+            cache_key = self.downvote_cache_key(kind)
+            downvotes = g.cache.get(cache_key)
             if downvotes is None:
                 vote_cls = Vote.rel(Account, content_cls)
                 downvotes = len(list(vote_cls._query(Vote.c._thing1_id == self._id,
                                                           Vote.c._name == str(-1))))
-                g.cache.set(self.vote_cache_key(kind), downvotes)
+                g.cache.set(cache_key, downvotes)
             return downvotes
 
         link_downvote_karma = get_cached_downvotes(Link) * c.current_or_default_sr.post_karma_multiplier
@@ -209,7 +210,7 @@ class Account(Thing):
     def incr_downvote(self, delta, kind):
         """kind is link or comment"""
         try:
-            g.cache.incr(self.vote_cache_key(kind), delta)
+            g.cache.incr(self.downvote_cache_key(kind), delta)
         except ValueError, e:
             print 'Account.incr_downvote failed with: %s' % e
 
