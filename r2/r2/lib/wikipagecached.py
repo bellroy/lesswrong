@@ -1,12 +1,14 @@
-
 from pylons import g
+from r2.lib.db.thing import Thing
 from r2.lib.pages import *
 from r2.lib.filters import remove_control_chars
+from r2.models.printable import Printable
 from pylons.i18n import _, ungettext
 from urllib2 import Request, HTTPError, URLError, urlopen
 from urlparse import urlsplit,urlunsplit
 from lxml.html import soupparser
 from lxml.etree import tostring
+import cgi
 from datetime import datetime
 
 log = g.log
@@ -98,3 +100,29 @@ class WikiPageCached:
         log.debug('invalidated: %s' % self.config['url'])
 
 
+class WikiPageThing(Thing, Printable):
+    """
+    Wiki pages are not Things. But sometimes we pretend they are, to make
+    rendering more straightforward.
+    """
+
+    _nodb = True
+    # These values have no real effect, but the attributes need to exist
+    # in order for this class to successfully masquerade as a Thing.
+    _type_name = 'wikipagething'
+    _type_id = 0xdeadc0de
+    _id = 0xbaddf00d
+
+    def __init__(self, config):
+        Thing.__init__(self)
+        Printable.__init__(self)
+        self.config = config
+        self.wikipage = WikiPageCached(config)
+
+    @staticmethod
+    def cache_key(wrapped):
+        return False
+
+    @property
+    def html(self):
+        return self.wikipage.page['content']
