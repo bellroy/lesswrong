@@ -56,11 +56,8 @@ class ThingJsonTemplate(JsonTemplate):
     __data_attrs__ = dict()
     
     def points(self, wrapped):
-        score = wrapped.score
-        likes = wrapped.likes
-        base_score = score-1 if likes else score if likes is None else score+1
-        base_score = [base_score + x for x in range(-1, 2)]
-        return [wrapped.score_fmt(s) for s in base_score]
+        scores = wrapped.score_triplet(wrapped.likes)
+        return map(wrapped.score_fmt, scores)
         
     
     def kind(self, wrapped):

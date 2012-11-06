@@ -40,7 +40,7 @@
   <description>
     <%
       domain = get_domain(cname = c.cname, subreddit = False)
-      votes = thing.score_fmt(thing.score)
+      votes = thing.score_fmt(thing.score)['label']
       votes_lbl = ungettext("vote", "votes", votes)
     %>
     Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;

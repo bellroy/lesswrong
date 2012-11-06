@@ -72,7 +72,7 @@ class DataThing(object):
     _base_props = ()
     _int_props = ()
     _data_int_props = ()
-    _int_prop_suffix = None
+    _int_prop_prefixes = ()
     _defaults = {}
     c = operators.Slots()
     __safe__ = False
@@ -202,7 +202,7 @@ class DataThing(object):
         #int props based on the suffix
         for i in need:
             for prop, val in i._t.iteritems():
-                if cls._int_prop_suffix and prop.endswith(cls._int_prop_suffix):
+                if any(prop.startswith(s) for s in cls._int_prop_prefixes):
                     to_save[pp(prop, i._id)] = val
 
         cache.set_multi(to_save, prefix)
@@ -454,6 +454,11 @@ class Thing(DataThing):
     @property
     def _confidence(self):
         return sorts.confidence(self._ups, self._downs)
+
+    def score_triplet(self, likes = None):
+        u = self._ups - (likes == True)
+        d = self._downs - (likes == False)
+        return [(u, d + 1), (u, d), (u + 1, d)]
 
     @classmethod
     def _build(cls, id, bases):

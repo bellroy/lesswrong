@@ -198,29 +198,46 @@ class Score(object):
     """Convienience class for populating '10 points' in a traslatible
     fasion, used primarily by the score() method in printable.html"""
     @staticmethod
-    def number_only(x):
-        return max(x, 0)
+    def number_only(pair):
+        total = pair[0] - pair[1]
+        return {'label': str(max(total, 0)), 'hover': ''}
 
     @staticmethod
-    def signed_number(x):
-        return x
+    def signed_number(pair):
+        total = pair[0] - pair[1]
+        return {
+            'label': str(total),
+            'hover': '{0:.0%} positive'.format(sum(pair) and float(pair[0]) / sum(pair)),
+        }
 
     @staticmethod
-    def points(x):
-        return  strings.number_label % (x, plurals.N_points(x))
+    def points(pair):
+        total = pair[0] - pair[1]
+        return {
+            'label': strings.number_label % (total, plurals.N_points(total)),
+            'hover': '{0:.0%} positive'.format(sum(pair) and float(pair[0]) / sum(pair)),
+        }
 
     @staticmethod
-    def safepoints(x):
-        return  strings.number_label % (max(x,0), plurals.N_points(x))
+    def safepoints(pair):
+        total = pair[0] - pair[1]
+        return {
+            'label': strings.number_label % (max(total, 0), plurals.N_points(total)),
+            'hover': '',
+        }
 
     @staticmethod
-    def subscribers(x):
-        return  strings.person_label % \
-            dict(num = x, persons = plurals.N_subscribers(x))
+    def subscribers(pair):
+        total = pair[0] - pair[1]
+        return {
+            'label': strings.person_label % {'num': total,
+                                             'persons': plurals.N_subscribers(total)},
+            'hover': '',
+        }
 
     @staticmethod
-    def none(x):
-        return ""
+    def none(pair):
+        return {'label': '', 'hover': ''}
 
 
 def fallback_trans(x):
