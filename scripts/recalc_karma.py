@@ -8,6 +8,9 @@ of totals, to keeping track of up- and down-votes independently.
 
 from collections import defaultdict
 
+from sqlalchemy import func, select
+
+from r2.lib.db import tdb_sql
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Comment, KarmaAdjustment, Link, Subreddit, Vote
 
@@ -36,15 +39,14 @@ class KarmaCalc:
     def migrate_scan_adjustments(self):
         adjs = KarmaAdjustment._query(data=True)
         for adj in adjs:
-            sr = Subreddit._byID(adj.sr_id)
+            sr = Subreddit._byID(adj.sr_id, data=True)
             gravity = 'ups' if adj.amount >= 0 else 'downs'
             key = 'karma_{0}_adjustment_{1}'.format(gravity, sr.name)
             self.new_values[adj.account_id][key] += abs(adj.amount)
 
     def vote_scan(self, cls2, karma_kind, mult_func):
         rel = Vote.rel(Account, cls2)
-        votes = list(rel._query())
-        for vote in votes:
+        for vote in self.batch_query_rel_all(rel):
             thing = cls2._byID(vote._thing2_id, data=True)
             sr = thing.subreddit_slow
             mult = 1  #mult_func(thing)
@@ -52,6 +54,20 @@ class KarmaCalc:
             gravity = 'ups' if amt >= 0 else 'downs'
             key = 'karma_{0}_{1}_{2}'.format(gravity, karma_kind, sr.name)
             self.new_values[thing.author_id][key] += abs(amt * mult)
+
+    def batch_query_rel_all(self, rel):
+        max_id = self.max_rel_type_id(rel)
+        for id_low in xrange(max_id + 1):
+            try:
+                yield rel._byID(id_low, data=True)
+            except NotFound:
+                pass  # must be deleted or somesuch
+
+    def max_rel_type_id(self, rel_thing):
+        thing_type = tdb_sql.rel_types_id[rel_thing._type_id]
+        thing_tbl = thing_type.rel_table[0]
+        rows = select([func.max(thing_tbl.c.rel_id)]).execute().fetchall()
+        return rows[0][0]
 
     def commit(self):
         for account_id, pairs in self.new_values.iteritems():
