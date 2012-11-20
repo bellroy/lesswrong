@@ -59,6 +59,8 @@ class KarmaCalc:
         max_id = self.max_rel_type_id(rel)
         for id_low in xrange(max_id + 1):
             try:
+                if id_low % 1000 == 0:
+                    print("%s %d of %d" % (rel._type_name, id_low, max_id))
                 yield rel._byID(id_low, data=True)
             except NotFound:
                 pass  # must be deleted or somesuch
