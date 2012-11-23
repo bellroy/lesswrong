@@ -33,11 +33,13 @@ def fetch(url):
 def getParsedContent(str, elementid):
     parsed = soupparser.fromstring(remove_control_chars(str))
     try:
-        elem=parsed.get_element_by_id(elementid)
-        elem.set('id','wiki-content')
-        return elem
+        elem = parsed.get_element_by_id(elementid)
     except KeyError:
         return parsed
+    else:
+        elem.attrib.pop('id')
+        elem.set('class','wiki-content')
+        return elem
 
 class WikiPageCached:
     def __init__(self, config):
