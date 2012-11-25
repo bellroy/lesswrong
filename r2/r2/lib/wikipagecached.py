@@ -4,7 +4,7 @@ from r2.lib.pages import *
 from r2.lib.filters import remove_control_chars
 from r2.models.printable import Printable
 from pylons.i18n import _, ungettext
-from urllib2 import Request, HTTPError, URLError, urlopen
+from urllib2 import Request, HTTPError, URLError, quote, urlopen
 from urlparse import urlsplit,urlunsplit
 from lxml.html import soupparser
 from lxml.etree import tostring
@@ -45,6 +45,12 @@ class WikiPageCached:
     def __init__(self, config):
         self.config = config
         self._page = None
+        self._error = False
+
+    @classmethod
+    def get_url_for_user_page(cls, user):
+        page = 'User:' + quote(user.name)
+        return 'http://wiki.lesswrong.com/wiki/' + page
 
     def getPage(self):
         url=self.config['url']
@@ -74,6 +80,7 @@ class WikiPageCached:
                 g.rendercache.set(url, (content,title,etag), cache_time())
             except Exception as e:
                 log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
+                self._error = True
                 content = missing_content()
 
         return {
@@ -87,6 +94,11 @@ class WikiPageCached:
         if self._page is None:
             self._page = self.getPage()
         return self._page
+
+    @property
+    def success(self):
+        _ = self.page
+        return not self._error
 
     def content(self):
         return self.page['content']
@@ -128,3 +140,7 @@ class WikiPageThing(Thing, Printable):
     @property
     def html(self):
         return self.wikipage.page['content']
+
+    @property
+    def success(self):
+        return self.wikipage.success

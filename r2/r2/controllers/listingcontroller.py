@@ -511,8 +511,7 @@ class UserController(ListingController):
         q = None
 
         if self.where == 'profile':
-            page = 'User:' + urllib.quote(self.vuser.name)
-            q = {'url': 'http://wiki.lesswrong.com/wiki/' + page}
+            q = object  # dummy value
 
         if self.where == 'overview':
             self.check_modified(self.vuser, 'overview')
@@ -549,10 +548,18 @@ class UserController(ListingController):
 
     def builder(self):
         if self.where == 'profile':
-            q = [WikiPageThing(self.query_obj)]
-            return PrecomputedBuilder(q)
+            return PrecomputedBuilder([self.wikipage])
         else:
             return ListingController.builder(self)
+
+    def check_wiki_maybe_redirect_url(self):
+        # If the user has a wiki page, show it. Otherwise, redirect to the
+        # overview page so people aren't greeted with an error message when
+        # clicking on a username.
+        config = {'url': WikiPageCached.get_url_for_user_page(self.vuser)}
+        self.wikipage = WikiPageThing(config)
+        if not self.wikipage.success:
+            return '/user/{0}/overview/'.format(urllib.quote(self.vuser.name))
 
     @staticmethod
     def builder_wrapper(thing):
@@ -563,6 +570,9 @@ class UserController(ListingController):
     @validate(vuser = VExistingUname('username'))
     def GET_listing(self, where, vuser, **env):
         self.where = where
+        self.vuser = vuser
+        self.render_params = {'user' : vuser}
+        c.profilepage = True
 
         # the validator will ensure that vuser is a valid account
         if not vuser:
@@ -584,9 +594,10 @@ class UserController(ListingController):
 
         check_cheating('user')
 
-        self.vuser = vuser
-        self.render_params = {'user' : vuser}
-        c.profilepage = True
+        if where == 'profile':
+            url = self.check_wiki_maybe_redirect_url()
+            if url is not None:
+                return self.redirect(url, 303)
 
         return ListingController.GET_listing(self, **env)
 
