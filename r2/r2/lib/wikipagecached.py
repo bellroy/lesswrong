@@ -8,7 +8,6 @@ from urllib2 import Request, HTTPError, URLError, quote, urlopen
 from urlparse import urlsplit,urlunsplit
 from lxml.html import soupparser
 from lxml.etree import tostring
-import cgi
 from datetime import datetime
 
 log = g.log
