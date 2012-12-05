@@ -684,7 +684,15 @@ class ProfilePage(Reddit):
 
     def header_nav(self):
         path = "/user/%s/" % self.user.name
-        main_buttons = [NavButton(menu.overview, '/', aliases = ['/overview']),
+        main_buttons = []
+
+        # Only show the profile link if this user has a user page in the wiki
+        wikipage = WikiPageCached({'url': WikiPageCached.get_url_for_user_page(self.user)})
+        if wikipage.success:
+            main_buttons.append(NavButton(_('Profile'), '/', aliases = ['/profile']))
+
+        main_buttons += [
+                   NavButton(menu.overview, '/overview'),
                    NavButton(_('Comments'), 'comments'),
                    NamedButton('submitted')]
 
