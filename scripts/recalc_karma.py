@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 """
-A script to recalculate karma by scanning and summing all votes. It also
-includes code for a one-time migration, from keeping track of karma in terms
-of totals, to keeping track of up- and down-votes independently.
+A script for a one-time migration, from keeping track of karma in terms of
+totals, to keeping track of up- and down-votes independently. It stores a SQLite
+database with its progress in the current directory (independent from the actual
+site database), and can be killed anytime and will resume its progress from
+where it left off.
 """
 
 
@@ -100,7 +102,7 @@ class KarmaCalc(object):
         print('Scanning {0}. Highest vote id is {1}; starting at {2}'.format(
             rel._type_name, max_id, id_start))
 
-        for id_low in range(id_start, max_id + STEP, STEP):
+        for id_low in xrange(id_start, max_id + STEP, STEP):
             votes = list(self.query_rel_id_range(rel, id_low, id_low + STEP))
             print('{0}: {1}, {2} of {3}'.format(
                 datetime.now().isoformat(' '), rel._type_name, id_low, max_id))
@@ -134,7 +136,7 @@ class KarmaCalc(object):
         print('Writing karma keys, starting at account {0}, max account id is {1}'.format(
             account_id_start, account_id_max))
 
-        for account_id_low in range(account_id_start, account_id_max + STEP, STEP):
+        for account_id_low in xrange(account_id_start, account_id_max + STEP, STEP):
             accounts = list(Account._query(
                 Account.c.id >= account_id_low,
                 Account.c.id < account_id_low + STEP))
