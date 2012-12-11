@@ -82,10 +82,10 @@ class KarmaCalc(object):
         print('Scanning {0}. Max id is {1}, starting at {2}'.format(
             'adjustments', max_id, id_start))
 
-        for id_low in xrange(id_start, max_id + STEP, STEP):
+        for id_low in xrange(id_start, max_id + 1, STEP):
             adjs = list(KarmaAdjustment._query(
-                KarmaAdjustment.c.id >= id_low,
-                KarmaAdjustment.c.id < id_low + STEP))
+                KarmaAdjustment.c._id >= id_low,
+                KarmaAdjustment.c._id < id_low + STEP))
             print('{0}: {1}, {2} of {3}'.format(
                 datetime.now().isoformat(' '), 'adjustments', id_low, max_id))
 
@@ -93,8 +93,10 @@ class KarmaCalc(object):
                 # adj.amount can be either positive or negative
                 self.state.tally_karma(adj.account_id, adj.sr_id, 'adjustment', adj.amount)
 
-            self.state.kvstore['karmaadjustment.cur_read_id'] = str(id_low + STEP)
-            self.state.commit()
+            if adjs:
+                max_id = max(a._id for a in adjs)
+                self.state.kvstore['karmaadjustment.cur_read_id'] = str(max_id + 1)
+                self.state.commit()
 
     def read_votes(self, cls2, karma_kind, kv_namespace):
         STEP = 100
@@ -105,7 +107,7 @@ class KarmaCalc(object):
         print('Scanning {0}. Highest vote id is {1}; starting at {2}'.format(
             rel._type_name, max_id, id_start))
 
-        for id_low in xrange(id_start, max_id + STEP, STEP):
+        for id_low in xrange(id_start, max_id + 1, STEP):
             votes = list(self.query_rel_id_range(rel, id_low, id_low + STEP))
             print('{0}: {1}, {2} of {3}'.format(
                 datetime.now().isoformat(' '), rel._type_name, id_low, max_id))
@@ -115,8 +117,10 @@ class KarmaCalc(object):
                 amt = int(vote._name)  # can be either positive or negative
                 self.state.tally_karma(thing.author_id, thing.sr_id, karma_kind, amt)
 
-            self.state.kvstore[kv_namespace + '.cur_read_id'] = str(id_low + STEP)
-            self.state.commit()
+            if votes:
+                max_id = max(v._id for v in votes)
+                self.state.kvstore[kv_namespace + '.cur_read_id'] = str(max_id + 1)
+                self.state.commit()
 
         print('Done with {0}!'.format(rel._type_name))
 
@@ -143,7 +147,7 @@ class KarmaCalc(object):
         print('Writing karma keys, starting at account {0}, max account id is {1}'.format(
             account_id_start, account_id_max))
 
-        for account_id_low in xrange(account_id_start, account_id_max + STEP, STEP):
+        for account_id_low in xrange(account_id_start, account_id_max + 1, STEP):
             accounts = list(Account._query(
                 Account.c.id >= account_id_low,
                 Account.c.id < account_id_low + STEP))
