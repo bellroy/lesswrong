@@ -76,15 +76,18 @@ class KarmaCalc(object):
         # order to run this script more than once.
 
         STEP = 100
+        max_id = self.max_thing_id(KarmaAdjustment)
         id_start = int(self.state.kvstore.get('karmaadjustment.cur_read_id', '0'))
 
-        for id_low in xrange(id_start, 999999999 + STEP, STEP):
+        print('Scanning {0}. Max id is {1}, starting at {2}'.format(
+            'adjustments', max_id, id_start))
+
+        for id_low in xrange(id_start, max_id + STEP, STEP):
             adjs = list(KarmaAdjustment._query(
                 KarmaAdjustment.c.id >= id_low,
                 KarmaAdjustment.c.id < id_low + STEP))
-
-            if not adjs:
-                break  # This ssumes no holes in the table greater than STEP rows wide
+            print('{0}: {1}, {2} of {3}'.format(
+                datetime.now().isoformat(' '), 'adjustments', id_low, max_id))
 
             for adj in adjs:
                 # adj.amount can be either positive or negative
@@ -121,17 +124,21 @@ class KarmaCalc(object):
         return rel._query(rel.c._rel_id >= id_low, rel.c._rel_id < id_high,
                           eager_load=True)
 
+    def max_thing_id(self, thing_type):
+        thing_type = tdb_sql.types_id[thing_type._type_id]
+        thing_tbl = thing_type.thing_table
+        return sa.select([sa.func.max(thing_tbl.c.thing_id)]).execute().scalar()
+
     def max_rel_type_id(self, rel_thing):
         thing_type = tdb_sql.rel_types_id[rel_thing._type_id]
         thing_tbl = thing_type.rel_table[0]
-        rows = sa.select([sa.func.max(thing_tbl.c.rel_id)]).execute().fetchall()
-        return rows[0][0]
+        return sa.select([sa.func.max(thing_tbl.c.rel_id)]).execute().scalar()
 
 
     def write_karmas(self):
         STEP = 100
         account_id_max = sa.select([sa.func.max(karmatotals.c.account_id)]).scalar()
-        account_id_start = int(self.state.kvstore.get('karma.cur_write_account_id', '0'))
+        account_id_start = 0  #int(self.state.kvstore.get('karma.cur_write_account_id', '0'))
 
         print('Writing karma keys, starting at account {0}, max account id is {1}'.format(
             account_id_start, account_id_max))
@@ -156,8 +163,8 @@ class KarmaCalc(object):
 
             for ac in accounts:
                 ac._commit()
-            self.state.kvstore['karma.cur_write_account_id'] = str(account_id_low + STEP)
-            self.state.commit()
+            #self.state.kvstore['karma.cur_write_account_id'] = str(account_id_low + STEP)
+            #self.state.commit()
 
     def make_karma_key(self, karma):
         return 'karma_{0}_{1}_{2}'.format(
