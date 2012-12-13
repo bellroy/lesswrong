@@ -57,7 +57,7 @@ def main():
 class KarmaCalc(object):
     def __init__(self):
         self.state = MigrateState()
-        self.subreds_by_id = dict((sr._id, sr) for sr in Subreddit._query(eager_load=True))
+        self.subreds_by_id = {}
 
     def run(self):
         self.read_votes(Link, 'link', 'vote_link')
@@ -170,11 +170,17 @@ class KarmaCalc(object):
             #self.state.kvstore['karma.cur_write_account_id'] = str(account_id_low + STEP)
             #self.state.commit()
 
+    def get_sr_by_id(self, sr_id):
+        sr = self.subreds_by_id.get(id)
+        if sr is None:
+            sr = self.subreds_by_id[id] = Subreddit._byID(sr_id)
+        return sr
+
     def make_karma_key(self, karma):
         return 'karma_{0}_{1}_{2}'.format(
             ('downs', 'ups')[karma['direction']],
             kind_ids[karma['kind']].desc,
-            self.subreds_by_id[karma.sr_id].name)
+            self.get_sr_by_id(karma.sr_id).name)
 
 
 class MigrateState(object):
