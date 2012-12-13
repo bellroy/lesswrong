@@ -173,7 +173,7 @@ class KarmaCalc(object):
     def get_sr_by_id(self, sr_id):
         sr = self.subreds_by_id.get(id)
         if sr is None:
-            sr = self.subreds_by_id[id] = Subreddit._byID(sr_id)
+            sr = self.subreds_by_id[id] = Subreddit._byID(sr_id, data=True)
         return sr
 
     def make_karma_key(self, karma):
