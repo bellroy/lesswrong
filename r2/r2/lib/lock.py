@@ -23,6 +23,7 @@
 from __future__ import with_statement
 from time import sleep
 from datetime import datetime
+import sys
 
 from pylons import c
 
@@ -39,6 +40,10 @@ class MemcacheLock(object):
         self.time = time
         self.timeout = timeout
         self.have_lock = False
+        self.log('__init__')
+
+    def __delitem__(self, key):
+        self.log('__del__')
 
     def __enter__(self):
         self.acquire()
@@ -46,11 +51,18 @@ class MemcacheLock(object):
     def __exit__(self, type, value, tb):
         self.release()
 
+    def log(self, msg, *args):
+        print >>sys.stderr, \
+            '[MemcacheLock id={0!r} key={1!r}]'.format(id(self), self.key), \
+            msg.format(*args)
+
     def acquire(self):
         """
         Repeatedly try to acquire the lock, for `self.timeout` seconds, before
         giving up and raising an exception.
         """
+        self.log('acquire enter')
+
         start = datetime.now()
 
         # try and fetch the lock, looping until it's available
@@ -58,6 +70,8 @@ class MemcacheLock(object):
             if (datetime.now() - start).seconds > self.timeout:
                 raise TimeoutExpired
             sleep(0.1)
+
+        self.log('acquire exit')
 
     def try_acquire(self):
         """
@@ -84,10 +98,14 @@ class MemcacheLock(object):
         return True
 
     def release(self):
+        self.log('release enter')
+
         # only release the lock if we gained it in the first place
         if self.have_lock:
             self.cache.delete(self.key)
             del c.locks[self.key]
+
+        self.log('release exit')
 
 
 def make_lock_factory(cache):
