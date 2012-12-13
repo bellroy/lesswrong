@@ -58,17 +58,23 @@ class Vote(MultiRelation('vote',
         from r2.lib.count import incr_counts
 
         # An account can only perform 1 voting operation at a time.
-        with g.make_lock('account_%s_voting' % sub._id):
+        with g.make_lock('account_%s_voting' % sub._id) as lock:
             kind = obj.__class__.__name__.lower()
+
+            lock.log('voting checkpoint A')
 
             # If downvoting ensure that the user has enough karma, it
             # will raise an exception if not.
             if dir == False:
                 sub.check_downvote(kind)
 
+            lock.log('voting checkpoint B')
+
             # Do the voting.
             sr = obj.subreddit_slow
             karma = sub.karma(kind, sr)
+
+            lock.log('voting checkpoint C')
 
             #check for old vote
             rel = cls.rel(sub, obj)
@@ -77,6 +83,8 @@ class Vote(MultiRelation('vote',
                                       data = True))
 
             amount = 1 if dir is True else 0 if dir is None else -1
+
+            lock.log('voting checkpoint D')
 
             is_new = False
             #old vote
@@ -106,12 +114,16 @@ class Vote(MultiRelation('vote',
                 if organic:
                     v.organic = organic
 
+            lock.log('voting checkpoint E')
             v._commit()
+            lock.log('voting checkpoint F')
 
             # Record that this account has made a downvote.
             up_change, down_change = score_changes(amount, oldamount)
             if down_change:
                 sub.incr_downvote(down_change, kind)
+
+            lock.log('voting checkpoint G')
 
         # Release the lock since both the downvote count and the vote count
         # have been updated, and then continue by updating karmas.
