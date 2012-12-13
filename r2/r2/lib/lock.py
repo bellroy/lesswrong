@@ -47,12 +47,13 @@ class MemcacheLock(object):
 
     def __enter__(self):
         self.acquire()
+        return self
 
     def __exit__(self, type, value, tb):
         self.release()
 
     def log(self, msg, *args):
-        print >>sys.stderr, \
+        print >>sys.stderr, datetime.utcnow().isoformat(' '), \
             '[MemcacheLock id={0!r} key={1!r}]'.format(id(self), self.key), \
             msg.format(*args)
 
