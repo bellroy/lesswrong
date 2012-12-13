@@ -24,6 +24,7 @@ from __future__ import with_statement
 from time import sleep
 from datetime import datetime
 import sys
+import threading
 
 from pylons import c
 
@@ -54,7 +55,8 @@ class MemcacheLock(object):
 
     def log(self, msg, *args):
         print >>sys.stderr, datetime.utcnow().isoformat(' '), \
-            '[MemcacheLock id={0!r} key={1!r}]'.format(id(self), self.key), \
+            '[MemcacheLock tid={0!r} id={1!r} key={2!r}]'.format(
+                threading.currentThread().ident, id(self), self.key), \
             msg.format(*args)
 
     def acquire(self):
