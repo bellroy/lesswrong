@@ -41,7 +41,7 @@ def getParsedContent(str, elementid):
         return elem
 
 class WikiPageCached:
-    needed_cache_keys = ('content', 'title', 'etag')
+    needed_cache_keys = ('success', 'content', 'title', 'etag')
 
     def __init__(self, config):
         self.config = config
@@ -81,11 +81,11 @@ class WikiPageCached:
                 # it should be assert isinstance(data, str)
                 # So we have to force the _ElementStringResult to be a str
                 content = str(elem.text_content())
-            ret = {'content': content, 'title': title, 'etag': etag}
+            ret = {'success': True, 'content': content, 'title': title, 'etag': etag}
         except Exception as e:
             log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
             self._error = True
-            ret = {'content': missing_content(), 'title': '', 'etag': ''}
+            ret = {'success': False, 'content': missing_content(), 'title': '', 'etag': ''}
 
         g.rendercache.set(url, ret, cache_time())
         return ret
@@ -98,8 +98,7 @@ class WikiPageCached:
 
     @property
     def success(self):
-        _ = self.page
-        return not self._error
+        return self.page['success']
 
     def content(self):
         return self.page['content']
