@@ -41,6 +41,8 @@ def getParsedContent(str, elementid):
         return elem
 
 class WikiPageCached:
+    needed_cache_keys = ('content', 'title', 'etag')
+
     def __init__(self, config):
         self.config = config
         self._page = None
@@ -52,41 +54,41 @@ class WikiPageCached:
         return 'http://wiki.lesswrong.com/wiki/' + page
 
     def getPage(self):
-        url=self.config['url']
-        content_type = self.config.get('content-type', 'text/html')
+        url = self.config['url']
         hit = g.rendercache.get(url)
-        content, title, etag = hit if hit else (None,None,None)
+        if hit and isinstance(hit, dict) and all(k in hit for k in self.needed_cache_keys):
+            # The above isinstance check guards against an old format of cache items
+            return hit
 
-        if not content:
-            try:
-                txt = fetch(url)
-                elem = getParsedContent(txt, self.config.get('id', 'content'))
-                elem.make_links_absolute(base_url(url))
-                headlines = elem.cssselect('h1 .mw-headline')
-                if headlines and len(headlines)>0:
-                    title = headlines[0].text_content()
+        try:
+            txt = fetch(url)
+            elem = getParsedContent(txt, self.config.get('id', 'content'))
+            elem.make_links_absolute(base_url(url))
+            headlines = elem.cssselect('h1 .mw-headline')
+            if headlines and len(headlines)>0:
+                title = headlines[0].text_content()
+            else:
+                title = ''
 
-                etag = '"%s"' % datetime.utcnow().isoformat()
-                if content_type == 'text/html':
-                    content = tostring(elem, method='html', encoding='utf8', with_tail=False)
-                else:
-                    # text_content() returns an _ElementStringResult, which derives from str
-                    # but scgi_base.py in flup contains the following broken assertion:
-                    # assert type(data) is str, 'write() argument must be string'
-                    # it should be assert isinstance(data, str)
-                    # So we have to force the _ElementStringResult to be a str
-                    content = str(elem.text_content())
-                g.rendercache.set(url, (content,title,etag), cache_time())
-            except Exception as e:
-                log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
-                self._error = True
-                content = missing_content()
+            content_type = self.config.get('content-type', 'text/html')
+            etag = '"%s"' % datetime.utcnow().isoformat()
+            if content_type == 'text/html':
+                content = tostring(elem, method='html', encoding='utf8', with_tail=False)
+            else:
+                # text_content() returns an _ElementStringResult, which derives from str
+                # but scgi_base.py in flup contains the following broken assertion:
+                # assert type(data) is str, 'write() argument must be string'
+                # it should be assert isinstance(data, str)
+                # So we have to force the _ElementStringResult to be a str
+                content = str(elem.text_content())
+            ret = {'content': content, 'title': title, 'etag': etag}
+        except Exception as e:
+            log.warn("Unable to fetch wiki page: '%s' %s"%(url,e))
+            self._error = True
+            ret = {'content': missing_content(), 'title': '', 'etag': ''}
 
-        return {
-          'title': title,
-          'content': content,
-          'etag': etag,
-        }
+        g.rendercache.set(url, ret, cache_time())
+        return ret
 
     @property
     def page(self):
