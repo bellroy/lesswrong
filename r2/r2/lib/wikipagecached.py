@@ -41,6 +41,7 @@ def getParsedContent(str, elementid):
         return elem
 
 class WikiPageCached:
+    url_prefix = 'http://wiki.lesswrong.com/wiki/'
     needed_cache_keys = ('success', 'content', 'title', 'etag')
 
     def __init__(self, config):
@@ -50,8 +51,7 @@ class WikiPageCached:
 
     @classmethod
     def get_url_for_user_page(cls, user):
-        page = 'User:' + quote(user.name)
-        return 'http://wiki.lesswrong.com/wiki/' + page
+        return cls.url_prefix + 'User:' + quote(user.name)
 
     def getPage(self):
         url = self.config['url']

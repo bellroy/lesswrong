@@ -1,6 +1,7 @@
 <%def name="invalidate_link(name,skiplayout)">
-    <form class='invalidate' method='POST' action='/invalidate_cache/${name}'>
+    <form class='invalidate' method='POST' action='/invalidate_cache'>
       <input type='hidden' name='skiplayout' value='${skiplayout or "off"}'/>
+      <input type='hidden' name='wiki_url' value='${skiplayout or "off"}'/>
       <input type='submit' value='Force reload from wiki' name='invalidate'/>
     </form>
 </%def>

@@ -1,5 +1,8 @@
 <%inherit file="printable.html"/>
 
 <%def name="RenderPrintable()">
-    ${unsafe(thing.html)}
+  ${unsafe(thing.html)}
+  %if c.user_is_loggedin:
+    ${wiki.invalidate_link(thing.name,thing.skiplayout)}
+  %endif
 </%def>
