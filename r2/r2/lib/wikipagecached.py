@@ -142,5 +142,9 @@ class WikiPageThing(Thing, Printable):
         return self.wikipage.page['content']
 
     @property
+    def wiki_url(self):
+        return self.wikipage.config['url']
+
+    @property
     def success(self):
         return self.wikipage.success

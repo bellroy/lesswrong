@@ -1526,9 +1526,10 @@ class WikiPage(Reddit):
         wikiPage = WikiPageCached(page)
         html = wikiPage.content()
         self.pagename = wikiPage.title()
+        content = WikiPageInline(html=html, name=name, skiplayout=skiplayout,
+            title=self.pagename, wiki_url=page['url'])
         Reddit.__init__(self,
-                        content = WikiPageInline(html=html, name=name,
-                                                 skiplayout=skiplayout,title=self.pagename),
+                        content = content,
                         title = self.pagename,
                         space_compress=False,
                         **context)
