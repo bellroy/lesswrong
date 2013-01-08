@@ -1264,6 +1264,10 @@ div.articlenavigation #article_nav_controls .loading img {
 	font-family: Times, "Times New Roman", serif;
 	font-style: italic;
 }
+.wiki-content .printfooter {
+	display: none;
+}
+
 
 /* Footer
 ----------------------------------------------------------------------------------------------------*/
