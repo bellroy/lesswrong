@@ -85,7 +85,7 @@ class KarmaCalc(object):
         for id_low in xrange(id_start, max_id + 1, STEP):
             adjs = list(KarmaAdjustment._query(
                 KarmaAdjustment.c._id >= id_low,
-                KarmaAdjustment.c._id < id_low + STEP))
+                KarmaAdjustment.c._id < id_low + STEP, data=True))
             print('{0}: {1}, {2} of {3}'.format(
                 datetime.now().isoformat(' '), 'adjustments', id_low, max_id))
 
