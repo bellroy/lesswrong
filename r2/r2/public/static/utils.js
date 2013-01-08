@@ -746,3 +746,18 @@ var BeforeUnload = (function () {
     return {bind: bind, unbind: unbind};
 })();
 
+
+function invalidateWikiSubmit(form) {
+    jQuery.ajax({
+        url: form.action,
+        type: form.method,
+        data: jQuery(form).serialize(),
+        success: function () {
+            window.location.reload();
+        },
+        error: function () {
+            window.alert('Failed to invalidate the cache.');
+        }
+    });
+    return false;
+}

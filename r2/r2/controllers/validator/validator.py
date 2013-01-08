@@ -24,6 +24,7 @@ from pylons.i18n import _
 from pylons.controllers.util import abort
 from r2.lib import utils, captcha
 from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii
+from r2.lib.wikipagecached import WikiPageCached
 from r2.lib.db.operators import asc, desc
 from r2.config import cache
 from r2.lib.template_helpers import add_sr
@@ -942,6 +943,18 @@ class VCnameDomain(Validator):
                 c.errors.add(errors.BAD_CNAME)
 
 
+class VWikiPageURL(Validator):
+    page_name_re = re.compile('^[ -.0-:A-Z_-z]+$')
+
+    def run(self, url):
+        if not url or not url.startswith(WikiPageCached.url_prefix):
+            c.errors.add(errors.BAD_URL)
+            return None
+        page_name = url[len(WikiPageCached.url_prefix):]
+        if not self.page_name_re.match(page_name):
+            c.errors.add(errors.BAD_URL)
+            return None
+        return url
 
 
 # NOTE: make sure *never* to have res check these are present

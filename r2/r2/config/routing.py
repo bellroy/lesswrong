@@ -83,7 +83,7 @@ def make_map(global_conf={}, app_conf={}):
         if page.has_key('route'):
             mc("/wiki/"+page['route'], controller='wikipage', action='wikipage', name=name)
         
-    mc('/invalidate_cache/:name', controller='wikipage', action='invalidate_cache')
+    mc('/invalidate_cache', controller='wikipage', action='invalidate_cache')
 
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"
 
