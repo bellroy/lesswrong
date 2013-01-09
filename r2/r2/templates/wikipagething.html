@@ -1,0 +1,10 @@
+<%inherit file="printable.html"/>
+
+<%namespace name="wiki" file="invalidate_wikipagecache.html" import="invalidate_link"/>
+
+<%def name="RenderPrintable()">
+  ${unsafe(thing.html)}
+  %if c.user_is_loggedin:
+    ${wiki.invalidate_link(thing.wiki_url, False)}
+  %endif
+</%def>

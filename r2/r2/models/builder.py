@@ -187,6 +187,18 @@ class Builder(object):
         if hasattr(item, 'subreddit') and not item.subreddit.can_view(user):
             return True
 
+class PrecomputedBuilder(Builder):
+    def __init__(self, items, **kwargs):
+        Builder.__init__(self, **kwargs)
+        self.items = items
+
+    def get_items(self):
+        items = self.wrap_items(self.items)
+        return items, None, None, 0, len(items)
+
+    def item_iter(self, *a):
+        return a[0][0]
+
 class QueryBuilder(Builder):
     def __init__(self, query, wrap = DEFAULT_WRAP, keep_fn = None,
                  skip = False, **kw):
