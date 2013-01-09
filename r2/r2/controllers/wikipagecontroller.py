@@ -29,14 +29,9 @@ class WikipageController(RedditController):
           return page.content()
 
     @validate(VUser(),
-              skiplayout=VBoolean('skiplayout'))
-    def POST_invalidate_cache(self, name, skiplayout):
-        p = allWikiPagesCached[name]
-        WikiPageCached(p).invalidate()
-        if p.has_key('route'):
-            if skiplayout:
-                return self.redirect('/wiki/'+p['route']+'?skiplayout=on')
-            else:
-                return self.redirect('/wiki/'+p['route'])
-        else:
-            return "Done"
+              url=VWikiPageURL('wiki_url'))
+    def POST_invalidate_cache(self, url):
+        if not url:
+            return "Error"
+        WikiPageCached({'url': url.encode('utf-8')}).invalidate()
+        return "Done"
