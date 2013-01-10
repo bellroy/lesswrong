@@ -1197,9 +1197,78 @@ div.articlenavigation #article_nav_controls .loading img {
 ----------------------------------------------------------------------------------------------------*/
 
 .profile_page ul#nav li {
-	margin: 0 14px 0 0;
-	padding: 0 14px 0 0;
+	margin: 0 9px 0 0;
+	padding: 0 9px 0 0;
 }
+.wiki-content {
+    font-size: 105.8%;  /* Matches the base font size between sites */
+}
+/* The rest of this is taken from (with slight modifications):
+   http://wiki.lesswrong.com/mediawiki/skins/lesswrong/main.css
+*/
+.wiki-content #jump-to-nav, .wiki-content #siteSub {
+    display: none;
+}
+.wiki-content h1, .wiki-content h2, .wiki-content h3 {
+	color: black;
+	background: none;
+	font-weight: normal;
+    line-height: 1em;
+	margin: 0 0 0.6em;
+	padding-top: .5em;
+	padding-bottom: .17em;
+	border-bottom: 1px solid #aaa;
+}
+.wiki-content h1 { color: #318756; font-size: 188%; }
+.wiki-content h2 { font-size: 150%; }
+.wiki-content p {
+	margin: 0.4em 0 1em 0;
+	line-height: 1.5em;
+}
+.wiki-content ul {
+	line-height: 1.5em;
+	list-style-type: square;
+	margin: .3em 0 0 1.5em;
+	padding: 0;
+	list-style-image: url("http://wiki.lesswrong.com/mediawiki/skins/lesswrong/bullet.gif");
+}
+.wiki-content ol {
+	line-height: 1.5em;
+	margin: .3em 0 0 3.2em;
+	padding: 0;
+	list-style-image: none;
+}
+.wiki-content li {
+	margin-bottom: .1em;
+}
+.wiki-content dt {
+	font-weight: bold;
+	margin-bottom: .1em;
+}
+.wiki-content dl {
+	margin-top: .2em;
+	margin-bottom: .5em;
+}
+.wiki-content dd {
+	line-height: 1.5em;
+	margin-left: 2em;
+	margin-bottom: .1em;
+}
+.wiki-content abbr, .wiki-content acronym, .wiki-content .explain {
+	border-bottom: 1px dotted black;
+	color: black;
+	background: none;
+	cursor: help;
+}
+.wiki-content q {
+	font-family: Times, "Times New Roman", serif;
+	font-style: italic;
+}
+.wiki-content .printfooter,
+.wiki-content .catlinks {
+	display: none;
+}
+
 
 /* Footer
 ----------------------------------------------------------------------------------------------------*/
