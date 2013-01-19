@@ -131,13 +131,13 @@ class Globals(object):
                 setattr(self, k, v)
 
         # initialize caches
-        mc = Memcache(self.memcaches)
+        mc = Memcache(self.memcaches, debug=True)
         self.cache = CacheChain((LocalCache(), mc))
-        self.permacache = Memcache(self.permacaches)
-        self.rendercache = Memcache(self.rendercaches)
+        self.permacache = Memcache(self.permacaches, debug=True)
+        self.rendercache = Memcache(self.rendercaches, debug=True)
         self.make_lock = make_lock_factory(mc)
 
-        self.rec_cache = Memcache(self.rec_cache)
+        self.rec_cache = Memcache(self.rec_cache, debug=True)
         
         # set default time zone if one is not set
         self.tz = pytz.timezone(global_conf.get('timezone'))
