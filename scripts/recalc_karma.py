@@ -72,7 +72,7 @@ class KarmaCalc:
     def commit(self):
         for account_id, pairs in self.new_values.iteritems():
             try:
-                account = Account._byID(account_id)
+                account = Account._byID(account_id, data=True)
             except NotFound:
                 continue
 
