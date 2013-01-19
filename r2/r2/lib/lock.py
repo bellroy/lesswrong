@@ -21,6 +21,7 @@
 ################################################################################
 
 from __future__ import with_statement
+from threading import Lock
 from time import sleep
 from datetime import datetime
 import sys
@@ -29,6 +30,8 @@ import threading
 from pylons import c
 
 class TimeoutExpired(Exception): pass
+
+_LOG_LOCK = Lock()
 
 class MemcacheLock(object):
     """A simple global lock based on the memcache 'add' command. We
@@ -54,10 +57,12 @@ class MemcacheLock(object):
         self.release()
 
     def log(self, msg, *args):
-        print >>sys.stderr, datetime.utcnow().isoformat(' '), \
-            '[MemcacheLock tid={0!r} id={1!r} key={2!r}]'.format(
-                threading.currentThread().ident, id(self), self.key), \
-            msg.format(*args)
+        with _LOG_LOCK:
+            print >>sys.stderr, datetime.utcnow().isoformat(' '), \
+                '[MemcacheLock tid={0!r} id={1!r} key={2!r}]'.format(
+                    threading.currentThread().ident, id(self), self.key), \
+                msg.format(*args)
+            sys.stderr.flush()
 
     def acquire(self):
         """
