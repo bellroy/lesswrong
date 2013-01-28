@@ -244,13 +244,20 @@ def join_urls(*urls):
         url += u
     return url
 
+old_user_rss_re = re.compile(r'^/user/([^/]+)/$')
 def get_rss_path(request_path):
     """Returns an appropriate path to an RSS feed for the current page."""
 
     # e.g. the wiki homepage (LW front page) in particular needs a sensible RSS link
-    dewikified_path = '/' if request_path.startswith("/wiki/") else request_path    
-    return add_sr(join_urls(dewikified_path, '.rss'))
-       
+    path = '/' if request_path.startswith("/wiki/") else request_path
+
+    # On user profile pages pulled from the wiki the RSS feed should point to
+    # the overview page's feed
+    if old_user_rss_re.match(request_path):
+      path = path + "overview/"
+
+    return add_sr(join_urls(path, '.rss'))
+
 def style_line(button_width = None, bgcolor = "", bordercolor = ""):
     style_line = ''
     bordercolor = c.bordercolor or bordercolor
