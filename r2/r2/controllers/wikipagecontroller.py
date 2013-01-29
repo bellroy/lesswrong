@@ -17,7 +17,7 @@ class WikipageController(RedditController):
           if skiplayout:
               # Get just the html of the wiki page
               html = WikiPageCached(p).content()
-              return WikiPageInline(html=html, name=name, skiplayout=skiplayout).render()
+              return WikiPageInline(html=html, name=name, skiplayout=skiplayout, wiki_url=p['url']).render()
           else:
               return WikiPage(name,p,skiplayout=skiplayout).render()
         else:
