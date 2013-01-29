@@ -17,6 +17,7 @@ db
 .hg
 .hgignore
 .rvmrc
+/tags
 lighttpd.**
 development.ini
 development_*.ini
