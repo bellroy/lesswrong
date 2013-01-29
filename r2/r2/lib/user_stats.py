@@ -32,7 +32,7 @@ from pylons import g
 cache = g.cache
 
 SECONDS_PER_MONTH = 86400 * 30
-NUM_TOP_USERS = 5
+NUM_TOP_USERS = 15
 CACHE_EXPIRY = 3600
 
 
