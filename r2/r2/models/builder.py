@@ -132,7 +132,7 @@ class Builder(object):
             # update vote tallies
             compute_votes(w, item)
             
-            w.score = w.upvotes - w.downvotes
+            w.score = [w.upvotes, w.downvotes]
             w.deleted = item._deleted
 
             w.rowstyle = w.rowstyle if hasattr(w,'rowstyle') else ''

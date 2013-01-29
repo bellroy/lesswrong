@@ -290,7 +290,7 @@ class Subreddit(Thing, Printable, ImageHolder):
             item.moderator = rels.get((item, user, 'moderator'))
             item.contributor = item.moderator or \
                 rels.get((item, user, 'contributor'))
-            item.score = item._ups
+            item.score = [item._ups, item._downs]
             item.score_fmt = Score.subscribers
 
     #TODO: make this work
