@@ -149,9 +149,9 @@ class KarmaCalc(object):
 
         for account_id_low in xrange(account_id_start, account_id_max + 1, STEP):
             accounts = list(Account._query(
-                Account.c.id >= account_id_low,
-                Account.c.id < account_id_low + STEP))
-            accounts = dict((a.id, a) for a in accounts)
+                Account.c._id >= account_id_low,
+                Account.c._id < account_id_low + STEP))
+            accounts = dict((a._id, a) for a in accounts)
             karmas = karmatotals.select(
                 sa.and_(karmatotals.c.account_id >= account_id_low,
                         karmatotals.c.account_id < account_id_low + STEP)).execute().fetchall()
@@ -165,15 +165,15 @@ class KarmaCalc(object):
                     key = self.make_karma_key(k)
                     setattr(account, key, k['amount'])
 
-            for ac in accounts:
+            for ac in accounts.values():
                 ac._commit()
             #self.state.kvstore['karma.cur_write_account_id'] = str(account_id_low + STEP)
             #self.state.commit()
 
     def get_sr_by_id(self, sr_id):
-        sr = self.subreds_by_id.get(id)
+        sr = self.subreds_by_id.get(sr_id)
         if sr is None:
-            sr = self.subreds_by_id[id] = Subreddit._byID(sr_id, data=True)
+            sr = self.subreds_by_id[sr_id] = Subreddit._byID(sr_id, data=True)
         return sr
 
     def make_karma_key(self, karma):
