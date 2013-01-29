@@ -10,6 +10,6 @@
     <strong>${thing.author.name}</strong></a>&#32;
     on&#32;
     ${thing.link.title}&#32;|&#32;
-    <span id="score_${thing._fullname}">${thing.score}</span>
+    <span id="score_${thing._fullname}">${thing.score_fmt(thing.score)['label']}</span>
   </span>
-  
+

@@ -49,7 +49,7 @@
     </h3>
     <span>by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
       ${thing.author.name}</a>&#32;|&#32;
-      ${thing.score}v&#32;(${thing.num_comments}c)
+      ${thing.score_fmt(thing.score)['label']}v&#32;(${thing.num_comments}c)
     </span>
   </div>
 </%def>
