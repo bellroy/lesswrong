@@ -26,7 +26,9 @@ import time, hashlib
 from geolocator import gislib
 from pylons import c, g
 from pylons.i18n import _
+import sqlalchemy as sa
 
+from r2.lib.db           import tdb_sql as tdb
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
 from r2.lib.db.userrel   import UserRel
@@ -191,8 +193,19 @@ class Account(Thing):
             downvotes = g.cache.get(cache_key)
             if downvotes is None:
                 vote_cls = Vote.rel(Account, content_cls)
-                downvotes = len(list(vote_cls._query(Vote.c._thing1_id == self._id,
-                                                          Vote.c._name == str(-1))))
+
+                # Get a count of content_cls downvotes
+                type = tdb.rel_types_id[vote_cls._type_id]
+                # rt = rel table
+                # dt = data table
+                # tt = thing table
+                rt, account_tt, content_cls_tt, dt = type.rel_table
+
+                cols = [ sa.func.count(rt.c.rel_id) ]
+                where = sa.and_(rt.c.thing1_id == self._id, rt.c.name == '-1')
+                query = sa.select(cols, where)
+                downvotes = query.execute().scalar()
+
                 g.cache.set(cache_key, downvotes)
             return downvotes
 
