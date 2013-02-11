@@ -147,7 +147,7 @@ img#tagline {
   float: left;
   margin: 45px 0 0;
 }
-a#siai,
+a#miri,
 a#fhi,
 a#cfar {
   display: block;
@@ -157,9 +157,9 @@ a#cfar {
   overflow: hidden;
   margin: 45px 18px 0 0;
 }
-a#siai {
-  background: url(/static/SIAI.png?20120720) no-repeat top left;
-  width: 78px;
+a#miri {
+  background: url(/static/miri.png?20120720) no-repeat top left;
+  width: 125px;
   background-position: 0 -78px;
 }
 a#fhi {
@@ -172,7 +172,7 @@ a#cfar {
   width: 69px;
   background-position: 0 -78px;
 }
-a#siai:hover, a#fhi:hover, a#cfar:hover {
+a#miri:hover, a#fhi:hover, a#cfar:hover {
   background-position: 0 0px;
 }
 
