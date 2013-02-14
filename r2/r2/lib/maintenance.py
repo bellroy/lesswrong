@@ -57,4 +57,4 @@ def timeuntil():
 
 def humantime():
   time = scheduled_at()
-  return time.strftime('%H:%M %Z') if time is not None else ""
+  return time.strftime('%H:%M on %d %b %Y %Z') if time is not None else ""
