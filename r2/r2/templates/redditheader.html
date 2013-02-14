@@ -22,6 +22,7 @@
 
 <% from r2.lib.template_helpers import static %>
 <% from r2.models.subreddit import DefaultSR %>
+<% import r2.lib.maintenance as maintenance %>
 <%namespace file="utils.html" import="img_link"/>
 <%
     if c.site.header and c.allow_styles:
@@ -36,3 +37,11 @@
   <a id="miri" href="http://intelligence.org/" target="_blank">Machine Intelligence Research Institute</a>
   <a id="cfar" href="http://appliedrationality.org/" target="_blank">Center for Applied Rationality</a>
 </div><!-- #header -->
+
+%if c.user_is_loggedin:
+  %if maintenance.active():
+    <%include file="maintenance_active.html"/>
+  %elif maintenance.scheduled():
+    <%include file="maintenance_scheduled.html"/>
+  %endif
+%endif

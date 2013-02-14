@@ -367,6 +367,34 @@ div#side-wikilinks {
     margin: 0;
 }
 
+/* Maintenance banner */
+#maintenance {
+    padding: 10px 35px;
+}
+#maintenance.active {
+    background-color: #FEDEE0;
+    border-bottom: 1px solid #FFABB0;
+    border-top: 1px solid #FFABB0;
+}
+#maintenance.scheduled {
+    background-color: #FFFFD0;
+    border-bottom: 1px solid #C9C7C7;
+    border-top: 1px solid #C9C7C7;
+}
+#maintenance p {
+  margin: 0;
+}
+#maintenance strong {
+  font-size: large;
+}
+#maintenance.active strong {
+  color: red;
+}
+#maintenance.scheduled strong {
+  color: #538D4D;
+}
+
+
 .sitetable {
     clear: both;
 }
