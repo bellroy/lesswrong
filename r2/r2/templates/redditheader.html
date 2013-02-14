@@ -38,8 +38,10 @@
   <a id="cfar" href="http://appliedrationality.org/" target="_blank">Center for Applied Rationality</a>
 </div><!-- #header -->
 
-%if maintenance.active():
-  <%include file="maintenance_active.html"/>
-%elif maintenance.scheduled():
-  <%include file="maintenance_scheduled.html"/>
+%if c.user_is_loggedin:
+  %if maintenance.active():
+    <%include file="maintenance_active.html"/>
+  %elif maintenance.scheduled():
+    <%include file="maintenance_scheduled.html"/>
+  %endif
 %endif
