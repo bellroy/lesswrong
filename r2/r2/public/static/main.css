@@ -158,9 +158,10 @@ a#cfar {
   margin: 45px 18px 0 0;
 }
 a#miri {
-  background: url(/static/miri.png?20120720) no-repeat top left;
-  width: 125px;
+  background: url(/static/miri.png?20130215-2) no-repeat top left;
+  width: 78px;
   background-position: 0 -78px;
+  margin-top: 44px;
 }
 a#fhi {
   background: url(/static/FHI_diamond.png?20120720) no-repeat top left;
