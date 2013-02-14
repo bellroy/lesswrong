@@ -51,6 +51,9 @@ def schedule_at(date_time):
   timestamp = calendar.timegm(date_time.utctimetuple())
   g.permacache.set(MAINTENANCE_KEY, timestamp)
 
+def complete():
+  g.permacache.delete(MAINTENANCE_KEY)
+
 def timeuntil():
   time = scheduled_at()
   return utils.timeuntil(time, resultion = 2) if time is not None else ""
