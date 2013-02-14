@@ -1,0 +1,11 @@
+<% import r2.lib.maintenance as maintenance %>
+
+<div id="maintenance" class="scheduled">
+  <p><strong>Less Wrong will be undergoing maintenance in ${maintenance.timeuntil()}.</strong></p>
+
+  <p>At ${maintenance.humantime()} Less Wrong will enter a maintenance window. During this time
+    the site will be available for reading only. Please ensure any comments,
+    posts, etc. are submitted/saved before the maintenance commences, otherwise
+    they may be lost.</p>
+</div>
+
