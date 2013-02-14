@@ -35,7 +35,7 @@ def active():
   return sched and (datetime.now(pytz.utc) >= sched)
 
 def scheduled():
-  return scheduled_at is not None
+  return scheduled_at() is not None
 
 def scheduled_at():
   scheduled_timestamp = g.permacache.get(MAINTENANCE_KEY)
