@@ -411,11 +411,11 @@ def timetext(delta, resultion = 1, bare=True):
 
 def timesince(d, resultion = 1, bare = True):
     from pylons import g
-    return timetext(datetime.now(g.tz) - d)
+    return timetext(datetime.now(g.tz) - d, resultion, bare)
 
 def timeuntil(d, resultion = 1, bare = True):
     from pylons import g
-    return timetext(d - datetime.now(g.tz))
+    return timetext(d - datetime.now(g.tz), resultion, bare)
 
 def epochtime(date):
     if not date:
