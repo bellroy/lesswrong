@@ -6,21 +6,26 @@ set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
 set :branch, 'staging'
 set :environment, 'staging'
-set :security_group, 'webserver_python_staging'
+set :security_group, 'sg-dc5caeb3' # lesswrong-staging
 
 set :instance, lambda {
+  ami = AWS.auto_scaler_ami('lesswrong')
+  raise "Unable to find ami from autoscaler" if ami.nil?
+
   AWS.find_or_start_host_for_security_group(
     security_group,
-    AWS.auto_scaler_ami('python'),
+    ami,
     120,
     File.join('config', "user_data_#{environment}.sh.erb"),
-    :instance_type => 'c1.medium'
+    :instance_type => 'm1.small',
+    :subnet_id => 'subnet-af1b7dc4',
+    :group_ids => %w[sg-1c7d9f73 sg-267d9f49] # default server-web
   )
 }
 
 role :app, instance, :primary => true
 role :web, instance, :primary => true
-role :db,  "db.aws.trikeapps.com", :primary => true, :no_release => true
+role :db,  "salad.trikeapps.com", :primary => true, :no_release => true
 
 after 'multistage:ensure', :check_hostname
 after 'deploy:cleanup', :check_hostname
