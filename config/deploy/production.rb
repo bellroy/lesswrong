@@ -2,7 +2,7 @@ load 'config/cap-tasks/trike-aws.rb'
 
 set :application, "lesswrong.com"
 set :domains, %w[ lesswrong.com ]
-set :elb_name, 'python'
+set :elb_name, 'lblw'
 set :hosts, lambda { AWS.elb_hosts(elb_name) }
 set :environment, 'production'
 
@@ -12,7 +12,7 @@ role :app, primary_host, :primary => true
 role :app, *hosts
 role :web, primary_host, :primary => true
 role :web, *hosts
-role :db,  "db.aws.trikeapps.com", :primary => true, :no_release => true
+role :db,  "salad.trikeapps.com", :primary => true, :no_release => true
 role :backups, "backup.trikeapps.com", :user => 'backup', :no_release => true
 
 before "deploy:update_code", "tests_check:manual_tests_executed?"
