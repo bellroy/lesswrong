@@ -479,7 +479,10 @@ class Client(local):
         @return: New value after incrementing.
         @rtype: int
         """
-        return self._incrdecr("incr", key, delta)
+        if delta < 0:
+            return self._incrdecr("decr", key, -delta)
+        else:
+            return self._incrdecr("incr", key, delta)
 
     def decr(self, key, delta=1):
         """
@@ -491,7 +494,10 @@ class Client(local):
         @return: New value after decrementing.
         @rtype: int
         """
-        return self._incrdecr("decr", key, delta)
+        if delta < 0:
+            return self._incrdecr("incr", key, -delta)
+        else:
+            return self._incrdecr("decr", key, delta)
 
     def _incrdecr(self, cmd, key, delta):
         server, key = self._get_server(key)
