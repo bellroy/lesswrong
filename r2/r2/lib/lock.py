@@ -57,6 +57,7 @@ class MemcacheLock(object):
         self.release()
 
     def log(self, msg, *args):
+        return
         with _LOG_LOCK:
             print >>sys.stderr, datetime.utcnow().isoformat(' '), \
                 '[MemcacheLock tid={0!r} id={1!r} key={2!r}]'.format(
