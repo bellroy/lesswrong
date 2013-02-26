@@ -36,6 +36,11 @@ import logging
 from r2.lib.utils import UrlParser, query_string
 logging.getLogger('scgi-wsgi').setLevel(logging.CRITICAL)
 
+
+def is_local_address(ip):
+    # TODO: support the /20 and /24 private networks? make this configurable?
+    return ip.startswith('10.')
+
 class BaseController(WSGIController):
     def __after__(self):
         self.post()
@@ -48,15 +53,15 @@ class BaseController(WSGIController):
         ip_hash = environ.get('HTTP_TRUE_CLIENT_IP_HASH')
         forwarded_for = environ.get('HTTP_X_FORWARDED_FOR', ())
         remote_addr = environ.get('REMOTE_ADDR')
-                
+
         if (g.ip_hash
             and true_client_ip
             and ip_hash
             and md5.new(true_client_ip + g.ip_hash).hexdigest() \
             == ip_hash.lower()):
             request.ip = true_client_ip
-        elif remote_addr == g.proxy_addr and forwarded_for:
-            request.ip = forwarded_for.split(',')[0]
+        elif g.trust_local_proxies and forwarded_for and is_local_address(remote_addr):
+            request.ip = forwarded_for.split(',')[-1]
         else:
             request.ip = environ['REMOTE_ADDR']
 

@@ -72,6 +72,7 @@ class Globals(object):
                   'css_killswitch',
                   'disable_captcha',
                   'disable_tracking_js',
+                  'trust_local_proxies',
                   ]
 
     tuple_props = ['memcaches',
