@@ -32,7 +32,7 @@ class Meetup(Thing):
     # Warning, this timestamp inequality is actually done as a string comparison
     # in the db for some reason.  BUT, since epoch seconds won't get another digit
     # for another 275 years, we're good for now...
-    return Meetup._query(Meetup.c.timestamp > time.time(), data=True, sort='_date')
+    return Meetup._query(Meetup.c.timestamp > time.time() - g.meetup_grace_period, data=True, sort='_date')
 
   @classmethod
   def upcoming_meetups_by_timestamp(cls):
