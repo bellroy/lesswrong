@@ -137,7 +137,7 @@ class Account(Thing):
 		if not downs:
 			return 100
 		else:
-			return ups / (ups + downs) * 100
+			return float(ups) / float(ups + downs) * 100
 
 
     def incr_karma(self, kind, sr, amt_up, amt_down):
