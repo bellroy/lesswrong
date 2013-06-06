@@ -123,19 +123,10 @@ class Account(Thing):
         return ud[0] - ud[1]
 
     def percent_up(self):
-        ups = 0
-        downs = 0
-        ud = self.karma_ups_downs('link')
-        ups += ud[0]
-        downs += ud[1]
-        ud = self.karma_ups_downs('comment')
-        ups += ud[0]
-        downs += ud[1]
-        ud = self.karma_ups_downs('adjustment')
-        ups += ud[0]
-        downs += ud[1]
+        ups, downs = self.safe_karma_ups_downs
+
         if not downs:
-            return 100
+            return 100.0
         else:
             return float(ups) / float(ups + downs) * 100
 
