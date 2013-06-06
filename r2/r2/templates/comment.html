@@ -131,7 +131,7 @@ ${parent.midcol()}
 
 <%def name="buttons(parent_link = False)">
   %if not thing.deleted:
-      %if thing.votable and (not c.profilepage):
+      %if thing.votable and ((not c.profilepage) or ((c.user.karma > g.karma_to_vote_in_overview) and (g.karma_percentage_to_be_voted > thing.author.percent_up()))):
         <ul class="votes">
           <li class="up">${self.arrow(thing, 1, thing.likes)}</li>
           <li class="down">${self.arrow(thing, 0, thing.likes == False)}</li>

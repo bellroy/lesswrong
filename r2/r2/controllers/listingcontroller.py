@@ -549,6 +549,17 @@ class UserController(ListingController):
     def builder(self):
         if self.where == 'profile':
             return PrecomputedBuilder([self.wikipage])
+        elif self.where in ('comments', 'overview'):
+            builder_cls = ContextualCommentBuilder
+            b = builder_cls(self.query_obj,
+                             num = self.num,
+                             skip = self.skip,
+                             after = self.after,
+                             count = self.count,
+                             reverse = self.reverse,
+                             wrap = self.builder_wrapper,
+                             sr_ids = [c.current_or_default_sr._id])
+            return b
         else:
             return ListingController.builder(self)
 
