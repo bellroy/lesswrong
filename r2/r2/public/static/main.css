@@ -457,9 +457,6 @@ div.tools a.hide {
     background-image: url(/static/hide.png);
     width: 26px;
 }
-div.tools a.creative_commons{
-    background-image: url(/static/cc-logo.jpg);
-}
 
 div.tools div.tags {
 	clear: both;

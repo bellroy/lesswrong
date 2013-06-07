@@ -516,9 +516,6 @@ class Link(Thing, Printable, ImageHolder):
             link_tag._delete()
             return link_tag
 
-    def is_licensed(self):
-        return self.cc_licensed
-
     def get_tags(self):
         q = LinkTag._query(LinkTag.c._thing1_id == self._id,
                            LinkTag.c._name == 'tag',

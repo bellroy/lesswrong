@@ -273,6 +273,7 @@ class ApiController(RedditController):
           l.title = request.post.title
           l.set_article(new_content)
           l.notify_on_comment = notify_on_comment
+          l.cc_licensed = cc_licensed
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
