@@ -244,9 +244,6 @@ class ApiController(RedditController):
         if not new_content:
             new_content = ''
 
-        print cc_licensed
-        print notify_on_comment
-
         # well, nothing left to do but submit it
         # TODO: include article body in arguments to Link model
         # print "\n".join(request.post.va)
