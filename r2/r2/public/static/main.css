@@ -434,7 +434,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save, div.tools a.edit, div.tools a.hide, div.tools a.creative_commons {
+div.tools a.save, div.tools a.edit, div.tools a.hide {
 	cursor: pointer;
 	display: block;
 	height: 0;
