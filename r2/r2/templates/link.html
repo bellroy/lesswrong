@@ -328,6 +328,11 @@
   %endif
   ${parent.delete_or_report_buttons(delete=delete,report=report)}
   ${parent.buttons(ban=ban)}
+  %if thing.cc_licensed:
+  <li>
+  <img src="/static/cc-logo.jpg" alt="Creative Commons Licensed">
+  </li>
+  %endif
   ${additional}
   ${self.media_embed()}
 </%def>

@@ -434,7 +434,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save, div.tools a.edit, div.tools a.hide {
+div.tools a.save, div.tools a.edit, div.tools a.hide, div.tools a.creative_commons {
 	cursor: pointer;
 	display: block;
 	height: 0;
@@ -456,6 +456,9 @@ div.tools a.edit {
 div.tools a.hide {
     background-image: url(/static/hide.png);
     width: 26px;
+}
+div.tools a.creative_commons{
+    background-image: url(/static/cc-logo.jpg);
 }
 
 div.tools div.tags {

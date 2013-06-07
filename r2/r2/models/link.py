@@ -69,7 +69,8 @@ class Link(Thing, Printable, ImageHolder):
                      images = None,
                      blessed = False,
                      comments_enabled = True,
-                     notify_on_comment = False)
+                     notify_on_comment = False,
+                     cc_licensed = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
@@ -514,6 +515,9 @@ class Link(Thing, Printable, ImageHolder):
         if link_tag:
             link_tag._delete()
             return link_tag
+
+    def is_licensed(self):
+        return self.cc_licensed
 
     def get_tags(self):
         q = LinkTag._query(LinkTag.c._thing1_id == self._id,
