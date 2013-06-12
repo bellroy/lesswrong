@@ -89,8 +89,9 @@
       </td>
     </tr>
     <tr>
-      <td>
-        ${checkbox("cc_licensed", _("Make this post available under Creative Commons"), thing.cc_licensed)}
+      <td class="helper">
+        ${checkbox("cc_licensed", _("Make this post available under the "), thing.cc_licensed)}
+        <a href="http://creativecommons.org/licenses/by/3.0/" class="CC_info" title="Allows the creation of derived work, such as Castify podcasts">Creative Commons Attribution 3.0 License</a>
       </td>
     </tr>
     %if thing.captcha:
