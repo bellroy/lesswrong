@@ -88,6 +88,12 @@
         ${checkbox("notify_on_comment", _("Notify me of new top level comments on this article"), thing.notify_on_comment)}
       </td>
     </tr>
+    <tr>
+      <td class="helper">
+        ${checkbox("cc_licensed", _("Make this post available under the "), thing.cc_licensed)}
+        <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>. Allows the creation of derived work, such as Castify podcasts.
+      </td>
+    </tr>
     %if thing.captcha:
       <tr>
         <td>
