@@ -31,6 +31,7 @@ from validator import *
 
 from r2.models import *
 from r2.models.subreddit import Default as DefaultSR
+from r2.models.subreddit import Subreddit
 import r2.models.thing_changes as tc
 
 from r2.controllers import ListingController
@@ -207,8 +208,9 @@ class ApiController(RedditController):
               save = nop('save'),
               continue_editing = VBoolean('keep_editing'),
               notify_on_comment = VBoolean('notify_on_comment'),
+              cc_licensed = VBoolean('cc_licensed'),
               tags = VTags('tags'))
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment):
+    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment, cc_licensed):
         res._update('status', innerHTML = '')
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
 
@@ -247,7 +249,7 @@ class ApiController(RedditController):
         # print "\n".join(request.post.va)
         if not l:
           l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
-                           notify_on_comment=notify_on_comment)
+                           notify_on_comment=notify_on_comment, cc_licensed=cc_licensed)
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
@@ -268,6 +270,7 @@ class ApiController(RedditController):
           l.title = request.post.title
           l.set_article(new_content)
           l.notify_on_comment = notify_on_comment
+          l.cc_licensed = cc_licensed
           l.change_subreddit(sr._id)
           l._commit()
           l.set_tags(tags)
@@ -421,6 +424,7 @@ class ApiController(RedditController):
         res._update('status', innerHTML='')
 
         fn = getattr(container, action + '_' + type)
+	c.user.incr_karma('adjustment', Subreddit.default(), 100, 0)
 
         if (not c.user_is_admin
             and (type in ('moderator','contributer','banned')
