@@ -27,6 +27,7 @@ from pylons import c, request, response
 from pylons.controllers.util import etag_cache
 
 import hashlib
+import httplib
 from validator import *
 
 from r2.models import *
@@ -171,6 +172,8 @@ class ApiController(RedditController):
                     errors.BANNED_IP in c.errors or
                     errors.BANNED_DOMAIN in c.errors)
 
+            to.incr_karma('adjustment', Subreddit._by_name('discussion'), int(subject), 0)
+
             m, inbox_rel = Message._new(c.user, to, subject, body, ip, spam)
             res._update('success',
                         innerHTML=_("Your message has been delivered"))
@@ -182,6 +185,46 @@ class ApiController(RedditController):
                 queries.new_message(m, inbox_rel)
         else:
             res._update('success', innerHTML='')
+
+    @Json
+    @validate(VCaptcha(),
+              VUser(),
+              VModhash(),
+              ip = ValidIP(),
+              to = VExistingUname('to'),
+              subject = VRequired('amount', errors.NO_SUBJECT),
+              body = VMessage('reason'))
+    def POST_award(self, res, to, subject, body, ip):
+        res._update('status', innerHTML='')
+        if (res._chk_error(errors.NO_USER) or
+            res._chk_error(errors.USER_DOESNT_EXIST)):
+            res._focus('to')
+        elif res._chk_error(errors.NO_SUBJECT):
+            res._focus('amount')
+        elif (res._chk_error(errors.NO_MSG_BODY) or
+              res._chk_error(errors.COMMENT_TOO_LONG)):
+            res._focus('reason')
+        elif res._chk_captcha(errors.BAD_CAPTCHA):
+            pass
+
+        if not res.error:
+            spam = (c.user._spam or
+                    errors.BANNED_IP in c.errors or
+                    errors.BANNED_DOMAIN in c.errors)
+
+            to.incr_karma('adjustment', Subreddit._by_name('discussion'), int(subject), 0)
+
+            res._update('success',
+                        innerHTML=_("Karma Awarded"))
+            res._update('to', value='')
+            res._update('amount', value='')
+            res._update('reason', value='')
+            Award._new(c.user, body, subject, to, ip)
+
+        else:
+            res._update('success', innerHTML='')
+
+
 
     @Json
     @validate(VAdmin(),
@@ -359,6 +402,10 @@ class ApiController(RedditController):
 
         if res.error:
             return
+
+        wikiconnection = httplib.HTTPConnection('wiki.lesswrong.com')
+        wikiconnection.request('POST', 'http://wiki.lesswrong.com/api.php?action=login&lgname=user&lgpassword=password')
+        print wikiconnection.getresponse().read()
 
         user = register(name, password)
         VRatelimit.ratelimit(rate_ip = True, prefix='rate_register_')

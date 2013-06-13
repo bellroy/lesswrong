@@ -39,6 +39,7 @@ from listingcontroller import TagController
 from listingcontroller import RecentpostsController
 from listingcontroller import EditsController
 from listingcontroller import MeetupslistingController
+from listingcontroller import KarmaawardController
 
 from listingcontroller import MyredditsController
 

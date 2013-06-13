@@ -483,6 +483,30 @@ class MessageCompose(Wrapped):
                          message = message, success = success,
                          captcha = captcha)
 
+#class KarmaAwardPage(Reddit):
+#    """Defines the content for /message/*"""
+#    def __init__(self, *a, **kw):
+#        if not kw.has_key('show_sidebar'):
+#            kw['show_sidebar'] = True
+#        Reddit.__init__(self, *a, **kw)
+#        self.replybox = CommentReplyBox()
+#
+#    def content(self):
+#        return self.content_stack(self.replybox, self.infobar, self._content)
+#
+#    def header_nav(self):
+#        buttons =  [NamedButton('compose'),
+#                    NamedButton('inbox'),
+#                    NamedButton('sent')]
+#        return NavMenu(buttons, base_path = "/message", _id='nav', type='navlist')
+
+class KarmaAward(Wrapped):
+    """Compose message form."""
+    def __init__(self,to='', amount='', reason='', success='',
+                 captcha = None):
+        Wrapped.__init__(self, to = to, amount = amount,
+                         reason = reason, success = success,
+                         captcha = captcha)
 
 class BoringPage(Reddit):
     """parent class For rendering all sorts of uninteresting,

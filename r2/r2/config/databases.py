@@ -76,6 +76,7 @@ dbm.thing('message', main_engine, main_engine)
 dbm.thing('tag', main_engine, main_engine)
 dbm.thing('edit', main_engine, main_engine)
 dbm.thing('meetup', main_engine, main_engine)
+dbm.thing('award', main_engine, main_engine)
 dbm.thing('karmaadjustment', main_engine, main_engine)
 dbm.thing('pendingjob', main_engine, main_engine)
 
