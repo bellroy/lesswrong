@@ -1,0 +1,21 @@
+<%namespace file="utils.html" import="optionalstyle"/>
+
+<%!
+   from pylons.i18n import _, ungettext
+   from r2.lib.template_helpers import get_domain
+%>
+<%inherit file="printable.htmllite" />
+
+<%def name="entry()">
+  <div>
+    <h3>
+      <a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}}" class="reddit-link-title">
+      ${thing.author.name}
+      </a>
+    </h3>
+    <span>gave&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.recipient().name}">
+      ${thing.recipient().name}</a>&#32;${thing.amount}&#32;
+      karma&#32;for&#32;${thing.reason}
+    </span>
+  </div>
+</%def>
