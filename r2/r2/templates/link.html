@@ -298,7 +298,7 @@
       </li>
     %endif
     %if c.user_is_admin:
-      <li>
+      <li class="promote">
       %if thing.is_blessed():
         ${parent.state_button("unbless", fullname, _("Demote"), \
             "return change_state(this, 'unbless');", _("Demoted"))}

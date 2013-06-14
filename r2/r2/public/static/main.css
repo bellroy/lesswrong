@@ -479,6 +479,7 @@ div.tools img.landscape {
 	right: 10px;
 }
 div.tools li.delete,
+div.tools li.promote,
 div.tools li.ban {
 	line-height: 20px;
 }
