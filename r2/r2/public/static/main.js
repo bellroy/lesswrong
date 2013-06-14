@@ -49,7 +49,7 @@ $(document).ready(function() {
     // Button tooltips
     $('div.tools div.vote a, div.tools div.boxright a.edit, div.tools div.boxright a.save, \
        div.boxright a.hide, div.comment-links ul li a, \
-       div.boxright img, .CC_info,\
+       div.boxright img, div.tools a.license, \
        .userinfo .score, .userinfo .monthly-score, .votes').qtip({
       position: {
         my: 'bottom center',

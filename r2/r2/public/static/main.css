@@ -478,7 +478,23 @@ div.tools img.landscape {
 	position: absolute;
 	right: 10px;
 }
-
+div.tools li.delete,
+div.tools li.ban {
+	line-height: 20px;
+}
+div.tools a.license {
+	cursor: pointer;
+	display: block;
+	height: 0;
+	overflow: hidden;
+	padding: 16px 0 0;
+        margin-top: 2px;
+	width: 16px;
+	background: url(/static/cc-logo.png) no-repeat 0 0;
+}
+div.tools a.license:hover {
+	background-position: 0 -16px;
+}
 
 /* Meetup
 -------------------------------------------------------------------------------------- */
