@@ -458,32 +458,29 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
         self.sort = CommentSortMenu.operator(CommentSortMenu.default)
 
     def context_from_comment(self, comment):
-        if isinstance(comment, Comment):
-            link = Link._byID(comment.link_id)
-            wrapped, = self.wrap_items((comment,))
+        link = Link._byID(comment.link_id)
+        wrapped, = self.wrap_items((comment,))
 
-            # If there are any child comments, add an expand link
-            children = list(Comment._query(Comment.c.parent_id == comment._id))
-            if children:
-                more = Wrapped(MoreChildren(link, 0))
-                more.children.extend(children)
-                more.count = len(children)
-                wrapped.child = self.empty_listing()
-                wrapped.child.things.append(more)
+        # If there are any child comments, add an expand link
+        children = list(Comment._query(Comment.c.parent_id == comment._id))
+        if children:
+            more = Wrapped(MoreChildren(link, 0))
+            more.children.extend(children)
+            more.count = len(children)
+            wrapped.child = self.empty_listing()
+            wrapped.child.things.append(more)
 
-            # If there's a parent comment, surround the child comment with it
-            parent_id = getattr(comment, 'parent_id', None)
-            if parent_id is not None:
-                parent_comment = Comment._byID(parent_id)
-                if parent_comment:
-                    parent_wrapped, = self.wrap_items((parent_comment,))
-                    parent_wrapped.child = self.empty_listing()
-                    parent_wrapped.child.things.append(wrapped)
-                    wrapped = parent_wrapped
+        # If there's a parent comment, surround the child comment with it
+        parent_id = getattr(comment, 'parent_id', None)
+        if parent_id is not None:
+            parent_comment = Comment._byID(parent_id)
+            if parent_comment:
+                parent_wrapped, = self.wrap_items((parent_comment,))
+                parent_wrapped.child = self.empty_listing()
+                parent_wrapped.child.things.append(wrapped)
+                wrapped = parent_wrapped
 
-            wrapped.show_response_to = True
-        else:
-            wrapped, = self.wrap_items((comment,))
+        wrapped.show_response_to = True
         return wrapped
 
     def get_items(self):
