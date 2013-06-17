@@ -514,14 +514,24 @@ class UserController(ListingController):
             q = object  # dummy value
 
         if self.where == 'overview':
+            self.skip = True
             self.check_modified(self.vuser, 'overview')
+            q = queries.get_overview(self.vuser, 'new', 'all')
+
+        elif self.where == 'overviewrss':
+            self.check_modified(self.vuser, 'overviewrss')
             q = queries.get_overview(self.vuser, 'new', 'all')
 
         elif self.where == 'comments':
             self.check_modified(self.vuser, 'commented')
             q = queries.get_comments(self.vuser, 'new', 'all')
 
+        elif self.where == 'commentsrss':
+            self.check_modified(self.vuser, 'commented')
+            q = queries.get_comments(self.vuser, 'new', 'all')
+
         elif self.where == 'submitted':
+            self.skip = True
             self.check_modified(self.vuser, 'submitted')
             q = queries.get_submitted(self.vuser, 'new', 'all')
 
@@ -549,7 +559,7 @@ class UserController(ListingController):
     def builder(self):
         if self.where == 'profile':
             return PrecomputedBuilder([self.wikipage])
-        elif self.where in ('comments', 'overview'):
+        elif self.where in ('comments', 'overview', 'submitted'):
             builder_cls = ContextualCommentBuilder
             b = builder_cls(self.query_obj,
                              num = self.num,
@@ -599,7 +609,7 @@ class UserController(ListingController):
                and vuser._spam:
             return self.abort404()
 
-        if (where not in ('profile', 'overview', 'submitted', 'comments')
+        if (where not in ('profile', 'overview', 'submitted', 'comments', 'overviewrss', 'commentsrss')
             and not votes_visible(vuser)):
             return self.abort404()
 
@@ -690,6 +700,9 @@ class KarmaawardController(ListingController):
             where = 'blah'
         return "%s: %s - %s" % (_('Messages'), _(where.title()), c.site.title)
 
+    def content(self):
+        return KarmaPage(content=self.listing_obj)
+
     @staticmethod
     def builder_wrapper(thing):
         if isinstance(thing, Comment):
@@ -707,7 +720,6 @@ class KarmaawardController(ListingController):
 
     def query(self):
         q = Award._query(sort = desc('_date'), data = True)
-
         return q
 
 
@@ -739,7 +751,7 @@ class KarmaawardController(ListingController):
                                      captcha = captcha,
                                      reason = reason,
                                      success = success)
-            return MessagePage(content = content, title = self.title('Award Karma')).render()
+            return KarmaAwardPage(content = content, title = self.title('Award Karma')).render()
         else:
             return self.abort404()
 
