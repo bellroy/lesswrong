@@ -698,7 +698,7 @@ class KarmaawardController(ListingController):
     def title(self, where = None):
         if where is None:
             where = 'blah'
-        return "%s: %s - %s" % (_('Messages'), _(where.title()), c.site.title)
+        return "%s - %s" % (_('Karma Awards'), c.site.title)
 
     def content(self):
         return KarmaPage(content=self.listing_obj)

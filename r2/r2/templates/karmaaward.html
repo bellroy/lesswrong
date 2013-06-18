@@ -47,14 +47,15 @@ ${success_field(_("Karma Awarded"),
         <input type="text" name="amount" size="40" id="amount"\
                value="${thing.amount or ''}"/>
       </td>
-      <td>${error_field("NO_AMOUNT", "span")}</td>
+      <td>${error_field("NO_AMOUNT", "span")}
+        ${error_field("AMOUNT_NOT_NUM", "span")}</td>
     </tr>
     <tr>
       <th>
         <label for="reason">${_("Reason")}</label>
       </th>
       <td>
-        <textarea id="reason" name="reason" rows="10" cols="40">
+        <textarea id="reason" name="reason" rows="1" cols="40">
           ${thing.reason or ''}
       </textarea></td>
       <td>${error_field("NO_MSG_BODY", "span")}

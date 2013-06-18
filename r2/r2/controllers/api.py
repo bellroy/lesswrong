@@ -192,14 +192,15 @@ class ApiController(RedditController):
               VModhash(),
               ip = ValidIP(),
               to = VExistingUname('to'),
-              subject = VRequired('amount', errors.NO_SUBJECT),
+              subject = VAwardAmount('amount', errors.NO_AMOUNT),
               body = VMessage('reason'))
     def POST_award(self, res, to, subject, body, ip):
         res._update('status', innerHTML='')
         if (res._chk_error(errors.NO_USER) or
             res._chk_error(errors.USER_DOESNT_EXIST)):
             res._focus('to')
-        elif res._chk_error(errors.NO_SUBJECT):
+        elif (res._chk_error(errors.NO_AMOUNT) or
+              res._chk_error(errors.AMOUNT_NOT_NUM)):
             res._focus('amount')
         elif (res._chk_error(errors.NO_MSG_BODY) or
               res._chk_error(errors.COMMENT_TOO_LONG)):
