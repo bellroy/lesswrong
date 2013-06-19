@@ -735,7 +735,7 @@ class KarmaawardController(ListingController):
                          keep_fn = lambda i: True)
         return b
 
-    @validate(VUser())
+    #@validate(VUser())
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 

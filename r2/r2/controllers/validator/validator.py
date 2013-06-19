@@ -131,10 +131,12 @@ class VAwardAmount(Validator):
             self.error()
         else:
             try:
-                int(item)
+                if int(item) < 0:
+                    c.errors.add(errors.AMOUNT_NEGATIVE)
+                else:
+                    return item
             except ValueError:
-                c.errors.add(errors.AMOUNT_NOT_NUM);
-            return item
+                c.errors.add(errors.AMOUNT_NOT_NUM)
 
 class ValueOrBlank(Validator):
     def run(self, value):

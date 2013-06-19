@@ -200,7 +200,8 @@ class ApiController(RedditController):
             res._chk_error(errors.USER_DOESNT_EXIST)):
             res._focus('to')
         elif (res._chk_error(errors.NO_AMOUNT) or
-              res._chk_error(errors.AMOUNT_NOT_NUM)):
+              res._chk_error(errors.AMOUNT_NOT_NUM) or
+              res._chk_error(errors.AMOUNT_NEGATIVE)):
             res._focus('amount')
         elif (res._chk_error(errors.NO_MSG_BODY) or
               res._chk_error(errors.COMMENT_TOO_LONG)):
@@ -221,6 +222,10 @@ class ApiController(RedditController):
             res._update('amount', value='')
             res._update('reason', value='')
             Award._new(c.user, body, subject, to, ip)
+
+            messagebody = 'You have been awarded ' + subject + ' karma for ' + body
+            
+            m, inbox_rel = Message._new(c.user, to, 'Karma Award', messagebody, ip, spam)
 
         else:
             res._update('success', innerHTML='')
@@ -472,7 +477,6 @@ class ApiController(RedditController):
         res._update('status', innerHTML='')
 
         fn = getattr(container, action + '_' + type)
-	c.user.incr_karma('adjustment', Subreddit.default(), 100, 0)
 
         if (not c.user_is_admin
             and (type in ('moderator','contributer','banned')
