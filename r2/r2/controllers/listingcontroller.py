@@ -548,9 +548,6 @@ class UserController(ListingController):
         elif self.where == 'drafts':
             q = queries.get_drafts(self.vuser)
 
-        #elif c.user_is_admin:
-        #    q = admin_profile_query(self.vuser, self.where, desc('_date'))
-
         if q is None:
             return self.abort404()
 
@@ -735,7 +732,6 @@ class KarmaawardController(ListingController):
                          keep_fn = lambda i: True)
         return b
 
-    #@validate(VUser())
     def GET_listing(self, **env):
         return ListingController.GET_listing(self, **env)
 

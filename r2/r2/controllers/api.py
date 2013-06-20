@@ -172,8 +172,6 @@ class ApiController(RedditController):
                     errors.BANNED_IP in c.errors or
                     errors.BANNED_DOMAIN in c.errors)
 
-            to.incr_karma('adjustment', Subreddit._by_name('discussion'), int(subject), 0)
-
             m, inbox_rel = Message._new(c.user, to, subject, body, ip, spam)
             res._update('success',
                         innerHTML=_("Your message has been delivered"))
@@ -408,10 +406,6 @@ class ApiController(RedditController):
 
         if res.error:
             return
-
-        wikiconnection = httplib.HTTPConnection('wiki.lesswrong.com')
-        wikiconnection.request('POST', 'http://wiki.lesswrong.com/api.php?action=login&lgname=user&lgpassword=password')
-        print wikiconnection.getresponse().read()
 
         user = register(name, password)
         VRatelimit.ratelimit(rate_ip = True, prefix='rate_register_')

@@ -131,7 +131,7 @@ class VAwardAmount(Validator):
             self.error()
         else:
             try:
-                if int(item) < 0:
+                if int(item) <= 0:
                     c.errors.add(errors.AMOUNT_NEGATIVE)
                 else:
                     return item
