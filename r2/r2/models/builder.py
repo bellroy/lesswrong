@@ -457,6 +457,22 @@ class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
         UnbannedCommentBuilder.__init__(self, query, sr_ids, **kw)
         self.sort = CommentSortMenu.operator(CommentSortMenu.default)
 
+    def keep_item(self, item):
+        if isinstance(item, Link):
+            author = Account._byID(item.author_id)
+            if item.subreddit_slow.name == author.draft_sr_name and not c.user == author:
+                return False
+        if isinstance(item, Comment):
+            link = Link._byID(item.link_id)
+            if link._spam:
+                return False
+
+            if item.sr_id not in self.sr_ids:
+                return False
+
+            return super(UnbannedCommentBuilder, self).keep_item(item)
+        return True
+
     def context_from_comment(self, comment):
         if isinstance(comment, Comment):
             link = Link._byID(comment.link_id)

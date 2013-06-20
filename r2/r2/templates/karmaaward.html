@@ -1,0 +1,78 @@
+## The contents of this file are subject to the Common Public Attribution
+## License Version 1.0. (the "License"); you may not use this file except in
+## compliance with the License. You may obtain a copy of the License at
+## http://code.reddit.com/LICENSE. The License is based on the Mozilla Public
+## License Version 1.1, but Sections 14 and 15 have been added to cover use of
+## software over a computer network and provide for limited attribution for the
+## Original Developer. In addition, Exhibit A has been modified to be consistent
+## with Exhibit B.
+## 
+## Software distributed under the License is distributed on an "AS IS" basis,
+## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+## the specific language governing rights and limitations under the License.
+## 
+## The Original Code is Reddit.
+## 
+## The Original Developer is the Initial Developer.  The Initial Developer of
+## the Original Code is CondeNet, Inc.
+## 
+## All portions of the code written by CondeNet are Copyright (c) 2006-2008
+## CondeNet, Inc. All Rights Reserved.
+################################################################################
+
+<%namespace file="utils.html" import="error_field, submit_form, success_field"/>
+
+<h1>${_("Award Karma")}</h1>
+
+${success_field(_("Karma Awarded"), 
+                successful=thing.success)}
+
+<%call expr="submit_form(onsubmit='return post_form(this, \'award\', null, null, true)',
+             method='post',
+             action='/karma/award', _class='iform')">
+  <table>
+    <tr>
+      <th>
+        <label for="to">${_("To (username)")}</label></th>
+      <td><input type="text" name="to" value="${thing.to or ''}" 
+                 id="to" size="40"/></td>
+      <td>${error_field("NO_USER", "span")}
+        ${error_field("USER_DOESNT_EXIST", "span")}</td>
+    </tr>
+    <tr>
+      <th>
+        <label for="amount">${_("Amount")}</label>
+      </th>
+      <td>
+        <input type="text" name="amount" size="40" id="amount"\
+               value="${thing.amount or ''}"/>
+      </td>
+      <td>${error_field("NO_AMOUNT", "span")}
+        ${error_field("AMOUNT_NOT_NUM", "span")}
+        ${error_field("AMOUNT_NEGATIVE", "span")}</td>
+    </tr>
+    <tr>
+      <th>
+        <label for="reason">${_("Reason")}</label>
+      </th>
+      <td>
+        <textarea id="reason" name="reason" rows="1" cols="40">
+          ${thing.reason or ''}
+      </textarea></td>
+      <td>${error_field("NO_MSG_BODY", "span")}
+        ${error_field("COMMENT_TOO_LONG", "span")}</td>
+    </tr>
+    %if thing.captcha:
+      ${thing.captcha.render()}
+    %endif
+    <tr>
+      <th>
+        <label for="award"></label>
+      </th>
+      <td>
+        <button id="award" name="award" type="submit">${_("Award")}</button>
+        <span id='status' class='error'></span>
+      </td>
+      <td id="note_send"></td></tr>
+  </table>
+</%call>

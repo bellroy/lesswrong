@@ -157,6 +157,7 @@ class Reddit(Wrapped):
         ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
         ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
+        ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
 
         if g.site_meter_codename:
             ps.append(SiteMeter(g.site_meter_codename))
@@ -351,6 +352,11 @@ class RecentArticlesPage(Wrapped):
     def __init__(self, content, *a, **kw):
         Wrapped.__init__(self, content=content, *a, **kw)
 
+class KarmaPage(Wrapped):
+    """Compact recent article listing page"""
+    def __init__(self, content, *a, **kw):
+        Wrapped.__init__(self, content=content, *a, **kw)
+
 class RecentPromotedArticles(RecentItems):
     def query(self):
         sr = DefaultSR()
@@ -483,6 +489,25 @@ class MessageCompose(Wrapped):
                          message = message, success = success,
                          captcha = captcha)
 
+class KarmaAwardPage(Reddit):
+    """Defines the content for /message/*"""
+    def __init__(self, *a, **kw):
+        if not kw.has_key('show_sidebar'):
+            kw['show_sidebar'] = True
+        Reddit.__init__(self, *a, **kw)
+        self.replybox = CommentReplyBox()
+
+    def content(self):
+        return self.content_stack(self.replybox, self.infobar, self._content)
+
+
+class KarmaAward(Wrapped):
+    """Compose message form."""
+    def __init__(self,to='', amount='', reason='', success='',
+                 captcha = None):
+        Wrapped.__init__(self, to = to, amount = amount,
+                         reason = reason, success = success,
+                         captcha = captcha)
 
 class BoringPage(Reddit):
     """parent class For rendering all sorts of uninteresting,
