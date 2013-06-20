@@ -33,5 +33,6 @@ from meetup import *
 from karma_adjustment import *
 from poll import *
 from pending_job import *
+from award import *
 import thing_changes
 

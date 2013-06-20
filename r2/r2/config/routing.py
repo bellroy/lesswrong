@@ -110,6 +110,9 @@ def make_map(global_conf={}, app_conf={}):
     mc('/message/compose', controller='message', action='compose')
     mc('/message/:where', controller='message', action='listing')
 
+    mc('/karma/award', controller='karmaaward', action='award')
+    mc('/karma', controller='karmaaward', action='listing')
+
     mc('/:action', controller='front',
        requirements=dict(action="password|random|framebuster"))
     mc('/:action', controller='embed',
