@@ -3,6 +3,7 @@
 <%!
    from pylons.i18n import _, ungettext
    from r2.lib.template_helpers import get_domain
+   from r2.lib.utils import prettytime
 %>
 <%inherit file="printable.htmllite" />
 
@@ -15,7 +16,7 @@
     </h3>
     <span>gave&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.recipient().name}">
       ${thing.recipient().name}</a>&#32;${thing.amount}&#32;
-      karma&#32;for&#32;${thing.reason}
+      karma&#32;for&#32;${thing.reason}&#32;&#40;${prettytime(thing._date)}&#41;
     </span>
   </div>
 </%def>
