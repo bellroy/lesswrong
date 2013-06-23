@@ -297,6 +297,17 @@
         ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
       </li>
     %endif
+    %if not thing.author == c.user:
+      <li>
+        %if not thing.comment_subscribed(c.user, thing):
+          ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
+            "return change_state(this, 'commentsubscribe');", _("Subcribed"))}
+        %else:
+          ${parent.state_button("commentunsubscribe", fullname, _("Unsubscribe"), \
+            "return change_state(this, 'commentunsubscribe');", _("Unsubscibed"))}
+        %endif
+      </li>
+    %endif
     %if c.user_is_admin:
       <li>
       %if thing.is_blessed():
