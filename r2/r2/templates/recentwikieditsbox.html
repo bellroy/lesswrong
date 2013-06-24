@@ -10,27 +10,33 @@
     function initialize() {
       var feed = new google.feeds.Feed("${unsafe(thing.feed_url)}");
       var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var delpattern = new RegExp(".*<a href=\"/wiki/User:.*\" title=\"User:.*\">.*</a> deleted page")
+      var pages = new Array();
       feed.setNumEntries(5);
       feed.load(function(result) {
         if (!result.error) {
           var container = document.getElementById("${unsafe(container_id)}");
           for (var i = 0; i < result.feed.entries.length; i++) {
             var entry = result.feed.entries[i];
-            var li = document.createElement("li");
-            var link = document.createElement("a");
-            var href = entry.link.replace(/&diff=\d+&oldid=prev$/, "");
-            link.setAttribute("href", href);
-            link.appendChild(document.createTextNode(entry.title));
-            li.appendChild(link);
-            var author_link = document.createElement('a');
-            author_link.setAttribute("href", "http://wiki.lesswrong.com/wiki/User:" + entry.author.replace(/ /g, "_"));
-            author_link.appendChild(document.createTextNode(entry.author));
+            if (!delpattern.test(entry.content)&&pages.indexOf(entry.title)==-1) {
+              var li = document.createElement("li");
+              var link = document.createElement("a");
+              var href = entry.link.replace(/&diff=\d+&oldid=prev$/, "");
+              link.setAttribute("href", href);
+              link.appendChild(document.createTextNode(entry.title));
+              li.appendChild(link);
+              var author_link = document.createElement('a');
+              author_link.setAttribute("href", "http://wiki.lesswrong.com/wiki/User:" + entry.author.replace(/ /g, "_"));
+              author_link.appendChild(document.createTextNode(entry.author));
+            
 
-	    var span = document.createElement('span');
-	    li.appendChild(span);
-	    span.appendChild(document.createTextNode(" by "));
-	    span.appendChild(author_link);
-            container.appendChild(li);
+	      var span = document.createElement('span');
+	      li.appendChild(span);
+	      span.appendChild(document.createTextNode(" by "));
+	      span.appendChild(author_link);
+              container.appendChild(li);
+            }
+          pages.push(entry.title);
           }
         }
       });
