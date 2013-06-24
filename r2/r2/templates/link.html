@@ -296,7 +296,7 @@
         <% kw = {"class": "edit", "title": "Edit"} %>
         ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
       </li>
-    %endif
+  %endif
     %if not thing.author == c.user:
       <li>
         %if not thing.link_subscribed(c.user, thing):

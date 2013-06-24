@@ -83,7 +83,6 @@ dbm.thing('pendingjob', main_engine, main_engine)
 dbm.relation('savehide', 'account', 'link', main_engine)
 dbm.relation('click', 'account', 'link', main_engine)
 dbm.relation('subscription', 'account', 'link', main_engine)
-dbm.relation('comment_subscription', 'account', 'comment', main_engine)
 dbm.relation('linktag', 'link', 'tag', main_engine)
 
 dbm.thing('comment', comment_engine, comment_engine)
