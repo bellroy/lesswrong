@@ -164,7 +164,6 @@ class Link(Thing, Printable, ImageHolder):
                 date = date,
                 **kwargs
                 )
-        l.subscribers = set()
         l._commit()
 
         # Now that the post id is known update the Post with the correct permalink.
