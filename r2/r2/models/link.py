@@ -240,7 +240,7 @@ class Link(Thing, Printable, ImageHolder):
         return cls._somethinged(Subscription, user, link, 'subscription')
 
     @classmethod
-    def comment_subscribed(cls, user, link):
+    def link_subscribed(cls, user, link):
         return cls._somethinged(Subscription, user, link, 'subscription')[(user,link,'subscription')]
 
     @classmethod
@@ -927,6 +927,37 @@ class Comment(Thing, Printable):
             parent = type(self)._byID(self.parent_id)
             return func(parent)
         return default
+    @classmethod
+    def _somethinged(cls, rel, user, link, name):
+        return rel._fast_query(tup(user), tup(link), name = name)
+
+    def _something(self, rel, user, somethinged, name):
+        try:
+            saved = rel(user, self, name=name)
+            saved._commit()
+            return saved
+        except CreationError, e:
+            return somethinged(user, self)[(user, self, name)]
+
+    def _unsomething(self, user, somethinged, name):
+        saved = somethinged(user, self)[(user, self, name)]
+        if saved:
+            saved._delete()
+            return saved
+
+    def add_subscriber(self, user):
+        return self._something(Comment_Subscription, user, self.user_subscribed, 'comment_subscription')
+
+    def remove_subscriber(self, user):
+        return self._unsomething(user, self.user_subscribed, 'comment_subscription')
+
+    @classmethod
+    def user_subscribed(cls, user, comment):
+        return cls._somethinged(Comment_Subscription, user, comment, 'comment_subscription')
+
+    @classmethod
+    def comment_subscribed(cls, user, comment):
+        return cls._somethinged(Comment_Subscription, user, comment, 'comment_subscription')[(user,comment,'comment_subscription')]
 
     def _send_post_notifications(self, link, comment, parent):
         to = []
@@ -1236,6 +1267,7 @@ class Message(Thing, Printable):
 class SaveHide(Relation(Account, Link)): pass
 class Click(Relation(Account, Link)): pass
 class Subscription(Relation(Account, Link)): pass
+class Comment_Subscription(Relation(Account, Comment)): pass
 
 class Inbox(MultiRelation('inbox',
                           Relation(Account, Comment),

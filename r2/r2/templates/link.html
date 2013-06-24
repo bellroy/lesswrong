@@ -299,12 +299,12 @@
     %endif
     %if not thing.author == c.user:
       <li>
-        %if not thing.comment_subscribed(c.user, thing):
-          ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
-            "return change_state(this, 'commentsubscribe');", _("Subcribed"))}
+        %if not thing.link_subscribed(c.user, thing):
+          ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
+            "return change_state(this, 'linksubscribe');", _("Subcribed"))}
         %else:
-          ${parent.state_button("commentunsubscribe", fullname, _("Unsubscribe"), \
-            "return change_state(this, 'commentunsubscribe');", _("Unsubscibed"))}
+          ${parent.state_button("linkunsubscribe", fullname, _("Unsubscribe"), \
+            "return change_state(this, 'linkunsubscribe');", _("Unsubscibed"))}
         %endif
       </li>
     %endif
