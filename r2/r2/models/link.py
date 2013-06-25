@@ -186,6 +186,8 @@ class Link(Thing, Printable, ImageHolder):
         self.article = article
         self._commit()
     
+
+
     def _summary(self):
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[0]
@@ -225,6 +227,20 @@ class Link(Thing, Printable, ImageHolder):
 
     def _unsave(self, user):
         return self._unsomething(user, self._saved, 'save')
+
+    def add_subscriber(self, user):
+        return self._something(Subscription, user, self.user_subscribed, 'subscription')
+
+    def remove_subscriber(self, user):
+        return self._unsomething(user, self.user_subscribed, 'subscription')
+
+    @classmethod
+    def user_subscribed(cls, user, link):
+        return cls._somethinged(Subscription, user, link, 'subscription')
+
+    @classmethod
+    def link_subscribed(cls, user, link):
+        return cls._somethinged(Subscription, user, link, 'subscription')[(user,link,'subscription')]
 
     @classmethod
     def _clicked(cls, user, link):
@@ -912,22 +928,25 @@ class Comment(Thing, Printable):
         return default
 
     def _send_post_notifications(self, link, comment, parent):
-        if parent:
-            to = Account._byID(parent.author_id)
+        to = []
+        if parent and not parent.author_id == comment.author_id:
+            to.append(Account._byID(parent.author_id))
         else:
-            if not link.notify_on_comment:
-                return None
-            elif comment.author_id != link.author_id:
-                # Send notification if the comment wasn't by the link author
-                to = Account._byID(link.author_id)
-            else:
-                return None
-
+            for subscriber in Subscription._query(Subscription.c._thing2_id == (link._id),
+                                                  Subscription.c._name == 'subscription'):
+                if not subscriber._thing1_id == comment.author_id:
+                    to.append(Account._byID(subscriber._thing1_id))
+            if link.notify_on_comment and not link.author_id == comment.author_id:
+                to.append(Account._byID(link.author_id))
+        if len(to) == 0:
+            return None
         # only global admins can be message spammed.
         if self._spam and to.name not in g.admins:
             return None
 
-        return Inbox._add(to, self, 'inbox')
+        for user in to: 
+            Inbox._add(user, self, 'inbox')
+        return True
 
     def has_children(self):
         q = Comment._query(Comment.c.parent_id == self._id, limit=1)
@@ -1218,6 +1237,7 @@ class Message(Thing, Printable):
 
 class SaveHide(Relation(Account, Link)): pass
 class Click(Relation(Account, Link)): pass
+class Subscription(Relation(Account, Link)): pass
 
 class Inbox(MultiRelation('inbox',
                           Relation(Account, Comment),

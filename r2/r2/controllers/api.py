@@ -237,6 +237,18 @@ class ApiController(RedditController):
         link.set_blessed(True)
 
     @Json
+    @validate(VUser(),
+              link = VByName('id'))
+    def POST_linksubscribe(self, res, link):
+        link.add_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              link = VByName('id'))
+    def POST_linkunsubscribe(self, res, link):
+        link.remove_subscriber(c.user)
+
+    @Json
     @validate(VAdmin(),
               link = VByName('id'))
     def POST_unbless(self, res, link):
