@@ -927,10 +927,47 @@ class Comment(Thing, Printable):
             return func(parent)
         return default
 
+    @classmethod
+    def _somethinged(cls, rel, user, link, name):
+        return rel._fast_query(tup(user), tup(link), name = name)
+
+    def _something(self, rel, user, somethinged, name):
+        try:
+            saved = rel(user, self, name=name)
+            saved._commit()
+            return saved
+        except CreationError, e:
+            return somethinged(user, self)[(user, self, name)]
+
+    def _unsomething(self, user, somethinged, name):
+        saved = somethinged(user, self)[(user, self, name)]
+        if saved:
+            saved._delete()
+            return saved
+
+    def add_subscriber(self, user):
+        return self._something(CommentSubscription, user, self.user_subscribed, 'commentsubscription')
+
+    def remove_subscriber(self, user):
+        return self._unsomething(user, self.user_subscribed, 'commentsubscription')
+
+    @classmethod
+    def user_subscribed(cls, user, link):
+        return cls._somethinged(CommentSubscription, user, link, 'commentsubscription')
+
+    @classmethod
+    def comment_subscribed(cls, user, link):
+        return cls._somethinged(CommentSubscription, user, link, 'commentsubscription')[(user,link,'commentsubscription')]
+
     def _send_post_notifications(self, link, comment, parent):
         to = []
-        if parent and not parent.author_id == comment.author_id:
-            to.append(Account._byID(parent.author_id))
+        if parent:
+            if not parent.author_id == comment.author_id:
+                to.append(Account._byID(parent.author_id))
+            for subscriber in CommentSubscription._query(CommentSubscription.c._thing2_id == (comment._id),
+                                                  CommentSubscription.c._name == 'commentsubscription'):
+                if not subscriber._thing1_id == comment.author_id:
+                    to.append(Account._byID(subscriber._thing1_id))
         else:
             for subscriber in Subscription._query(Subscription.c._thing2_id == (link._id),
                                                   Subscription.c._name == 'subscription'):
@@ -1235,6 +1272,7 @@ class Message(Thing, Printable):
 class SaveHide(Relation(Account, Link)): pass
 class Click(Relation(Account, Link)): pass
 class Subscription(Relation(Account, Link)): pass
+class CommentSubscription(Relation(Account, Comment)): pass
 
 class Inbox(MultiRelation('inbox',
                           Relation(Account, Comment),
