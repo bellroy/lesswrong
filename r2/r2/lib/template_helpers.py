@@ -245,6 +245,9 @@ def join_urls(*urls):
     return url
 
 old_user_rss_re = re.compile(r'^/user/([^/]+)/$')
+old_user_rss_re2 = re.compile(r'^/user/([^/]+)$')
+overview_rss_re = re.compile(r'^/user/([^/]+)/overview/$')
+comments_rss_re = re.compile(r'^/user/([^/]+)/comments/$')
 def get_rss_path(request_path):
     """Returns an appropriate path to an RSS feed for the current page."""
 
@@ -253,8 +256,14 @@ def get_rss_path(request_path):
 
     # On user profile pages pulled from the wiki the RSS feed should point to
     # the overview page's feed
-    if old_user_rss_re.match(request_path):
-      path = path + "overview/"
+    if old_user_rss_re.match(request_path) or old_user_rss_re2.match(request_path):
+      path = path + "overviewrss/"
+
+    if overview_rss_re.match(request_path):
+      path = path[:-9] + "overviewrss/"
+
+    if comments_rss_re.match(request_path):
+      path = path[:-9] + "commentsrss/"
 
     return add_sr(join_urls(path, '.rss'))
 

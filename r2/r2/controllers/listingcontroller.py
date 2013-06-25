@@ -514,14 +514,24 @@ class UserController(ListingController):
             q = object  # dummy value
 
         if self.where == 'overview':
+            self.skip = True
             self.check_modified(self.vuser, 'overview')
+            q = queries.get_overview(self.vuser, 'new', 'all')
+
+        elif self.where == 'overviewrss':
+            self.check_modified(self.vuser, 'overviewrss')
             q = queries.get_overview(self.vuser, 'new', 'all')
 
         elif self.where == 'comments':
             self.check_modified(self.vuser, 'commented')
             q = queries.get_comments(self.vuser, 'new', 'all')
 
+        elif self.where == 'commentsrss':
+            self.check_modified(self.vuser, 'commented')
+            q = queries.get_comments(self.vuser, 'new', 'all')
+
         elif self.where == 'submitted':
+            self.skip = True
             self.check_modified(self.vuser, 'submitted')
             q = queries.get_submitted(self.vuser, 'new', 'all')
 
@@ -538,9 +548,6 @@ class UserController(ListingController):
         elif self.where == 'drafts':
             q = queries.get_drafts(self.vuser)
 
-        elif c.user_is_admin:
-            q = admin_profile_query(self.vuser, self.where, desc('_date'))
-
         if q is None:
             return self.abort404()
 
@@ -549,7 +556,7 @@ class UserController(ListingController):
     def builder(self):
         if self.where == 'profile':
             return PrecomputedBuilder([self.wikipage])
-        elif self.where in ('comments', 'overview'):
+        elif self.where in ('comments', 'overview', 'submitted'):
             builder_cls = ContextualCommentBuilder
             b = builder_cls(self.query_obj,
                              num = self.num,
@@ -599,7 +606,7 @@ class UserController(ListingController):
                and vuser._spam:
             return self.abort404()
 
-        if (where not in ('profile', 'overview', 'submitted', 'comments')
+        if (where not in ('profile', 'overview', 'submitted', 'comments', 'overviewrss', 'commentsrss')
             and not votes_visible(vuser)):
             return self.abort404()
 
@@ -681,6 +688,69 @@ class MessageController(ListingController):
                                  message = message,
                                  success = success)
         return MessagePage(content = content, title = self.title('compose')).render()
+
+class KarmaawardController(ListingController):
+    show_sidebar = True
+
+    def title(self, where = None):
+        if where is None:
+            where = 'blah'
+        return "%s - %s" % (_('Karma Awards'), c.site.title)
+
+    def content(self):
+        return KarmaPage(content=self.listing_obj)
+
+    @staticmethod
+    def builder_wrapper(thing):
+        if isinstance(thing, Comment):
+            p = thing.make_permalink_slow()
+            f = thing._fullname
+            w = Wrapped(thing)
+            w.render_class = Message
+            w.to_id = c.user._id
+            w.subject = _('Comment Reply')
+            w.was_comment = True
+            w.permalink, w._fullname = p, f
+            return w
+        else:
+            return ListingController.builder_wrapper(thing)
+
+    def query(self):
+        q = Award._query(sort = desc('_date'), data = True)
+        return q
+
+
+    def builder(self):
+        # This is (almost) copied and pasted from ListingController.builder.
+        b = QueryBuilder(self.query_obj,
+                         num = self.num,
+                         skip = self.skip,
+                         after = self.after,
+                         count = self.count,
+                         reverse = self.reverse,
+                         wrap = self.builder_wrapper,
+                         keep_fn = lambda i: True)
+        return b
+
+    def GET_listing(self, **env):
+        return ListingController.GET_listing(self, **env)
+
+    @validate(VUser(),
+              to = nop('to'),
+              amount = nop('amount'),
+              reason = nop('reason'),
+              success = nop('success'))
+    def GET_award(self, to, amount, reason, success):
+        if c.user_is_admin:
+            captcha = Captcha() if c.user.needs_captcha() else None
+            content = KarmaAward(to = to, amount = amount,
+                                     captcha = captcha,
+                                     reason = reason,
+                                     success = success)
+            return KarmaAwardPage(content = content, title = self.title('Award Karma')).render()
+        else:
+            return self.abort404()
+
 
 class RedditsController(ListingController):
     render_cls = SubredditsPage

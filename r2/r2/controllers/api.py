@@ -27,6 +27,7 @@ from pylons import c, request, response
 from pylons.controllers.util import etag_cache
 
 import hashlib
+import httplib
 from validator import *
 
 from r2.models import *
@@ -182,6 +183,52 @@ class ApiController(RedditController):
                 queries.new_message(m, inbox_rel)
         else:
             res._update('success', innerHTML='')
+
+    @Json
+    @validate(VCaptcha(),
+              VUser(),
+              VModhash(),
+              ip = ValidIP(),
+              to = VExistingUname('to'),
+              subject = VAwardAmount('amount', errors.NO_AMOUNT),
+              body = VMessage('reason'))
+    def POST_award(self, res, to, subject, body, ip):
+        res._update('status', innerHTML='')
+        if (res._chk_error(errors.NO_USER) or
+            res._chk_error(errors.USER_DOESNT_EXIST)):
+            res._focus('to')
+        elif (res._chk_error(errors.NO_AMOUNT) or
+              res._chk_error(errors.AMOUNT_NOT_NUM) or
+              res._chk_error(errors.AMOUNT_NEGATIVE)):
+            res._focus('amount')
+        elif (res._chk_error(errors.NO_MSG_BODY) or
+              res._chk_error(errors.COMMENT_TOO_LONG)):
+            res._focus('reason')
+        elif res._chk_captcha(errors.BAD_CAPTCHA):
+            pass
+
+        if not res.error:
+            spam = (c.user._spam or
+                    errors.BANNED_IP in c.errors or
+                    errors.BANNED_DOMAIN in c.errors)
+
+            to.incr_karma('adjustment', Subreddit._by_name('discussion'), int(subject), 0)
+
+            res._update('success',
+                        innerHTML=_("Karma Awarded"))
+            res._update('to', value='')
+            res._update('amount', value='')
+            res._update('reason', value='')
+            Award._new(c.user, body, subject, to, ip)
+
+            messagebody = 'You have been awarded ' + subject + ' karma for ' + body
+            
+            m, inbox_rel = Message._new(c.user, to, 'Karma Award', messagebody, ip, spam)
+
+        else:
+            res._update('success', innerHTML='')
+
+
 
     @Json
     @validate(VAdmin(),
@@ -424,7 +471,6 @@ class ApiController(RedditController):
         res._update('status', innerHTML='')
 
         fn = getattr(container, action + '_' + type)
-	c.user.incr_karma('adjustment', Subreddit.default(), 100, 0)
 
         if (not c.user_is_admin
             and (type in ('moderator','contributer','banned')

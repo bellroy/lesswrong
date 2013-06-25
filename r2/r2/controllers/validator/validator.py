@@ -116,6 +116,28 @@ class VRequired(Validator):
         else:
             return item
 
+class VAwardAmount(Validator):
+    def __init__(self, param, error, *a, **kw):
+        Validator.__init__(self, param, *a, **kw)
+        self._error = error
+
+    def error(self, e = None):
+        if not e: e = self._error
+        if e:
+            c.errors.add(e)
+        
+    def run(self, item):
+        if not item:
+            self.error()
+        else:
+            try:
+                if int(item) <= 0:
+                    c.errors.add(errors.AMOUNT_NEGATIVE)
+                else:
+                    return item
+            except ValueError:
+                c.errors.add(errors.AMOUNT_NOT_NUM)
+
 class ValueOrBlank(Validator):
     def run(self, value):
         """Returns the value as is if present, else an empty string"""
