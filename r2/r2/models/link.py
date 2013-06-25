@@ -964,7 +964,7 @@ class Comment(Thing, Printable):
         if parent:
             if not parent.author_id == comment.author_id:
                 to.append(Account._byID(parent.author_id))
-            for subscriber in CommentSubscription._query(CommentSubscription.c._thing2_id == (comment._id),
+            for subscriber in CommentSubscription._query(CommentSubscription.c._thing2_id == (parent._id),
                                                   CommentSubscription.c._name == 'commentsubscription'):
                 if not subscriber._thing1_id == comment.author_id:
                     to.append(Account._byID(subscriber._thing1_id))

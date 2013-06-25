@@ -168,10 +168,12 @@ ${parent.midcol()}
           <li class='subscribe'>
             %if not thing.comment_subscribed(c.user, thing):
               ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
-                "return change_state(this, 'commentsubscribe');", _("Subcribed"))}
+                "return change_state(this, 'commentsubscribe');", _("Subcribed"), \
+                tool_tip=_("Get notification of replies to this comment"))}
             %else:
               ${parent.state_button("commentunsubscribe", fullname, _("Unsubscribe"), \
-                "return change_state(this, 'commentunsubscribe');", _("Unsubscibed"))}
+                "return change_state(this, 'commentunsubscribe');", _("Unsubscibed"), \
+                tool_tip=_("No longer receive notification for this comment"))}
             %endif
           </li>
         %endif
