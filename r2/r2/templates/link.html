@@ -298,7 +298,7 @@
       </li>
   %endif
     %if not thing.author == c.user:
-      <li>
+      <li class="subscribe">
         %if not thing.link_subscribed(c.user, thing):
           ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
             "return change_state(this, 'linksubscribe');", _("Subcribed"), \

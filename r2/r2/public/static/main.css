@@ -480,7 +480,8 @@ div.tools img.landscape {
 }
 div.tools li.delete,
 div.tools li.promote,
-div.tools li.ban {
+div.tools li.ban,
+div.tools li.subscribe {
 	line-height: 20px;
 }
 div.tools a.license {
