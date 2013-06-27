@@ -296,15 +296,17 @@
         <% kw = {"class": "edit", "title": "Edit"} %>
         ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
       </li>
-    %endif
+  %endif
     %if not thing.author == c.user:
       <li>
-        %if not thing.comment_subscribed(c.user, thing):
-          ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
-            "return change_state(this, 'commentsubscribe');", _("Subcribed"))}
+        %if not thing.link_subscribed(c.user, thing):
+          ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
+            "return change_state(this, 'linksubscribe');", _("Subcribed"), \
+            tool_tip=_("Get notifications of top level comments on this post"))}
         %else:
-          ${parent.state_button("commentunsubscribe", fullname, _("Unsubscribe"), \
-            "return change_state(this, 'commentunsubscribe');", _("Unsubscibed"))}
+          ${parent.state_button("linkunsubscribe", fullname, _("Unsubscribe"), \
+            "return change_state(this, 'linkunsubscribe');", _("Unsubscibed"), \
+            tool_tip=_("No longer receive notifications for this post"))}
         %endif
       </li>
     %endif

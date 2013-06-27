@@ -239,14 +239,26 @@ class ApiController(RedditController):
     @Json
     @validate(VUser(),
               link = VByName('id'))
-    def POST_commentsubscribe(self, res, link):
+    def POST_linksubscribe(self, res, link):
         link.add_subscriber(c.user)
 
     @Json
     @validate(VUser(),
               link = VByName('id'))
-    def POST_commentunsubscribe(self, res, link):
+    def POST_linkunsubscribe(self, res, link):
         link.remove_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              comment = VByName('id'))
+    def POST_commentsubscribe(self, res, comment):
+        comment.add_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              comment = VByName('id'))
+    def POST_commentunsubscribe(self, res, comment):
+        comment.remove_subscriber(c.user)
 
     @Json
     @validate(VAdmin(),
