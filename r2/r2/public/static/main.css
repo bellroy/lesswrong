@@ -434,7 +434,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save, div.tools a.edit, div.tools a.hide {
+div.tools a.save, div.tools a.edit, div.tools a.hide, div.tools a.subscription {
 	cursor: pointer;
 	display: block;
 	height: 0;
@@ -443,12 +443,17 @@ div.tools a.save, div.tools a.edit, div.tools a.hide {
 	width: 16px;
 }
 div.tools a.save:hover, div.tools a.save.mod,
+div.tools a.subscription:hover, div.tools a.subscription.mod,
 div.tools a.edit:hover,
 div.tools a.hide:hover, div.tools a.hide.mod {
 	background-position: 0 -20px;
 }
 div.tools a.save {
     background: url(/static/save-button.gif) no-repeat 0 0;
+}
+div.tools a.subscription {
+    background: url(/static/subscribe.png);
+    width: 20px;
 }
 div.tools a.edit {
     background-image: url(/static/edit.png);
@@ -750,6 +755,10 @@ div.comment-links ul li.up a {
 	background-image: url(/static/vote-up.gif);
 	width: 14px;
 }
+div.comment-links ul li.subscribe a{
+    background-image: url(/static/subscribe.png);
+    width: 20px;
+}
 div.comment-links ul li.down a {
 	background-image: url(/static/vote-down.gif);
 	width: 14px;
@@ -810,8 +819,7 @@ div.comment-links ul li.retract a.yes, div.comment-links ul li.retract a.no  {
 
 /* Temporary styling for text buttons until we have icons */
 div.comment-links ul li.delete a, div.comment-links ul li.unban a,
-div.comment-links ul li.ban a, div.comment-links ul li.ignore a,
-div.comment-links ul li.subscribe a {
+div.comment-links ul li.ban a, div.comment-links ul li.ignore a {
     height: 20px;
     padding-top: 4px;
 }
