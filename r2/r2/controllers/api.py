@@ -45,7 +45,7 @@ from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, TopMonthlyContributors, WikiPageList, \
     ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, \
-    MeetupsMap
+    MeetupsMap, RecentTagged
 
 
 from r2.lib.menus import CommentSortMenu
@@ -1100,7 +1100,13 @@ class ApiController(RedditController):
     def GET_side_comments(self, *a, **kw):
         """Return HTML snippet of the recent comments for the side bar."""
         # Server side cache is also invalidated when new comment is posted
+        #return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
         return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
+
+    def GET_side_open(self, *a, **kw):
+        """Return HTML snippet of the recent comments for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'open_thread')
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""

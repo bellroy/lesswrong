@@ -145,7 +145,8 @@ class Reddit(Wrapped):
             ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
-        ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-comment', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-open', _('Recent Open Thread'), '/tag/open_thread'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
@@ -331,6 +332,38 @@ class RecentItems(SpaceCompressedWrapped):
 class RecentComments(RecentItems):
     def query(self):
         return c.current_or_default_sr.get_comments('new', 'all')
+
+    def init_builder(self):
+        return UnbannedCommentBuilder(
+            self.query(),
+            num = 5,
+            wrap = RecentItems.wrap_thing,
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
+        )
+
+class RecentTagged(RecentItems):
+    def __init__(self, *args, **kwargs):
+        self.tag = kwargs['tagtype']
+        self.things = self.init_builder()
+        Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        print 'blah'
+        t = LinkTag._query(LinkTag.c._thing2_id == Tag._by_name(self.tag)._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t1_deleted == False,
+                           sort = desc('_date'),
+                           limit = 1,
+                           thing_data = not g.use_query_cache
+                      )
+        relevantpost = list(t)[0]._thing1._id
+        q = Comment._query(Comment.c.link_id == relevantpost,
+                            Comment.c._deleted == False,
+                            Comment.c._spam == False,
+                            sort = desc('_date'),
+                            data = True)
+        return q
 
     def init_builder(self):
         return UnbannedCommentBuilder(

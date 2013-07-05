@@ -388,7 +388,7 @@ class TagController(ListingController):
                                 count = self.count,
                                 reverse = self.reverse,
                                 wrap = self.builder_wrapper,
-                                sr_ids = [c.current_or_default_sr._id])
+                                sr_ids = [c.current_or_default_sr._id, Subreddit._by_name('discussion')._id])
         return b
 
     @validate(tag = VTagByName('tag'), sort = VMenu('where', TagSortMenu))
