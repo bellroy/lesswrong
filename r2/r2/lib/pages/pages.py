@@ -156,8 +156,8 @@ class Reddit(Wrapped):
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
 
-        if g.recent_edits_feed:
-            ps.append(RecentWikiEditsBox(g.recent_edits_feed))
+        for feed_url in g.feedbox_urls:
+            ps.append(FeedBox(feed_url))
 
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
@@ -365,7 +365,6 @@ class RecentTagged(RecentItems):
         q = Comment._query(Comment.c.link_id == relevantpost,
                             Comment.c._deleted == False,
                             Comment.c._spam == False,
-                            #Comment.c.parent_id == False,
                             sort = desc('_date'),
                             data = True)
         return q
