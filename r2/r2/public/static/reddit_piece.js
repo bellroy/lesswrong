@@ -87,6 +87,7 @@ function init(args) {
     populate_side_bar('side-meetups', args);
     populate_side_bar('side-comments', args);
     populate_side_bar('side-posts', args);
+    populate_side_bar('side-open', args);
     populate_side_bar('side-tags', args);
     populate_side_bar('side-monthly-contributors', args);
     populate_side_bar('side-contributors', args);
