@@ -1095,6 +1095,63 @@ ul#rightnav li a:hover {
 	color: #58585a;
 }
 
+#side-open h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-open div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-open div.inline-comment:last-child {
+	margin: 0;
+}
+#side-open div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
+#side-diary h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-diary div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-diary div.inline-comment:last-child {
+	margin: 0;
+}
+#side-diary div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
+#side-quote h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-quote div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-quote div.inline-comment:last-child {
+	margin: 0;
+}
+#side-quote div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
 #side-posts div.reddit-link {
 	display: block;
 	margin: 0 0 10px;

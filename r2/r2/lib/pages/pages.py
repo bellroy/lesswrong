@@ -145,8 +145,12 @@ class Reddit(Wrapped):
             ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
-        ps.append(SideBoxPlaceholder('side-comment', _('Recent Comments'), '/comments'))
-        ps.append(SideBoxPlaceholder('side-open', _('Recent Open Thread'), '/tag/open_thread'))
+        ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        if c.site == Subreddit._by_name('discussion'):
+            ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
+            ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
+        else:
+            ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
@@ -345,11 +349,11 @@ class RecentComments(RecentItems):
 class RecentTagged(RecentItems):
     def __init__(self, *args, **kwargs):
         self.tag = kwargs['tagtype']
+        self.title = kwargs['title']
         self.things = self.init_builder()
         Wrapped.__init__(self, *args, **kwargs)
 
     def query(self):
-        print 'blah'
         t = LinkTag._query(LinkTag.c._thing2_id == Tag._by_name(self.tag)._id,
                            LinkTag.c._name == 'tag',
                            LinkTag.c._t1_deleted == False,
@@ -368,7 +372,7 @@ class RecentTagged(RecentItems):
     def init_builder(self):
         return UnbannedCommentBuilder(
             self.query(),
-            num = 5,
+            num = 1,
             wrap = RecentItems.wrap_thing,
             skip = True,
             sr_ids = [c.current_or_default_sr._id]
