@@ -841,7 +841,6 @@ class Tag(Thing):
         import math
 
         if len(input) <= 0:
-          print 'taglength 0'
           return []
         else:
             temp, newThresholds, results = [], [], []
