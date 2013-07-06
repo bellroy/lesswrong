@@ -1,6 +1,6 @@
 <%namespace file="utils.html" import="plain_link"/>
 <h2>
-  ${plain_link(_('Recent Fix Me'), '/tag/fix_me')}:
+  ${plain_link(_('Recent '+thing.title), '/tag/'+thing.tag)}:
 </h2>
 <% 
    t = thing.things

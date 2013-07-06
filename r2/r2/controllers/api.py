@@ -1130,7 +1130,17 @@ class ApiController(RedditController):
     def GET_side_open(self, *a, **kw):
         """Return HTML snippet of the recent comments for the side bar."""
         # Server side cache is also invalidated when new comment is posted
-        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'open_thread')
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'open_thread', title = 'Open Threads')
+
+    def GET_side_quote(self, *a, **kw):
+        """Return HTML snippet of the recent comments for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'quotes', title = 'Rationality Quotes')
+
+    def GET_side_diary(self, *a, **kw):
+        """Return HTML snippet of the recent comments for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'group_rationality_diary', title = 'Rationality Diaries')
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""

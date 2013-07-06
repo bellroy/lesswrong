@@ -799,7 +799,6 @@ class Tag(Thing):
     @classmethod
     # @memoize('tag.tag_cloud_for_subreddits') enable when it is cleared at appropiate points
     def tag_cloud_for_subreddits(cls, sr_ids):
-        print 'asking for tag cloud'
         from r2.lib.db import tdb_sql as tdb
         import sqlalchemy as sa
 
