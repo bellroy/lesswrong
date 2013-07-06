@@ -361,7 +361,9 @@ class RecentTagged(RecentItems):
                            limit = 1,
                            thing_data = not g.use_query_cache
                       )
-        relevantpost = list(t)[0]._thing1._id
+        temp = list(t)[0]._thing1
+        relevantpost = temp._id
+        self.url = temp.url
         q = Comment._query(Comment.c.link_id == relevantpost,
                             Comment.c._deleted == False,
                             Comment.c._spam == False,
