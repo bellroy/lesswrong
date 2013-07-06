@@ -159,9 +159,7 @@ class Reddit(Wrapped):
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
-        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
 
         if g.site_meter_codename:
