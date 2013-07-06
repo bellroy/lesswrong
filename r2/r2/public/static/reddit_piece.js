@@ -88,6 +88,8 @@ function init(args) {
     populate_side_bar('side-comments', args);
     populate_side_bar('side-posts', args);
     populate_side_bar('side-open', args);
+    populate_side_bar('side-quote', args);
+    populate_side_bar('side-diary', args);
     populate_side_bar('side-tags', args);
     populate_side_bar('side-monthly-contributors', args);
     populate_side_bar('side-contributors', args);
@@ -108,6 +110,10 @@ function populate_side_bar(id, args, onSuccess) {
       path_prefix = '/r/' + sr;
     }
 
+    if (node == 'side-open') {
+      args.merge({tagtype: 'you should be able to read this'});
+    }
+
     if (!onSuccess) {
       onSuccess = function(response) {
                     node.innerHTML = response.responseText;
@@ -119,7 +125,7 @@ function populate_side_bar(id, args, onSuccess) {
         new Ajax.Request(path, {
                 method: 'get',
                 parameters: args,
-                onSuccess: onSuccess
+                onSuccess: onSuccess,
                 });
     }
 }
