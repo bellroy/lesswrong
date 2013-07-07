@@ -452,6 +452,15 @@ class UnbannedCommentBuilder(QueryBuilder):
 
         return super(UnbannedCommentBuilder, self).keep_item(item)
 
+class ToplevelCommentBuilder(UnbannedCommentBuilder):
+    def keep_item(self, item):
+        try:
+            item.parent_id
+        except AttributeError:
+            return True
+        else:
+            return False
+
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
         UnbannedCommentBuilder.__init__(self, query, sr_ids, **kw)

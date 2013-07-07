@@ -365,12 +365,13 @@ class RecentTagged(RecentItems):
         q = Comment._query(Comment.c.link_id == relevantpost,
                             Comment.c._deleted == False,
                             Comment.c._spam == False,
+                            #Comment.c.parent_id == False,
                             sort = desc('_date'),
                             data = True)
         return q
 
     def init_builder(self):
-        return UnbannedCommentBuilder(
+        return ToplevelCommentBuilder(
             self.query(),
             num = 1,
             wrap = RecentItems.wrap_thing,
