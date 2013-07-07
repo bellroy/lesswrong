@@ -365,6 +365,7 @@ class RecentTagged(RecentItems):
         q = Comment._query(Comment.c.link_id == relevantpost,
                             Comment.c._deleted == False,
                             Comment.c._spam == False,
+                            #Comment.c.parent_id == False,
                             sort = desc('_date'),
                             data = True)
         return q
