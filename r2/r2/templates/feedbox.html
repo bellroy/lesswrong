@@ -8,38 +8,26 @@
   <ul id="${container_id}"></ul>
   <script type="text/javascript">
     function initialize() {
-      var title = document.getElementById("${title_id}");
-      if(title) {
-        title.innerHTML = "Recent on Rationality Blogs";
-      }
-      var str = "${thing.feed_urls}";
-      var n = str.replace(/&quot;/g,"");
-      var urls = n.split(",");
-      var entries = new Array();
-      function sorthelp(item) {
-        return Date.UTC(item.publishedDate);
-      }
-      for (var i = 0; i < ${len(thing.feed_urls)}; i++) {
-        var feed = new google.feeds.Feed(urls[i]);
-        feed.setNumEntries(5);
-        feed.load(function(result) {
-          if (!result.error) {
-            for (var i = 0; i < result.feed.entries.length; i++) {
-              entries.push(result.feed.entries[i]);
-            }
+      var feed = new google.feeds.Feed("${thing.feed_url}");
+      feed.setNumEntries(5);
+      feed.load(function(result) {
+        if (!result.error) {
+          var title = document.getElementById("${title_id}");
+          if(title) {
+            title.innerHTML = "${_('New on')} " + result.feed.title + "<br />${_('(Sister Site)')}:";
           }
-        });
-      }
-      entries.sort(function(a,b){return Date.UTC(a.publishedDate) - Date.UTC(b.publishedDate)});
-      var container = document.getElementById("${container_id}");
-      for (var i = 0; i < 5; i++) {
-        var li = document.createElement("li");
-        var link = document.createElement("a");
-        link.setAttribute('href', entries[i].link);
-        link.appendChild(document.createTextNode(entries[i].title));
-        li.appendChild(link);
-        container.appendChild(li);
-      }
+          var container = document.getElementById("${container_id}");
+          for (var i = 0; i < result.feed.entries.length; i++) {
+            var entry = result.feed.entries[i];
+            var li = document.createElement("li");
+            var link = document.createElement("a");
+            link.setAttribute('href', entry.link);
+            link.appendChild(document.createTextNode(entry.title));
+            li.appendChild(link);
+            container.appendChild(li);
+          }
+        }
+      });
     }
     google.setOnLoadCallback(initialize);
   </script>
