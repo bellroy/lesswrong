@@ -156,8 +156,7 @@ class Reddit(Wrapped):
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
 
-        for feed_url in g.feedbox_urls:
-            ps.append(FeedBox(feed_url))
+        ps.append(FeedBox(g.feedbox_urls))
 
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
@@ -1473,8 +1472,14 @@ class FeedLinkBar(Wrapped):
 class AboutBox(Wrapped): pass
 
 class FeedBox(Wrapped):
-    def __init__(self, feed_url, *a, **kw):
-        self.feed_url = feed_url
+    def __init__(self, feed_urls, *a, **kw):
+        self.feed_url = feed_urls[0]
+        self.feed_urls = ''
+        for url in feed_urls:
+            self.feed_urls += '"'
+            self.feed_urls += url
+            self.feed_urls += '",'
+        self.feed_urls = self.feed_urls[:-1]
         Wrapped.__init__(self, *a, **kw)
 
 class RecentWikiEditsBox(Wrapped):
