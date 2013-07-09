@@ -489,7 +489,24 @@ div.tools img.landscape {
 	position: absolute;
 	right: 10px;
 }
-
+div.tools li.delete,
+div.tools li.promote,
+div.tools li.ban {
+	line-height: 20px;
+}
+div.tools a.license {
+	cursor: pointer;
+	display: block;
+	height: 0;
+	overflow: hidden;
+	padding: 16px 0 0;
+        margin-top: 2px;
+	width: 16px;
+	background: url(/static/cc-logo.png) no-repeat 0 0;
+}
+div.tools a.license:hover {
+	background-position: 0 -16px;
+}
 
 /* Meetup
 -------------------------------------------------------------------------------------- */
@@ -643,7 +660,10 @@ div.message div.message div.message div.message div.message div.message div.mess
 .new-comment,
 div.comment div.new-comment {
     border: 5px solid #eed1ee !important;
+<<<<<<< HEAD
     /* padding: 10px 0 10px 10px !important; */
+=======
+>>>>>>> 83ffb6762b46878ecca867619bc3195dc1f1ccb0
     padding: 0 0 0 10px !important;
     margin-right: 0 !important;
 }

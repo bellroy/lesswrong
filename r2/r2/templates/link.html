@@ -311,7 +311,7 @@
       </li>
     %endif
     %if c.user_is_admin:
-      <li>
+      <li class="promote">
       %if thing.is_blessed():
         ${parent.state_button("unbless", fullname, _("Demote"), \
             "return change_state(this, 'unbless');", _("Demoted"))}
@@ -343,7 +343,7 @@
   ${parent.buttons(ban=ban)}
   %if thing.cc_licensed:
   <li>
-  <a href="http://creativecommons.org/licenses/by/3.0/"><img src="/static/cc-logo.png" alt="" title="Post licensed under Creative Commons Attribution 3.0 License"></a>
+    <a href="http://creativecommons.org/licenses/by/3.0/" class="license" title="Post licensed under Creative Commons Attribution 3.0 License">CC Licenced</a>
   </li>
   %endif
   ${additional}

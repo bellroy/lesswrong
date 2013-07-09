@@ -1132,6 +1132,9 @@ class Comment(Thing, Printable):
 
             # Don't allow users to vote on their own comments
             item.votable = bool(c.user != item.author and not item.retracted)
+            if item.votable and c.profilepage:
+                # Can only vote on profile page under certain conditions
+                item.votable = bool((c.user.safe_karma > g.karma_to_vote_in_overview) and (g.karma_percentage_to_be_voted > item.author.percent_up()))
 
             # not deleted on profile pages,
             # deleted if spam and not author or admin
