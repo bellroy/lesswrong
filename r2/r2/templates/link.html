@@ -298,16 +298,11 @@
       </li>
   %endif
     %if not thing.author == c.user:
-      <li class="subscribe">
-        %if not thing.link_subscribed(c.user, thing):
-          ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
-            "return change_state_by_class(this, 'linksubscribe', 'mod');", _("Subcribed"), \
-            tool_tip=_("Get notifications of top level comments on this post"), a_class="sub")}
-        %else:
-          ${parent.state_button("linkunsubscribe", fullname, _("Unsubscribe"), \
-            "return change_state_by_class(this, 'linkunsubscribe', 'mod');", _("Unsubscibed"), \
-            tool_tip=_("No longer receive notifications for this post"), a_class="unsub")}
-        %endif
+      <li>
+      ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
+          "return change_state_by_class(this, '%s', 'mod')"%("linkunsubscribe" if thing.link_subscribed(c.user, thing) else "linksubscribe"), \
+          _("Subscribed"), a_class="subscription"+(" mod" if thing.link_subscribed(c.user, thing) else ""), \
+          tool_tip = "No longer receive notifications for this post" if thing.link_subscribed(c.user, thing) else "Get notifications of top level comments on this post")}
       </li>
     %endif
     %if c.user_is_admin:
