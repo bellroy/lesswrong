@@ -1,0 +1,13 @@
+<%namespace file="utils.html" import="plain_link"/>
+<h2>
+  ${plain_link(_('Last '+thing.title), thing.url)}:
+</h2>
+<% 
+   t = thing.things
+   comment_generator = t.item_iter(t.get_items())
+%>
+%for a in comment_generator:
+  <div class="inline-comment">
+    ${a.render()}
+  </div>
+%endfor:

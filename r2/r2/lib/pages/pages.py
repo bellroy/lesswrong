@@ -146,6 +146,11 @@ class Reddit(Wrapped):
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        if c.site == Subreddit._by_name('discussion'):
+            ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
+            ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
+        else:
+            ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
@@ -154,9 +159,7 @@ class Reddit(Wrapped):
         for feed_url in g.feedbox_urls:
             ps.append(FeedBox(feed_url))
 
-        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
 
         if g.site_meter_codename:
@@ -336,6 +339,41 @@ class RecentComments(RecentItems):
         return UnbannedCommentBuilder(
             self.query(),
             num = 5,
+            wrap = RecentItems.wrap_thing,
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
+        )
+
+class RecentTagged(RecentItems):
+    def __init__(self, *args, **kwargs):
+        self.tag = kwargs['tagtype']
+        self.title = kwargs['title']
+        self.things = self.init_builder()
+        Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        t = LinkTag._query(LinkTag.c._thing2_id == Tag._by_name(self.tag)._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t1_deleted == False,
+                           sort = desc('_date'),
+                           limit = 1,
+                           thing_data = not g.use_query_cache
+                      )
+        temp = list(t)[0]._thing1
+        relevantpost = temp._id
+        self.url = temp.url
+        q = Comment._query(Comment.c.link_id == relevantpost,
+                            Comment.c._deleted == False,
+                            Comment.c._spam == False,
+                            #Comment.c.parent_id == False,
+                            sort = desc('_date'),
+                            data = True)
+        return q
+
+    def init_builder(self):
+        return ToplevelCommentBuilder(
+            self.query(),
+            num = 1,
             wrap = RecentItems.wrap_thing,
             skip = True,
             sr_ids = [c.current_or_default_sr._id]
