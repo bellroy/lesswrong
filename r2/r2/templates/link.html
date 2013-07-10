@@ -13,7 +13,7 @@
 ##
 ## The Original Code is Reddit.
 ##
-## The Original Developer is the Initial Developer.  The Initial Developer of
+## The Original Developer is the Initial Developer. The Initial Developer of
 ## the Original Code is CondeNet, Inc.
 ##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
@@ -65,7 +65,7 @@
 ##{_RL
 <!--
 <div>
-  <i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
+<i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
 <br/>
 <br/>
 </div>
@@ -237,7 +237,7 @@
     endif
   %>
   <a id="subreddit_${thing._fullname}" href="${path}" class="hover"
-     ${'target="_top"'  if c.cname else ''} >
+     ${'target="_top"' if c.cname else ''} >
     ${thing.subreddit.name}
   </a>
   <script type="text/javascript">
@@ -287,27 +287,14 @@
                             newwindow = c.user.pref_newwindow)}
     </li>
   %endif
-##  <li>
-##    ${plain_link("Feed", "%s/.rss" % thing.url)}
-##  </li>
+## <li>
+## ${plain_link("Feed", "%s/.rss" % thing.url)}
+## </li>
   %if c.user_is_loggedin:
     %if thing.can_submit(c.user):
       <li>
         <% kw = {"class": "edit", "title": "Edit"} %>
         ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
-      </li>
-  %endif
-    %if not thing.author == c.user:
-      <li>
-        %if not thing.link_subscribed(c.user, thing):
-          ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
-            "return change_state_by_class(this, 'linksubscribe', 'mod');", _("Subcribed"), \
-            tool_tip=_("Get notifications of top level comments on this post"), a_class="sub")}
-        %else:
-          ${parent.state_button("linkunsubscribe", fullname, _("Unsubscribe"), \
-            "return change_state_by_class(this, 'linkunsubscribe', 'mod');", _("Unsubscibed"), \
-            tool_tip=_("No longer receive notifications for this post"), a_class="unsub")}
-        %endif
       </li>
     %endif
     %if c.user_is_admin:

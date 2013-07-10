@@ -12,7 +12,7 @@ from pylons import c
 
 allWikiPagesCached = \
   {
-    'about': { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrongcopy:Aboutpage',
+    'about': { 'url' : 'http://wiki.lesswrong.com/wiki/Lesswrong:Aboutpage',
                'route' : 'Aboutpage'
                },
 

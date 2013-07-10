@@ -13,7 +13,7 @@
 ##
 ## The Original Code is Reddit.
 ##
-## The Original Developer is the Initial Developer.  The Initial Developer of
+## The Original Developer is the Initial Developer. The Initial Developer of
 ## the Original Code is CondeNet, Inc.
 ##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
@@ -164,19 +164,6 @@ ${parent.midcol()}
         <% allow_delete = thing.can_be_deleted %>
         ${parent.delete_or_report_buttons(allow_delete,False,True)}
         ${parent.buttons()}
-        %if c.user_is_loggedin and not thing.author == c.user:
-          <li class='subscribe'>
-            %if not thing.comment_subscribed(c.user, thing):
-              ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
-                "return change_state_by_class(this, 'commentsubscribe', 'mod');", _("Subcribed"), \
-                tool_tip=_("Get notification of replies to this comment"), a_class="sub")}
-            %else:
-              ${parent.state_button("commentunsubscribe", fullname, _("Unsubscribe"), \
-                "return change_state_by_class(this, 'commentunsubscribe', 'mod');", _("Unsubscibed"), \
-                tool_tip=_("No longer receive notification for this comment"), a_class="unsub")}
-            %endif
-          </li>
-        %endif
       </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
     <span id='${"status_"+thing._fullname}' class="error" style="display: none;"></span>
@@ -190,4 +177,5 @@ ${parent.midcol()}
     ${ "title='%s'"%(_(tool_tip)) if tool_tip else "" }
    >${title}</a>
 </%def>
+
 
