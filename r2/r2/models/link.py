@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-#
+# 
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-#
+# 
 # The Original Code is Reddit.
-#
-# The Original Developer is the Initial Developer. The Initial Developer of the
+# 
+# The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-#
+# 
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -132,7 +132,7 @@ class Link(Thing, Printable, ImageHolder):
 
     def update_url_cache(self, old_url):
         """Remove the old url from the by_url cache then update the
-cache with the new url."""
+        cache with the new url."""
         if old_url != 'self':
             key = self.by_url_key(old_url)
             link_ids = g.permacache.get(key) or []
@@ -146,7 +146,7 @@ cache with the new url."""
         return self.make_permalink_slow() + '?already_submitted=true'
 
     def resubmit_link(self, sr_url = False):
-        submit_url = self.subreddit_slow.path if sr_url else '/'
+        submit_url  = self.subreddit_slow.path if sr_url else '/'
         submit_url += 'submit?resubmit=true&url=' + url_escape(self.url)
         return submit_url
 
@@ -157,7 +157,7 @@ cache with the new url."""
                 url = 'self',
                 _spam = spam,
                 author_id = author._id,
-                sr_id = sr._id,
+                sr_id = sr._id, 
                 lang = sr.lang,
                 ip = ip,
                 article = article,
@@ -252,7 +252,7 @@ cache with the new url."""
             saved._commit()
             return
         except CreationError, e:
-            # This is for a possible race. It is possible the row in the db
+            # This is for a possible race.  It is possible the row in the db
             # has been created but the cache not updated yet. This explicitly
             # clears the cache then re-gets from the db
             g.log.info("Trying cache clear for lookup : "+str((user,self,'click')))
@@ -320,7 +320,7 @@ cache with the new url."""
                               c.user.pref_compress,
                               c.user.pref_media,
                               request.host,
-                              c.cname,
+                              c.cname, 
                               wrapped.author == c.user,
                               wrapped.likes,
                               wrapped.saved,
@@ -405,7 +405,7 @@ cache with the new url."""
             item.saved = bool(saved.get((user, item, 'save')))
             item.hidden = bool(hidden.get((user, item, 'hide')))
 
-            # Only check "last clicked time" on demand. Otherwise it is expensive in big listings. TODO - refactor to use "_getLastClickedTime"
+            # Only check "last clicked time" on demand.  Otherwise it is expensive in big listings.  TODO - refactor to use "_getLastClickedTime"
             def clicked():
                 c = Link._clicked(user, wrapped) if user else {}
                 return c.get((user, item, 'click'))
@@ -453,8 +453,8 @@ cache with the new url."""
     def subreddit_slow(self):
         from subreddit import Subreddit
         """return's a link's subreddit. in most case the subreddit is already
-on the wrapped link (as .subreddit), and that should be used
-when possible. """
+        on the wrapped link (as .subreddit), and that should be used
+        when possible. """
         return Subreddit._byID(self.sr_id, True, return_dict = False)
 
     def change_subreddit(self, new_sr_id):
@@ -466,7 +466,7 @@ when possible. """
             self._commit()
 
             # Comments must be in the same subreddit as the link that
-            # the comments belong to. This is needed so that if a
+            # the comments belong to.  This is needed so that if a
             # comment is made on a draft link then when the link moves
             # to a public subreddit the comments also move and others
             # will be able to see and reply to the comment.
@@ -482,7 +482,7 @@ when possible. """
 
     def add_tag(self, tag_name, name = 'tag'):
         """Adds a tag of the given name to the link. If the tag does not
-exist it is created"""
+           exist it is created"""
         if self._only_whitespace.match(tag_name):
             # Don't allow an empty tag
             return
@@ -504,7 +504,7 @@ exist it is created"""
 
     def remove_tag(self, tag_name, name='tag'):
         """Removes a tag from the link. The tag is not deleted,
-just the relationship between the link and the tag"""
+           just the relationship between the link and the tag"""
         try:
             tag = Tag._by_name(tag_name)
         except NotFound:
@@ -665,12 +665,12 @@ just the relationship between the link and the tag"""
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
-Whenever a post is created we need to invalidate. Also invalidate when
-various post attributes are changed (such as moving to a different
-subreddit). If the post cache is invalidated the comment one is too.
-This is primarily for when a post is banned so that its comments
-dissapear from the sidebar too.
-"""
+        Whenever a post is created we need to invalidate.  Also invalidate when
+        various post attributes are changed (such as moving to a different
+        subreddit). If the post cache is invalidated the comment one is too.
+        This is primarily for when a post is banned so that its comments
+        dissapear from the sidebar too.
+        """
 
         should_invalidate = (not self._created or
                              frozenset(('title', 'sr_id', '_deleted', '_spam')) & frozenset(self._dirties.keys()))
@@ -849,7 +849,7 @@ class LinkTag(Relation(Link, Tag)):
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
-    _defaults = dict(reported = 0,
+    _defaults = dict(reported = 0, 
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
@@ -903,9 +903,9 @@ class Comment(Thing, Printable):
 
     def try_parent(self, func, default):
         """
-If this comment has a parent, return `func(parent)`; otherwise
-return `default`.
-"""
+        If this comment has a parent, return `func(parent)`; otherwise
+        return `default`.
+        """
         if getattr(self, 'parent_id', None) is not None:
             parent = type(self)._byID(self.parent_id)
             return func(parent)
@@ -952,8 +952,8 @@ return `default`.
     def subreddit_slow(self):
         from subreddit import Subreddit
         """return's a comments's subreddit. in most case the subreddit is already
-on the wrapped link (as .subreddit), and that should be used
-when possible. if sr_id does not exist, then use the parent link's"""
+        on the wrapped link (as .subreddit), and that should be used
+        when possible. if sr_id does not exist, then use the parent link's"""
         self._safe_load()
 
         if hasattr(self, 'sr_id'):
@@ -995,7 +995,7 @@ when possible. if sr_id does not exist, then use the parent link's"""
                               bool(c.user_is_loggedin),
                               c.focal_comment == wrapped._id36,
                               request.host,
-                              c.cname,
+                              c.cname, 
                               wrapped.author == c.user,
                               wrapped.likes,
                               wrapped.friend,
@@ -1105,9 +1105,9 @@ when possible. if sr_id does not exist, then use the parent link's"""
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent comments.
 
-Whenever a comment is created we need to invalidate. Also
-invalidate when various comment attributes are changed.
-"""
+        Whenever a comment is created we need to invalidate.  Also
+        invalidate when various comment attributes are changed.
+        """
 
         should_invalidate = (not self._created or
                              frozenset(('body', '_deleted', '_spam')) & frozenset(self._dirties.keys()))
@@ -1141,7 +1141,7 @@ class MoreComments(object):
         if parent:
             self.parent_id = parent._id
             self.parent_name = parent._fullname
-            self.parent_permalink = parent.make_permalink(link,
+            self.parent_permalink = parent.make_permalink(link, 
                                                           link.subreddit_slow)
         self.link_name = link._fullname
         self.link_id = link._id
