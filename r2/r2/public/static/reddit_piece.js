@@ -110,10 +110,6 @@ function populate_side_bar(id, args, onSuccess) {
       path_prefix = '/r/' + sr;
     }
 
-    if (node == 'side-open') {
-      args.merge({tagtype: 'you should be able to read this'});
-    }
-
     if (!onSuccess) {
       onSuccess = function(response) {
                     node.innerHTML = response.responseText;
@@ -125,7 +121,7 @@ function populate_side_bar(id, args, onSuccess) {
         new Ajax.Request(path, {
                 method: 'get',
                 parameters: args,
-                onSuccess: onSuccess,
+                onSuccess: onSuccess
                 });
     }
 }
