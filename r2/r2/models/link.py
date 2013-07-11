@@ -680,6 +680,14 @@ class Link(Thing, Printable, ImageHolder):
         if should_invalidate:
             g.rendercache.delete('side-posts' + '-' + c.site.name)
             g.rendercache.delete('side-comments' + '-' + c.site.name)
+            tags = self.tag_names()
+            print tags
+            if 'open_thread' in tags:
+                g.rendercache.delete('side-open' + '-' + c.site.name)
+            if 'quotes' in tags:
+                g.rendercache.delete('side-quote' + '-' + c.site.name)
+            if 'group_rationality_diary' in tags:
+                g.rendercache.delete('side-diary' + '-' + c.site.name)
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour
@@ -1116,6 +1124,14 @@ class Comment(Thing, Printable):
 
         if should_invalidate:
             g.rendercache.delete('side-comments' + '-' + c.site.name)
+            tags = Link._byID(self.link_id, data = True).tag_names()
+            if 'open_thread' in tags:
+                g.rendercache.delete('side-open' + '-' + c.site.name)
+            if 'quotes' in tags:
+                g.rendercache.delete('side-quote' + '-' + c.site.name)
+            if 'group_rationality_diary' in tags:
+                g.rendercache.delete('side-diary' + '-' + c.site.name)
+
 
 class InlineComment(Comment):
     """Exists to gain a different render_class in Wrapped"""
