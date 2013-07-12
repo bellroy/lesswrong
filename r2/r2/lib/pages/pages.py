@@ -1435,14 +1435,7 @@ class AboutBox(Wrapped): pass
 
 class FeedBox(Wrapped):
     def __init__(self, feed_urls, *a, **kw):
-        self.num = len(feed_urls)
-        self.feed_url = feed_urls[0]
-        self.feed_urls = ''
-        for url in feed_urls:
-            self.feed_urls += '"'
-            self.feed_urls += url
-            self.feed_urls += '",'
-        self.feed_urls = self.feed_urls[:-1]
+        self.feed_urls = feed_urls
         Wrapped.__init__(self, *a, **kw)
 
 class RecentWikiEditsBox(Wrapped):
