@@ -185,6 +185,20 @@ class ApiController(RedditController):
             res._update('success', innerHTML='')
 
     @Json
+    @validate(VUser(),
+              code = VEmailVerify('code'))
+    def POST_verifyemail(self, res, code):
+        res._update('status', innerHTML = '')
+        if res._chk_error(errors.NO_CODE):
+            res._focus('code')
+        elif res._chk_error(errors.WRONG_CODE):
+            res._focus('code')
+        else:
+            c.user.email_validated = True
+            c.user._commit()
+            res._success()
+
+    @Json
     @validate(VCaptcha(),
               VUser(),
               VModhash(),
@@ -374,7 +388,7 @@ class ApiController(RedditController):
     @validate(VCaptcha(),
               VRatelimit(rate_ip = True, prefix='rate_register_'),
               name = VUname(['user_reg']),
-              email = nop('email_reg'),
+              email = ValidEmail('email_reg'),
               password = VPassword(['passwd_reg', 'passwd2_reg']),
               op = VOneOf('op', options = ("login-main", "reg", "login"),
                           default = 'login'),
@@ -393,6 +407,10 @@ class ApiController(RedditController):
             res._focus('user_reg')
         elif res._chk_error(errors.USERNAME_TAKEN, op):
             res._focus('user_reg')
+        elif res._chk_error(errors.BAD_EMAIL, op):
+            res._focus('email_reg')
+        elif res._chk_error(errors.NO_EMAIL, op):
+            res._focus('email_reg')
         elif res._chk_error(errors.BAD_PASSWORD, op):
             res._focus('passwd_reg')
         elif res._chk_error(errors.BAD_PASSWORD_MATCH, op):
@@ -407,12 +425,8 @@ class ApiController(RedditController):
         if res.error:
             return
 
-        user = register(name, password)
+        user = register(name, password, email)
         VRatelimit.ratelimit(rate_ip = True, prefix='rate_register_')
-
-        #anything else we know (email, languages)?
-        if email:
-            user.email = email
 
         user.pref_lang = c.lang
         if c.content_langs == 'all':
