@@ -100,7 +100,6 @@ class VLang(Validator):
         #else
         return 'en'
 
-
 class VRequired(Validator):
     def __init__(self, param, error, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
@@ -116,7 +115,6 @@ class VRequired(Validator):
             self.error()
         else:
             return item
-
 
 class VEmailVerify(Validator):
     def run(self, code):

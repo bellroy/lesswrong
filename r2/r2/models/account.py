@@ -412,8 +412,7 @@ def register(name, password, email):
                     password = passhash(name, password, True))
         a.email = email
 
-        confirmation_code = random_key(6)
-        a.confirmation_code = confirmation_code
+        a.confirmation_code = random_key(6)
         a.email_validated = False
 
         a._commit()
