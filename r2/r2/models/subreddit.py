@@ -164,6 +164,8 @@ class Subreddit(Thing, Printable, ImageHolder):
     def can_comment(self, user):
         if c.user_is_admin:
             return True
+        elif not user.email_validated:
+            return False
         elif self.is_banned(user):
             return False
         elif self.type in ('public','restricted'):
@@ -177,6 +179,11 @@ class Subreddit(Thing, Printable, ImageHolder):
     def can_submit(self, user):
         if c.user_is_admin:
             return True
+        elif self.type == 'private' and self.is_contributor(user):
+            #restricted/private require contributorship
+            return True
+        elif not user.email_validated:
+            return False
         elif self.is_banned(user):
             return False
         elif self.is_moderator(user) or self.is_editor(user):
@@ -185,9 +192,6 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self == Subreddit._by_name('discussion') and user.safe_karma < g.discussion_karma_to_post:
             return False
         elif self.type == 'public':
-            return True
-        elif self.is_contributor(user):
-            #restricted/private require contributorship
             return True
         elif self == Subreddit._by_name(g.default_sr) and user.safe_karma >= g.karma_to_post:
             return True
