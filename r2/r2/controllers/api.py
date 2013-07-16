@@ -41,6 +41,7 @@ from r2.lib.utils import get_title, sanitize_url, timeuntil, \
     set_last_modified, remote_addr
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
+from r2.lib.rancode import random_key
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, TopMonthlyContributors, WikiPageList, \
@@ -546,9 +547,12 @@ class ApiController(RedditController):
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
+            c.user.email_validated = False
+            c.user.confirmation_code = random_key(6)
             c.user._commit()
+            emailer.confirmation_email(c.user)
             res._update('status',
-                        innerHTML=_('Your email has been updated'))
+                        innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))
             updated = True
 
         if newpass or verpass:
