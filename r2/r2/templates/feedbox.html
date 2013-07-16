@@ -1,5 +1,6 @@
 <%
-   from r2.lib.template_helpers import static, add_sr, join_urls
+   import simplejson
+   from r2.lib.filters import unsafe
    container_id = thing.feed_urls[0]
    title_id = "%s_title" % container_id
 %>
@@ -7,12 +8,12 @@
   <h2 id="${title_id}"></h2>
   <ul id="${container_id}"></ul>
   <script type="text/javascript">
-    function initialize() {
+    google.setOnLoadCallback(function() {
       var title = document.getElementById("${title_id}");
       if(title) {
         title.innerHTML = "Recent on Rationality Blogs";
       }
-      var urls = new Array${thing.feed_urls};
+      var urls = ${unsafe(simplejson.dumps(thing.feed_urls))};
       var entries = new Array();
       function sorthelp(item) {
         return Date.UTC(item.publishedDate);
@@ -41,7 +42,6 @@
           }
         });
       }
-    }
-    google.setOnLoadCallback(initialize);
+    });
   </script>
 </div>
