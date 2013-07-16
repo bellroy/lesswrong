@@ -531,7 +531,7 @@ class ApiController(RedditController):
     @validate(VUser('curpass', default = ''),
               VModhash(),
               curpass = nop('curpass'),
-              email = ValidEmails("email", num = 1),
+              email = ValidEmail("email"),
               newpass = nop("newpass"),
               verpass = nop("verpass"),
               password = VPassword(['newpass', 'verpass']))
@@ -542,7 +542,9 @@ class ApiController(RedditController):
             res._update('curpass', value='')
             return
         updated = False
-        if res._chk_error(errors.BAD_EMAILS):
+        if res._chk_error(errors.BAD_EMAIL):
+            res._focus('email')
+        elif not hasattr(c.user,'email') and res._chk_error(errors.NO_EMAIL):
             res._focus('email')
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
