@@ -681,7 +681,6 @@ class Link(Thing, Printable, ImageHolder):
             g.rendercache.delete('side-posts' + '-' + c.site.name)
             g.rendercache.delete('side-comments' + '-' + c.site.name)
             tags = self.tag_names()
-            print tags
             if 'open_thread' in tags:
                 g.rendercache.delete('side-open' + '-' + c.site.name)
             if 'quotes' in tags:
