@@ -36,6 +36,7 @@ from r2.lib.memoize      import memoize, clear_memo
 from r2.lib.utils        import randstr
 from r2.lib.strings      import strings, plurals
 from r2.lib.base         import current_login_cookie
+from r2.lib.rancode      import random_key
 
 
 class AccountExists(Exception): pass
@@ -69,6 +70,8 @@ class Account(Thing):
                      pref_meetup_notify_enabled = False,
                      pref_meetup_notify_radius = 50,
                      pref_show_parent_comments = False,
+                     email_validated = True,
+                     confirmation_code = 'abcde',
                      reported = 0,
                      report_made = 0,
                      report_correct = 0,
@@ -400,17 +403,22 @@ def change_password(user, newpassword):
     return True
 
 #TODO reset the cache
-def register(name, password, email=None):
+def register(name, password, email):
     try:
         a = Account._by_name(name)
         raise AccountExists
     except NotFound:
         a = Account(name = name,
                     password = passhash(name, password, True))
-        if email:
-            a.email = email
+        a.email = email
+
+        a.confirmation_code = random_key(6)
+        a.email_validated = False
 
         a._commit()
+
+        from r2.lib.emailer      import confirmation_email
+        confirmation_email(a)
             
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
@@ -419,3 +427,5 @@ def register(name, password, email=None):
 
 class Friend(Relation(Account, Account)): pass
 Account.__bases__ += (UserRel('friend', Friend),)
+
+

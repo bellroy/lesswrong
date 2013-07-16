@@ -1,0 +1,3 @@
+Welcome to Less Wrong, ${thing.user.name}.  To be able to comment or post, you need to confirm your email address.
+
+To confirm your email address, go to ${thing.link} and enter code ${thing.user.confirmation_code}.

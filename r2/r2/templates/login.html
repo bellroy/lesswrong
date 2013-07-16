@@ -71,9 +71,11 @@
         </li>
       %if register:
         <li>
-          <label for="email_${op}">${_('Email')}: &nbsp;<i>(${_('Optional')})</i></label>
+          <label for="email_${op}">${_('Email')}:</label>
           <input value="" name="email_${op}" id="email_${op}" 
                  type="text" maxlength="50"/>
+            ${error_field("NO_EMAIL_" + op, kind="span")}
+            ${error_field("BAD_EMAIL_" + op, kind="span")}
         </li>
       %endif
         <li>

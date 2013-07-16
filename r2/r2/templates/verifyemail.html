@@ -20,36 +20,34 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%namespace file="utils.html" import="error_field"/>
+<%namespace file="utils.html" import="error_field, success_field"/>
+${success_field(_('Thank you for verifying your email address'),
+                successful=thing.success, hide='passform')}
 
-<form action="/post/update" method="post" class="pretty-form medium-text"
-      onsubmit="return post_form(this, 'update')">
-<table>
-<tr>
-    <td align="right">${_("Current password (required)")}:</td>
-    <td><input name="curpass" type="password" /></td>
-    <td>${error_field("WRONG_PASSWORD")}</td>
-</tr>
-<tr>
-    <td align="right">${_("Email")}:</td>
-    <td><input name="email" type="text" value="${hasattr(c.user,'email') and c.user.email or ''}"/></td>
-    <td>
-      ${error_field("BAD_EMAIL")}
-      ${error_field("NO_EMAIL")}
-    </td>
-</tr>
-<tr>
-    <td align="right">${_("New password")}:</td>
-    <td><input name="newpass" type="password" maxlength="20"/></td>
-    <td>${error_field("BAD_PASSWORD")}</td>
-</tr>
-<tr>
-    <td align="right">${_("Verify password")}:</td>
-    <td><input name="verpass" type="password" maxlength="20"/></td>
-    <td> ${error_field("BAD_PASSWORD_MATCH")}
-    </td>
-</tr>
-</table>
-<input type="submit" class="btn" value="${_('Save')}"/>
-<span id='status' class='error'></span>
+<form id="passform" action="/api/verifyemail" method="post"
+      class="content pretty-form medium-text"
+      onsubmit="return post_form(this, 'verifyemail');">
+  <h1>${_("Verify Email")}</h1>
+  <p> ${_("Enter your confirmation code to verify your email address")}</p>
+  <table>
+    <tr>
+      <td>
+        <label for="code" title="You should have recieved an email containing a confirmation code">${_("Confirmation Code")}</label>
+      </td>
+      <td>
+        <input type="text" id="code" name="code" />
+      </td>
+      <td>
+        <button type="submit" class="btn">${_("Verify")}</button>
+      </td>
+    </tr>
+    <tr>
+     <td colspan="2">
+        <span class="error" id="status"></span>
+        ${error_field("NO_CODE", "span")}
+        ${error_field("WRONG_CODE", "span")}
+      </td>
+    </tr>
+  </table>
 </form>
+
