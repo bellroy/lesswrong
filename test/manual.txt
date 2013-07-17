@@ -2,13 +2,15 @@
 --------------------------------------------------------------------------------
 Navigate to the homepage and click the Register link in the sidebar
 You should see a popup with a register form and a login form
-Complete the registration form and click Create account.
+Complete the registration form (use your own email address) and click Create account.
   You should now be logged in (see sidebar)
 Click Log out in the side bar
   You should be logged out (login form in sidebar)
 Enter your username and password into the login form in the side bar and click Login
   The page should refresh and you should be logged in
-
+Check your email, you should have received an email verification message
+  Click the link in the email and complete the form with the code in the email
+  You should see a thank you message
 
 - Preferences
 --------------------------------------------------------------------------------
