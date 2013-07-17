@@ -21,7 +21,8 @@
 ################################################################################
 
 from copy import copy
-import time, hashlib
+import time, hashlib, httplib, re
+import xml.etree.ElementTree as ET
 
 from geolocator import gislib
 from pylons import c, g
@@ -400,7 +401,7 @@ def change_password(user, newpassword):
     return True
 
 #TODO reset the cache
-def register(name, password, email=None):
+def register(name, password, email='lucas.sloan@gmail.com'):
     try:
         a = Account._by_name(name)
         raise AccountExists
@@ -411,7 +412,30 @@ def register(name, password, email=None):
             a.email = email
 
         a._commit()
-            
+
+        tokenmatcher = re.compile('<\?xml version=\"1.0\"\?><api><createaccount token=\"(.*?)\" result=\"needtoken\" /></api>')
+
+        conn = httplib.HTTPConnection("wiki.lesswrong.com")
+        conn.request("POST", "/api.php?action=createaccount&format=xml&name={0}&email={1}&mailpassword=true&language=en&token={2}".format(name,email,''))
+        r1 = conn.getresponse()
+        response1 = r1.read()
+        print response1
+        temp = tokenmatcher.match(response1)
+        token = temp.group(1)
+        print token
+        blah = "/api.php?action=createaccount&format=xml&name={0}&email={1}&mailpassword=true&language=en&token={2}".format(name,email,token)
+        print blah
+        conn.request("POST", blah)
+        r2 = conn.getresponse()
+        response2 = r2.read()
+        print response2
+
+        #wikiconnection = httplib.HTTPConnection('wiki.lesswrong.com')
+        #apiurl = '/api.php?action=createaccount&name={0}&email={1}&mailpassword=true&language=en&token={2}'
+        #wikiconnection.request("POST", apiurl.format(name, email, '')
+        #print wikiconnection.getreply()
+        #print wikireply
+
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
         clear_memo('account._by_name', Account, name.lower(), False)
