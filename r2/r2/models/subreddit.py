@@ -164,7 +164,7 @@ class Subreddit(Thing, Printable, ImageHolder):
     def can_comment(self, user):
         if c.user_is_admin:
             return True
-        elif not user.email_validated:
+        elif not c.user.email_validated:
             return False
         elif self.is_banned(user):
             return False
@@ -182,7 +182,7 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self.type == 'private' and self.is_contributor(user):
             #restricted/private require contributorship
             return True
-        elif not user.email_validated:
+        elif not c.user.email_validated:
             return False
         elif self.is_banned(user):
             return False
