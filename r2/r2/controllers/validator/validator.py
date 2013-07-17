@@ -116,15 +116,6 @@ class VRequired(Validator):
         else:
             return item
 
-class VEmailVerify(Validator):
-    def run(self, code):
-        if not code:
-            c.errors.add(errors.NO_CODE)
-        elif not code == c.user.confirmation_code:
-            c.errors.add(errors.WRONG_CODE)
-        else:
-            return code
-
 class VAwardAmount(Validator):
     def __init__(self, param, error, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
@@ -916,21 +907,6 @@ class VReason(Validator):
             sr_onoff = dict((sr, fullnames[sr._fullname] == 1) for sr in srs)
             return ('subscribe', sr_onoff)
 
-class ValidEmail(Validator):
-    """Validates an email address"""
-    
-    email_re  = re.compile(r'.+@.+\..+')
-
-    def __init__(self, param, **kw):
-        Validator.__init__(self, param = param, **kw)
-        
-    def run(self, email):
-        if not email:
-            c.errors.add(errors.NO_EMAIL)
-        elif not self.email_re.match(email):
-            c.errors.add(errors.BAD_EMAIL)
-        else:
-            return email
 
 class ValidEmails(Validator):
     """Validates a list of email addresses passed in as a string and

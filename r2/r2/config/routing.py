@@ -38,7 +38,6 @@ def make_map(global_conf={}, app_conf={}):
     mc('/adminon',  controller='front', action='adminon')
     mc('/adminoff', controller='front', action='adminoff')
     mc('/submit',   controller='front', action='submit')
-    mc('/verifyemail', controller='front', action='verifyemail')
 
     mc('/imagebrowser', controller='front', action='imagebrowser')
     mc('/imagebrowser/:article', controller='front', action='imagebrowser')

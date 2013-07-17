@@ -612,10 +612,6 @@ class FrontController(RedditController):
     def GET_catchall(self):
         return self.abort404()
 
-    @validate(VUser())
-    def GET_verifyemail(self):
-        return BoringPage(_("Verify Email"), content=VerifyEmail()).render()
-
     @validate(VUser(),
               article = VSubmitLink('article', redirect=False))
     def GET_imagebrowser(self, article):

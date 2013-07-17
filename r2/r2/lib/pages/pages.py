@@ -548,9 +548,6 @@ class Login(Wrapped):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
 
-class VerifyEmail(Wrapped):
-    def __init__(self, success=False):
-        Wrapped.__init__(self, success = success)
 
 class SearchPage(BoringPage):
     """Search results page"""
@@ -926,10 +923,6 @@ class ResetPassword(Wrapped):
     """Form for actually resetting a lost password, after the user has
     clicked on the link provided to them in the Password_Reset email
     (step 3 of password recovery.)"""
-    pass
-
-class EmailVerify(Wrapped):
-    """Form for providing a confirmation code to a new user."""
     pass
 
 

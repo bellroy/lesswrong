@@ -71,11 +71,9 @@
         </li>
       %if register:
         <li>
-          <label for="email_${op}">${_('Email')}:</label>
+          <label for="email_${op}">${_('Email')}: &nbsp;<i>(${_('Optional')})</i></label>
           <input value="" name="email_${op}" id="email_${op}" 
                  type="text" maxlength="50"/>
-            ${error_field("NO_EMAIL_" + op, kind="span")}
-            ${error_field("BAD_EMAIL_" + op, kind="span")}
         </li>
       %endif
         <li>
@@ -128,7 +126,7 @@
   <div class="loginform divide">
     <h3>${_("Create a new account")}</h3>
     <p class="tagline">
-      ${_("Pick a username and password. You will receive an email to verify your account.")}
+      ${_("All it takes is a username and password")}
     </p>
     ${login_form(register=True, user=user_reg, dest=dest)}
   </div>
