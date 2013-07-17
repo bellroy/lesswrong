@@ -9,7 +9,7 @@
   else:
     title = _('Upcoming Meetups')
 %>
-<h2 class='meetup-title'>${plain_link(title, '/meetups', _sr_path=False)}:</h2>
+<h2 class='meetup-title'>${plain_link(title, '/meetups', _sr_path=False)}</h2>
 %if len(thing.meetups) > 0:
   <ul>
     %for meetup in thing.meetups:
