@@ -420,6 +420,9 @@ def register(name, password, email='lucas.sloan@gmail.com'):
         r1 = conn.getresponse()
         response1 = r1.read()
         print response1
+        print r1.getheaders()
+        print r1.status
+        print r1.reason
         temp = tokenmatcher.match(response1)
         token = temp.group(1)
         print token
