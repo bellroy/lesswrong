@@ -358,6 +358,7 @@ class RecentTagged(RecentItems):
                            LinkTag.c._t1_deleted == False,
                            sort = desc('_date'),
                            limit = 1,
+                           eager_load = True,
                            thing_data = not g.use_query_cache
                       )
         temp = list(t)[0]._thing1
