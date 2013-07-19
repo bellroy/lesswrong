@@ -414,24 +414,54 @@ def register(name, password, email='lucas.sloan@gmail.com'):
         a._commit()
 
         tokenmatcher = re.compile('<\?xml version=\"1.0\"\?><api><createaccount token=\"(.*?)\" result=\"needtoken\" /></api>')
+        """urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&mailpassword=&language=en&token={3}"
 
         conn = httplib.HTTPConnection("wiki.lesswrong.com")
-        conn.request("POST", "/api.php?action=createaccount&format=xml&name={0}&email={1}&mailpassword=true&language=en&token={2}".format(name,email,''))
+        conn.request("POST", urlstring.format(name,password,email,''))
         r1 = conn.getresponse()
         response1 = r1.read()
         print response1
-        print r1.getheaders()
+        cookie = r1.getheader('set-cookie')
+        print cookie
         print r1.status
         print r1.reason
         temp = tokenmatcher.match(response1)
         token = temp.group(1)
         print token
-        blah = "/api.php?action=createaccount&format=xml&name={0}&email={1}&mailpassword=true&language=en&token={2}".format(name,email,token)
+        blah = urlstring.format(name,password,email,token)
         print blah
-        conn.request("POST", blah)
+        headers = {"Cookies":cookie}
+        conn.request("POST", blah, None, headers)
         r2 = conn.getresponse()
         response2 = r2.read()
         print response2
+        print r2.status
+        print r2.reason
+        temp = tokenmatcher.match(response2)
+        token = temp.group(1)
+        conn.request("POST", urlstring.format(name,password,email,token), None, headers)"""
+
+        import urllib2
+        import urllib
+        from cookielib import CookieJar
+
+        #urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&mailpassword=&language=en&token={3}"
+
+        cj = CookieJar()
+        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+        # input-type values from the html form
+        formdata = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en" }
+        data_encoded = urllib.urlencode(formdata)
+        response = opener.open("http://wiki.lesswrong.com/api.php?action=createaccount", data_encoded)
+        content = response.read()
+        print content
+        temp = tokenmatcher.match(content)
+        token = temp.group(1)
+        formdata2 = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en", "token" : token }
+        data_encoded2 = urllib.urlencode(formdata2)
+        response2 = opener.open("http://wiki.lesswrong.com/api.php?action=createaccount", data_encoded2)
+        content2 = response2.read()
+        print content2
 
         #wikiconnection = httplib.HTTPConnection('wiki.lesswrong.com')
         #apiurl = '/api.php?action=createaccount&name={0}&email={1}&mailpassword=true&language=en&token={2}'
