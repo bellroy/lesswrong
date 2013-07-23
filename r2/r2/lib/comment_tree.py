@@ -88,13 +88,13 @@ def delete_comment(comment):
 def link_comments(link_id):
     key = comments_key(link_id)
     r = g.permacache.get(key)
-    if r:
-        return r
-    else:
-        with g.make_lock(lock_key(link_id)):
-            r = load_link_comments(link_id)
-            g.permacache.set(key, r)
-        return r
+    #if r:
+    #    return r
+    #else:
+    with g.make_lock(lock_key(link_id)):
+        r = load_link_comments(link_id)
+        g.permacache.set(key, r)
+    return r
 
 def load_link_comments(link_id):
     q = Comment._query(Comment.c.link_id == link_id,

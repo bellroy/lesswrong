@@ -83,6 +83,18 @@ class Link(Thing, Printable, ImageHolder):
         return base_url(url.lower()).encode('utf8')
 
     @classmethod
+    def _byURL(cls, url):
+        url_re = re.compile("(?:http://)?.*?(/r/.*?)?(/lw/.*?/.*)")
+        id_re = re.compile("/lw/(\w*)/.*")
+        matcher = url_re.match(url)
+        if not matcher:
+            return False
+        matcher = id_re.match(matcher.group(2))
+        link = Link._byID(int(matcher.group(1), 36))
+        if not link._loaded: link._load()
+        return link
+
+    @classmethod
     def _by_url(cls, url, sr):
         from subreddit import Default
         if sr == Default:
@@ -174,6 +186,7 @@ class Link(Thing, Printable, ImageHolder):
         # Parse and create polls in the article
         l.set_article(article)
 
+        print l.url
         l.set_url_cache()
 
         # Add tags
@@ -940,6 +953,28 @@ class Comment(Thing, Printable):
         q = Comment._query(Comment.c.parent_id == self._id, limit=1)
         child = list(q)
         return len(child)>0
+
+    def recursive_move(self, destination, parent):
+        q = Comment._query(Comment.c.parent_id == self._id)
+        children = list(q)
+        comment, inbox_rel = Comment._new(Account._byID(self.author_id),
+                                          destination, parent, self.body,
+                                          self.ip)
+        if not children:
+            pass
+        else:
+            for child in children:
+                child.recursive_move(destination, comment)
+
+        self.moderator_banned = not c.user_is_admin
+        self.banner = c.user.name
+        self._commit()
+        # NB: change table updated by reporting
+        from r2.models.report import unreport
+        unreport(self, correct=True, auto=False)
+
+        if g.write_query_queue:
+                queries.new_comment(comment, None)
 
     def can_delete(self):
         if not self._loaded:

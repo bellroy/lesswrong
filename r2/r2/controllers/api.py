@@ -200,6 +200,38 @@ class ApiController(RedditController):
             res._success()
 
     @Json
+    @validate(VModhash(),
+              VSrCanBan('id'),
+              thing = VByName('id'),
+              destination = VMoveURL('destination'),
+              reason = VComment('comment'))
+    def POST_move(self, res, thing, destination, reason):
+        if res._chk_errors((errors.NO_URL, errors.BAD_URL),
+                           thing._fullname):
+            res._focus("destination_url_" + thing._fullname)
+            return
+        if res._chk_error(errors.COMMENT_TOO_LONG,
+                           thing._fullname):
+            res._focus("comment_replacement_" + thing._fullname)
+            return
+
+        comment, inbox_rel = Comment._new(Account._byID(thing.author_id),
+                                          destination, None, thing.body,
+                                          thing.ip)
+        children = list(Comment._query(Comment.c.parent_id == thing._id))
+        for child in children:
+            child.recursive_move(destination, comment)
+
+        thing.set_body('This comment was moved by ' + c.user.name +
+                       ' to [here]({0}).\n\n'.format(comment.make_anchored_permalink(destination)) +
+                       (reason if reason else ''))
+
+        if g.write_query_queue:
+                queries.new_comment(comment, None)
+
+        res._send_things(thing)
+
+    @Json
     @validate(VCaptcha(),
               VUser(),
               VModhash(),
