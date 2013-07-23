@@ -90,7 +90,9 @@ class Link(Thing, Printable, ImageHolder):
         if not matcher:
             return False
         matcher = id_re.match(matcher.group(2))
-        link = Link._byID(int(matcher.group(1), 36))
+        try:
+            link = Link._byID(int(matcher.group(1), 36))
+        except NotFound: return None
         if not link._loaded: link._load()
         return link
 
