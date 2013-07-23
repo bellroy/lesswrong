@@ -222,6 +222,7 @@ class ApiController(RedditController):
         for child in children:
             child.recursive_move(destination, comment)
 
+        thing.moved = True
         thing.set_body('This comment was moved by ' + c.user.name +
                        ' to [here]({0}).\n\n'.format(comment.make_anchored_permalink(destination)) +
                        (reason if reason else ''))

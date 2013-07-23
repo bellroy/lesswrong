@@ -186,7 +186,6 @@ class Link(Thing, Printable, ImageHolder):
         # Parse and create polls in the article
         l.set_article(article)
 
-        print l.url
         l.set_url_cache()
 
         # Add tags
@@ -874,7 +873,8 @@ class Comment(Thing, Printable):
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False)
+                     show_response_to = False,
+                     moved = False)
 
     def _markdown(self):
         pass
@@ -966,8 +966,10 @@ class Comment(Thing, Printable):
             for child in children:
                 child.recursive_move(destination, comment)
 
+
         self.moderator_banned = not c.user_is_admin
         self.banner = c.user.name
+        #self.moved = True
         self._commit()
         # NB: change table updated by reporting
         from r2.models.report import unreport
