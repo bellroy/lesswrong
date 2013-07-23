@@ -206,6 +206,7 @@ class ApiController(RedditController):
               destination = VMoveURL('destination'),
               reason = VComment('comment'))
     def POST_move(self, res, thing, destination, reason):
+        res._update('status_' + thing._fullname, innerHTML = '')
         if res._chk_errors((errors.NO_URL, errors.BAD_URL),
                            thing._fullname):
             res._focus("destination_url_" + thing._fullname)
