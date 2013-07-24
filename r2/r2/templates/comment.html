@@ -164,6 +164,14 @@ ${parent.midcol()}
         <% allow_delete = thing.can_be_deleted %>
         ${parent.delete_or_report_buttons(allow_delete,False,True)}
         ${parent.buttons()}
+        %if c.user_is_loggedin and not thing.author == c.user:
+          <li class='subscribe'>
+          ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
+              "return change_state_by_class(this, '%s', 'mod')"%("commentunsubscribe" if thing.comment_subscribed(c.user, thing) else "commentsubscribe"), \
+              _("Subscribed"), a_class="subscription"+(" mod" if thing.comment_subscribed(c.user, thing) else ""), \
+              tool_tip = "No longer receive notifications for this comment" if thing.comment_subscribed(c.user, thing) else "Get notifications of immediate replies on this comment")}
+          </li>
+        %endif
       </ul>
     ## Each comment has a hidden status span that is used to indicate voting errors.
     <span id='${"status_"+thing._fullname}' class="error" style="display: none;"></span>
