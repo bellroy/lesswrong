@@ -23,7 +23,7 @@
 from reddit_base import RedditController
 
 from pylons.i18n import _
-from pylons import c, request, response
+from pylons import c, request, response, g
 from pylons.controllers.util import etag_cache
 
 import hashlib
@@ -216,22 +216,25 @@ class ApiController(RedditController):
             res._focus("comment_replacement_" + thing._fullname)
             return
 
-        comment, inbox_rel = Comment._new(Account._byID(thing.author_id),
-                                          destination, None, thing.body,
-                                          thing.ip)
-        children = list(Comment._query(Comment.c.parent_id == thing._id))
-        for child in children:
-            child.recursive_move(destination, comment)
+        from r2.lib.comment_tree import lock_key
 
-        thing.moved = True
-        thing.set_body('This comment was moved by ' + c.user.name +
-                       ' to [here]({0}).\n\n'.format(comment.make_anchored_permalink(destination)) +
-                       (reason if reason else ''))
+        with g.make_lock(lock_key(thing.link_id)):
+            comment, inbox_rel = Comment._new(Account._byID(thing.author_id),
+                                              destination, None, thing.body,
+                                              thing.ip)
+            children = list(Comment._query(Comment.c.parent_id == thing._id))
+            for child in children:
+                child.recursive_move(destination, comment)
 
-        if g.write_query_queue:
-                queries.new_comment(comment, None)
+            thing.moved = True
+            thing.set_body('This comment was moved by ' + c.user.name +
+                           ' to [here]({0}).\n\n'.format(comment.make_anchored_permalink(destination)) +
+                           (reason if reason else ''))
 
-        res._send_things(thing)
+            if g.write_query_queue:
+                    queries.new_comment(comment, None)
+
+            res._send_things(thing)
 
     @Json
     @validate(VCaptcha(),
