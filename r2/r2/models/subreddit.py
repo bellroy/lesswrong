@@ -388,6 +388,12 @@ class Subreddit(Thing, Printable, ImageHolder):
                 srs.insert(0, discussion_sr)
         except NotFound:
           pass
+        try:
+            meetup_sr = Subreddit._by_name('meetups')
+            if meetup_sr in srs:
+                srs.remove(meetup_sr)
+        except NotFound:
+            pass
 
         srs.sort(key=lambda a:a.title)
         return srs
