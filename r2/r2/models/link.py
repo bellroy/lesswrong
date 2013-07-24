@@ -83,7 +83,7 @@ class Link(Thing, Printable, ImageHolder):
         return base_url(url.lower()).encode('utf8')
 
     @classmethod
-    def _byURL(cls, url):
+    def _move_url(cls, url):
         url_re = re.compile("(?:http://)?.*?(/r/.*?)?(/lw/.*?/.*)")
         id_re = re.compile("/lw/(\w*)/.*")
         matcher = url_re.match(url)
@@ -971,7 +971,7 @@ class Comment(Thing, Printable):
 
         self.moderator_banned = not c.user_is_admin
         self.banner = c.user.name
-        #self.moved = True
+        self.moved = True
         self._commit()
         # NB: change table updated by reporting
         from r2.models.report import unreport

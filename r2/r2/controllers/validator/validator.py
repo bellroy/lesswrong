@@ -385,7 +385,7 @@ class VMoveURL(VRequired):
         if not url:
             return self.error()
         else:
-            link = Link._byURL(url)
+            link = Link._move_url(url)
             if not link:
                 return self.error(errors.BAD_URL)
             else:
