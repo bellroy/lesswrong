@@ -173,6 +173,8 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self.is_moderator(user) or self.is_contributor(user):
             #private requires contributorship
             return True
+        elif self == Subreddit._by_name('meetups'):
+            return True
         else:
             return False
 
