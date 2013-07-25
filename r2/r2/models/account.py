@@ -445,21 +445,21 @@ def register(name, password, email='lucas.sloan@gmail.com'):
         import urllib
         from cookielib import CookieJar
 
-        #urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&mailpassword=&language=en&token={3}"
+        #urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&language=en&token={3}"
 
         cj = CookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         # input-type values from the html form
         formdata = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en" }
         data_encoded = urllib.urlencode(formdata)
-        response = opener.open("http://wiki.lesswrong.com/api.php?action=createaccount", data_encoded)
+        response = opener.open("http://localhost:3300/mediawiki/api.php?action=createaccount", data_encoded)
         content = response.read()
         print content
         temp = tokenmatcher.match(content)
         token = temp.group(1)
         formdata2 = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en", "token" : token }
         data_encoded2 = urllib.urlencode(formdata2)
-        response2 = opener.open("http://wiki.lesswrong.com/api.php?action=createaccount", data_encoded2)
+        response2 = opener.open("http://localhost:3300/mediawiki/api.php?action=createaccount", data_encoded2)
         content2 = response2.read()
         print content2
 
