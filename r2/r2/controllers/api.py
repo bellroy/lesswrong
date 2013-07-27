@@ -216,6 +216,11 @@ class ApiController(RedditController):
                            thing._fullname):
             res._focus("comment_replacement_" + thing._fullname)
             return
+        if destination._id == thing.link_id:
+            c.errors.add(errors.ALREADY_MOVED)
+            res._chk_error(errors.ALREADY_MOVED, thing._fullname)
+            res._focus("destination_url_" + thing._fullname)
+            return
 
         currlink = Link._byID(thing.link_id)
         if hasattr(thing, 'parent_id'):
