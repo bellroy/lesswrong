@@ -875,8 +875,7 @@ class Comment(Thing, Printable):
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False,
-                     moved = False)
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -1142,7 +1141,7 @@ class Comment(Thing, Printable):
             item.can_reply = (item.sr_id in can_reply_srs)
 
             # Don't allow users to vote on their own comments
-            item.votable = bool(c.user != item.author and not item.retracted and not item.moved)
+            item.votable = bool(c.user != item.author and not item.retracted)
             if item.votable and c.profilepage:
                 # Can only vote on profile page under certain conditions
                 item.votable = bool((c.user.safe_karma > g.karma_to_vote_in_overview) and (g.karma_percentage_to_be_voted > item.author.percent_up()))

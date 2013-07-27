@@ -217,7 +217,6 @@ class ApiController(RedditController):
             res._focus("comment_replacement_" + thing._fullname)
             return
 
-        print Link._byID(thing.link_id).title
         currlink = Link._byID(thing.link_id)
         if hasattr(thing, 'parent_id'):
             parent = Comment._byID(thing.parent_id)
@@ -243,8 +242,6 @@ class ApiController(RedditController):
             queries.new_comment(comment, None)
 
         res._send_things([comment, thing])
-
-        print Link._byID(thing.link_id).title
 
     @Json
     @validate(VCaptcha(),
