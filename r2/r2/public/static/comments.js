@@ -186,7 +186,6 @@ Comment.prototype.cancel = function() {
 Comment.prototype.cancelmove = function() {
     var edit_box = this.cloneAndReIDNodeOnce("samplemove");
     hide(edit_box);
-    BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
 
@@ -195,7 +194,6 @@ Comment.comment = function(r, context) {
     var id = r.id;
     var parent_id = r.parent;
     new Comment(parent_id, context).cancel();
-    new Comment(parent_id, context).cancelmove();
     new Listing(parent_id, context).push(unsafe(r.content));
     new Comment(r.id, context).show();
     vl[id] = r.vl;
@@ -231,8 +229,8 @@ Comment.editcomment = function(r, context) {
     com.show();
 };
 
-Comment.move = function(r, context) {
-    var com = new Comment(r.id, context);
+Comment.move = function(r, s, context) {
+    var com = new Comment(s.id, context);
     com.get('body').innerHTML = unsafe(r.contentHTML);
     com.get('edit_body').innerHTML = unsafe(r.contentTxt);
     com.cancelmove();
@@ -393,8 +391,8 @@ function chkmove(form) {
 
         var obj = res_obj && res_obj.response && res_obj.response.object;
         if (obj && obj.length)
-            for (var o = 0, ol = obj.length; o < ol; ++o)
-                Comment[action](obj[o].data, context);
+            for (var o = 0, ol = obj.length; o < ol; o += 2)
+                Comment[action](obj[o].data, obj[o+1].data, context);
     }
 
     return post_form(form, action, null, null, true, null, {

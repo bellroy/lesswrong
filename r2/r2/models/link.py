@@ -923,6 +923,39 @@ class Comment(Thing, Printable):
 
         return (comment, inbox_rel)
 
+    @classmethod
+    def _move(cls, comment, currlink, newlink, top=False):
+        author = Account._byID(comment.author_id)
+
+        if top:
+            if hasattr(comment, 'parent_id'):
+                comment.parent_id = None
+        comment.link_id = newlink._id
+        comment.sr_id = newlink.sr_id
+
+        comment._commit()
+
+        if not top:
+            parent = Comment._byID(comment.parent_id)
+            comment.parent_permalink = parent.make_anchored_permalink(Link._byID(parent.link_id), Subreddit._byID(parent.sr_id))
+        comment.permalink = comment.make_permalink_slow()
+        comment._commit()
+
+        currlink._incr('num_comments', -1)
+        newlink._incr('num_comments', 1)
+
+        #clear that chache
+        clear_memo('builder.link_comments2', newlink._id)
+        clear_memo('builder.link_comments2', currlink._id)
+
+        # flag search indexer that something has changed
+        tc.changed(comment)
+
+        #update last modified
+        set_last_modified(author, 'overview')
+        set_last_modified(author, 'commented')
+        set_last_modified(newlink, 'comments')
+
     def try_parent(self, func, default):
         """
         If this comment has a parent, return `func(parent)`; otherwise
@@ -956,29 +989,17 @@ class Comment(Thing, Printable):
         child = list(q)
         return len(child)>0
 
-    def recursive_move(self, destination, parent):
+    def recursive_move(self, origin, destination, top=False):
         q = Comment._query(Comment.c.parent_id == self._id)
         children = list(q)
-        comment, inbox_rel = Comment._new(Account._byID(self.author_id),
-                                          destination, parent, self.body,
-                                          self.ip)
+
+        Comment._move(self, origin, destination, top)
+
         if not children:
             pass
         else:
             for child in children:
-                child.recursive_move(destination, comment)
-
-
-        self.moderator_banned = not c.user_is_admin
-        self.banner = c.user.name
-        self.moved = True
-        self._commit()
-        # NB: change table updated by reporting
-        from r2.models.report import unreport
-        unreport(self, correct=True, auto=False)
-
-        if g.write_query_queue:
-                queries.new_comment(comment, None)
+                child.recursive_move(origin, destination)
 
     def can_delete(self):
         if not self._loaded:
@@ -1105,7 +1126,7 @@ class Comment(Thing, Printable):
             item.link = links.get(item.link_id)
             if not hasattr(item, 'subreddit'):
                 item.subreddit = item.subreddit_slow
-            if hasattr(item, 'parent_id'):
+            if hasattr(item, 'parent_id') and item.parent_id:
                 parent = Comment._byID(item.parent_id, data=True)
                 parent_author = Account._byID(parent.author_id, data=True)
                 item.parent_author = parent_author

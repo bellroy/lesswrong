@@ -103,7 +103,7 @@ ${parent.collapsed()}
 </%def>
 
 <%def name="Child()">
-${parent.Child(not (thing.collapsed or ((not c.user_is_admin) and thing.moved)), not ((not c.user_is_admin) and thing.moved))}
+${parent.Child(not thing.collapsed)}
 </%def>
 
 <%def name="commentBody()">

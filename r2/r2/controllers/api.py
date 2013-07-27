@@ -203,9 +203,10 @@ class ApiController(RedditController):
     @validate(VModhash(),
               VSrCanBan('id'),
               thing = VByName('id'),
+              ip = ValidIP(),
               destination = VMoveURL('destination'),
               reason = VComment('comment'))
-    def POST_move(self, res, thing, destination, reason):
+    def POST_move(self, res, thing, destination, reason, ip):
         res._update('status_' + thing._fullname, innerHTML = '')
         if res._chk_errors((errors.NO_URL, errors.BAD_URL),
                            thing._fullname):
@@ -216,25 +217,34 @@ class ApiController(RedditController):
             res._focus("comment_replacement_" + thing._fullname)
             return
 
-        from r2.lib.comment_tree import lock_key
+        print Link._byID(thing.link_id).title
+        currlink = Link._byID(thing.link_id)
+        if hasattr(thing, 'parent_id'):
+            parent = Comment._byID(thing.parent_id)
+        else:
+            parent = None
+
+        from r2.lib.comment_tree import lock_key, comments_key
 
         with g.make_lock(lock_key(thing.link_id)):
-            comment, inbox_rel = Comment._new(Account._byID(thing.author_id),
-                                              destination, None, thing.body,
-                                              thing.ip)
-            children = list(Comment._query(Comment.c.parent_id == thing._id))
-            for child in children:
-                child.recursive_move(destination, comment)
+            thing.recursive_move(currlink, destination, True)
 
-            thing.moved = True
-            thing.set_body('This comment was moved by ' + c.user.name +
-                           ' to [here]({0}).\n\n'.format(comment.make_anchored_permalink(destination)) +
-                           (reason if reason else ''))
+        g.permacache.delete(comments_key(currlink._id))
+        g.permacache.delete(comments_key(destination._id))
 
-            if g.write_query_queue:
-                    queries.new_comment(comment, None)
+        body = "A comment was moved from here to [here]({0}).\n\n".format(thing.make_anchored_permalink(destination)) + (reason if reason else '')
 
-            res._send_things(thing)
+        comment, inbox_rel = Comment._new(c.user,
+                                          currlink, parent, body,
+                                          ip)
+
+
+        if g.write_query_queue:
+            queries.new_comment(comment, None)
+
+        res._send_things([comment, thing])
+
+        print Link._byID(thing.link_id).title
 
     @Json
     @validate(VCaptcha(),
