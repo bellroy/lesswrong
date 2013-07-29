@@ -422,38 +422,10 @@ def register(name, password, email):
         confirmation_email(a)
 
         tokenmatcher = re.compile('<\?xml version=\"1.0\"\?><api><createaccount token=\"(.*?)\" result=\"needtoken\" /></api>')
-        """urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&mailpassword=&language=en&token={3}"
-
-        conn = httplib.HTTPConnection("wiki.lesswrong.com")
-        conn.request("POST", urlstring.format(name,password,email,''))
-        r1 = conn.getresponse()
-        response1 = r1.read()
-        print response1
-        cookie = r1.getheader('set-cookie')
-        print cookie
-        print r1.status
-        print r1.reason
-        temp = tokenmatcher.match(response1)
-        token = temp.group(1)
-        print token
-        blah = urlstring.format(name,password,email,token)
-        print blah
-        headers = {"Cookies":cookie}
-        conn.request("POST", blah, None, headers)
-        r2 = conn.getresponse()
-        response2 = r2.read()
-        print response2
-        print r2.status
-        print r2.reason
-        temp = tokenmatcher.match(response2)
-        token = temp.group(1)
-        conn.request("POST", urlstring.format(name,password,email,token), None, headers)"""
 
         import urllib2
         import urllib
         from cookielib import CookieJar
-
-        #urlstring = "/api.php?action=createaccount&format=xml&name={0}&password={1}&email={2}&language=en&token={3}"
 
         cj = CookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
@@ -471,11 +443,6 @@ def register(name, password, email):
         content2 = response2.read()
         print content2
 
-        #wikiconnection = httplib.HTTPConnection('wiki.lesswrong.com')
-        #apiurl = '/api.php?action=createaccount&name={0}&email={1}&mailpassword=true&language=en&token={2}'
-        #wikiconnection.request("POST", apiurl.format(name, email, '')
-        #print wikiconnection.getreply()
-        #print wikireply
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
