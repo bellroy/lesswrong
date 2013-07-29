@@ -146,17 +146,19 @@ class Reddit(Wrapped):
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        if c.site == Subreddit._by_name('discussion'):
+            ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
+            ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
+        else:
+            ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
 
-        for feed_url in g.feedbox_urls:
-            ps.append(FeedBox(feed_url))
+        ps.append(FeedBox(g.feedbox_urls))
 
-        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
 
         if g.site_meter_codename:
@@ -336,6 +338,43 @@ class RecentComments(RecentItems):
         return UnbannedCommentBuilder(
             self.query(),
             num = 5,
+            wrap = RecentItems.wrap_thing,
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
+        )
+
+class RecentTagged(RecentItems):
+    """Finds the most recent post associated with a given tag and shows the most
+       most recent top level comment in that thread"""
+    def __init__(self, *args, **kwargs):
+        self.tag = kwargs['tagtype']
+        self.title = kwargs['title']
+        self.things = self.init_builder()
+        Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        t = LinkTag._query(LinkTag.c._thing2_id == Tag._by_name(self.tag)._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t1_deleted == False,
+                           sort = desc('_date'),
+                           limit = 1,
+                           eager_load = True,
+                           thing_data = not g.use_query_cache
+                      )
+        temp = list(t)[0]._thing1
+        relevantpost = temp._id
+        self.url = temp.url
+        q = Comment._query(Comment.c.link_id == relevantpost,
+                            Comment.c._deleted == False,
+                            Comment.c._spam == False,
+                            sort = desc('_date'),
+                            data = True)
+        return q
+
+    def init_builder(self):
+        return ToplevelCommentBuilder(
+            self.query(),
+            num = 1,
             wrap = RecentItems.wrap_thing,
             skip = True,
             sr_ids = [c.current_or_default_sr._id]
@@ -549,6 +588,9 @@ class Login(Wrapped):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
 
+class VerifyEmail(Wrapped):
+    def __init__(self, success=False):
+        Wrapped.__init__(self, success = success)
 
 class SearchPage(BoringPage):
     """Search results page"""
@@ -924,6 +966,10 @@ class ResetPassword(Wrapped):
     """Form for actually resetting a lost password, after the user has
     clicked on the link provided to them in the Password_Reset email
     (step 3 of password recovery.)"""
+    pass
+
+class EmailVerify(Wrapped):
+    """Form for providing a confirmation code to a new user."""
     pass
 
 
@@ -1435,8 +1481,8 @@ class FeedLinkBar(Wrapped):
 class AboutBox(Wrapped): pass
 
 class FeedBox(Wrapped):
-    def __init__(self, feed_url, *a, **kw):
-        self.feed_url = feed_url
+    def __init__(self, feed_urls, *a, **kw):
+        self.feed_urls = feed_urls
         Wrapped.__init__(self, *a, **kw)
 
 class RecentWikiEditsBox(Wrapped):

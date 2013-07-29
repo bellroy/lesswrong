@@ -41,11 +41,12 @@ from r2.lib.utils import get_title, sanitize_url, timeuntil, \
     set_last_modified, remote_addr
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
+from r2.lib.rancode import random_key
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, TopMonthlyContributors, WikiPageList, \
     ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, \
-    MeetupsMap
+    MeetupsMap, RecentTagged
 
 
 from r2.lib.menus import CommentSortMenu
@@ -183,6 +184,20 @@ class ApiController(RedditController):
                 queries.new_message(m, inbox_rel)
         else:
             res._update('success', innerHTML='')
+
+    @Json
+    @validate(VUser(),
+              code = VEmailVerify('code'))
+    def POST_verifyemail(self, res, code):
+        res._update('status', innerHTML = '')
+        if res._chk_error(errors.NO_CODE):
+            res._focus('code')
+        elif res._chk_error(errors.WRONG_CODE):
+            res._focus('code')
+        else:
+            c.user.email_validated = True
+            c.user._commit()
+            res._success()
 
     @Json
     @validate(VCaptcha(),
@@ -374,7 +389,7 @@ class ApiController(RedditController):
     @validate(VCaptcha(),
               VRatelimit(rate_ip = True, prefix='rate_register_'),
               name = VUname(['user_reg']),
-              email = nop('email_reg'),
+              email = ValidEmail('email_reg'),
               password = VPassword(['passwd_reg', 'passwd2_reg']),
               op = VOneOf('op', options = ("login-main", "reg", "login"),
                           default = 'login'),
@@ -393,6 +408,10 @@ class ApiController(RedditController):
             res._focus('user_reg')
         elif res._chk_error(errors.USERNAME_TAKEN, op):
             res._focus('user_reg')
+        elif res._chk_error(errors.BAD_EMAIL, op):
+            res._focus('email_reg')
+        elif res._chk_error(errors.NO_EMAIL, op):
+            res._focus('email_reg')
         elif res._chk_error(errors.BAD_PASSWORD, op):
             res._focus('passwd_reg')
         elif res._chk_error(errors.BAD_PASSWORD_MATCH, op):
@@ -407,12 +426,8 @@ class ApiController(RedditController):
         if res.error:
             return
 
-        user = register(name, password)
+        user = register(name, password, email)
         VRatelimit.ratelimit(rate_ip = True, prefix='rate_register_')
-
-        #anything else we know (email, languages)?
-        if email:
-            user.email = email
 
         user.pref_lang = c.lang
         if c.content_langs == 'all':
@@ -516,7 +531,7 @@ class ApiController(RedditController):
     @validate(VUser('curpass', default = ''),
               VModhash(),
               curpass = nop('curpass'),
-              email = ValidEmails("email", num = 1),
+              email = ValidEmail("email"),
               newpass = nop("newpass"),
               verpass = nop("verpass"),
               password = VPassword(['newpass', 'verpass']))
@@ -527,14 +542,19 @@ class ApiController(RedditController):
             res._update('curpass', value='')
             return
         updated = False
-        if res._chk_error(errors.BAD_EMAILS):
+        if res._chk_error(errors.BAD_EMAIL):
+            res._focus('email')
+        elif not hasattr(c.user,'email') and res._chk_error(errors.NO_EMAIL):
             res._focus('email')
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
+            c.user.email_validated = False
+            c.user.confirmation_code = random_key(6)
             c.user._commit()
+            emailer.confirmation_email(c.user)
             res._update('status',
-                        innerHTML=_('Your email has been updated'))
+                        innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))
             updated = True
 
         if newpass or verpass:
@@ -1101,6 +1121,21 @@ class ApiController(RedditController):
         """Return HTML snippet of the recent comments for the side bar."""
         # Server side cache is also invalidated when new comment is posted
         return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
+
+    def GET_side_open(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in an open thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'open_thread', title = 'Open Thread')
+
+    def GET_side_quote(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in a rationality quote thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-quote', RecentTagged, g.side_comments_max_age, tagtype = 'quotes', title = 'Rationality Quote')
+
+    def GET_side_diary(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in a rationality diary thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-diary', RecentTagged, g.side_comments_max_age, tagtype = 'group_rationality_diary', title = 'Rationality Diary')
 
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""
