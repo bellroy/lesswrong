@@ -452,14 +452,14 @@ def register(name, password, email='lucas.sloan@gmail.com'):
         # input-type values from the html form
         formdata = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en" }
         data_encoded = urllib.urlencode(formdata)
-        response = opener.open("http://localhost:3300/mediawiki/api.php?action=createaccount", data_encoded)
+        response = opener.open("http://127.0.1.1/mediawiki-1.21.1/api.php?action=createaccount", data_encoded)
         content = response.read()
         print content
         temp = tokenmatcher.match(content)
         token = temp.group(1)
         formdata2 = { "format" : "xml", "name" : name, "password" : password, "email" : email, "language" : "en", "token" : token }
         data_encoded2 = urllib.urlencode(formdata2)
-        response2 = opener.open("http://localhost:3300/mediawiki/api.php?action=createaccount", data_encoded2)
+        response2 = opener.open("http://127.0.1.1/mediawiki-1.21.1/api.php?action=createaccount", data_encoded2)
         content2 = response2.read()
         print content2
 
