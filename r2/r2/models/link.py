@@ -1198,7 +1198,7 @@ class Message(Thing, Printable):
 
         # only global admins can be message spammed.
         inbox_rel = None
-        if (not author.name in g.hellbanned) and ((not m._spam) or to.name in g.admins):
+        if (not author.name in g.banned) and ((not m._spam) or to.name in g.admins):
             inbox_rel = Inbox._add(to, m, 'inbox')
 
         return (m, inbox_rel)
