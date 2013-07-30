@@ -81,6 +81,7 @@ class Account(Thing):
                      has_subscribed = False,
                      pref_media = 'subreddit',
                      share = {},
+                     messagebanned = False
                      )
 
     def karma_ups_downs(self, kind, sr = None):
