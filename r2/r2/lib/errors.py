@@ -43,6 +43,7 @@ error_list = dict((
         ('BAD_PASSWORD', _('Invalid password')),
         ('WRONG_PASSWORD', _('Incorrect password')),
         ('BAD_PASSWORD_MATCH', _('Passwords do not match')),
+        ('BAD_PASSWORD_SHORT', _('Password is too short')),
         ('AMOUNT_NEGATIVE', _('Karma awards must be greater than zero')),
         ('NO_NAME', _('Please enter a name')),
         ('NO_EMAIL', _('Please enter an email address')),

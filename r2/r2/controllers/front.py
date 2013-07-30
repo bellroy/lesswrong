@@ -236,6 +236,8 @@ class FrontController(RedditController):
             content = PrefUpdate()
         elif location == 'delete':
             content = PrefDelete()
+        elif location == 'wikiaccount':
+            content = PrefWiki()
 
         return PrefsPage(content = content, infotext=infotext).render()
 

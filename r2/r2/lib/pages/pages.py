@@ -486,7 +486,8 @@ class PrefsPage(Reddit):
         buttons = [NavButton(menu.options, ''),
                    NamedButton('friends'),
                    NamedButton('update'),
-                   NamedButton('delete')]
+                   NamedButton('delete'),
+                   NamedButton('wikiaccount')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
@@ -500,6 +501,10 @@ class PrefUpdate(Wrapped):
 
 class PrefDelete(Wrapped):
     """preference form for deleting a user's own account."""
+    pass
+
+class PrefWiki(Wrapped):
+    """Preference form for creating a Wiki account."""
     pass
 
 

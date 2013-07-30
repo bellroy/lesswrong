@@ -65,6 +65,7 @@ from r2.lib import cssfilter
 from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
+from r2.lib.wiki_account import create_wiki_account
 
 from datetime import datetime, timedelta
 from simplejson import dumps
@@ -572,6 +573,77 @@ class ApiController(RedditController):
                     res._update('status',
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
+
+    @Json
+    @validate(VUser('curpass', default = ''),
+              VModhash(),
+              curpass = nop('curpass'),
+              name = nop('username'),
+              email = nop("email"),
+              password = nop("wikipass"))
+    def POST_wikiaccount(self, res, curpass, name, email, password):
+        res._update('status', innerHTML='')
+        if res._chk_error(errors.WRONG_PASSWORD):
+            res._focus('curpass')
+            res._update('curpass', value='')
+            return
+
+        if not name:
+            name = c.user.name
+        if not email:
+            if hasattr(c.user, 'email'):
+                email = c.user.email
+            else:
+                c.errors.add(errors.NO_EMAIL)
+                res._chk_error(errors.NO_EMAIL)
+                res._focus('email')
+        if not password:
+            password = c.user.password
+
+        print email
+
+        errormatcher = re.compile('<\?xml\sversion="1\.0"\?><api><error code="(.*?)".*?/></api>')
+        successmatcher = re.compile('<\?xml\sversion="1\.0"\?><api><createaccount.*?result="success"\s/></api>')
+
+        result = create_wiki_account(name, password, email)
+
+        print result
+
+        if successmatcher.match(result):
+            pass
+        else:
+            temp = errormatcher.match(result)
+            error = temp.group(1)
+            if error == 'userexists':
+                c.errors.add(errors.USERNAME_TAKEN)
+                res._chk_error(errors.USERNAME_TAKEN)
+                res._focus('username')
+                return
+            elif error == 'noname':
+                c.errors.add(errors.BAD_USERNAME)
+                res._chk_error(errors.BAD_USERNAME)
+                res._focus('username')
+                return
+            elif error == 'noemailtitle':
+                c.errors.add(errors.NO_EMAIL)
+                res._chk_error(errors.NO_EMAIL)
+                res._focus('email')
+                return
+            elif error == 'invalidemailaddress':
+                c.errors.add(errors.BAD_EMAIL)
+                res._chk_error(errors.BAD_EMAIL)
+                res._focus('email')
+                return
+            elif error == 'password-name-match':
+                c.errors.add(errors.BAD_PASSWORD)
+                res._chk_error(errors.BAD_PASSWORD)
+                res._focus('wikipass')
+                return
+            elif error == 'passwordtooshort':
+                c.errors.add(errors.BAD_PASSWORD_SHORT)
+                res._chk_error(errors.BAD_PASSWORD_SHORT)
+                res._focus()
+                return
 
     @Json
     @validate(VUser(),
