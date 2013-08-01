@@ -66,7 +66,6 @@ def path_info():
                params = dict(request.get))
     
     return unsafe(simplejson.dumps(loc))
-    
 
 def replace_render(listing, item, style = None, display = True):
     style = style or c.render_style or 'html'
