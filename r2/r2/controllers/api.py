@@ -28,6 +28,7 @@ from pylons.controllers.util import etag_cache
 
 import hashlib
 import httplib
+import urllib2
 from validator import *
 
 from r2.models import *
@@ -598,16 +599,20 @@ class ApiController(RedditController):
                 res._chk_error(errors.NO_EMAIL)
                 res._focus('email')
         if not password:
-            password = c.user.password
-
-        print email
+            password = curpass
 
         errormatcher = re.compile('<\?xml\sversion="1\.0"\?><api><error code="(.*?)".*?/></api>')
         successmatcher = re.compile('<\?xml\sversion="1\.0"\?><api><createaccount.*?result="success"\s/></api>')
 
-        result = create_wiki_account(name, password, email)
+        try:
+            result = create_wiki_account(name, password, email)
+        except (urllib2.URLError, urllib2.HTTPError):
+            result = None
 
-        print result
+        if not result:
+           c.errors.add(errors.WIKI_DOWN)
+           res._chk_error(errors.WIKI_DOWN)
+           return
 
         if successmatcher.match(result):
             pass

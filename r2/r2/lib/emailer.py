@@ -22,7 +22,7 @@
 from email.MIMEText import MIMEText
 from pylons.i18n import _
 from pylons import c, g, request
-from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify
+from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupNotification
 from r2.lib.utils import timeago
 from r2.models import passhash, Email, Default, has_opted_out
 from r2.config import cache
@@ -60,6 +60,16 @@ def confirmation_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
                  'lesswrong.com email verification',
                  EmailVerify(user=user, link='http://'+g.domain+'/verifyemail').render(style='email')) 
+
+def wiki_failed_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'wiki.lesswrong.com sign-up failed',
+                 WikiSignupFail(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
+
+def wiki_password_email(user, password):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'wiki.lesswrong.com sign-up',
+                 WikiSignupNotification(user=user, password=password).render(style='email'))
 
 def meetup_email(user, meetup):
     simple_email(user.email, 'contact@lesswrong.com',

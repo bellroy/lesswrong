@@ -977,6 +977,13 @@ class EmailVerify(Wrapped):
     """Form for providing a confirmation code to a new user."""
     pass
 
+class WikiSignupFail(Wrapped):
+    """Form for providing a confirmation code to a new user."""
+    pass
+
+class WikiSignupNotification(Wrapped):
+    """Form for providing a confirmation code to a new user."""
+    pass
 
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""

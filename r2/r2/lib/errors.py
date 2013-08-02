@@ -86,6 +86,7 @@ error_list = dict((
         ('NOT_ENOUGH_KARMA', _('You do not have enough karma')),
         ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
         ('BAD_POLL_BALLOT', _('Error in poll ballot')),
+        ('WIKI_DOWN', _('Connection with wiki failed, try again later')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 

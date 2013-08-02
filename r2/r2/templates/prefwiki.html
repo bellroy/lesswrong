@@ -24,6 +24,7 @@
 
 <form action="/post/wikiaccount" method="post" class="pretty-form medium-text"
       onsubmit="return post_form(this, 'wikiaccount')">
+${error_field("WIKI_DOWN")}
 <table>
 <tr>
     <td align="right">${_("Current password (Required)")}:</td>
@@ -31,7 +32,7 @@
     <td>${error_field("WRONG_PASSWORD")}</td>
 </tr>
 <tr>
-    <td align="right">${_("Username (Optional)")}:</td>
+    <td align="right" title="Fields left blank will default to values from your Less Wrong Account.">${_("Username (Optional)")}:</td>
     <td><input name="username" type="text"}"/></td>
     <td>
     ${error_field("BAD_USERNAME")}
@@ -40,7 +41,7 @@
 </tr>
 <tr>
     %if hasattr(c.user, 'email'):
-      <td align="right">${_("Email (Optional)")}:</td>
+      <td align="right" title="Fields left blank will default to values from your Less Wrong Account.">${_("Email (Optional)")}:</td>
     %else:
       <td align="right">${_("Email (Required)")}:</td>
     %endif
@@ -51,7 +52,7 @@
     </td>
 </tr>
 <tr>
-    <td align="right">${_("Password (Optional)")}:</td>
+    <td align="right" title="Fields left blank will default to values from your Less Wrong Account.">${_("Password (Optional)")}:</td>
     <td><input name="wikipass" type="password" maxlength="20"/></td>
     <td>
     ${error_field("BAD_PASSWORD")}

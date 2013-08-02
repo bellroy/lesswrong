@@ -421,7 +421,10 @@ def register(name, password, email):
         from r2.lib.emailer      import confirmation_email
         confirmation_email(a)
 
-        create_wiki_account(name, password, email)
+        data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 0}
+
+        from r2.models           import PendingJob
+        PendingJob.store(None, 'create_wiki_account', data)
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
