@@ -114,7 +114,7 @@ def job_create_wiki_account(name, password, email, attempt):
         elif attempt == 2:
             user = Account._by_name(name)
             emailer.wiki_failed_email(user)
-            emailer.simple_email('lucas.sloan@gmail.com',
+            emailer.simple_email('lesswrong.issues@trikeapps.com',
                                  'contact@lesswrong.com',
                                  'wiki error',
                                  traceback.format_exc())
