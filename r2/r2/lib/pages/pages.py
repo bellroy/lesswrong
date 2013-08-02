@@ -978,11 +978,11 @@ class EmailVerify(Wrapped):
     pass
 
 class WikiSignupFail(Wrapped):
-    """Form for providing a confirmation code to a new user."""
+    """Form for informing a user that creating a wiki acccount failed."""
     pass
 
 class WikiSignupNotification(Wrapped):
-    """Form for providing a confirmation code to a new user."""
+    """Form for providing a user with their name and password for the wiki."""
     pass
 
 class Captcha(Wrapped):

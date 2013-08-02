@@ -21,8 +21,7 @@
 ################################################################################
 
 from copy import copy
-import time, hashlib, httplib, re
-import xml.etree.ElementTree as ET
+import time, hashlib
 
 from geolocator import gislib
 from pylons import c, g
@@ -38,7 +37,6 @@ from r2.lib.utils        import randstr
 from r2.lib.strings      import strings, plurals
 from r2.lib.base         import current_login_cookie
 from r2.lib.rancode      import random_key
-from r2.lib.wiki_account import create_wiki_account
 
 class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
