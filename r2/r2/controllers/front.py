@@ -43,7 +43,6 @@ import re
 import time as time_module
 from urllib import quote_plus
 from datetime import datetime
-from hashlib import md5
 
 class FrontController(RedditController):
 

@@ -1433,10 +1433,6 @@ div.footer ul.footer-links li a {
 	font-size: 11px;
 }
 
-.comment-visits-box label {
-    margin-left: 5px;
-}
-
 /* A hack to fix the layout of "Load more comments" */
 span.deepthread,
 span.morecomments {
