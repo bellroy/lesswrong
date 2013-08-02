@@ -1106,7 +1106,6 @@ class CommentVisitsBox(Wrapped):
     def __init__(self, visits, *a, **kw):
         self.visits = []
         for visit in reversed(visits):
-            print visit
             pretty = timesince(visit, resultion=1)
             self.visits.append([pretty, visit])
         Wrapped.__init__(self, *a, **kw)

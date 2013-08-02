@@ -10,7 +10,7 @@ from r2.lib.errors import errors
 from r2.lib.filters import python_websafe
 from r2.lib.jsonresponse import Json
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
-from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
+from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost, CommentVisitsBox
 from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob
 from r2.models.listing import NestedListing
 from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
@@ -168,6 +168,43 @@ class MeetupsController(RedditController):
                                                                      timestamp=int(meetup.timestamp * 1000),
                                                                      tzoffset=meetup.tzoffset)).render()
 
+  def _comment_visits(self, article, user, new_visit=None):
+
+      hc_key = "comment_visits-%s-%s" % (user.name, article._id36)
+      old_visits = g.permacache.get(hc_key, [])
+
+      append = False
+
+      if new_visit is None:
+          pass
+      elif len(old_visits) == 0:
+          append = True
+      else:
+          last_visit = max(old_visits)
+          time_since_last = new_visit - last_visit
+          if (time_since_last.days > 0 or time_since_last.seconds > int(g.comment_visits_period)):
+              append = True
+          else:
+              # They were just here a few seconds ago; consider that
+              # the same "visit" as right now
+              old_visits.pop()
+
+      if append:
+          copy = list(old_visits) # make a copy
+          copy.append(new_visit)
+          if len(copy) > 3:
+              copy.pop(0)
+          g.permacache.set(hc_key, copy, time = 86400 * 2)
+
+      if len(old_visits) > 0:
+          time_since_pub = new_visit - article._date
+          ten_percent = new_visit - (time_since_pub // 10)
+          old_visit = min(old_visits)
+          if ten_percent < old_visit:
+              old_visits.insert(0, ten_percent)
+
+      return old_visits
+
   # Show a meetup.  Most of this code was coped from GET_comments in front.py
   @validate(meetup = VMeetup('id'),
             sort         = VMenu('controller', CommentSortMenu),
@@ -179,6 +216,10 @@ class MeetupsController(RedditController):
     user_num = c.user.pref_num_comments or g.num_comments
     num = g.max_comments if num_comments == 'true' else user_num
 
+    previous_visits = None
+    if (c.user_is_loggedin):
+        previous_visits = self._comment_visits(article, c.user, datetime.now(g.tz))
+
     builder = CommentBuilder(article, CommentSortMenu.operator(sort), None, None)
     listing = NestedListing(builder, num=num, parent_name = article._fullname)
     displayPane = PaneStack()
@@ -188,6 +229,9 @@ class MeetupsController(RedditController):
       displayPane.append(CommentReplyBox())
       displayPane.append(CommentReplyBox(link_name = 
                                          article._fullname))
+
+    if previous_visits:
+        displayPane.append(CommentVisitsBox(previous_visits))
 
     # finally add the comment listing
     displayPane.append(listing.listing())

@@ -147,6 +147,13 @@ class FrontController(RedditController):
                 copy.pop(0)
             g.permacache.set(hc_key, copy, time = 86400 * 2)
 
+        if len(old_visits) > 0:
+            time_since_pub = new_visit - article._date
+            ten_percent = new_visit - (time_since_pub // 10)
+            old_visit = min(old_visits)
+            if ten_percent < old_visit:
+                old_visits.insert(0, ten_percent)
+
         return old_visits
 
     @validate(article      = VLink('article'),

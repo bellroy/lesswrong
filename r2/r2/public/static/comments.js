@@ -246,6 +246,8 @@ function highlightNewComments(last) {
     var lastViewed = $("comment-visits");
     if (!lastViewed) {
       lastViewed = $('lastViewed');
+      if (!lastViewed)
+        return;
       last = getAttrTime(lastViewed);
     }
     else {
@@ -255,7 +257,7 @@ function highlightNewComments(last) {
 
   $$('div.comment').each(function(div, i) {
     var t = getAttrTime(div.select('.comment-date')[0]);
-    if (last<0) {
+    if (last<=0) {
       div.removeClassName('new-comment')
     }
     else if (last<t) {

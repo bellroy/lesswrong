@@ -67,6 +67,7 @@ def path_info():
     
     return unsafe(simplejson.dumps(loc))
 
+
 def replace_render(listing, item, style = None, display = True):
     style = style or c.render_style or 'html'
     rendered_item = item.render(style = style)
