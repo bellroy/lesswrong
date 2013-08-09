@@ -907,7 +907,6 @@ class TopcommentsController(CommentsController):
 		return CommentsController.GET_listing(self, **env)
 
 def last_dashboard_visit():
-    print 'last dashboard visit called'
     hc_key = "dashboard_visit-%s" % c.user.name
     cache_visit = g.permacache.get(hc_key, None)
     if cache_visit:
@@ -915,11 +914,8 @@ def last_dashboard_visit():
     else:
         last_visit = c.user.dashboard_visit
         g.permacache.set(hc_key, last_visit, time = int(g.dashboard_visits_period)) 
-        print last_visit
         c.user.dashboard_visit = datetime.now(g.tz)
         c.user._commit()
-        print c.user.dashboard_visit
-        print last_visit
         return last_visit
 
 class InterestingcommentsController(CommentsController):

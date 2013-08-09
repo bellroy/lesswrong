@@ -975,7 +975,6 @@ class Comment(Thing, Printable):
                 dashto.append(Account._byID(subscriber._thing1_id))
         if link.notify_on_comment and not link.author_id == comment.author_id:
                 dashto.append(Account._byID(link.author_id))
-        print dashto
 
         for user in dashto:
             s = SubscriptionStorage(user, comment, name='subscriptionstorage')
@@ -1054,9 +1053,7 @@ class Comment(Thing, Printable):
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
     def incr_descendant_karma(self, amount):
-        print self._descendant_karma
         self._incr('_descendant_karma', amount)
-        print self._descendant_karma
         if hasattr(self, 'parent_id'):
             Comment._byID(self.parent_id).incr_descendant_karma(amount)
 
