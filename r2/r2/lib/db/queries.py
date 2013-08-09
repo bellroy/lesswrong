@@ -1,6 +1,6 @@
 from r2.models import Account, Link, Comment, Vote, SaveHide
 from r2.models import Message, Inbox, Subreddit
-from r2.lib.db.thing import Thing, Merge, Relation
+from r2.lib.db.thing import Thing, Merge
 from r2.lib.db.operators import asc, desc, timeago
 from r2.lib.db import query_queue
 from r2.lib.db.sorts import epoch_seconds
