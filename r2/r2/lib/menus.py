@@ -62,6 +62,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      relevance    = _('Relevance'),
                      controversial  = _('Controversial'),
                      confidence   = _('Best'),
+                     interestingness = ('Leading'),
                      saved        = _('Saved'),
                      recommended  = _('Recommended'),
                      rising       = _('Rising'),
@@ -72,6 +73,8 @@ menu =   MenuHandler(hot          = _('Popular'),
                      posts        = _('Posts'),
                      topcomments     = _('Top Comments'),
                      newcomments     = _('New Comments'),
+                     leadingsubscribed = _('Leading Subscribed'),
+                     leadingcomments = _('Leading Comments'),
 
                      # time sort words
                      hour         = _('This hour'),
@@ -81,6 +84,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      quarter      = _('Last three months'),
                      year         = _('This year'),
                      all          = _('All time'),
+                     last         = _('Since last visit'),
 
                      # "kind" words
                      spam         = _("Spam"),
@@ -438,11 +442,13 @@ class SortMenu(SimpleGetMenu):
             return operators.desc('_controversy')
         elif sort == 'confidence':
             return operators.desc('_confidence')
+        elif sort == 'interestingness':
+            return operators.desc('_interestingness')
 
 class CommentSortMenu(SortMenu):
     """Sort menu for comments pages"""
     default   = 'confidence'
-    options   = ('confidence', 'hot', 'new', 'controversial', 'top', 'old')
+    options   = ('confidence', 'hot', 'new', 'controversial', 'top', 'old', 'interestingness')
 
 class SearchSortMenu(SortMenu):
     """Sort menu for search pages."""
@@ -498,6 +504,23 @@ class TimeMenu(SimpleGetMenu):
     get_param = 't'
     default   = 'all'
     options   = ('hour', 'day', 'week', 'month', 'quarter', 'year', 'all')
+
+    def __init__(self, **kw):
+        kw.setdefault('title', _("Links from"))
+        SimpleGetMenu.__init__(self, **kw)
+
+    @classmethod
+    def operator(self, time):
+        from r2.models import Link
+        if time != 'all':
+            return Link.c._date >= timeago(time)
+
+class DashboardTimeMenu(SimpleGetMenu):
+    """Menu for setting the time interval of the listing (from 'hour' to 'all').
+       Has option for since last visit."""
+    get_param = 't'
+    default = 'last'
+    options = ('hour', 'day', 'week', 'month', 'quarter', 'year', 'all', 'last')
 
     def __init__(self, **kw):
         kw.setdefault('title', _("Links from"))

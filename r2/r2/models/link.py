@@ -877,7 +877,8 @@ class Comment(Thing, Printable):
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False)
+                     show_response_to = False,
+                     _descendant_karma = 0)
 
     def _markdown(self):
         pass
@@ -967,6 +968,19 @@ class Comment(Thing, Printable):
         return cls._somethinged(CommentSubscription, user, link, 'commentsubscription')[(user,link,'commentsubscription')]
 
     def _send_post_notifications(self, link, comment, parent):
+        dashto = []
+        for subscriber in Subscription._query(Subscription.c._thing2_id == (link._id),
+                                              Subscription.c._name == 'subscription'):
+            if not subscriber._thing1_id == comment.author_id:
+                dashto.append(Account._byID(subscriber._thing1_id))
+        if link.notify_on_comment and not link.author_id == comment.author_id:
+                dashto.append(Account._byID(link.author_id))
+        print dashto
+
+        for user in dashto:
+            s = SubscriptionStorage(user, comment, name='subscriptionstorage')
+            s._commit()
+
         to = []
         if parent:
             if not parent.author_id == comment.author_id:
@@ -988,8 +1002,9 @@ class Comment(Thing, Printable):
         if self._spam and to.name not in g.admins:
             return None
 
-        for user in to: 
+        for user in to:
             Inbox._add(user, self, 'inbox')
+
         return True
 
     def has_children(self):
@@ -1037,6 +1052,13 @@ class Comment(Thing, Printable):
         if self._score <= g.downvoted_reply_score_threshold:
             return True
         return self.try_parent(lambda p: p.reply_costs_karma, False)
+
+    def incr_descendant_karma(self, amount):
+        print self._descendant_karma
+        self._incr('_descendant_karma', amount)
+        print self._descendant_karma
+        if hasattr(self, 'parent_id'):
+            Comment._byID(self.parent_id).incr_descendant_karma(amount)
 
     def keep_item(self, wrapped):
         if c.user_is_admin:
@@ -1291,6 +1313,8 @@ class SaveHide(Relation(Account, Link)): pass
 class Click(Relation(Account, Link)): pass
 class Subscription(Relation(Account, Link)): pass
 class CommentSubscription(Relation(Account, Comment)): pass
+class SubscriptionStorage(Relation(Account, Comment)):pass
+
 
 class Inbox(MultiRelation('inbox',
                           Relation(Account, Comment),

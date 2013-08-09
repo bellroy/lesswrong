@@ -30,6 +30,9 @@ def epoch_seconds(date):
     the number returned by the equivalent function in postgres."""
     td = date - epoch
     return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
+
+def interestingness(ups, downs, descendants):
+    return ups - downs + descendants / 2
     
 def score(ups, downs):
     return ups - downs

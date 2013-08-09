@@ -85,6 +85,7 @@ def index_commands(table, type):
         commands.append(index_str(table, 'hot', 'hot(ups, downs, date), date'))
         commands.append(index_str(table, 'score', 'score(ups, downs), date'))
         commands.append(index_str(table, 'controversy', 'controversy(ups, downs), date'))
+        commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma), date'))
     elif type == 'data':
         commands.append(index_str(table, 'id', 'thing_id'))
         commands.append(index_str(table, 'thing_id', 'thing_id'))
@@ -146,6 +147,10 @@ def get_thing_table(metadata, name):
                      sa.Column('date',
                                sa.DateTime(timezone = True),
                                default = sa.func.now(),
+                               nullable = False),
+                     sa.Column('descendant_karma',
+                               sa.Integer,
+                               default = 0,
                                nullable = False))
     return table
 
@@ -622,6 +627,8 @@ def translate_sort(table, column_name, lval = None, rewrite_name = True):
             return sa.func.score(table.c.ups, table.c.downs)
         elif column_name == 'controversy':
             return sa.func.controversy(table.c.ups, table.c.downs)
+        elif column_name == 'interestingness':
+            return sa.func.interestingness(table.c.ups, table.c.downs, table.c.descendant_karma)
     #else
     return table.c[column_name]
 
