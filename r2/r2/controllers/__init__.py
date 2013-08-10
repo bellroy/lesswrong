@@ -42,6 +42,7 @@ from listingcontroller import MeetupslistingController
 from listingcontroller import KarmaawardController
 from listingcontroller import InterestingcommentsController
 from listingcontroller import InterestingsubscribedController
+from listingcontroller import InterestingpostsController
 
 from listingcontroller import MyredditsController
 

@@ -70,7 +70,8 @@ class Link(Thing, Printable, ImageHolder):
                      blessed = False,
                      comments_enabled = True,
                      notify_on_comment = False,
-                     cc_licensed = False)
+                     cc_licensed = False,
+                     _descendant_karma = 0)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'

@@ -75,6 +75,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      newcomments     = _('New Comments'),
                      leadingsubscribed = _('Leading Subscribed'),
                      leadingcomments = _('Leading Comments'),
+                     leadingposts = _('Leading Posts'),
 
                      # time sort words
                      hour         = _('This hour'),

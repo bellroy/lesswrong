@@ -20,7 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from r2.lib.utils import tup
-from r2.models.link import Comment
+from r2.models.link import Comment, Link
 
 class AdminTools(object):
     def spam(self, thing, amount = 1, mark_as_spam = True, **kw):
@@ -56,8 +56,10 @@ def valid_user(v, sr, karma):
 def update_score(obj, up_change, down_change, new_valid_thing, old_valid_thing):
      obj._incr('_ups',   up_change)
      obj._incr('_downs', down_change)
-     if isinstance(obj, Comment) and hasattr(obj, 'parent_id'):
-         Comment._byID(obj.parent_id).incr_descendant_karma(up_change - down_change)
+     if isinstance(obj, Comment):
+         if hasattr(obj, 'parent_id'):
+             Comment._byID(obj.parent_id).incr_descendant_karma(up_change - down_change)
+         Link._byID(obj.link_id)._incr('_descendant_karma', up_change - down_change)
 
 def compute_votes(wrapper, item):
     wrapper.upvotes   = item._ups

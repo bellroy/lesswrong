@@ -924,11 +924,9 @@ class InterestingcommentsController(CommentsController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"), NamedButton("leadingcomments", dest="dashboard/comments")]
-
-#    @property
-#    def header_sub_nav(self):
-#        pass
+	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+                NamedButton("leadingposts", dest="dashboard/posts"),
+                NamedButton("leadingcomments", dest="dashboard/comments")]
 
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
@@ -971,7 +969,9 @@ class InterestingsubscribedController(CommentsController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"), NamedButton("leadingcomments", dest="dashboard/comments")]
+	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+                NamedButton("leadingposts", dest="dashboard/posts"),
+                NamedButton("leadingcomments", dest="dashboard/comments")]
 
     def query(self):
         q = SubscriptionStorage._query(SubscriptionStorage.c._thing1_id == c.user._id,
@@ -990,6 +990,51 @@ class InterestingsubscribedController(CommentsController):
             q._filter(SubscriptionStorage.c._date >= last_dashboard_visit())
         elif self.time != 'all':
             q._filter(SubscriptionStorage.c._date >= timeago(queries.relation_db_times[self.time]))
+
+        return q
+
+    def builder(self):
+        b = self.builder_cls(self.query_obj,
+                             num = self.num,
+                             skip = self.skip,
+                             after = self.after,
+                             count = self.count,
+                             reverse = self.reverse,
+                             wrap = self.builder_wrapper,
+                             sr_ids = [c.current_or_default_sr._id, Subreddit._by_name('discussion')._id])
+        return b
+
+    @property
+    def top_filter(self):
+        return DashboardTimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
+
+    @validate(VUser(),
+              time = VMenu('where', DashboardTimeMenu))
+    def GET_listing(self, time, **env):
+        self.time = time
+        return CommentsController.GET_listing(self, **env)
+
+class InterestingpostsController(CommentsController):
+    title_text = _('Leading Posts')
+    builder_cls = QueryBuilder
+
+    @property
+    def header_sub_nav(self):
+	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+                NamedButton("leadingposts", dest="dashboard/posts"),
+                NamedButton("leadingcomments", dest="dashboard/comments")]
+
+    def query(self):
+        q = Link._query(Link.c._spam == (True,False),
+                        sort = desc('_interestingness'),
+                        eager_load = True, data = True)
+        if not c.user_is_admin:
+            q._filter(Link.c._spam == False)
+
+        if self.time == 'last':
+            q._filter(Thing.c._date >= last_dashboard_visit())
+        elif self.time != 'all':
+            q._filter(queries.db_times[self.time])
 
         return q
 
