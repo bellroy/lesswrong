@@ -151,7 +151,8 @@ def get_thing_table(metadata, name):
                      sa.Column('descendant_karma',
                                sa.Integer,
                                default = 0,
-                               nullable = False))
+                               nullable = True))
+
     return table
 
 def get_data_table(metadata, name):
