@@ -959,7 +959,8 @@ class InterestingcommentsController(CommentsController):
     def top_filter(self):
         return DashboardTimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
-    @validate(time = VMenu('where', DashboardTimeMenu))
+    @validate(VUser(),
+              time = VMenu('where', DashboardTimeMenu))
     def GET_listing(self, time, **env):
         self.time = time
         return CommentsController.GET_listing(self, **env)
@@ -1007,7 +1008,8 @@ class InterestingsubscribedController(CommentsController):
     def top_filter(self):
         return DashboardTimeMenu(default = self.time, title = _('Filter'), type='dropdown2')
 
-    @validate(time = VMenu('where', DashboardTimeMenu))
+    @validate(VUser(),
+              time = VMenu('where', DashboardTimeMenu))
     def GET_listing(self, time, **env):
         self.time = time
         return CommentsController.GET_listing(self, **env)
