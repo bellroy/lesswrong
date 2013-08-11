@@ -1055,7 +1055,7 @@ class Comment(Thing, Printable):
 
     def incr_descendant_karma(self, amount):
         self._incr('_descendant_karma', amount)
-        if hasattr(self, 'parent_id'):
+        if hasattr(self, 'parent_id') and self.parent_id:
             Comment._byID(self.parent_id).incr_descendant_karma(amount)
 
     def keep_item(self, wrapped):

@@ -147,11 +147,12 @@ def get_thing_table(metadata, name):
                      sa.Column('date',
                                sa.DateTime(timezone = True),
                                default = sa.func.now(),
-                               nullable = False),
-                     sa.Column('descendant_karma',
-                               sa.Integer,
-                               default = 0,
-                               nullable = True))
+                               nullable = False))
+    if name in ('comment', 'link'):
+        table.append_column(sa.Column('descendant_karma',
+                            sa.Integer,
+                            default = 0,
+                            nullable = False))
 
     return table
 
