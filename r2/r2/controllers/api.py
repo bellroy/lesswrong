@@ -71,6 +71,7 @@ from r2.lib.wiki_account import create_wiki_account
 from datetime import datetime, timedelta
 from simplejson import dumps
 from md5 import md5
+from lxml import etree
 
 from r2.lib.promote import promote, unpromote, get_promoted
 
@@ -601,9 +602,6 @@ class ApiController(RedditController):
         if not password:
             password = curpass
 
-        errormatcher = re.compile('<\?xml\sversion="1\.0"\?><api><error code="(.*?)".*?/></api>')
-        successmatcher = re.compile('<\?xml\sversion="1\.0"\?><api><createaccount.*?result="success"\s/></api>')
-
         try:
             result = create_wiki_account(name, password, email)
         except (urllib2.URLError, urllib2.HTTPError):
@@ -614,11 +612,12 @@ class ApiController(RedditController):
            res._chk_error(errors.WIKI_DOWN)
            return
 
-        if successmatcher.match(result):
-            pass
+        resultxml = etree.fromstring(result)
+
+        if resultxml.find("createaccount") is not None:
+            return
         else:
-            temp = errormatcher.match(result)
-            error = temp.group(1)
+            error = resultxml.find("error").attrib["code"]
             if error == 'userexists':
                 c.errors.add(errors.USERNAME_TAKEN)
                 res._chk_error(errors.USERNAME_TAKEN)
