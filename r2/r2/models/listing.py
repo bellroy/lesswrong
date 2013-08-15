@@ -130,6 +130,8 @@ class NestedListing(Listing):
         #make into a tree thing
         return Wrapped(self)
 
+class DashboardListing(Listing): pass
+
 class OrganicListing(Listing):
     # class used in Javascript to manage these objects
     _js_cls = "OrganicListing"

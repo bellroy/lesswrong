@@ -330,6 +330,56 @@ class RecentItems(SpaceCompressedWrapped):
 
         return w
 
+def last_dashboard_visit():
+    hc_key = "dashboard_visit-%s" % c.user.name
+    cache_visit = g.permacache.get(hc_key, None)
+    if cache_visit:
+        return cache_visit
+    else:
+        last_visit = c.user.dashboard_visit
+        g.permacache.set(hc_key, last_visit, time = int(g.dashboard_visits_period)) 
+        c.user.dashboard_visit = datetime.now(g.tz)
+        c.user._commit()
+        return last_visit
+
+class DashboardBox(Wrapped):
+    def __init__(self, *args, **kwargs):
+        self.things = self.init_builder()
+        Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        raise NotImplementedError
+
+    def init_builder(self):
+        return QueryBuilder(self.query(), wrap=self.wrap_thing)
+
+    @staticmethod
+    def wrap_thing(thing):
+        w = Wrapped(thing)
+
+        return w
+
+class LeadingCommentBox(DashboardBox):
+    def query(self):
+        q = Comment._query(Comment.c._spam == (True,False),
+                           sort = desc('_interestingness'),
+                           eager_load = True, data = True)
+        if not c.user_is_admin:
+            q._filter(Comment.c._spam == False)
+
+
+        #q._filter(Thing.c._date >= last_dashboard_visit())
+
+        return q
+
+    def init_builder(self):
+        b = UnbannedCommentBuilder(self.query(),
+                                   num = 3,
+                                   skip = True,
+                                   wrap = DashboardBox.wrap_thing,
+                                   sr_ids = [c.current_or_default_sr._id, Subreddit._by_name('discussion')._id])
+        return b
+
 class RecentComments(RecentItems):
     def query(self):
         return c.current_or_default_sr.get_comments('new', 'all')

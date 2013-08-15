@@ -40,9 +40,11 @@ from listingcontroller import RecentpostsController
 from listingcontroller import EditsController
 from listingcontroller import MeetupslistingController
 from listingcontroller import KarmaawardController
-from listingcontroller import InterestingcommentsController
-from listingcontroller import InterestingsubscribedController
-from listingcontroller import InterestingpostsController
+
+from dashboardcontroller import InterestingcommentsController
+from dashboardcontroller import InterestingsubscribedController
+from dashboardcontroller import InterestingpostsController
+from dashboardcontroller import ListingtestController
 
 from listingcontroller import MyredditsController
 

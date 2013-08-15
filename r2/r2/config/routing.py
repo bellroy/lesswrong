@@ -94,6 +94,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/dashboard/comments', action='listing', controller='interestingcomments')
     mc('/dashboard/subscribed', action='listing', controller='interestingsubscribed')
     mc('/dashboard/posts', action='listing', controller='interestingposts')
+    mc('/dashboard', action='listing', controller='listingtest')
 
     # Can't use map.resource because the version of the Routing module we're
     # using doesn't support the controller_action kw arg
