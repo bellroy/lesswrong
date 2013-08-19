@@ -1,0 +1,378 @@
+## The contents of this file are subject to the Common Public Attribution
+## License Version 1.0. (the "License"); you may not use this file except in
+## compliance with the License. You may obtain a copy of the License at
+## http://code.reddit.com/LICENSE. The License is based on the Mozilla Public
+## License Version 1.1, but Sections 14 and 15 have been added to cover use of
+## software over a computer network and provide for limited attribution for the
+## Original Developer. In addition, Exhibit A has been modified to be consistent
+## with Exhibit B.
+##
+## Software distributed under the License is distributed on an "AS IS" basis,
+## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+## the specific language governing rights and limitations under the License.
+##
+## The Original Code is Reddit.
+##
+## The Original Developer is the Initial Developer.  The Initial Developer of
+## the Original Code is CondeNet, Inc.
+##
+## All portions of the code written by CondeNet are Copyright (c) 2006-2008
+## CondeNet, Inc. All Rights Reserved.
+################################################################################
+
+<%!
+   from r2.models.subreddit import Default
+   from r2.lib.template_helpers import get_domain, static
+   from r2.lib.filters import safemarkdown, cleanhtml
+   from r2.lib.utils import prettytime, epochtime
+   from r2.lib.strings import strings
+   from r2.models.poll import renderpolls
+ %>
+
+<%namespace file="utils.html" import="separator,plain_link"/>
+<%inherit file="printable.html"/>
+
+<%def name="RenderPrintable()">
+<%
+  css_class = "post"
+  if thing.blessed:
+    css_class += ' editors-pick'
+
+  if thing.render_full:
+    full_article = True
+    heading_size = 1
+  else:
+    full_article = False
+    heading_size = 2
+    css_class += ' list'
+
+  fullname = thing._fullname
+%>
+
+<div id="thingrow_${fullname}" class="${css_class}" itemscope itemtype="http://schema.org/BlogPosting">
+  <h${heading_size} itemprop="name"><a href="${thing.url}">${self.title()}</a>${unsafe(self.draft())}</h${heading_size}>
+  <div class="meta clear">
+
+    %if thing.hide_score:
+      <span class="votes">&bull;</span>
+    %else:
+      <span class="votes">${self.score(thing, thing.likes, label = False)}</span>
+    %endif
+    ${unsafe(self.author(friend = thing.friend,
+                         label = unsafe('<span class="hide-text">Post author:</span>') if full_article else ''))}
+    <span class="date">${prettytime(thing._date)}</span>
+  </div><!-- .meta -->
+##{_RL
+<!--
+<div>
+  <i><h${heading_size-1}>Part 1 of 13 in the sequence &nbsp; <a href="http://wiki.lesswrong.com/wiki/Mysterious_Answers_to_Mysterious_Questions">Mysterious Answers to Mysterious Questions</a></h${heading_size-1}></i>
+<br/>
+<br/>
+</div>
+-->
+##}_RL
+  <div id="entry_${fullname}" class="content clear">
+## The div below is a hack to get the space compressor to leave whitespace in articles alone
+    <div class="md">
+      <div itemprop="description">
+        ${self.summary()}
+      </div>
+    </div>
+  </div><!-- .content -->
+  %if full_article:
+  <div class="articlenavigation">
+    <h4><a href="javascript:void(0)" class="dsphead" onclick="toggle_article_navigation('${thing._id36}')" id="articlenavstate">Article Navigation</a></h4>
+    <div style="display: none;" class="dspcont" id="article_nav_controls">
+      <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" />
+      Loading&hellip;</span>
+    </div>
+  </div><!-- .articlenavigation -->
+  %endif
+  <div class="tools clear">
+    ${parent.midcol(thing.votable)}
+    %if c.user_is_loggedin and (not c.profilepage):
+      <% clicked = thing.clicked() if thing.clicked else None %>
+      <div style="display: none;" id='lastViewed' time="${ epochtime(clicked._date if clicked else None) }"></div>
+    %endif
+    %if thing.comments_enabled:
+      <%
+          num_comments = 0 if not thing.num_comments else thing.num_comments
+      %>
+      <a class="comment" href="${thing.url}#comments">${_('Comments (%d)') % (num_comments)}</a>
+    %endif
+    <div class="boxright clear">
+      <ul class="clear">
+        ${self.buttons(comments = False, report=False)}
+      </ul>
+      %if full_article:
+        <% tags = thing.get_tags() %>
+        %if len(tags):
+          <div class="tags">
+            <span>Tags:</span>&#32;
+            %for tag in thing.get_tags():
+              <a href="${tag.path}">${tag.name}</a>${separator(" ")}
+            %endfor
+          </div>
+        %endif
+      %endif
+    </div>
+    ## Each link has a hidden status span that is used to indicate voting errors.
+    <span id='${"status_"+thing._fullname}' class="error" style="display: none;"></span>
+  </div><!-- .tools -->
+</div><!-- .post -->
+
+</%def>
+
+<%def name="title()">
+  ${thing.title}
+</%def>
+
+<%def name="draft()">
+    %if thing.draft:
+      &#32;<span class="draft">Draft</span>
+    %endif
+</%def>
+
+<%def name="article()">
+  ${unsafe(renderpolls(cleanhtml(thing.article), thing))}
+</%def>
+
+<%def name="summary()">
+  ${unsafe(cleanhtml(renderpolls(thing.dashboard_snippet(), thing)))}
+  <%call expr="make_link('read_more', 'more', 'more')">
+    continue reading &raquo;
+  </%call>
+</%def>
+
+<%def name="numcol()">
+  <% num = thing.num %>
+  <span class="rank" style="width:$numcolmargin;"
+       id="num_${thing._fullname}">
+    %if thing.top_link:
+      <a class="star" href="/toplinks">
+    %endif
+      ##placeholder for the number
+      $num
+    %if thing.top_link:
+      </a>
+    %endif
+  </span>
+</%def>
+
+<%def name="make_link(name, css_class, anchor=None)">
+  <a id="${name}_${thing._fullname}"
+     onmousedown="setClick(this, '${css_class}')"
+     class="${css_class} ${ c.user_is_loggedin and 'loggedin' or ''} ${thing.clicked and 'click' or ''}"
+     %if c.user.pref_frame:
+       href="http://${get_domain(cname = c.cname, subreddit = False)}/goto?id=${thing._id36}"
+     %else:
+       href="${thing.url}${anchor and ("#" + anchor) or ''}"
+     %endif
+     %if thing.nofollow:
+       rel="nofollow"
+     %endif
+     %if c.user.pref_newwindow:
+       target="_blank"
+     %elif c.cname:
+       target="_top"
+     %endif
+     >
+     ${caller.body()}
+  </a>
+</%def>
+
+<%def name="entry()">
+  <p class="title" id="titlerow_${thing._fullname}">
+    <%call expr="make_link('title', 'title')">
+      ${thing.title}
+    </%call>
+  </p>
+  <ul class="flat-list buttons">
+    <li class="tagline">${self.tagline()}${separator("|")}</li>
+    ${self.buttons()}
+    ${self.admintagline()}
+  </ul>
+  % if thing.render_full:
+    <div class="md">
+      ${unsafe(cleanhtml(renderpolls(thing.article, thing)))}
+    </div>
+    <% tags = thing.get_tags() %>
+    %if len(tags):
+      <div class="tags">
+        Tags:&#32;<ul class="flat-list">
+        %for tag in thing.get_tags():
+          <li><a href="${tag.path}">${tag.name}</a>${separator(" ")}</li>
+        %endfor
+        </ul>
+      </div>
+    %endif
+  %else:
+    % if hasattr(thing, '_summary'):
+      <div class="md">
+        ${unsafe(cleanhtml(renderpolls(thing._summary(), thing)))}
+      </div>
+      % if thing._has_more():
+        <%call expr="make_link('read_more', 'md', 'more')">
+          Continue reading &ldquo;${thing.title}&rdquo;...
+        </%call>
+      % endif
+    %endif
+  %endif
+  ${self.mediadiv()}
+</%def>
+
+<%def name="subreddit()" buffered="True">
+  <%
+    if c.cname:
+       path = "http://" + get_domain(cname = (c.site == thing.subreddit),
+                                     subreddit = (c.site != thing.subreddit))
+    else:
+       path = thing.subreddit.path
+    endif
+  %>
+  <a id="subreddit_${thing._fullname}" href="${path}" class="hover"
+     ${'target="_top"'  if c.cname else ''} >
+    ${thing.subreddit.name}
+  </a>
+  <script type="text/javascript">
+    sr['${thing._fullname}'] = '${thing.subreddit._fullname}';
+  </script>
+</%def>
+
+<%def name="domain()">
+  <span class="domain">
+    (<a href="/domain/${thing.domain}">${thing.domain}</a>)
+  </span>
+</%def>
+
+<%def name="tagline()">
+  <%
+    from r2.lib.utils import timeago
+    from r2.models import FakeSubreddit
+
+    if isinstance(c.site, FakeSubreddit) or c.site != thing.subreddit:
+      taglinetext = _("Submitted %(when)s ago by %(author)s to %(reddit)s")
+    else:
+      taglinetext = _("Submitted %(when)s ago by %(author)s")
+    taglinetext = taglinetext.replace(" ", "&#32;")
+  %>
+  ${unsafe(taglinetext % dict(reddit = self.subreddit(),
+                              when = thing.timesince,
+                              author= self.author(friend = thing.friend)))}
+</%def>
+
+<%def name="child()">
+</%def>
+
+<%def name="buttons(comments=True,delete=True,report=True,ban=True,additional='')">
+  <% fullname = thing._fullname %>
+  %if comments:
+    <%
+       if not thing.num_comments:
+         # generates "comment" the imperative verb
+         com_label = _("Comment")
+       else:
+         # generates "XX comments" as a noun
+         com_label = ungettext("comment", "comments", thing.num_comments)
+       %>
+    <li class="first">
+    ${parent.comment_button("comment", fullname, com_label,
+                            thing.num_comments, thing.permalink,
+                            newwindow = c.user.pref_newwindow)}
+    </li>
+  %endif
+##  <li>
+##    ${plain_link("Feed", "%s/.rss" % thing.url)}
+##  </li>
+  %if c.user_is_loggedin:
+    %if thing.can_submit(c.user):
+      <li>
+        <% kw = {"class": "edit", "title": "Edit"} %>
+        ${plain_link("Edit", "/edit/%s" % thing._id36, **kw)}
+      </li>
+  %endif
+    %if not thing.author == c.user:
+      <li>
+      ${parent.state_button("linksubscribe", fullname, _("Subscribe"), \
+          "return change_state_by_class(this, '%s', 'mod')"%("linkunsubscribe" if thing.link_subscribed(c.user, thing) else "linksubscribe"), \
+          _("Subscribed"), a_class="subscription"+(" mod" if thing.link_subscribed(c.user, thing) else ""), \
+          tool_tip = "No longer receive notifications for this post" if thing.link_subscribed(c.user, thing) else "Get notifications of top level comments on this post")}
+      </li>
+    %endif
+    %if c.user_is_admin:
+      <li class="promote">
+      %if thing.is_blessed():
+        ${parent.state_button("unbless", fullname, _("Demote"), \
+            "return change_state(this, 'unbless');", _("Demoted"))}
+      %else:
+        ${parent.state_button("bless", fullname, _("Promote"), \
+            "return change_state(this, 'bless');", _("Promoted"))}
+      %endif
+      </li>
+    %endif
+    <li>
+    ${parent.state_button("save", fullname, _("Save"), \
+          "return change_state_by_class(this, '%s', 'mod')"%("unsave" if thing.saved else "save"), \
+          _("Saved"), a_class="save"+(" mod" if thing.saved else ""), \
+          tool_tip = "Unsave" if thing.saved else "Save")}
+    </li>
+    %if not thing.render_full:
+      <li>
+      %if thing.hidden:
+        ${parent.state_button("unhide", fullname, _("Unhide"), \
+          "return change_w_callback(this, $ListClass.unhide);", _("Unhidden"), a_class="hide mod", tool_tip="Unhide")}
+      %else:
+        ${parent.state_button("hide", fullname, _("Hide"), \
+          "return change_w_callback(this, $ListClass.hide);", _("Hidden"), a_class="hide", tool_tip="Hide")}
+      %endif
+      </li>
+    %endif
+  %endif
+  ${parent.delete_or_report_buttons(delete=delete,report=report)}
+  ${parent.buttons(ban=ban)}
+  %if thing.cc_licensed:
+  <li>
+    <a href="http://creativecommons.org/licenses/by/3.0/" class="license" title="Post licensed under Creative Commons Attribution 3.0 License">CC Licenced</a>
+  </li>
+  %endif
+  ${additional}
+  ${self.media_embed()}
+</%def>
+
+
+<%def name="media_embed()">
+  %if thing.media_object:
+  <li>
+    <a id="view_embeded_media_a_${thing._fullname}" class="" \
+       href="javascript:view_embeded_media('${thing._fullname}', '${thing.media_object}')">\
+      <span id="view_embeded_media_span_watch_${thing._fullname}"
+            class="watch-play"
+            style="display: inline">
+        ${_("Watch")}
+      </span>
+      <span id="view_embeded_media_span_close_${thing._fullname}"
+            class="watch-stop"
+            style="display: none">
+        ${_("Close")}
+      </span>
+    </a>
+  </li>
+  %endif
+</%def>
+
+<%def name="thumbnail()">
+  %if thing.thumbnail:
+  <%call expr="make_link('thumbnail', 'thumbnail')">
+    <img src="${thing.thumbnail}" alt=""/>
+  </%call>
+  %endif
+</%def>
+
+<%def name="mediadiv()">
+  %if thing.media_object:
+    <div id="embeded_media_${thing._fullname}"
+         class="embededmedia" style="display: none;">
+      <p class="error">loading...</p>
+    </div>
+  %endif
+</%def>

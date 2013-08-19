@@ -46,6 +46,7 @@ from pylons.i18n import ungettext
 import re
 import random
 import urllib
+import lxml
 from datetime import datetime
 
 class LinkExists(Exception): pass
@@ -119,6 +120,13 @@ class Link(Thing, Printable, ImageHolder):
                 return sr.can_submit(user)
             else:
                 return False
+
+    def dashboard_snippet(self):
+        content = lxml.html.document_fromstring(self.article).text_content()
+        if len(content) < 300:
+            return self.article
+        else:
+            return content[:300]+content[300:].partition(' ')[0]+'...'
 
     def is_blessed(self):
         return self.blessed

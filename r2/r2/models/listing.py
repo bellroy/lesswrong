@@ -130,7 +130,10 @@ class NestedListing(Listing):
         #make into a tree thing
         return Wrapped(self)
 
-class DashboardListing(Listing): pass
+class DashboardListing(Listing):
+    def __init__(self, builder, title):
+        self.title = title
+        Listing.__init__(self, builder)
 
 class OrganicListing(Listing):
     # class used in Javascript to manage these objects

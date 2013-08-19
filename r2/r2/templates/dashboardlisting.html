@@ -26,6 +26,8 @@
 <%
    _id = ("_%s" % thing.parent_name) if hasattr(thing, 'parent_name') else ''
  %>
+<h2>${thing.title}</h2>
+<div class="dashlisting">
 <div id="siteTable${_id}" class="sitetable">
   <div id="ajaxHook${_id}" class="ajaxhook">
   </div>
@@ -35,7 +37,9 @@
   %endfor
 </div>
 
-${plain_link(_("More"), "/dashboard/comments")}  
 %if not thing.things:
-  <p id="noresults" class="error">${_("There doesn't seem to be anything here.")}</p>
+  <p id="noresults" class="error">${_("Nothing since your last visit.")}</p>
 %endif
+${plain_link(_("More"), "/dashboard/comments")}
+</div>
+

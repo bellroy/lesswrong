@@ -631,6 +631,16 @@ div.comment, div.message {
 	margin: 0 0 12px;
 	padding: 5px;
 }
+div.dashlisting {
+    padding: 0 10px 0;
+    margin: 0 5px 5px;
+}
+div.dashtable {
+    margin: 10px 0 0;
+}
+div.dashtable table tr td div.simpledash div.dashlisting {
+	padding: 0 15px 0;
+}
 div.comment {
 	margin: 10px 0px 0px 0px;
 	padding: 2px 0 2px 15px;

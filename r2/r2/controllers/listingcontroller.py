@@ -134,9 +134,9 @@ class ListingController(RedditController):
         if after is not None:
             self.robots = "noindex,follow"
 
-        #self.query_obj = self.query()
-        #self.builder_obj = self.builder()
-        #self.listing_obj = self.listing()
+        self.query_obj = self.query()
+        self.builder_obj = self.builder()
+        self.listing_obj = self.listing()
         content = self.content()
         res =  self.render_cls(content = content,
                                show_sidebar = self.show_sidebar,
@@ -458,6 +458,10 @@ class MeetupslistingController(ListingController):
 	    return []
 
     def query(self):
+        return Meetup.upcoming_meetups_by_timestamp()
+
+    @staticmethod
+    def staticquery():
         return Meetup.upcoming_meetups_by_timestamp()
 
 class ByIDController(ListingController):
@@ -838,6 +842,16 @@ class CommentsController(ListingController):
     def query(self):
         q = Comment._query(Comment.c._spam == (True,False),
                            Comment.c.sr_id == c.current_or_default_sr._id,
+                           sort = desc('_date'), data = True)
+        if not c.user_is_admin:
+            q._filter(Comment.c._spam == False)
+
+        return q
+
+    @staticmethod
+    def staticquery():
+        q = Comment._query(Comment.c._spam == (True,False),
+                           Comment.c.sr_id == [c.current_or_default_sr._id, Subreddit._by_name('discussion')._id],
                            sort = desc('_date'), data = True)
         if not c.user_is_admin:
             q._filter(Comment.c._spam == False)
