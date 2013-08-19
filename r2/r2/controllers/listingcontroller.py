@@ -981,8 +981,8 @@ class InterestingsubscribedController(CommentsController):
                                        eager_load = True,
                                        thing_data = not g.use_query_cache
                                        )
-        #if not c.user_is_admin:
-        #    q._filter(Comment.c._spam == False)
+        if not c.user_is_admin:
+            q._filter(SubscriptionStorage.c._t2_spam == False)
 
         q.prewrap_fn = lambda x: x._thing2
 
