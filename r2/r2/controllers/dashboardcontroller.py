@@ -27,7 +27,8 @@ class InterestingcommentsController(CommentsController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+	    return [NamedButton("dashboard", dest="dashboard"),
+                NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
                 NamedButton("leadingposts", dest="dashboard/posts"),
                 NamedButton("leadingcomments", dest="dashboard/comments")]
 
@@ -84,7 +85,8 @@ class InterestingsubscribedController(CommentsController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+	    return [NamedButton("dashboard", dest="dashboard"),
+                NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
                 NamedButton("leadingposts", dest="dashboard/posts"),
                 NamedButton("leadingcomments", dest="dashboard/comments")]
 
@@ -153,7 +155,8 @@ class InterestingpostsController(CommentsController):
 
     @property
     def header_sub_nav(self):
-	    return [NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+	    return [NamedButton("dashboard", dest="dashboard"),
+                NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
                 NamedButton("leadingposts", dest="dashboard/posts"),
                 NamedButton("leadingcomments", dest="dashboard/comments")]
 
@@ -205,6 +208,13 @@ class InterestingpostsController(CommentsController):
         return CommentsController.GET_listing(self, **env)
 
 class ListingtestController(CommentsController):
+    @property
+    def header_sub_nav(self):
+	    return [NamedButton("dashboard", dest="dashboard"),
+                NamedButton("leadingsubscribed", dest="dashboard/subscribed"),
+                NamedButton("leadingposts", dest="dashboard/posts"),
+                NamedButton("leadingcomments", dest="dashboard/comments")]
+
     render_cls = FormPage
     builder_cls = UnbannedCommentBuilder
 
@@ -266,5 +276,5 @@ class ListingtestController(CommentsController):
     def GET_listing(self, time, **env):
         self.time = time
         content = self.content()
-        res = FormPage("Dashboard", content = content).render()
+        res = FormPage("Dashboard", content = content, header_sub_nav = self.header_sub_nav).render()
         return res
