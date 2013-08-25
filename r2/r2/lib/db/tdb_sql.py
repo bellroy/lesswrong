@@ -376,6 +376,25 @@ def incr_thing_prop(type_id, thing_id, prop, amount):
     for t in extra_thing_tables.get(type_id, ()):
         do_update(t)
 
+def incr_things_prop(type_id, thing_ids, prop, amount):
+    table = types_id[type_id].thing_table
+
+    def render_list(thing_ids):
+        if len(thing_ids) == 1:
+            return '(' + str(int(thing_ids[0])) + ')'
+        else:
+            return tuple([int(id) for id in thing_ids])
+
+    u = """UPDATE %(table)s SET %(prop)s=%(prop)s+%(amount)s
+        WHERE %(table)s.thing_id IN %(thing_ids)s"""
+    u = u % dict(prop = prop,
+                 table = table.name,
+                 amount = amount,
+                 thing_ids = render_list(thing_ids))
+    print u
+    table.engine.execute(u)
+
+
 class CreationError(Exception): pass
 
 #TODO does the type exist?

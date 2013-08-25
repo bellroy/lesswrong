@@ -1053,10 +1053,31 @@ class Comment(Thing, Printable):
             return True
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
-    def incr_descendant_karma(self, amount):
-        self._incr('_descendant_karma', amount)
+    def incr_descendant_karma(self, comments, amount):
+
+        prefix = self.__class__.__name__ + '_'
+        key = prefix + '_descendant_karma' + '_' + str(self._id)
+        cache_val = old_val = None #cache.get(key)
+        if old_val is None:
+            old_val = getattr(self, '_descendant_karma')
+
+        #self.__setattr__('_descendant_karma', old_val + amount, False)
+
+        comments.append(self._id)
+
         if hasattr(self, 'parent_id') and self.parent_id:
-            Comment._byID(self.parent_id).incr_descendant_karma(amount)
+            Comment._byID(self.parent_id).incr_descendant_karma(comments, amount)
+        else:
+            from r2.lib.db import tdb_sql as tdb
+            tdb.incr_things_prop(self._type_id, comments, 'descendant_karma', amount)
+
+        if cache_val:
+            cache.incr(key, amount)
+        else:
+            cache.set(key, getattr(self, '_descendant_karma'))
+
+        self.__setattr__('_descendant_karma', old_val + amount, False)
+        cache.set(prefix + str(self._id), self)
 
     def keep_item(self, wrapped):
         if c.user_is_admin:
