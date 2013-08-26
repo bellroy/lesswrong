@@ -113,6 +113,9 @@ ${parent.Child(not thing.collapsed)}
   %else:
     ${unsafe(pollsandmarkdown(thing.body, thing))}
   %endif
+  Ups:${thing._ups}
+  Downs:${thing._downs}
+  Descendant:${getattr(thing, '_descendant_karma')}
 %endif
 </%def>
 

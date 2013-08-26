@@ -28,6 +28,10 @@ create or replace function score(ups integer, downs integer) returns integer as 
     select $1 - $2
 $$ language sql immutable;
 
+create or replace function interestingness(ups integer, downs integer, descendant_karma integer) returns integer as $$
+    select cast($1 - $2 + round($3 / 2.0, 0) as integer)
+$$ language sql immutable;
+
 create or replace function controversy(ups integer, downs integer) returns float as $$
     select cast(($1 + $2) as float)/(abs($1 - $2)+1)
 $$ language sql immutable;
