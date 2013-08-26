@@ -21,6 +21,8 @@ from r2.lib import notify, emailer
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
 
+from lxml import etree
+
 
 class JobProcessor:
     def run(self):
@@ -94,8 +96,11 @@ def job_create_wiki_account(name, password, email, attempt):
 
     try:
         response = create_wiki_account(name, password, email)
+        print response
 
-        if not successmatcher.match(response):
+        resultxml = etree.fromstring(response)
+
+        if resultxml.find("createaccount") is not None:
             user = Account._by_name(name)
             emailer.wiki_failed_email(user)
         elif sendpass:
