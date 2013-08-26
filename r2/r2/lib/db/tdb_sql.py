@@ -85,7 +85,7 @@ def index_commands(table, type):
         commands.append(index_str(table, 'hot', 'hot(ups, downs, date), date'))
         commands.append(index_str(table, 'score', 'score(ups, downs), date'))
         commands.append(index_str(table, 'controversy', 'controversy(ups, downs), date'))
-        commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma), date'))
+        commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma)'))
     elif type == 'data':
         commands.append(index_str(table, 'id', 'thing_id'))
         commands.append(index_str(table, 'thing_id', 'thing_id'))
@@ -391,7 +391,7 @@ def incr_things_prop(type_id, thing_ids, prop, amount):
                  table = table.name,
                  amount = amount,
                  thing_ids = render_list(thing_ids))
-    print u
+
     table.engine.execute(u)
 
 
