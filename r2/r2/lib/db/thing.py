@@ -602,8 +602,8 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
 
         @classmethod
         def _fast_query(cls, thing1s, thing2s, name, data=True):
-            """looks up all the relationships between thing1_ids and thing2_ids
-            and caches them"""
+            """Looks up all the relationships between thing1_ids and thing2_ids
+            and caches them."""
             prefix = thing_prefix(cls.__name__)
 
             thing1_dict = dict((t._id, t) for t in thing1s)

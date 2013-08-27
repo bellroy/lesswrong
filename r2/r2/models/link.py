@@ -80,6 +80,7 @@ class Link(Thing, Printable):
 
     @classmethod
     def _by_url(cls, url, sr):
+	"""Return the link that matchs the given url and sr, or all links that match the url if sr is Default or None."""
         from subreddit import Default
         if sr == Default:
             sr = None
@@ -101,6 +102,7 @@ class Link(Thing, Printable):
 
 
     def can_submit(self, user):
+	"""Return True if user is authorised to submit this link, else return false."""
         if c.user_is_admin:
             return True
         else:
@@ -119,6 +121,7 @@ class Link(Thing, Printable):
         return self.blessed
 
     def set_url_cache(self):
+	"""Add a url cache entry for this link."""
         if self.url != 'self':
             key = self.by_url_key(self.url)
             link_ids = g.permacache.get(key) or []
@@ -139,16 +142,18 @@ class Link(Thing, Printable):
 
     @property
     def already_submitted_link(self):
+	"""Return flag indicating self has been submitted before appended to a slow peramlink to self.""" 
         return self.make_permalink_slow() + '?already_submitted=true'
 
     def resubmit_link(self, sr_url = False):
+	"""Return a url for resubmitting this link."""
         submit_url  = self.subreddit_slow.path if sr_url else '/'
         submit_url += 'submit?resubmit=true&url=' + url_escape(self.url)
         return submit_url
 
     @classmethod
     def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None):
-        # Create the Post and commit to db.
+        """Create the Post and commit to db."""
         l = cls(title = title,
                 url = 'self',
                 _spam = spam,
@@ -175,14 +180,17 @@ class Link(Thing, Printable):
         return l
         
     def _summary(self):
+	"""Return a preview of self's article if self has an article."""
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[0]
             
     def _has_more(self):
+	"""Returns wether or not there is more of self's article left, if self has an article."""
         if hasattr(self, 'article'):
             return self.article.find(self._more_marker) >= 0
             
     def _more(self):
+	"""Returns the next segment of self. article if self has an article."""
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[1]
 

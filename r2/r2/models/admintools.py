@@ -22,6 +22,10 @@
 from r2.lib.utils import tup
 
 class AdminTools(object):
+	"""Provides utility methods related to site admin tasks.  
+
+	Note: many methods are currently dummy methods that pass or return a fixed value regardless of their inputs.
+	"""
     def spam(self, thing, amount = 1, mark_as_spam = True, **kw):
 	"""Mark each item in thing as spam if amount is greater than 0 else mark them as not spam"""
         things = tup(thing)
@@ -44,15 +48,19 @@ class AdminTools(object):
 admintools = AdminTools()
 
 def is_banned_IP(ip):
+	"""Return False"""
     return False
 
 def is_banned_domain(dom):
+	"""Return False"""
     return False
 
 def valid_thing(v, karma):
+	"""Return True"""
     return True
 
 def valid_user(v, sr, karma):
+	"""Return True"""
     return True
 
 def update_score(obj, up_change, down_change, new_valid_thing, old_valid_thing):

@@ -37,6 +37,7 @@ class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
 class Account(Thing):
+	"""Can be instatiated as the representation of a user account, and provides account related class methods"""
     _data_int_props = Thing._data_int_props + ('link_karma', 'comment_karma',
                                                'report_made', 'report_correct',
                                                'report_ignored', 'spammer',
@@ -134,7 +135,7 @@ class Account(Thing):
         return cached_all_user_change()[0].get(self._id, 0)
 
     def all_karmas(self):
-        """Return this accounts karma from each sr as a list of tuples of the form (sr_name, link_karma, comment_karma)"""
+        """Return this accounts karma from each sr as a list of tuples of the form (sr_name, link_karma, comment_karma)."""
         link_suffix = '_link_karma'
         comment_suffix = '_comment_karma'
         karmas = []
@@ -251,7 +252,7 @@ class Account(Thing):
 
     @classmethod
     def _by_name(cls, name, allow_deleted = False):
-	"""Return the account with name name if it it in cls."""
+	"""Return the account named name if it it in cls."""
         #lower name here so there is only one cache
         uid = cls._by_name_cache(name.lower(), allow_deleted)
         if uid:
@@ -261,6 +262,7 @@ class Account(Thing):
 
     @property
     def friends(self):
+	"""Return the ids of this account's friends"""
         return self.friend_ids()
 
     def delete(self):
@@ -350,7 +352,7 @@ def valid_login(name, password):
     return valid_password(a, password)
 
 def valid_password(a, password):
-	"""Use password to create a passhash of password for a and return a if password is a valid password, else return false."""
+	"""Set a.password to a salted passhash of password and return a if possible, else return false."""
     try:
         if a.password == passhash(a.name, password, ''):
             #add a salt

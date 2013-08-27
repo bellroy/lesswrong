@@ -56,6 +56,7 @@ class Builder(object):
             return item.keep_item(item)
 
     def wrap_items(self, items):
+	"""Returns a list containing a wraped version of each item in items."""
         user = c.user if c.user_is_loggedin else None
 
         #get authors
@@ -175,11 +176,11 @@ class Builder(object):
         raise NotImplementedError
 
     def item_iter(self, *a):
-        """Iterates over the items returned by get_items"""
+        """Iterates over the items returned by get_items."""
         raise NotImplementedError
 
     def must_skip(self, item):
-        """whether or not to skip any item regardless of whether the builder
+        """Whether or not to skip any item regardless of whether the builder
         was contructed with skip=true"""
         user = c.user if c.user_is_loggedin else None
         if hasattr(item, 'subreddit') and not item.subreddit.can_view(user):
@@ -202,7 +203,7 @@ class QueryBuilder(Builder):
         #self.prewrap_fn = kw.get('prewrap_fn')
 
     def item_iter(self, a):
-        """Iterates over the items returned by get_items"""
+        """Iterates over the items returned by get_items."""
         for i in a[0]:
             yield i
 
@@ -218,6 +219,7 @@ class QueryBuilder(Builder):
             q._after(self.after)
 
     def fetch_more(self, last_item, num_have):
+	"""Return a Boolean that is True iff there are no more items left to be fetched by q, and a list of the items fetched."""
         done = False
         q = self.query
         if self.num:
