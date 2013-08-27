@@ -96,7 +96,6 @@ def job_create_wiki_account(name, password, email, attempt):
 
     try:
         response = create_wiki_account(name, password, email)
-        print response
 
         resultxml = etree.fromstring(response)
 

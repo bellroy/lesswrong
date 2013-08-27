@@ -30,7 +30,6 @@ def run():
             if not user._loaded:
                 user._load()
             if hasattr(user, 'email'):
-                print user.email
                 data = {'name' : user.name, 'password' : None, 'email' : user.email, 'attempt' : 0}
                 PendingJob.store(None, 'create_wiki_account', data)
 
