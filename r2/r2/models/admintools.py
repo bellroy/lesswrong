@@ -23,6 +23,7 @@ from r2.lib.utils import tup
 
 class AdminTools(object):
     def spam(self, thing, amount = 1, mark_as_spam = True, **kw):
+	"""Mark each item in thing as spam if amount is greater than 0 else mark them as not spam"""
         things = tup(thing)
         for t in things:
             if mark_as_spam:
@@ -33,9 +34,11 @@ class AdminTools(object):
         pass
 
     def ban_info(self, thing):
+	"""Return and empty dictionary."""
         return {}
 
     def get_corrections(self, cls, min_date = None, max_date = None, limit = 50):
+	"""Return an empty list."""
         return []
 
 admintools = AdminTools()
@@ -53,10 +56,12 @@ def valid_user(v, sr, karma):
     return True
 
 def update_score(obj, up_change, down_change, new_valid_thing, old_valid_thing):
+	"""Incremts obj's _ups by up_change and its _downs by down_change"""
      obj._incr('_ups',   up_change)
      obj._incr('_downs', down_change)
 
 def compute_votes(wrapper, item):
+	"""Sets wrapper's upvotes and downvotes to mach item's _ups and _downs."""
     wrapper.upvotes   = item._ups
     wrapper.downvotes = item._downs
 

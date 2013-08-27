@@ -72,6 +72,7 @@ class Account(Thing):
                      )
 
     def karma(self, kind, sr = None):
+	"""Return how much karma the account has from posts of kind kind, limited to karma from sr if sr is not None."""
         from subreddit import Subreddit
         suffix = '_' + kind + '_karma'
         
@@ -102,6 +103,7 @@ class Account(Thing):
                     return 0
 
     def incr_karma(self, kind, sr, amt):
+	"""Increment the account's karma of type kind for subreddit sr by amt.""" 
         prop = '%s_%s_karma' % (sr.name, kind)
         if hasattr(self, prop):
             return self._incr(prop, amt)
@@ -112,14 +114,17 @@ class Account(Thing):
 
     @property
     def link_karma(self):
+	"""Return this account's karma from links."""
         return self.karma('link')
 
     @property
     def comment_karma(self):
+	"""Return this account's karma from comments."""
         return self.karma('comment')
 
     @property
     def safe_karma(self):
+	"""Return karma from links + karma from comments if that ammount is not between 0 and -1000 else return 0."""
         karma = self.link_karma + self.comment_karma
         return max(karma, 0) if karma > -1000 else karma
 
@@ -129,8 +134,7 @@ class Account(Thing):
         return cached_all_user_change()[0].get(self._id, 0)
 
     def all_karmas(self):
-        """returns a list of tuples in the form (name, link_karma,
-        comment_karma)"""
+        """Return this accounts karma from each sr as a list of tuples of the form (sr_name, link_karma, comment_karma)"""
         link_suffix = '_link_karma'
         comment_suffix = '_comment_karma'
         karmas = []
@@ -157,7 +161,11 @@ class Account(Thing):
         return karmas
 
     def vote_cache_key(self, kind):
-        """kind is 'link' or 'comment'"""
+        """Returns the key for the cache entry with this acount's downvotes from posts of kind kind.
+
+	Kind is 'link' or 'comment'
+	
+	"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
 
     def check_downvote(self, vote_kind):
@@ -168,6 +176,7 @@ class Account(Thing):
 
         This makes the assumption that the user can't cast a vote for something
         on the non-current subreddit.
+
         """
         from r2.models.vote import Vote, Link, Comment
 
@@ -193,13 +202,18 @@ class Account(Thing):
             raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta, kind):
-        """kind is link or comment"""
+        """Increments the cached number of downvotes for this account on posts of kind kind by delta.
+	
+	kind is link or comment
+
+	"""
         try:
             g.cache.incr(self.vote_cache_key(kind), delta)
         except ValueError, e:
             print 'Account.incr_downvote failed with: %s' % e
 
     def make_cookie(self, timestr = None, admin = False):
+	"""Create a cookie with a unique idenitfier derived from the time, admin status and this account's id."""
         if not self._loaded:
             self._load()
         timestr = timestr or time.strftime('%Y-%m-%dT%H:%M:%S')
@@ -213,10 +227,12 @@ class Account(Thing):
         return self.safe_karma < 1
 
     def modhash(self):
+	"""Return a hash of the current login cookie combined with g.SECRET."""
         to_hash = ','.join((current_login_cookie(), g.SECRET))
         return hashlib.sha1(to_hash).hexdigest()
     
     def valid_hash(self, hash):
+	"""Returns true if hash is the same as this account's modhash, else returns fales."""
         return hash == self.modhash()
 
     @classmethod
@@ -235,6 +251,7 @@ class Account(Thing):
 
     @classmethod
     def _by_name(cls, name, allow_deleted = False):
+	"""Return the account with name name if it it in cls."""
         #lower name here so there is only one cache
         uid = cls._by_name_cache(name.lower(), allow_deleted)
         if uid:
@@ -247,6 +264,7 @@ class Account(Thing):
         return self.friend_ids()
 
     def delete(self):
+	"""Set deleted to true and remove self from friend lists and memozation."""
         self._deleted = True
         self._commit()
         clear_memo('account._by_name', Account, self.name.lower(), False)
@@ -260,6 +278,7 @@ class Account(Thing):
 
     @property
     def subreddits(self):
+	"""Return the subreddits that appear in this users listings."""
         from subreddit import Subreddit
         return Subreddit.user_subreddits(self)
 
@@ -268,9 +287,11 @@ class Account(Thing):
       return self.name + "-drafts"
 
     def recent_share_emails(self):
+	"""Return the set of email's in share marked recent."""
         return self.share.get('recent', set([]))
 
     def add_share_emails(self, emails):
+	"""Add emails to self.share with 'recent' as their key."""
         if not emails:
             return
         
@@ -297,6 +318,8 @@ class FakeAccount(Account):
 
 
 def valid_cookie(cookie):
+	"""Return (False,False) if the cookie dosen't correspond to a valid account,
+	 else return the account and its admin status"""
     try:
         uid, timestr, hash = cookie.split(',')
         uid = int(uid)
@@ -317,6 +340,7 @@ def valid_cookie(cookie):
     return (False, False)
 
 def valid_login(name, password):
+	"""Return false if the arguments are invalid, else return an new account with the given name and password."""
     try:
         a = Account._by_name(name)
     except NotFound:
@@ -326,6 +350,7 @@ def valid_login(name, password):
     return valid_password(a, password)
 
 def valid_password(a, password):
+	"""Use password to create a passhash of password for a and return a if password is a valid password, else return false."""
     try:
         if a.password == passhash(a.name, password, ''):
             #add a salt
@@ -340,6 +365,12 @@ def valid_password(a, password):
         return False
 
 def passhash(username, password, salt = ''):
+	"""Return a salt prefixed to a hash of username, password, and the salt.
+	
+	Keyword Arguments:
+	salt --the salt value or True to inidcate passhash should generate a random salt
+
+	"""
     if salt is True:
         salt = randstr(3)
     tohash = '%s%s %s' % (salt, username, password)
@@ -349,12 +380,14 @@ def passhash(username, password, salt = ''):
     return salt + hashlib.sha1(tohash).hexdigest()
 
 def change_password(user, newpassword):
+	"""Create a passhass for user with newpassword and update user's password. Returns True"""
     user.password = passhash(user.name, newpassword, True)
     user._commit()
     return True
 
 #TODO reset the cache
 def register(name, password, email=None):
+	"""Return and commit an new account with the given name, password, and email adress"""
     try:
         a = Account._by_name(name)
         raise AccountExists
