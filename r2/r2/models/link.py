@@ -695,15 +695,20 @@ class Link(Thing, Printable, ImageHolder):
         Thing._commit(self, *a, **kw)
 
         if should_invalidate:
-            g.rendercache.delete('side-posts' + '-' + c.site.name)
-            g.rendercache.delete('side-comments' + '-' + c.site.name)
+            try:
+                name = c.site.name
+            except:
+                name = Subreddit._byID(self.sr_id).name
+
+            g.rendercache.delete('side-posts' + '-' + name)
+            g.rendercache.delete('side-comments' + '-' + name)
             tags = self.tag_names()
             if 'open_thread' in tags:
-                g.rendercache.delete('side-open' + '-' + c.site.name)
+                g.rendercache.delete('side-open' + '-' + name)
             if 'quotes' in tags:
-                g.rendercache.delete('side-quote' + '-' + c.site.name)
+                g.rendercache.delete('side-quote' + '-' + name)
             if 'group_rationality_diary' in tags:
-                g.rendercache.delete('side-diary' + '-' + c.site.name)
+                g.rendercache.delete('side-diary' + '-' + name)
 
 # Note that there are no instances of PromotedLink or LinkCompressed,
 # so overriding their methods here will not change their behaviour

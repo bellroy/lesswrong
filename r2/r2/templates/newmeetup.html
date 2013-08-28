@@ -41,6 +41,16 @@
     ${error_field("INVALID_DATE", "span")}
   </fieldset>
 
+  <fieldset>
+    <label for="recurring">${_("Recurs")}</label>
+    <select id="recurring" name="recurring">
+      <option value="never">Never</option>
+      <option value="weekly">Weekly</option>
+      <option value="biweekly">Biweekly</option>
+      <option value="monthly">Monthly</option>
+    </select> 
+  </fieldset>
+
   <button class="btn" type="submit">${_("Submit Meetup")}</button>
   <span id="status" class="error"></span>
 </%def>

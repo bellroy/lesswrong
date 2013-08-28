@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import json
+import calendar
 
 from mako.template import Template
 from pylons.i18n import _
@@ -11,9 +12,9 @@ from r2.lib.filters import python_websafe
 from r2.lib.jsonresponse import Json
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
 from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
-from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob
+from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob,Account
 from r2.models.listing import NestedListing
-from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
+from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp, nop
 from routes.util import url_for
 
 
@@ -56,11 +57,14 @@ class MeetupsController(RedditController):
             latitude = VFloat('latitude', error=errors.NO_LOCATION),
             longitude = VFloat('longitude', error=errors.NO_LOCATION),
             timestamp = VTimestamp('timestamp'),
-            tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
-  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip):
+            tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE),
+            recurring = nop('recurring'))
+  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     if res._chk_error(errors.NO_TITLE):
       res._chk_error(errors.TITLE_TOO_LONG)
       res._focus('title')
+
+    print recurring
 
     res._chk_errors((errors.NO_LOCATION,
                      errors.NO_DESCRIPTION,
@@ -69,8 +73,28 @@ class MeetupsController(RedditController):
 
     if res.error: return
 
+    meetup = self.create(c.user._id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
+
+    res._redirect(url_for(action='show', id=meetup._id36))
+
+    @validate(user = VCacheKey('reset', ('key', 'name')),
+              key = nop('key'))
+    def GET_resetpassword(self, user, key):
+        """page hit once a user has been sent a password reset email
+        to verify their identity before allowing them to update their
+        password."""
+        done = False
+        if not key and request.referer:
+            referer_path =  request.referer.split(g.domain)[-1]
+            done = referer_path.startswith(request.fullpath)
+        elif not user:
+            return self.abort404()
+        return BoringPage(_("Reset password"),
+                          content=ResetPassword(key=key, done=done)).render()
+
+  def create(self, author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     meetup = Meetup(
-      author_id = c.user._id,
+      author_id = author_id,
 
       title = title,
       description = description,
@@ -89,22 +113,55 @@ class MeetupsController(RedditController):
     meetup._commit()
 
     l = Link._submit(meetup_article_title(meetup), meetup_article_text(meetup),
-                     c.user, Subreddit._by_name('discussion'),ip, [])
+                     Account._byID(author_id, data=True), Subreddit._by_name('discussion'),ip, [])
 
     l.meetup = meetup._id36
     l._commit()
     meetup.assoc_link = l._id
     meetup._commit()
 
-    when = datetime.now(g.tz) + timedelta(0, 3600)  # Leave a short window of time before notification, in case
+    when = datetime.now(g.tz) + timedelta(0, 60) # Leave a short window of time before notification, in case
                                                     # the meetup is edited/deleted soon after its creation
     PendingJob.store(when, 'process_new_meetup', {'meetup_id': meetup._id})
+
+
+    if recurring != 'never':
+        if recurring == 'weekly':
+            offset = 7
+        elif recurring == 'biweekly':
+            offset = 14
+        elif recurring == 'monthly':
+            date =  meetup.datetime()
+            dow = date.weekday()
+            wom = (date.day-1)/7
+            ym = (date.year, date.month)
+            if ym[1] != 12:
+               nym = (ym[0], ym[1]+1)
+            else:
+               nym = (ym[0] + 1, 1)
+            tm = calendar.monthrange(*ym)
+            nm = calendar.monthrange(*nym)
+            print dow
+            print wom
+            print (1-4)%7
+            print tm[1] - date.day
+            print (dow - nm[0])%7
+            print wom * 7
+            offset = tm[1] - date.day + (dow - nm[0])%7 + wom * 7 + 1
+            print offset
+
+        """data = {'author_id':author_id,'title':title,'description':description,'location':location,
+                'latitude':latitude,'longitude':longitude,'timestamp':timestamp+offset*86400,
+                'tzoffset':tzoffset,'ip':ip,'recurring':recurring}
+
+        PendingJob.store(when, 'repost_meetup', data)"""
+
 
     #update the queries
     if g.write_query_queue:
       queries.new_link(l)
 
-    res._redirect(url_for(action='show', id=meetup._id36))
+    return meetup
 
   @Json
   @validate(VUser(),

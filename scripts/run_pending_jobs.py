@@ -9,6 +9,7 @@ time this script is run.
 """
 
 from sys import stderr
+import traceback
 from datetime import datetime
 
 from pylons import g
@@ -17,6 +18,7 @@ from r2.lib.lock import MemcacheLock
 from r2.lib import notify
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
+from r2.controllers.meetupscontroller import MeetupsController
 
 
 class JobProcessor:
@@ -50,6 +52,7 @@ class JobProcessor:
         else:
             self.mark_as_completed(job)
         finally:
+            self.mark_as_completed(job)
             lock.release()
 
     def mark_as_completed(self, job):
@@ -76,6 +79,12 @@ def job_send_meetup_email_to_user(meetup_id, username):
       # Users can get deleted so ignore if not found
       pass
 
+def job_repost_meetup(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
+    mc = MeetupsController()
+    try:
+        mc.create(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
+    except:
+        traceback.print_exc()
 
 try:
     JobProcessor().run()
