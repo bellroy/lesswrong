@@ -59,7 +59,7 @@ def update_score(obj, up_change, down_change, new_valid_thing, old_valid_thing):
      if isinstance(obj, Comment):
          if hasattr(obj, 'parent_id'):
              Comment._byID(obj.parent_id).incr_descendant_karma([], up_change - down_change)
-         Link._byID(obj.link_id)._incr('descendant_karma', up_change - down_change)
+         Link._byID(obj.link_id)._incr('_descendant_karma', up_change - down_change)
 
 def compute_votes(wrapper, item):
     wrapper.upvotes   = item._ups
