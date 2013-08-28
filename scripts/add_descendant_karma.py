@@ -16,6 +16,8 @@ def run():
     id_start = 0
 
     for id_low in xrange(id_start, max_id + 1, STEP):
+        print "Add desc karma for links %s to %s" % (id_low, id_low + STEP)
+
         links = list(query_thing_id_range(thing, id_low, id_low + STEP))
 
         for link in links:
@@ -27,7 +29,6 @@ def run():
                 if not comment._loaded:
                     comment._load()
                 if hasattr(comment, 'parent_id') and comment.parent_id:
-                    num_trees += 1
                     Comment._byID(comment.parent_id).incr_descendant_karma([], comment._ups - comment._downs)
                 link_descendant_karma += (comment._ups - comment._downs)
 
