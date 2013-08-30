@@ -9,8 +9,7 @@ time this script is run.
 """
 
 from sys import stderr
-import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pylons import g
 
@@ -52,7 +51,6 @@ class JobProcessor:
         else:
             self.mark_as_completed(job)
         finally:
-            self.mark_as_completed(job)
             lock.release()
 
     def mark_as_completed(self, job):
@@ -81,10 +79,20 @@ def job_send_meetup_email_to_user(meetup_id, username):
 
 def job_repost_meetup(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     mc = MeetupsController()
+    mc.create(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
+
+def job_meetup_repost_emailer(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
+    when = datetime.now(g.tz) + timedelta(1)
+    data = {'author_id':author_id,'title':title,'description':description,'location':location,
+            'latitude':latitude,'longitude':longitude,'timestamp':timestamp,
+            'tzoffset':tzoffset,'ip':ip,'recurring':recurring}
+
+    pj = PendingJob.store(when, 'repost_meetup', data)
     try:
-        mc.create(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
-    except:
-        traceback.print_exc()
+        user = Account._byID(author_id)
+        notify.email_user_about_repost(user, pj)
+    except NotFound:
+        pass
 
 try:
     JobProcessor().run()

@@ -22,7 +22,7 @@
 from email.MIMEText import MIMEText
 from pylons.i18n import _
 from pylons import c, g, request
-from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify
+from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, RepostEmail
 from r2.lib.utils import timeago
 from r2.models import passhash, Email, Default, has_opted_out
 from r2.config import cache
@@ -55,6 +55,12 @@ def password_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
                  'lesswrong.com password reset',
                  PasswordReset(user=user, passlink=passlink).render(style='email'))
+
+def repost_email(user, pendingjob):
+    stoplink = 'http://' + g.domain + '/cancelmeetup/' + str(pendingjob)
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'lesswrong.com meetup repost',
+                 RepostEmail(user=user, stoplink=stoplink).render(style='email'))
 
 def confirmation_email(user):
     simple_email(user.email, 'contact@lesswrong.com',

@@ -11,7 +11,7 @@ from r2.lib.errors import errors
 from r2.lib.filters import python_websafe
 from r2.lib.jsonresponse import Json
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
-from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
+from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost, CancelMeetup, UnfoundPage
 from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob,Account
 from r2.models.listing import NestedListing
 from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp, nop
@@ -29,6 +29,28 @@ def meetup_article_text(meetup):
 
 def meetup_article_title(meetup):
   return "Meetup : %s"%meetup.title
+
+def calculate_month_interval(date):
+  """Calculates the number of days between a date
+  and the same day (ie 3rd Wednesday) in the
+  following month"""
+
+  day_of_week = date.weekday()
+  week_of_month = (date.day-1)/7
+  this_month = (date.year, date.month)
+  if this_month[1] != 12:
+    next_month = (this_month[0], this_month[1]+1)
+  else:
+    next_month = (this_month[0] + 1, 1)
+  this_month = calendar.monthrange(*this_month)
+  next_month = calendar.monthrange(*next_month)
+  remaining_days_in_month = this_month[1] - date.day
+  """this line calculates the nth day of the next month,
+  if that exceeds the number of days in that month, it 
+  backs off a week"""
+  days_into_next_month = (day_of_week - next_month[0])%7 + (week_of_month * 7 + 1) if (day_of_week - next_month[0])%7 + week_of_month * 7 + 1 < next_month[1] else (day_of_week - next_month[0])%7 + (week_of_month-1) * 7 + 1 
+  offset = remaining_days_in_month + days_into_next_month
+  return offset
 
 class MeetupsController(RedditController):
   def response_func(self, **kw):
@@ -64,12 +86,17 @@ class MeetupsController(RedditController):
       res._chk_error(errors.TITLE_TOO_LONG)
       res._focus('title')
 
-    print recurring
+    if recurring != 'never':
+        try:
+            Account._byID(c.user._id).email
+        except:
+            res._set_error(errors.CANT_RECUR)
 
     res._chk_errors((errors.NO_LOCATION,
                      errors.NO_DESCRIPTION,
                      errors.INVALID_DATE,
-                     errors.NO_DATE))
+                     errors.NO_DATE,
+                     errors.CANT_RECUR))
 
     if res.error: return
 
@@ -77,20 +104,16 @@ class MeetupsController(RedditController):
 
     res._redirect(url_for(action='show', id=meetup._id36))
 
-    @validate(user = VCacheKey('reset', ('key', 'name')),
-              key = nop('key'))
-    def GET_resetpassword(self, user, key):
-        """page hit once a user has been sent a password reset email
-        to verify their identity before allowing them to update their
-        password."""
-        done = False
-        if not key and request.referer:
-            referer_path =  request.referer.split(g.domain)[-1]
-            done = referer_path.startswith(request.fullpath)
-        elif not user:
-            return self.abort404()
-        return BoringPage(_("Reset password"),
-                          content=ResetPassword(key=key, done=done)).render()
+  @validate(key = nop('key'))
+  def GET_stopmeetup(self, key):
+    try:
+        pj = list(PendingJob._query(PendingJob.c._id == key, data=True))[0]
+        pj._delete_from_db()
+        return BoringPage(_("Cancel Meetup"),
+                          content=CancelMeetup()).render()
+    except:
+        return BoringPage(_("Page not found"),
+                          content=UnfoundPage()).render()
 
   def create(self, author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     meetup = Meetup(
@@ -124,37 +147,21 @@ class MeetupsController(RedditController):
                                                     # the meetup is edited/deleted soon after its creation
     PendingJob.store(when, 'process_new_meetup', {'meetup_id': meetup._id})
 
-
     if recurring != 'never':
         if recurring == 'weekly':
             offset = 7
         elif recurring == 'biweekly':
             offset = 14
         elif recurring == 'monthly':
-            date =  meetup.datetime()
-            dow = date.weekday()
-            wom = (date.day-1)/7
-            ym = (date.year, date.month)
-            if ym[1] != 12:
-               nym = (ym[0], ym[1]+1)
-            else:
-               nym = (ym[0] + 1, 1)
-            tm = calendar.monthrange(*ym)
-            nm = calendar.monthrange(*nym)
-            print dow
-            print wom
-            print (1-4)%7
-            print tm[1] - date.day
-            print (dow - nm[0])%7
-            print wom * 7
-            offset = tm[1] - date.day + (dow - nm[0])%7 + wom * 7 + 1
-            print offset
+            offset =  calculate_month_interval(meetup.datetime())
 
-        """data = {'author_id':author_id,'title':title,'description':description,'location':location,
+        data = {'author_id':author_id,'title':title,'description':description,'location':location,
                 'latitude':latitude,'longitude':longitude,'timestamp':timestamp+offset*86400,
                 'tzoffset':tzoffset,'ip':ip,'recurring':recurring}
 
-        PendingJob.store(when, 'repost_meetup', data)"""
+        when = datetime.now(g.tz) + timedelta(offset-15)
+
+        PendingJob.store(when, 'meetup_repost_emailer', data)
 
 
     #update the queries

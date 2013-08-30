@@ -9,3 +9,4 @@ class PendingJob(Thing):
     def store(cls, run_at, action, data=None):
         adjustment = cls(run_at=run_at, action=action, data=data)
         adjustment._commit()
+        return adjustment._id
