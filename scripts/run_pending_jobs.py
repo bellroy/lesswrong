@@ -9,7 +9,7 @@ time this script is run.
 """
 
 from sys import stderr
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pylons import g
 
@@ -17,6 +17,7 @@ from r2.lib.lock import MemcacheLock
 from r2.lib import notify
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
+from r2.controllers.meetupscontroller import MeetupsController
 
 
 class JobProcessor:
@@ -76,6 +77,22 @@ def job_send_meetup_email_to_user(meetup_id, username):
       # Users can get deleted so ignore if not found
       pass
 
+def job_repost_meetup(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
+    mc = MeetupsController()
+    mc.create(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
+
+def job_meetup_repost_emailer(author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
+    when = datetime.now(g.tz) + timedelta(1)
+    data = {'author_id':author_id,'title':title,'description':description,'location':location,
+            'latitude':latitude,'longitude':longitude,'timestamp':timestamp,
+            'tzoffset':tzoffset,'ip':ip,'recurring':recurring}
+
+    pj = PendingJob.store(when, 'repost_meetup', data)
+    try:
+        user = Account._byID(author_id)
+        notify.email_user_about_repost(user, pj)
+    except NotFound:
+        pass
 
 try:
     JobProcessor().run()

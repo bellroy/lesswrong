@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import json
+import calendar
 
 from mako.template import Template
 from pylons.i18n import _
@@ -10,10 +11,10 @@ from r2.lib.errors import errors
 from r2.lib.filters import python_websafe
 from r2.lib.jsonresponse import Json
 from r2.lib.menus import CommentSortMenu,NumCommentsMenu
-from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost
-from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob
+from r2.lib.pages import BoringPage, ShowMeetup, NewMeetup, EditMeetup, PaneStack, CommentListing, LinkInfoPage, CommentReplyBox, NotEnoughKarmaToPost, CancelMeetup, UnfoundPage
+from r2.models import Meetup,Link,Subreddit,CommentBuilder,PendingJob,Account
 from r2.models.listing import NestedListing
-from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp
+from validator import validate, VUser, VModhash, VRequired, VMeetup, VEditMeetup, VFloat, ValueOrBlank, ValidIP, VMenu, VCreateMeetup, VTimestamp, nop
 from routes.util import url_for
 
 
@@ -28,6 +29,28 @@ def meetup_article_text(meetup):
 
 def meetup_article_title(meetup):
   return "Meetup : %s"%meetup.title
+
+def calculate_month_interval(date):
+  """Calculates the number of days between a date
+  and the same day (ie 3rd Wednesday) in the
+  following month"""
+
+  day_of_week = date.weekday()
+  week_of_month = (date.day-1)/7
+  this_month = (date.year, date.month)
+  if this_month[1] != 12:
+    next_month = (this_month[0], this_month[1]+1)
+  else:
+    next_month = (this_month[0] + 1, 1)
+  this_month = calendar.monthrange(*this_month)
+  next_month = calendar.monthrange(*next_month)
+  remaining_days_in_month = this_month[1] - date.day
+  """this line calculates the nth day of the next month,
+  if that exceeds the number of days in that month, it 
+  backs off a week"""
+  days_into_next_month = (day_of_week - next_month[0])%7 + (week_of_month * 7 + 1) if (day_of_week - next_month[0])%7 + week_of_month * 7 + 1 < next_month[1] else (day_of_week - next_month[0])%7 + (week_of_month-1) * 7 + 1 
+  offset = remaining_days_in_month + days_into_next_month
+  return offset
 
 class MeetupsController(RedditController):
   def response_func(self, **kw):
@@ -56,21 +79,45 @@ class MeetupsController(RedditController):
             latitude = VFloat('latitude', error=errors.NO_LOCATION),
             longitude = VFloat('longitude', error=errors.NO_LOCATION),
             timestamp = VTimestamp('timestamp'),
-            tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE))
-  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip):
+            tzoffset = VFloat('tzoffset', error=errors.INVALID_DATE),
+            recurring = nop('recurring'))
+  def POST_create(self, res, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     if res._chk_error(errors.NO_TITLE):
       res._chk_error(errors.TITLE_TOO_LONG)
       res._focus('title')
 
+    if recurring != 'never':
+        try:
+            Account._byID(c.user._id).email
+        except:
+            res._set_error(errors.CANT_RECUR)
+
     res._chk_errors((errors.NO_LOCATION,
                      errors.NO_DESCRIPTION,
                      errors.INVALID_DATE,
-                     errors.NO_DATE))
+                     errors.NO_DATE,
+                     errors.CANT_RECUR))
 
     if res.error: return
 
+    meetup = self.create(c.user._id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring)
+
+    res._redirect(url_for(action='show', id=meetup._id36))
+
+  @validate(key = nop('key'))
+  def GET_stopmeetup(self, key):
+    try:
+        pj = list(PendingJob._query(PendingJob.c._id == key, data=True))[0]
+        pj._delete_from_db()
+        return BoringPage(_("Cancel Meetup"),
+                          content=CancelMeetup()).render()
+    except:
+        return BoringPage(_("Page not found"),
+                          content=UnfoundPage()).render()
+
+  def create(self, author_id, title, description, location, latitude, longitude, timestamp, tzoffset, ip, recurring):
     meetup = Meetup(
-      author_id = c.user._id,
+      author_id = author_id,
 
       title = title,
       description = description,
@@ -89,22 +136,39 @@ class MeetupsController(RedditController):
     meetup._commit()
 
     l = Link._submit(meetup_article_title(meetup), meetup_article_text(meetup),
-                     c.user, Subreddit._by_name('discussion'),ip, [])
+                     Account._byID(author_id, data=True), Subreddit._by_name('discussion'),ip, [])
 
     l.meetup = meetup._id36
     l._commit()
     meetup.assoc_link = l._id
     meetup._commit()
 
-    when = datetime.now(g.tz) + timedelta(0, 3600)  # Leave a short window of time before notification, in case
+    when = datetime.now(g.tz) + timedelta(0, 60) # Leave a short window of time before notification, in case
                                                     # the meetup is edited/deleted soon after its creation
     PendingJob.store(when, 'process_new_meetup', {'meetup_id': meetup._id})
+
+    if recurring != 'never':
+        if recurring == 'weekly':
+            offset = 7
+        elif recurring == 'biweekly':
+            offset = 14
+        elif recurring == 'monthly':
+            offset =  calculate_month_interval(meetup.datetime())
+
+        data = {'author_id':author_id,'title':title,'description':description,'location':location,
+                'latitude':latitude,'longitude':longitude,'timestamp':timestamp+offset*86400,
+                'tzoffset':tzoffset,'ip':ip,'recurring':recurring}
+
+        when = datetime.now(g.tz) + timedelta(offset-15)
+
+        PendingJob.store(when, 'meetup_repost_emailer', data)
+
 
     #update the queries
     if g.write_query_queue:
       queries.new_link(l)
 
-    res._redirect(url_for(action='show', id=meetup._id36))
+    return meetup
 
   @Json
   @validate(VUser(),

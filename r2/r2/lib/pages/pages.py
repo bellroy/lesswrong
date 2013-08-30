@@ -972,6 +972,11 @@ class EmailVerify(Wrapped):
     """Form for providing a confirmation code to a new user."""
     pass
 
+class RepostEmail(Wrapped):
+    """Form for notifying a user that their recurring meetup is
+    about to repost"""
+    pass
+
 
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""
@@ -1606,4 +1611,6 @@ class WikiPage(Reddit):
                         title = self.pagename,
                         space_compress=False,
                         **context)
+
+class CancelMeetup(Wrapped): pass
 

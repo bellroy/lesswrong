@@ -104,6 +104,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/meetups/:id/edit', action='edit', controller='meetups')
     mc('/meetups/:id/update', action='update', controller='meetups')
     mc('/meetups/:id', action='show', controller='meetups')
+    mc('/cancelmeetup/:key', action='stopmeetup', controller='meetups')
 
     mc('/tag/:tag', controller='tag', action='listing', where='tag')
 
