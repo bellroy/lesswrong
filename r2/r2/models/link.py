@@ -201,6 +201,21 @@ class Link(Thing, Printable, ImageHolder):
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[1]
 
+    def _meta_description(self):
+        if not hasattr(self, 'article'):
+            return None
+
+        import lxml
+        description = ''
+        try:
+            description = lxml.html.document_fromstring(self.article).text_content()
+        except (lxml.etree.ParserError, lxml.etree.XMLSyntaxError):
+            description = re.sub("<[^>]+>", "", self.article)
+        except Exception as e:
+            g.log.warning("Unexpected error parsing article for link %s: %s %s" % (self._id, e.__class__, str(e)))
+
+        return description[:160]
+
     @classmethod
     def _somethinged(cls, rel, user, link, name):
         return rel._fast_query(tup(user), tup(link), name = name)

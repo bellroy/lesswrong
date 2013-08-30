@@ -23,7 +23,6 @@
 <%!
    from r2.lib.template_helpers import static, get_domain, json
    from r2.models import Link, Comment, Subreddit
-   import lxml
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="${c.lang}" 
@@ -33,8 +32,9 @@
     
     <meta name="keywords" content="${self.keywords()}" />
     <meta name="title" content="${self.Title()}" />
-    %if hasattr(thing, "link"):
-      <meta name="description" content="${lxml.html.document_fromstring(thing.link.article).text_content()[:160]}" />
+    <% description = hasattr(thing, 'link') and thing.link._meta_description() %>
+    %if description:
+      <meta name="description" content="${description | h}" />
     %endif
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     ${self.robots()}
