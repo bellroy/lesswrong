@@ -241,18 +241,30 @@ function morechildren(form, link_id, children, depth) {
 
 function getAttrTime(e) { return parseInt(e.readAttribute('time')); }
 
-function highlightNewComments() {
-  var lastViewed = $('lastViewed')
-  if (!lastViewed) 
-    return;
+function highlightNewComments(last) {
+  if (!last) {
+    var lastViewed = $("comment-visits");
+    if (!lastViewed) {
+      lastViewed = $('lastViewed');
+      if (!lastViewed)
+        return;
+      last = getAttrTime(lastViewed);
+    }
+    else {
+      last = lastViewed.options[lastViewed.selectedIndex].value;
+    }
+  }
 
-  var last = getAttrTime(lastViewed);
-  if (last<=0)
-    return;
   $$('div.comment').each(function(div, i) {
     var t = getAttrTime(div.select('.comment-date')[0]);
-    if (last<t) {
+    if (last<=0) {
+      div.removeClassName('new-comment')
+    }
+    else if (last<t) {
       div.addClassName('new-comment')
+    }
+    else {
+      div.removeClassName('new-comment')
     }
   });
 }

@@ -42,6 +42,7 @@ import random as rand
 import re
 import time as time_module
 from urllib import quote_plus
+from datetime import datetime
 
 class FrontController(RedditController):
 
@@ -117,6 +118,42 @@ class FrontController(RedditController):
         rightbox, so it is only useful for Admin-only wizardry."""
         return DetailsPage(link = article).render()
     
+    def _comment_visits(self, article, user, new_visit=None):
+
+        hc_key = "comment_visits-%s-%s" % (user.name, article._id36)
+        old_visits = g.permacache.get(hc_key, [])
+
+        append = False
+
+        if new_visit is None:
+            pass
+        elif len(old_visits) == 0:
+            append = True
+        else:
+            last_visit = max(old_visits)
+            time_since_last = new_visit - last_visit
+            if (time_since_last.days > 0 or time_since_last.seconds > int(g.comment_visits_period)):
+                append = True
+            else:
+                # They were just here a few seconds ago; consider that
+                # the same "visit" as right now
+                old_visits.pop()
+
+        if append:
+            copy = list(old_visits) # make a copy
+            copy.append(new_visit)
+            if len(copy) > 3:
+                copy.pop(0)
+            g.permacache.set(hc_key, copy, time = 86400 * 2)
+
+        if len(old_visits) > 0:
+            time_since_pub = new_visit - article._date
+            ten_percent = new_visit - (time_since_pub // 10)
+            old_visit = min(old_visits)
+            if ten_percent < old_visit:
+                old_visits.insert(0, ten_percent)
+
+        return old_visits
 
     @validate(article      = VLink('article'),
               comment      = VCommentID('comment'),
@@ -142,10 +179,14 @@ class FrontController(RedditController):
         #check for 304
         self.check_modified(article, 'comments')
 
-        # if there is a focal comment, communicate down to comment_skeleton.html who
-        # that will be
+        # If there is a focal comment, communicate down to
+        # comment_skeleton.html who that will be. Also, skip
+        # comment_visits check
+        previous_visits = None
         if comment:
             c.focal_comment = comment._id36
+        elif (c.user_is_loggedin):
+            previous_visits = self._comment_visits(article, c.user, datetime.now(g.tz))
 
         # check if we just came from the submit page
         infotext = None
@@ -179,6 +220,9 @@ class FrontController(RedditController):
                 has_more_comments = hasattr(comment, 'parent_id')
             )
             displayPane.append(permamessage)
+
+        if previous_visits:
+            displayPane.append(CommentVisitsBox(previous_visits))
 
         # insert reply box only for logged in user
         if c.user_is_loggedin and article.subreddit_slow.can_comment(c.user):

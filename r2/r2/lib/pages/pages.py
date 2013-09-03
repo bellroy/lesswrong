@@ -35,7 +35,7 @@ from r2.lib.db.queries import db_sort
 from r2.lib.menus import NavButton, NamedButton, NavMenu, JsButton, ExpandableButton, AbsButton
 from r2.lib.menus import SubredditButton, SubredditMenu, menu
 from r2.lib.strings import plurals, rand_strings, strings
-from r2.lib.utils import title_to_url, query_string, UrlParser
+from r2.lib.utils import title_to_url, query_string, UrlParser, timesince
 from r2.lib.template_helpers import add_sr, get_domain
 from r2.lib.promote import promote_builder_wrapper
 from r2.lib.wikipagecached import WikiPageCached
@@ -1101,6 +1101,14 @@ class Frame(Wrapped):
     following the link."""
     def __init__(self, url='', title='', fullname=''):
         Wrapped.__init__(self, url = url, title = title, fullname = fullname)
+
+class CommentVisitsBox(Wrapped):
+    def __init__(self, visits, *a, **kw):
+        self.visits = []
+        for visit in reversed(visits):
+            pretty = timesince(visit, resultion=1)
+            self.visits.append([pretty, visit])
+        Wrapped.__init__(self, *a, **kw)
 
 class FrameToolbar(Wrapped):
     """The reddit voting toolbar used together with Frame."""
