@@ -44,7 +44,7 @@ from listingcontroller import KarmaawardController
 from dashboardcontroller import InterestingcommentsController
 from dashboardcontroller import InterestingsubscribedController
 from dashboardcontroller import InterestingpostsController
-from dashboardcontroller import ListingtestController
+from dashboardcontroller import DashboardController
 
 from listingcontroller import MyredditsController
 

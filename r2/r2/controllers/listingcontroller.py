@@ -851,7 +851,6 @@ class CommentsController(ListingController):
     @staticmethod
     def staticquery():
         q = Comment._query(Comment.c._spam == (True,False),
-                           Comment.c.sr_id == [c.current_or_default_sr._id, Subreddit._by_name('discussion')._id],
                            sort = desc('_date'), data = True)
         if not c.user_is_admin:
             q._filter(Comment.c._spam == False)

@@ -40,6 +40,6 @@
 %if not thing.things:
   <p id="noresults" class="error">${_("Nothing since your last visit.")}</p>
 %endif
-${plain_link(_("More"), "/dashboard/comments")}
+${plain_link(_("More"), thing.link)}
 </div>
 

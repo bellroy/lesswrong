@@ -194,6 +194,7 @@ class Reddit(Wrapped):
         """set up for buttons in upper right corner of main page."""
         buttons = []
         if c.user_is_loggedin:
+            buttons += [NamedButton("dashboard", False)]
             if c.user.name in g.admins:
                 if c.user_is_admin:
                    buttons += [NamedButton("adminoff", False,

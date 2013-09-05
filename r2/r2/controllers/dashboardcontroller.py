@@ -99,7 +99,7 @@ class InterestingsubscribedController(CommentsController):
                                        thing_data = not g.use_query_cache
                                        )
         if not c.user_is_admin:
-            q._filter(Comment.c._spam == False)
+            q._filter(SubscriptionStorage.c._t2_spam == False)
 
         q.prewrap_fn = lambda x: x._thing2
 
@@ -207,7 +207,7 @@ class InterestingpostsController(CommentsController):
         self.time = time
         return CommentsController.GET_listing(self, **env)
 
-class ListingtestController(CommentsController):
+class DashboardController(CommentsController):
     @property
     def header_sub_nav(self):
 	    return [NamedButton("dashboard", dest="dashboard"),
@@ -226,8 +226,8 @@ class ListingtestController(CommentsController):
         return b
 
    
-    def create_listing(self, controller, title):
-        return DashboardListing(self.iterable_builder(controller), title).listing()
+    def create_listing(self, controller, title, link):
+        return DashboardListing(self.iterable_builder(controller), title, link).listing()
 
     @staticmethod
     def builder_wrapper(thing):
@@ -246,28 +246,14 @@ class ListingtestController(CommentsController):
         titles = ('Subscribed Comments', 'Leading Posts',
                   'Leading Comments', 'Recent Comments')
 
-        builders = [self.create_listing(*controller) for controller in zip(controllers, titles)]
+        links = ('/dashboard/subscribed', '/dashboard/posts',
+                 '/dashboard/comments', '/comments')
+
+        builders = [self.create_listing(*controller) for controller in zip(controllers, titles, links)]
 
         self.builder_cls = IDBuilder
 
-        builders.append(self.create_listing(MeetupslistingController.staticquery(), 'Upcoming Meetups'))
-
-        self.builder_cls = UnbannedCommentBuilder
-        
-        """lb = self.builder(InterestingpostsController.query())
-        cb = self.builder(InterestingcommentsController.query())
-        sb = self.builder(InterestingsubscribedController.query())
-        rcb = self.builder(self.recentcommentsquery())
-        mb = self.builder(MeetupslistingController.query())
-
-        ll = DashboardListing(lb)
-        cl = DashboardListing(cb)
-
-        lp = PaneStack()
-        cp = PaneStack()
-
-        lp.append(ll.listing())
-        cp.append(cl.listing())"""
+        builders.append(self.create_listing(MeetupslistingController.staticquery(), 'Upcoming Meetups', '/meetups'))
 
         return Dashtable(*builders)
 

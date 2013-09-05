@@ -131,8 +131,9 @@ class NestedListing(Listing):
         return Wrapped(self)
 
 class DashboardListing(Listing):
-    def __init__(self, builder, title):
+    def __init__(self, builder, title, link):
         self.title = title
+        self.link = link
         Listing.__init__(self, builder)
 
 class OrganicListing(Listing):
