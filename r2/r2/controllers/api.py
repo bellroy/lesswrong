@@ -617,36 +617,22 @@ class ApiController(RedditController):
         if resultxml.find("createaccount") is not None:
             return
         else:
+            wikierrors = {
+                          'userexists' : (errors.USERNAME_TAKEN, 'username'),
+                          'noname' : (errors.BAD_USERNAME, 'username'),
+                          'noemailtitle' : (errors.NO_EMAIL, 'email'),
+                          'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
+                          'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
+                          'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
+                         }
+
             error = resultxml.find("error").attrib["code"]
-            if error == 'userexists':
-                c.errors.add(errors.USERNAME_TAKEN)
-                res._chk_error(errors.USERNAME_TAKEN)
-                res._focus('username')
-                return
-            elif error == 'noname':
-                c.errors.add(errors.BAD_USERNAME)
-                res._chk_error(errors.BAD_USERNAME)
-                res._focus('username')
-                return
-            elif error == 'noemailtitle':
-                c.errors.add(errors.NO_EMAIL)
-                res._chk_error(errors.NO_EMAIL)
-                res._focus('email')
-                return
-            elif error == 'invalidemailaddress':
-                c.errors.add(errors.BAD_EMAIL)
-                res._chk_error(errors.BAD_EMAIL)
-                res._focus('email')
-                return
-            elif error == 'password-name-match':
-                c.errors.add(errors.BAD_PASSWORD)
-                res._chk_error(errors.BAD_PASSWORD)
-                res._focus('wikipass')
-                return
-            elif error == 'passwordtooshort':
-                c.errors.add(errors.BAD_PASSWORD_SHORT)
-                res._chk_error(errors.BAD_PASSWORD_SHORT)
-                res._focus()
+
+            if error in wikierrors:
+                error_slug, field_to_focus = wikierrors[error]
+                c.errors.add(error_slug)
+                res._chk_error(error_slug)
+                res._focus(field_to_focus)
                 return
 
     @Json
