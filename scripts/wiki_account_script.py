@@ -1,12 +1,4 @@
 from r2.models import Account, PendingJob
-
-users = list(Account._query())
-for user in users:
-    if hasattr(user, 'email'):
-        data = {'name' : user.name, 'password' : None, 'email' : user.email, 'attempt' : 0}
-        PendingJob.store(None, 'create_wiki_account', data)
-
-from r2.models.link import Comment, Link
 import sqlalchemy as sa
 
 from r2.lib.db import tdb_sql
