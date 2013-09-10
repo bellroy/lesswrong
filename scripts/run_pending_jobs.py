@@ -99,7 +99,7 @@ def job_create_wiki_account(name, password, email, attempt):
 
         resultxml = etree.fromstring(response)
 
-        if resultxml.find("createaccount") is not None:
+        if resultxml.find("createaccount") is None and resultxml.find("error").attrib["code"] != 'userexists':
             user = Account._by_name(name)
             emailer.wiki_failed_email(user)
         elif sendpass:
