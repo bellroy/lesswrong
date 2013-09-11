@@ -39,7 +39,6 @@ from r2.lib.strings      import strings, plurals
 from r2.lib.base         import current_login_cookie
 from r2.lib.rancode      import random_key
 
-
 class AccountExists(Exception): pass
 class NotEnoughKarma(Exception): pass
 
@@ -422,7 +421,12 @@ def register(name, password, email):
 
         from r2.lib.emailer      import confirmation_email
         confirmation_email(a)
-            
+
+        data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 0}
+
+        from r2.models           import PendingJob
+        PendingJob.store(None, 'create_wiki_account', data)
+
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
         clear_memo('account._by_name', Account, name.lower(), False)

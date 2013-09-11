@@ -486,7 +486,8 @@ class PrefsPage(Reddit):
         buttons = [NavButton(menu.options, ''),
                    NamedButton('friends'),
                    NamedButton('update'),
-                   NamedButton('delete')]
+                   NamedButton('delete'),
+                   NamedButton('wikiaccount')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
@@ -500,6 +501,10 @@ class PrefUpdate(Wrapped):
 
 class PrefDelete(Wrapped):
     """preference form for deleting a user's own account."""
+    pass
+
+class PrefWiki(Wrapped):
+    """Preference form for creating a Wiki account."""
     pass
 
 
@@ -972,6 +977,13 @@ class EmailVerify(Wrapped):
     """Form for providing a confirmation code to a new user."""
     pass
 
+class WikiSignupFail(Wrapped):
+    """Form for informing a user that creating a wiki acccount failed."""
+    pass
+
+class WikiSignupNotification(Wrapped):
+    """Form for providing a user with their name and password for the wiki."""
+    pass
 
 class Captcha(Wrapped):
     """Container for rendering robot detection device."""

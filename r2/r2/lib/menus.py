@@ -118,6 +118,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      friends      = _("Friends"),
                      update       = _("Password/email"),
                      delete       = _("Delete"),
+                     wikiaccount  = _("Wiki Account"),
 
                      # messages
                      compose      = _("Compose"),

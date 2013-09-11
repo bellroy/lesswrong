@@ -43,6 +43,7 @@ error_list = dict((
         ('BAD_PASSWORD', _('Invalid password')),
         ('WRONG_PASSWORD', _('Incorrect password')),
         ('BAD_PASSWORD_MATCH', _('Passwords do not match')),
+        ('BAD_PASSWORD_SHORT', _('Password is too short')),
         ('AMOUNT_NEGATIVE', _('Karma awards must be greater than zero')),
         ('NO_NAME', _('Please enter a name')),
         ('NO_EMAIL', _('Please enter an email address')),
@@ -85,6 +86,7 @@ error_list = dict((
         ('NOT_ENOUGH_KARMA', _('You do not have enough karma')),
         ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
         ('BAD_POLL_BALLOT', _('Error in poll ballot')),
+        ('WIKI_DOWN', _('Connection with wiki failed, try again later')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 
