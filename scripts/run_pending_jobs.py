@@ -7,16 +7,21 @@ is claimed by only one node. If an exception occurs while running a job, an
 error will be logged and the job will remain in the queue to be attempted next
 time this script is run.
 """
+import re, traceback, urllib2
 
 from sys import stderr
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pylons import g
 
 from r2.lib.lock import MemcacheLock
-from r2.lib import notify
+from r2.lib.rancode import random_key
+from r2.lib.wiki_account import create_wiki_account
+from r2.lib import notify, emailer
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
+
+from lxml import etree
 
 
 class JobProcessor:
@@ -75,6 +80,49 @@ def job_send_meetup_email_to_user(meetup_id, username):
     except NotFound:
       # Users can get deleted so ignore if not found
       pass
+
+
+
+#Tries to create an account. If connection fails, tries again later.
+#After failing twice or getting error code from wiki, sends email to user.
+def job_create_wiki_account(name, password, email, attempt):
+    tokenmatcher = re.compile('<\?xml version=\"1.0\"\?><api><createaccount token=\"(.*?)\" result=\"needtoken\" /></api>')
+    successmatcher = re.compile('<\?xml\sversion="1\.0"\?><api><createaccount.*?result="success"\s/></api>')
+
+    sendpass = False
+    if not password:
+        password = random_key(6)
+        sendpass = True
+
+    try:
+        response = create_wiki_account(name, password, email)
+
+        resultxml = etree.fromstring(response)
+
+        if resultxml.find("createaccount") is None and resultxml.find("error").attrib["code"] != 'userexists':
+            user = Account._by_name(name)
+            emailer.wiki_failed_email(user)
+        elif sendpass:
+            user = Account._by_name(name)
+            emailer.wiki_password_email(user, password)
+
+    except (urllib2.URLError, urllib2.HTTPError):
+        if attempt == 0:
+            data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 1}
+            time = datetime.now(g.tz) + timedelta(0,15)
+            PendingJob.store(time, 'create_wiki_account', data)
+        elif attempt == 1:
+            data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 2}
+            time = datetime.now(g.tz) + timedelta(0,300)
+            PendingJob.store(time, 'create_wiki_account', data)
+        elif attempt == 2:
+            user = Account._by_name(name)
+            emailer.wiki_failed_email(user)
+            emailer.simple_email('lesswrong.issues@trikeapps.com',
+                                 'contact@lesswrong.com',
+                                 'wiki error',
+                                 traceback.format_exc())
+
 
 
 try:

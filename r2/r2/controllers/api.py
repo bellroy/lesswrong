@@ -28,6 +28,7 @@ from pylons.controllers.util import etag_cache
 
 import hashlib
 import httplib
+import urllib2
 from validator import *
 
 from r2.models import *
@@ -65,10 +66,12 @@ from r2.lib import cssfilter
 from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
+from r2.lib.wiki_account import create_wiki_account
 
 from datetime import datetime, timedelta
 from simplejson import dumps
 from md5 import md5
+from lxml import etree
 
 from r2.lib.promote import promote, unpromote, get_promoted
 
@@ -596,6 +599,65 @@ class ApiController(RedditController):
                     res._update('status',
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
+
+    @Json
+    @validate(VUser('curpass', default = ''),
+              VModhash(),
+              curpass = nop('curpass'),
+              name = nop('username'),
+              email = nop("email"),
+              password = nop("wikipass"))
+    def POST_wikiaccount(self, res, curpass, name, email, password):
+        res._update('status', innerHTML='')
+        if res._chk_error(errors.WRONG_PASSWORD):
+            res._focus('curpass')
+            res._update('curpass', value='')
+            return
+
+        if not name:
+            name = c.user.name
+        if not email:
+            if hasattr(c.user, 'email'):
+                email = c.user.email
+            else:
+                c.errors.add(errors.NO_EMAIL)
+                res._chk_error(errors.NO_EMAIL)
+                res._focus('email')
+        if not password:
+            password = curpass
+
+        try:
+            result = create_wiki_account(name, password, email)
+        except (urllib2.URLError, urllib2.HTTPError):
+            result = None
+
+        if not result:
+           c.errors.add(errors.WIKI_DOWN)
+           res._chk_error(errors.WIKI_DOWN)
+           return
+
+        resultxml = etree.fromstring(result)
+
+        if resultxml.find("createaccount") is not None:
+            return
+        else:
+            wikierrors = {
+                          'userexists' : (errors.USERNAME_TAKEN, 'username'),
+                          'noname' : (errors.BAD_USERNAME, 'username'),
+                          'noemailtitle' : (errors.NO_EMAIL, 'email'),
+                          'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
+                          'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
+                          'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
+                         }
+
+            error = resultxml.find("error").attrib["code"]
+
+            if error in wikierrors:
+                error_slug, field_to_focus = wikierrors[error]
+                c.errors.add(error_slug)
+                res._chk_error(error_slug)
+                res._focus(field_to_focus)
+                return
 
     @Json
     @validate(VUser(),

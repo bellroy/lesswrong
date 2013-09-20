@@ -1,0 +1,3 @@
+Hello ${thing.user.name}:
+
+An account on wiki.lesswrong.com was created for you.  Your username is ${thing.user.name} and your password is ${thing.password}.
