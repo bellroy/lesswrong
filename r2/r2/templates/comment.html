@@ -113,6 +113,7 @@ ${parent.Child(not thing.collapsed)}
   %else:
     ${unsafe(pollsandmarkdown(thing.body, thing))}
   %endif
+  DescendantKarma:${thing._descendant_karma}
 %endif
 </%def>
 
@@ -167,6 +168,13 @@ ${parent.midcol()}
         %if thing.can_ban:
           <li class="move">
             ${parent.simple_button("move", fullname, _("Move"), "move", tool_tip=_("Move"))}
+        %endif
+        %if c.user_is_loggedin and not thing.author == c.user:
+          <li class='subscribe'>
+          ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \
+              "return change_state_by_class(this, '%s', 'mod')"%("commentunsubscribe" if thing.comment_subscribed(c.user, thing) else "commentsubscribe"), \
+              _("Subscribed"), a_class="subscription"+(" mod" if thing.comment_subscribed(c.user, thing) else ""), \
+              tool_tip = "No longer receive notifications for this comment" if thing.comment_subscribed(c.user, thing) else "Get notifications of immediate replies on this comment")}
           </li>
         %endif
       </ul>
