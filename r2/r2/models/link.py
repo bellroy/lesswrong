@@ -679,6 +679,19 @@ class Link(Thing, Printable, ImageHolder):
       q = self._link_nav_query(sort = operators.desc('_date'))
       return self._link_for_query(q)
 
+    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
+                 spam = False, id = None, descendant_karma = 0, **attrs):
+
+        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
+
+        with self.safe_set_attr:
+            self._descendant_karma = descendant_karma
+
+    @classmethod
+    def _build(cls, id, bases):
+        return cls(bases.ups, bases.downs, bases.date,
+                   bases.deleted, bases.spam, id, bases.descendant_karma)
+
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
@@ -878,8 +891,7 @@ class Comment(Thing, Printable):
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False,
-                     _descendant_karma = 0)
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -1054,8 +1066,7 @@ class Comment(Thing, Printable):
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
     def incr_descendant_karma(self, comments, amount):
-
-        old_val = getattr(self, '_descendant_karma')
+        old_val = self._get_item(self._type_id, self._id).descendant_karma
 
         comments.append(self._id)
 
@@ -1196,6 +1207,19 @@ class Comment(Thing, Printable):
             item.score_fmt = Score.points
             item.permalink = item.make_permalink(item.link, item.subreddit)
             item.can_be_deleted = item.can_delete()
+
+    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
+                 spam = False, id = None, descendant_karma = 0, **attrs):
+
+        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
+
+        with self.safe_set_attr:
+            self._descendant_karma = descendant_karma
+
+    @classmethod
+    def _build(cls, id, bases):
+        return cls(bases.ups, bases.downs, bases.date,
+                   bases.deleted, bases.spam, id, bases.descendant_karma)
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent comments.
