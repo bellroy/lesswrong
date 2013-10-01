@@ -223,11 +223,11 @@ class ApiController(RedditController):
             return
 
         currlink = Link._byID(thing.link_id)
-        currlink._incr('descendant_karma', -(thing._descendant_karma + thing._ups - things._downs))
-        destination._incr('descendant_karma', thing._descendant_karma + thing._ups - things._downs)
+        currlink._incr('_descendant_karma', -(thing._descendant_karma + thing._ups - thing._downs))
+        destination._incr('_descendant_karma', thing._descendant_karma + thing._ups - thing._downs)
         if hasattr(thing, 'parent_id'):
             parent = Comment._byID(thing.parent_id)
-            parent.incr_descendant_karma([], -(thing._descendant_karma + thing._ups - things._downs))
+            parent.incr_descendant_karma([], -(thing._descendant_karma + thing._ups - thing._downs))
         else:
             parent = None
 
