@@ -693,6 +693,19 @@ class Link(Thing, Printable, ImageHolder):
       q = self._link_nav_query(sort = operators.desc('_date'))
       return self._link_for_query(q)
 
+    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
+                 spam = False, id = None, descendant_karma = 0, **attrs):
+
+        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
+
+        with self.safe_set_attr:
+            self._descendant_karma = descendant_karma
+
+    @classmethod
+    def _build(cls, id, bases):
+        return cls(bases.ups, bases.downs, bases.date,
+                   bases.deleted, bases.spam, id, bases.descendant_karma)
+
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
@@ -893,7 +906,6 @@ class Comment(Thing, Printable):
                      is_html = False,
                      retracted = False,
                      show_response_to = False)
-                     #_descendant_karma = 0)
 
     def _markdown(self):
         pass
@@ -1261,7 +1273,6 @@ class Comment(Thing, Printable):
         Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
 
         with self.safe_set_attr:
-            print descendant_karma
             self._descendant_karma = descendant_karma
 
     @classmethod
