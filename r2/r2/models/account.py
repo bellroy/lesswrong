@@ -21,8 +21,9 @@
 ################################################################################
 
 from copy import copy
-import time, hashlib
+import time, hashlib, urllib2
 from datetime import datetime
+from lxml import etree
 
 from geolocator import gislib
 from pylons import c, g
@@ -82,7 +83,8 @@ class Account(Thing):
                      pref_media = 'subreddit',
                      share = {},
                      messagebanned = False,
-                     dashboard_visit = datetime(2006,10,1, tzinfo = g.tz)
+                     dashboard_visit = datetime(2006,10,1, tzinfo = g.tz),
+                     wiki_account = 'unknown'
                      )
 
     def karma_ups_downs(self, kind, sr = None):
@@ -184,6 +186,15 @@ class Account(Thing):
     def monthly_karma(self):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
+
+    @property
+    def associated_wiki_account(self):
+        if self.wiki_account == 'unknown':
+            from r2.lib.wiki_user_query  import wiki_user_query
+
+            self.wiki_account = wiki_user_query(self.name)
+            self._commit()
+        return self.wiki_account
 
     def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
@@ -419,13 +430,21 @@ def register(name, password, email):
 
         a._commit()
 
-        from r2.lib.emailer      import confirmation_email
+        from r2.lib.emailer      import confirmation_email, wiki_failed_email
         confirmation_email(a)
 
-        data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 0}
+        try:
+            from r2.lib.wiki_account import create_wiki_account
 
-        from r2.models           import PendingJob
-        PendingJob.store(None, 'create_wiki_account', data)
+            response = create_wiki_account(name, password, email)
+
+            resultxml = etree.fromstring(response)
+
+            if resultxml.find("createaccount") is None:
+                wiki_failed_email(a)
+
+        except (urllib2.URLError, urllib2.HTTPError):
+            wiki_failed_email(a)
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)

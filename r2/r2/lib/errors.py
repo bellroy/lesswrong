@@ -87,6 +87,8 @@ error_list = dict((
         ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
         ('BAD_POLL_BALLOT', _('Error in poll ballot')),
         ('WIKI_DOWN', _('Connection with wiki failed, try again later')),
+        ('WIKI_SIDE_FAILED', _('Automatic wiki account creation failed.  Please go to preferences/wiki to create your account.')),
+        ('EMAIL_NOT_CONFIRMED', _('You need to confirm your email address.')),
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 

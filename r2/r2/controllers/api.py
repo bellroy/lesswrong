@@ -659,6 +659,65 @@ class ApiController(RedditController):
                 res._focus(field_to_focus)
                 return
 
+    def _reload(self, res):
+        res._redirect(request.referer)
+
+    @Json
+    @validate(password = nop('password'),
+              password_confirm = nop('password_confirm'))
+    def POST_wikiaccountside(self, res, password, password_confirm):
+        res._update('status', innerHTML='')
+
+        if password != password_confirm:
+            c.errors.add(errors.BAD_PASSWORD_MATCH)
+            res._chk_error(errors.BAD_PASSWORD_MATCH)
+            res._focus('password_confirm')
+            return
+
+        if hasattr(c.user, 'email') and c.user.email_validated:
+            email = c.user.email
+        else:
+            c.errors.add(errors.EMAIL_NOT_CONFIRMED)
+            res._chk_error(errors.EMAIL_NOT_CONFIRMED)
+            return
+
+        name = c.user.name
+
+        try:
+            result = create_wiki_account(name, password, email)
+        except (urllib2.URLError, urllib2.HTTPError):
+            result = None
+
+        if not result:
+           c.errors.add(errors.WIKI_SIDE_FAILED)
+           res._chk_error(errors.WIKI_SIDE_FAILED)
+           self.reload(res)
+           return
+
+        resultxml = etree.fromstring(result)
+
+        if resultxml.find("createaccount") is not None:
+            c.user.wiki_account = True
+            c.user._commit()
+            res._success()
+            return
+        else:
+            wikierrors = set([
+                          'userexists',
+                          'noname',
+                          'noemailtitle',
+                          'invalidemailaddress',
+                          'password-name-match',
+                          'passwordtooshort',
+                         ])
+
+            error = resultxml.find("error").attrib["code"]
+
+            if error in wikierrors:
+                c.errors.add(errors.WIKI_SIDE_FAILED)
+                res._chk_error(errors.WIKI_SIDE_FAILED)
+                return
+
     @Json
     @validate(VUser(),
               VModhash(),

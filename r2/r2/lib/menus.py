@@ -276,6 +276,10 @@ class NavButton(Styled):
 
     def build(self, base_path = ''):
         '''Generates the href of the button based on the base_path provided.'''
+        if self.style == "external":
+            self.path = self.dest
+            self.bare_path = self.dest
+            return
 
         # append to the path or update the get params dependent on presence
         # of opt

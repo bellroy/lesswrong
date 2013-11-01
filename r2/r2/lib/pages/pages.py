@@ -78,7 +78,7 @@ class Reddit(Wrapped):
     extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
-                 infotext = '', content = None, title = '', robots = None,
+                 infotext = '', content = None, title = '', robots = None, sidewiki = True,
                  show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = [], **context):
         Wrapped.__init__(self, **context)
         self.title          = title
@@ -90,6 +90,7 @@ class Reddit(Wrapped):
         self.body_class     = body_class
         self.top_filter     = top_filter
         self.header_sub_nav = header_sub_nav
+        self.sidewiki = sidewiki
 
         # by default, assume the canonical URLs are the ones without query params
         if request.GET:
@@ -126,6 +127,9 @@ class Reddit(Wrapped):
             ps.append(LoginFormWide())
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
+
+        if c.user_is_loggedin and not c.user.associated_wiki_account and self.sidewiki:
+            ps.append(WikiCreateSide())
 
         filters_ps = PaneStack(div=True)
         for toolbar in self.toolbars:
@@ -288,6 +292,10 @@ class Reddit(Wrapped):
 
 class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
+    pass
+
+class WikiCreateSide(Wrapped):
+    """generates a sidebox for creating a wiki account."""
     pass
 
 class SideBoxPlaceholder(Wrapped):
@@ -483,11 +491,18 @@ class PrefsPage(Reddit):
                         *a, **kw)
 
     def header_nav(self):
-        buttons = [NavButton(menu.options, ''),
-                   NamedButton('friends'),
-                   NamedButton('update'),
-                   NamedButton('delete'),
-                   NamedButton('wikiaccount')]
+        if not c.user.associated_wiki_account:
+            buttons = [NavButton(menu.options, ''),
+                       NamedButton('friends'),
+                       NamedButton('update'),
+                       NamedButton('delete'),
+                       NamedButton('wikiaccount')]
+        else:
+            buttons = [NavButton(menu.options, ''),
+                       NamedButton('friends'),
+                       NamedButton('update'),
+                       NamedButton('delete'),
+                       NavButton('wikiaccount', 'http://wiki.lesswrong.com/mediawiki/index.php?title=User:{0}'.format(c.user.name), style = 'external')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
