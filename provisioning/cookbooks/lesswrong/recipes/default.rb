@@ -2,8 +2,10 @@ require 'pathname'
 
 %w[xml git apache2 postgresql::server postgresql::ruby database memcached-lesswrong].each { |r| include_recipe r }
 
+# Note, subversion is required for some of the python dependencies
 %w[libyaml-dev libfreetype6-dev libjpeg62-dev libpng12-dev curl gettext
-python2.7-dev python-setuptools python-imaging libevent1-dev python-geoip].each do |deb|
+python2.7-dev python-setuptools python-imaging libevent1-dev python-geoip
+subversion].each do |deb|
   package deb
 end
 
@@ -48,6 +50,28 @@ end
 
 cookbook_file File.join(node.lesswrong.base_path, 'sql', 'functions.sql') do
   source 'functions.sql'
+end
+
+# Python dependencies
+bash 'python deps' do
+  user "root"
+  cwd File.join(node.lesswrong.base_path, 'r2')
+  #action :nothing
+  code <<-CODE
+  python setup.py develop
+  CODE
+end
+
+remote_file '/usr/share/GeoIP/GeoLiteCity.dat.gz' do
+  source "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz"
+  action :create_if_missing
+  not_if { File.exists?('/usr/share/GeoIP/GeoLiteCity.dat') }
+end
+
+bash "unzip geoip db" do
+  cwd '/usr/share/GeoIP'
+  code "gunzip GeoLiteCity.dat.gz"
+  only_if { File.exists?('/usr/share/GeoIP/GeoLiteCity.dat.gz') }
 end
 
 # Web config
