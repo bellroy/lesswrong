@@ -34,6 +34,10 @@ def email_address(name, address):
 feedback = email_address('reddit feedback', g.feedback_email)
 
 def send_mail(msg, fr, to):
+    if g.debug:
+        g.log.debug(msg.as_string())
+        return
+
     session = smtplib.SMTP(g.smtp_server)
     session.sendmail(fr, to, msg.as_string())
     session.quit()
