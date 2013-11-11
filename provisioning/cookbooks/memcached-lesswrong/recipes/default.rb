@@ -17,26 +17,25 @@ git "/srv/memcached" do
   notifies :run, "bash[install_memcached]"
 end
 
-script "install_memcached_start_scripts" do
-  interpreter "bash"
+bash "install_memcached_start_scripts" do
   user "root"
   cwd "/tmp"
   action :nothing
   code <<-EOH
   cp /srv/memcached/scripts/memcached-init /etc/init.d/memcached
   update-rc.d memcached defaults
-  sed -i.bak "s/\/usr\/bin\/memcached/\/usr\/local\/bin\/memcached/" /etc/init.d/memcached
+  sed -i.bak 's@/usr/bin/memcached@/usr/local/bin/memcached@' /etc/init.d/memcached
+  mkdir -p /usr/share/memcached/scripts
   cp /srv/memcached/scripts/start-memcached /usr/share/memcached/scripts/start-memcached
-  sed -i.bak "s/\/usr\/bin\/memcached/\/usr\/local\/bin\/memcached/" /usr/share/memcached/scripts/start-memcached
+  sed -i.bak 's@/usr/bin/memcached@/usr/local/bin/memcached@' /usr/share/memcached/scripts/start-memcached
   EOH
 end
 
-script "install_memcached" do
-  interpreter "bash"
+bash "install_memcached" do
   user "root"
   cwd "/srv/memcached"
   action :nothing
-  notifies :run, "script[install_memcached_start_scripts]", :immediately
+  notifies :run, "bash[install_memcached_start_scripts]", :immediately
   code <<-EOH
   (cd /srv/memcached/ && ./configure )
   (cd /srv/memcached/ && make && make install)
