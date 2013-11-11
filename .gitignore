@@ -55,3 +55,4 @@ attic/*
 .Trashes/*
 .apdisk
 spec/selenium-override.rb
+sql/functions.sql
