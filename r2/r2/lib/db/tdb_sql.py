@@ -85,7 +85,8 @@ def index_commands(table, type):
         commands.append(index_str(table, 'hot', 'hot(ups, downs, date), date'))
         commands.append(index_str(table, 'score', 'score(ups, downs), date'))
         commands.append(index_str(table, 'controversy', 'controversy(ups, downs), date'))
-        commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma)'))
+        if table.columns.has_key('descendant_karma'):
+            commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma)'))
     elif type == 'data':
         commands.append(index_str(table, 'id', 'thing_id'))
         commands.append(index_str(table, 'thing_id', 'thing_id'))
