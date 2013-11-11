@@ -32,7 +32,7 @@ postgresql_connection_info = {
   end
 end
 
-postgresql_database 'run script' do
+postgresql_database 'load db functions' do
   connection postgresql_connection_info
   sql { File.read(File.join(node.lesswrong.base_path, 'sql', 'functions.sql')) }
   database_name 'reddit'
