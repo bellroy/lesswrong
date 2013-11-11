@@ -71,7 +71,7 @@ end
 
 bash "unzip geoip db" do
   cwd '/usr/share/GeoIP'
-  code "gunzip GeoLiteCity.dat.gz"
+  code "gunzip GeoLiteCity.dat.gz && chmod 644 GeoLiteCity.dat"
   only_if { File.exists?('/usr/share/GeoIP/GeoLiteCity.dat.gz') }
 end
 
