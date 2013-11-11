@@ -18,6 +18,7 @@ db
 .hgignore
 .rvmrc
 .ruby-version
+/.vagrant
 /tags
 lighttpd.**
 development.ini
