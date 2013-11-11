@@ -4,3 +4,27 @@
 [submodule "tasks/manual_test_script"]
 	path = tasks/manual_test_script
 	url = git://github.com/tricycle/manual_test_script.git
+[submodule "provisioning/cookbooks/database"]
+	path = provisioning/cookbooks/database
+	url = https://github.com/opscode-cookbooks/database.git
+[submodule "provisioning/cookbooks/apache2"]
+	path = provisioning/cookbooks/apache2
+	url = https://github.com/opscode-cookbooks/apache2.git
+[submodule "provisioning/cookbooks/git"]
+	path = provisioning/cookbooks/git
+	url = https://github.com/opscode-cookbooks/git.git
+[submodule "provisioning/cookbooks/xml"]
+	path = provisioning/cookbooks/xml
+	url = https://github.com/opscode-cookbooks/xml.git
+[submodule "provisioning/cookbooks/postgresql"]
+	path = provisioning/cookbooks/postgresql
+	url = https://github.com/opscode-cookbooks/postgresql.git
+[submodule "provisioning/cookbooks/openssl"]
+	path = provisioning/cookbooks/openssl
+	url = https://github.com/opscode-cookbooks/openssl.git
+[submodule "provisioning/cookbooks/build-essential"]
+	path = provisioning/cookbooks/build-essential
+	url = https://github.com/opscode-cookbooks/build-essential.git
+[submodule "provisioning/cookbooks/runit"]
+	path = provisioning/cookbooks/runit
+	url = https://github.com/opscode-cookbooks/runit.git
