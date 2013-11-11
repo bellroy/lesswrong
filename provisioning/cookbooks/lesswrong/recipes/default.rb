@@ -1,6 +1,7 @@
 require 'pathname'
 
 %w[xml git apache2 postgresql::server postgresql::ruby database memcached-lesswrong].each { |r| include_recipe r }
+%w{mod_expires mod_proxy_http}.each { |m| include_recipe("apache2::#{m}") }
 
 # Note, subversion is required for some of the python dependencies
 %w[libyaml-dev libfreetype6-dev libjpeg62-dev libpng12-dev curl gettext
@@ -76,4 +77,10 @@ end
 
 # Web config
 
+web_app "lesswrong" do
+  server_name 'lesswrong.local'
+  docroot File.join(node.lesswrong.base_path, 'r2', 'r2', 'public')
+  template 'apache.conf.erb'
+end
 
+apache_module 'proxy_scgi'
