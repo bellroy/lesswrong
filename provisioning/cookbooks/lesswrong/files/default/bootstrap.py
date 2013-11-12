@@ -12,6 +12,7 @@ except AccountExists:
 
 admin = Account._by_name('admin')
 admin.email_validated = True
+admin._commit()
 
 try:
     Subreddit._by_name('lesswrong')
