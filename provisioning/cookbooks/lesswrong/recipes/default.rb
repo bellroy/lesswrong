@@ -34,10 +34,10 @@ end
 
 postgresql_database 'load db functions' do
   connection postgresql_connection_info
-  sql { File.read(File.join(node.lesswrong.base_path, 'sql', 'functions.sql')) }
+  sql { File.read '/srv/lesswrong/functions.sql' }
   database_name 'reddit'
   action :nothing
-  subscribes :query, "cookbook_file[#{File.join(node.lesswrong.base_path, 'sql', 'functions.sql')}]", :immediately
+  subscribes :query, "cookbook_file[functions.sql]", :immediately
 end
 
 template File.join(node.lesswrong.base_path, 'r2', 'development.ini') do
@@ -49,8 +49,12 @@ template File.join(node.lesswrong.base_path, 'r2', 'development.ini') do
   })
 end
 
-cookbook_file File.join(node.lesswrong.base_path, 'sql', 'functions.sql') do
-  source 'functions.sql'
+directory '/srv/lesswrong' do
+  action :create
+end
+
+cookbook_file 'functions.sql' do
+  path '/srv/lesswrong/functions.sql'
 end
 
 # Python dependencies
