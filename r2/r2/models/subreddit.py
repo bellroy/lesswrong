@@ -365,8 +365,8 @@ class Subreddit(Thing, Printable, ImageHolder):
     @classmethod
     def subscribe_defaults(cls, user):
         if not user.has_subscribed:
-            for sr in Subreddit.default_srs(c.content_langs):
-                if sr.add_subscriber(c.user):
+            for sr in Subreddit.default_srs(user.pref_lang):
+                if sr.add_subscriber(user):
                     sr._incr('_ups', 1)
             user.has_subscribed = True
             user._commit()
