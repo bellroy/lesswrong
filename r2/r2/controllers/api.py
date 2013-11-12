@@ -469,6 +469,8 @@ class ApiController(RedditController):
 
         c.user = user
 
+        Subreddit.subscribe_defaults(user)
+
         # Create a drafts subredit for this user
         sr = Subreddit._create_and_subscribe(
             user.draft_sr_name, user, {

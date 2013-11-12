@@ -82,7 +82,7 @@ class Subreddit(Thing, Printable, ImageHolder):
     def _create_and_subscribe(self, name, user, kw):
       # kw is expected to have been sanitised by the caller
       sr = Subreddit._new(name = name, **kw)
-      Subreddit.subscribe_defaults(user)
+
       # make sure this user is on the admin list of that site!
       if sr.add_subscriber(user):
         sr._incr('_ups', 1)
