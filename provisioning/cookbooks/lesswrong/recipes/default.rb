@@ -94,8 +94,22 @@ bash 'unzip wiki.lesswrong.xml.gz' do
   only_if { File.exists? "#{wiki_lesswrong_xml}.gz" }
 end
 
-# Web config
+# Bootstrap the DB.
+cookbook_file 'bootstrap.py' do
+  path '/srv/lesswrong/bootstrap.py'
+  action :create_if_missing
+end
 
+bash 'bootstrap the db' do
+  cwd File.join(node.lesswrong.base_path, 'r2')
+  code <<-CODE
+  paster run development.ini /srv/lesswrong/bootstrap.py
+  CODE
+  action :nothing
+  subscribes :run, 'cookbook_file[bootstrap.py]', :immediately
+end
+
+# Web config
 web_app "lesswrong" do
   server_name 'lesswrong.local'
   docroot File.join(node.lesswrong.base_path, 'r2', 'r2', 'public')
