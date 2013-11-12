@@ -632,13 +632,15 @@ class ApiController(RedditController):
             result = None
 
         if not result:
-           c.errors.add(errors.WIKI_DOWN)
-           res._chk_error(errors.WIKI_DOWN)
-           return
+            c.errors.add(errors.WIKI_DOWN)
+            res._chk_error(errors.WIKI_DOWN)
+            return
 
         resultxml = etree.fromstring(result)
 
         if resultxml.find("createaccount") is not None:
+            c.user.wiki_account = True
+            c.user._commit()
             return
         else:
             wikierrors = {
@@ -648,6 +650,17 @@ class ApiController(RedditController):
                           'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
                           'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
                           'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
+                          'nocookiesfornew' : (errors.WIKI_DOWN, 'wikipass'),
+                          'sorbs_create_account_reason' : (errors.WIKI_DOWN, 'wikipass'),
+                          'password-login-forbidden' : (errors.BAD_USERNAME, 'username'),
+                          'externaldberror' : (errors.WIKI_DOWN, 'wikipass'),
+                          'noemail' : (errors.NO_EMAIL, 'email'),
+                          'mustbeposted' : (errors.WIKI_DOWN, 'wikipass'),
+                          'acct_creation_throttle_hit' : (errors.WIKI_DOWN, 'wikipass'),
+                          'wrongpassword' : (errors.BAD_PASSWORD, 'wikipass'),
+                          'aborted' : (errors.WIKI_DOWN, 'wikipass'),
+                          'blocked' : (errors.WIKI_DOWN, 'wikipass'),
+                          'permdenied-createaccount' : (errors.WIKI_DOWN, 'wikipass'),
                          }
 
             error = resultxml.find("error").attrib["code"]
@@ -657,6 +670,11 @@ class ApiController(RedditController):
                 c.errors.add(error_slug)
                 res._chk_error(error_slug)
                 res._focus(field_to_focus)
+                return
+            else:
+                emailer.unknown_wiki_error(error)
+                c.errors.add(errors.WIKI_DOWN)
+                res._chk_error(errors.WIKI_DOWN)
                 return
 
     def _reload(self, res):
@@ -709,14 +727,27 @@ class ApiController(RedditController):
                           'invalidemailaddress',
                           'password-name-match',
                           'passwordtooshort',
+                          'nocookiesfornew',
+                          'sorbs_create_account_reason',
+                          'password-login-forbidden',
+                          'externaldberror',
+                          'noemail',
+                          'mustbeposted',
+                          'acct_creation_throttle_hit',
+                          'wrongpassword',
+                          'aborted',
+                          'blocked',
+                          'permdenied-createaccount',
                          ])
 
             error = resultxml.find("error").attrib["code"]
 
-            if error in wikierrors:
-                c.errors.add(errors.WIKI_SIDE_FAILED)
-                res._chk_error(errors.WIKI_SIDE_FAILED)
-                return
+            if not error in wikierrors:
+                emailer.unknown_wiki_error(error)
+
+            c.errors.add(errors.WIKI_SIDE_FAILED)
+            res._chk_error(errors.WIKI_SIDE_FAILED)
+            return
 
     @Json
     @validate(VUser(),

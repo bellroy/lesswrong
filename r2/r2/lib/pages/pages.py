@@ -491,18 +491,14 @@ class PrefsPage(Reddit):
                         *a, **kw)
 
     def header_nav(self):
+        buttons = [NavButton(menu.options, ''),
+                   NamedButton('friends'),
+                   NamedButton('update'),
+                   NamedButton('delete')]
         if not c.user.associated_wiki_account:
-            buttons = [NavButton(menu.options, ''),
-                       NamedButton('friends'),
-                       NamedButton('update'),
-                       NamedButton('delete'),
-                       NamedButton('wikiaccount')]
+            buttons += [NamedButton('wikiaccount')]
         else:
-            buttons = [NavButton(menu.options, ''),
-                       NamedButton('friends'),
-                       NamedButton('update'),
-                       NamedButton('delete'),
-                       NavButton('wikiaccount', 'http://wiki.lesswrong.com/mediawiki/index.php?title=User:{0}'.format(c.user.name), style = 'external')]
+            buttons += [NavButton('wikiaccount', 'http://wiki.lesswrong.com/mediawiki/index.php?title=User:{0}'.format(c.user.name), style = 'external')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
@@ -998,6 +994,14 @@ class WikiSignupFail(Wrapped):
 
 class WikiSignupNotification(Wrapped):
     """Form for providing a user with their name and password for the wiki."""
+    pass
+
+class WikiAPIError(Wrapped):
+    """Form for notifying devs of unknown account creation errors."""
+    pass
+
+class WikiAccountUnconfirmed(Wrapped):
+    """Form for informing a user that they might not have a wiki account."""
     pass
 
 class Captcha(Wrapped):

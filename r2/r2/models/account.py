@@ -191,8 +191,15 @@ class Account(Thing):
     def associated_wiki_account(self):
         if self.wiki_account == 'unknown':
             from r2.lib.wiki_user_query  import wiki_user_query
+            exists = wiki_user_query(self.name)
 
-            self.wiki_account = wiki_user_query(self.name)
+            if exists == 'undecidable':
+                if self.email:
+                    from r2.lib.emailer      import wiki_account_unconfirmed
+                    wiki_account_unconfirmed(self)
+                exists = True
+
+            self.wiki_account = exists
             self._commit()
         return self.wiki_account
 
@@ -442,6 +449,9 @@ def register(name, password, email):
 
             if resultxml.find("createaccount") is None:
                 wiki_failed_email(a)
+            else:
+                a.wiki_account = True
+                a._commit()
 
         except (urllib2.URLError, urllib2.HTTPError):
             wiki_failed_email(a)

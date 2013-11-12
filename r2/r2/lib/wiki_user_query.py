@@ -6,8 +6,8 @@ def wiki_user_query(name):
     # WikiMedia requires first character be uppercase, non-special character
     if name[:1].isalnum():
         wikiname = name[:1].upper() + name[1:]
-    else:
-        return wiki_user_query(name[1:])
+    elif name[:1] == '_':
+        return 'undecidable'
     cj = CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     # input-type values from the html form
