@@ -14,7 +14,7 @@ git "/srv/memcached" do
   repository "https://github.com/tricycle/memcached.git"
   reference "master"
   action :sync
-  notifies :run, "bash[install_memcached]"
+  notifies :run, "bash[install_memcached]", :immediately
 end
 
 bash "install_memcached_start_scripts" do
