@@ -79,6 +79,21 @@ bash "unzip geoip db" do
   only_if { File.exists?('/usr/share/GeoIP/GeoLiteCity.dat.gz') }
 end
 
+wiki_lesswrong_xml = File.join(node.lesswrong.base_path,
+                               'r2', 'r2', 'public', 'files',
+                               'wiki.lesswrong.xml')
+remote_file "#{wiki_lesswrong_xml}.gz" do
+  source 'http://wiki.lesswrong.com/wiki.lesswrong.xml.gz'
+  action :create_if_missing
+  not_if { File.exists? wiki_lesswrong_xml }
+end
+
+bash 'unzip wiki.lesswrong.xml.gz' do
+  cwd File.dirname(wiki_lesswrong_xml)
+  code 'gunzip wiki.lesswrong.xml.gz && chmod 644 wiki.lesswrong.xml'
+  only_if { File.exists? "#{wiki_lesswrong_xml}.gz" }
+end
+
 # Web config
 
 web_app "lesswrong" do
