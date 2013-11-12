@@ -240,7 +240,7 @@ class ApiController(RedditController):
             Award._new(c.user, body, subject, to, ip)
 
             messagebody = 'You have been awarded ' + subject + ' karma for ' + body
-            
+
             m, inbox_rel = Message._new(c.user, to, 'Karma Award', messagebody, ip, spam)
 
         else:
@@ -343,7 +343,7 @@ class ApiController(RedditController):
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
-          
+
           #set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
@@ -961,7 +961,7 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
-    
+
     @Json
     @validate(VUser(), VModhash(),
               comment = VCommentFullName('owner_thing'),
@@ -1020,7 +1020,7 @@ class ApiController(RedditController):
         c.response.content = csv
         c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'
         return c.response
-    
+
     @Json
     @validate(VUser(),
               VModhash(),
@@ -1238,8 +1238,8 @@ class ApiController(RedditController):
         # Key to group cached meetup pages with
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     def GET_side_monthly_contributors(self, *a, **kw):
@@ -1273,8 +1273,8 @@ class ApiController(RedditController):
         location = Meetup.geoLocateIp(ip)
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-front-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     @validate(link = VLink('article_id', redirect=False))
@@ -1878,4 +1878,3 @@ class ApiController(RedditController):
                                                        ip = request.ip)
                 ]
         res.object = links
-
