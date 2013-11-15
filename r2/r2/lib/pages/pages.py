@@ -128,7 +128,7 @@ class Reddit(Wrapped):
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
-        if c.user_is_loggedin and not c.user.associated_wiki_account and self.sidewiki:
+        if c.user_is_loggedin and not (c.user.associated_wiki_account == 'associated') and self.sidewiki:
             ps.append(WikiCreateSide())
 
         filters_ps = PaneStack(div=True)

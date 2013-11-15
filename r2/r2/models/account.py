@@ -197,7 +197,9 @@ class Account(Thing):
                 if self.email:
                     from r2.lib.emailer      import wiki_account_unconfirmed
                     wiki_account_unconfirmed(self)
-                exists = True
+                exists = 'associated'
+            elif exists == 'unknown':
+                return 'associated'
 
             self.wiki_account = exists
             self._commit()
@@ -450,7 +452,7 @@ def register(name, password, email):
             if resultxml.find("createaccount") is None:
                 wiki_failed_email(a)
             else:
-                a.wiki_account = True
+                a.wiki_account = 'associated'
                 a._commit()
 
         except (urllib2.URLError, urllib2.HTTPError):

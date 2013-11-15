@@ -67,7 +67,7 @@ def wiki_failed_email(user):
                  WikiSignupFail(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
 
 def unknown_wiki_error(error):
-    simple_email('lesswrong@tricycleapps.com', 'contact@lesswrong.com',
+    simple_email(g.email_to, g.error_email_from,
                  'the wiki API gave an unknown error',
                  WikiAPIError(error=error).render(style='email'))
 

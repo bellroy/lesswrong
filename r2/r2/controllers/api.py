@@ -639,7 +639,7 @@ class ApiController(RedditController):
         resultxml = etree.fromstring(result)
 
         if resultxml.find("createaccount") is not None:
-            c.user.wiki_account = True
+            c.user.wiki_account = 'associated'
             c.user._commit()
             return
         else:
@@ -715,7 +715,7 @@ class ApiController(RedditController):
         resultxml = etree.fromstring(result)
 
         if resultxml.find("createaccount") is not None:
-            c.user.wiki_account = True
+            c.user.wiki_account = 'associated'
             c.user._commit()
             res._success()
             return
