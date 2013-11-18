@@ -600,6 +600,26 @@ class ApiController(RedditController):
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
 
+    wikierrors = {
+                  'userexists' : (errors.USERNAME_TAKEN, 'username'),
+                  'noname' : (errors.BAD_USERNAME, 'username'),
+                  'noemailtitle' : (errors.NO_EMAIL, 'email'),
+                  'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
+                  'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
+                  'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
+                  'nocookiesfornew' : (errors.WIKI_DOWN, 'wikipass'),
+                  'sorbs_create_account_reason' : (errors.WIKI_DOWN, 'wikipass'),
+                  'password-login-forbidden' : (errors.BAD_USERNAME, 'username'),
+                  'externaldberror' : (errors.WIKI_DOWN, 'wikipass'),
+                  'noemail' : (errors.NO_EMAIL, 'email'),
+                  'mustbeposted' : (errors.WIKI_DOWN, 'wikipass'),
+                  'acct_creation_throttle_hit' : (errors.WIKI_DOWN, 'wikipass'),
+                  'wrongpassword' : (errors.BAD_PASSWORD, 'wikipass'),
+                  'aborted' : (errors.WIKI_DOWN, 'wikipass'),
+                  'blocked' : (errors.WIKI_DOWN, 'wikipass'),
+                  'permdenied-createaccount' : (errors.WIKI_DOWN, 'wikipass'),
+                 }
+
     @Json
     @validate(VUser('curpass', default = ''),
               VModhash(),
@@ -643,30 +663,10 @@ class ApiController(RedditController):
             c.user._commit()
             return
         else:
-            wikierrors = {
-                          'userexists' : (errors.USERNAME_TAKEN, 'username'),
-                          'noname' : (errors.BAD_USERNAME, 'username'),
-                          'noemailtitle' : (errors.NO_EMAIL, 'email'),
-                          'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
-                          'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
-                          'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
-                          'nocookiesfornew' : (errors.WIKI_DOWN, 'wikipass'),
-                          'sorbs_create_account_reason' : (errors.WIKI_DOWN, 'wikipass'),
-                          'password-login-forbidden' : (errors.BAD_USERNAME, 'username'),
-                          'externaldberror' : (errors.WIKI_DOWN, 'wikipass'),
-                          'noemail' : (errors.NO_EMAIL, 'email'),
-                          'mustbeposted' : (errors.WIKI_DOWN, 'wikipass'),
-                          'acct_creation_throttle_hit' : (errors.WIKI_DOWN, 'wikipass'),
-                          'wrongpassword' : (errors.BAD_PASSWORD, 'wikipass'),
-                          'aborted' : (errors.WIKI_DOWN, 'wikipass'),
-                          'blocked' : (errors.WIKI_DOWN, 'wikipass'),
-                          'permdenied-createaccount' : (errors.WIKI_DOWN, 'wikipass'),
-                         }
-
             error = resultxml.find("error").attrib["code"]
 
-            if error in wikierrors:
-                error_slug, field_to_focus = wikierrors[error]
+            if error in ApiController.wikierrors:
+                error_slug, field_to_focus = ApiController.wikierrors[error]
                 c.errors.add(error_slug)
                 res._chk_error(error_slug)
                 res._focus(field_to_focus)
@@ -720,29 +720,9 @@ class ApiController(RedditController):
             res._success()
             return
         else:
-            wikierrors = set([
-                          'userexists',
-                          'noname',
-                          'noemailtitle',
-                          'invalidemailaddress',
-                          'password-name-match',
-                          'passwordtooshort',
-                          'nocookiesfornew',
-                          'sorbs_create_account_reason',
-                          'password-login-forbidden',
-                          'externaldberror',
-                          'noemail',
-                          'mustbeposted',
-                          'acct_creation_throttle_hit',
-                          'wrongpassword',
-                          'aborted',
-                          'blocked',
-                          'permdenied-createaccount',
-                         ])
-
             error = resultxml.find("error").attrib["code"]
 
-            if not error in wikierrors:
+            if not error in ApiController.wikierrors:
                 emailer.unknown_wiki_error(error)
 
             c.errors.add(errors.WIKI_SIDE_FAILED)

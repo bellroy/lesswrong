@@ -18,18 +18,15 @@ def wiki_user_query(name):
     cj = CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     # input-type values from the html form
-    formdata = { "format" : "xml", "list" : "allusers", "aufrom" : wikiname }
+    formdata = { "format" : "xml", "list" : "users", "ususers" : wikiname }
     data_encoded = urllib.urlencode(formdata)
     try:
-        response = opener.open(g.wiki_url + "api.php?action=query", data_encoded)
+        response = opener.open("http://{0}/api.php?action=query".format(g.wiki_url), data_encoded)
     except (urllib2.URLError, urllib2.HTTPError):
         return 'unknown'
     content = response.read()
     resultxml = etree.fromstring(content)
-    # special characters can make the name requested not be the first in the list
-    users = [ u.attrib["name"] for u in resultxml.iterfind(".//u") ]
-    # WikiMedia renders username underscores as spaces
-    if wikiname.replace('_', ' ') in users:
+    if resultxml.find(".//user").get("missing") == None:
         return 'associated'
     else:
         return 'unassociated'

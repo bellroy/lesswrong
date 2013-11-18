@@ -63,7 +63,7 @@ def confirmation_email(user):
 
 def wiki_failed_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'wiki.lesswrong.com sign-up failed',
+                 g.wiki_url + ' sign-up failed',
                  WikiSignupFail(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
 
 def unknown_wiki_error(error):
@@ -73,12 +73,12 @@ def unknown_wiki_error(error):
 
 def wiki_account_unconfirmed(user):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'wiki.lesswrong.com account unconfirmed',
+                 g.wiki_url + ' account unconfirmed',
                  WikiAccountUnconfirmed(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
 
 def wiki_password_email(user, password):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'wiki.lesswrong.com sign-up',
+                 g.wiki_url + ' sign-up',
                  WikiSignupNotification(user=user, password=password).render(style='email'))
 
 def meetup_email(user, meetup):

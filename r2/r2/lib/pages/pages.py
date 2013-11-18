@@ -267,7 +267,7 @@ class Reddit(Wrapped):
     def right_menu(self):
         """docstring for right_menu"""
         buttons = [
-          AbsButton('wiki', 'http://wiki.lesswrong.com'),
+          AbsButton('wiki', 'http://'+g.wiki_url),
           NamedButton('sequences', sr_path=False),
           NamedButton('about', sr_path=False)
         ]
@@ -495,10 +495,10 @@ class PrefsPage(Reddit):
                    NamedButton('friends'),
                    NamedButton('update'),
                    NamedButton('delete')]
-        if not c.user.associated_wiki_account:
+        if not c.user.associated_wiki_account == 'associated':
             buttons += [NamedButton('wikiaccount')]
         else:
-            buttons += [NavButton('wikiaccount', 'http://wiki.lesswrong.com/mediawiki/index.php?title=User:{0}'.format(c.user.name), style = 'external')]
+            buttons += [NavButton('wikiaccount', 'http://{0}/mediawiki/index.php?title=User:{1}'.format(g.wiki_url, c.user.name), style = 'external')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
