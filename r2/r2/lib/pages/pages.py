@@ -128,7 +128,7 @@ class Reddit(Wrapped):
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
-        if c.user_is_loggedin and not (c.user.associated_wiki_account == 'associated') and self.sidewiki:
+        if c.user_is_loggedin and not (c.user.associated_wiki_account in ('associated', 'undecidable'))  and self.sidewiki:
             ps.append(WikiCreateSide())
 
         filters_ps = PaneStack(div=True)
@@ -267,7 +267,7 @@ class Reddit(Wrapped):
     def right_menu(self):
         """docstring for right_menu"""
         buttons = [
-          AbsButton('wiki', 'http://'+g.wiki_url),
+          AbsButton('wiki', 'http://'+g.wiki_host),
           NamedButton('sequences', sr_path=False),
           NamedButton('about', sr_path=False)
         ]
@@ -498,7 +498,7 @@ class PrefsPage(Reddit):
         if not c.user.associated_wiki_account == 'associated':
             buttons += [NamedButton('wikiaccount')]
         else:
-            buttons += [NavButton('wikiaccount', 'http://{0}/mediawiki/index.php?title=User:{1}'.format(g.wiki_url, c.user.name), style = 'external')]
+            buttons += [NavButton('wikiaccount', 'http://{0}/wiki/index.php?title=User:{1}'.format(g.wiki_host, c.user.name), style = 'external')]
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):

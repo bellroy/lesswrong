@@ -600,7 +600,7 @@ class ApiController(RedditController):
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
 
-    wikierrors = {
+    WIKIERRORS = {
                   'userexists' : (errors.USERNAME_TAKEN, 'username'),
                   'noname' : (errors.BAD_USERNAME, 'username'),
                   'noemailtitle' : (errors.NO_EMAIL, 'email'),
@@ -665,8 +665,8 @@ class ApiController(RedditController):
         else:
             error = resultxml.find("error").attrib["code"]
 
-            if error in ApiController.wikierrors:
-                error_slug, field_to_focus = ApiController.wikierrors[error]
+            if error in ApiController.WIKIERRORS:
+                error_slug, field_to_focus = ApiController.WIKIERRORS[error]
                 c.errors.add(error_slug)
                 res._chk_error(error_slug)
                 res._focus(field_to_focus)
@@ -722,7 +722,7 @@ class ApiController(RedditController):
         else:
             error = resultxml.find("error").attrib["code"]
 
-            if not error in ApiController.wikierrors:
+            if not error in ApiController.WIKIERRORS:
                 emailer.unknown_wiki_error(error)
 
             c.errors.add(errors.WIKI_SIDE_FAILED)

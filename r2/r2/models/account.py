@@ -187,21 +187,25 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
+    WIKI_ERROR_MESSAGE = 'We were unable to determine if there is an Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to prefs/wiki.'
+
     @property
     def associated_wiki_account(self):
         if self.wiki_account == 'unknown':
             from r2.lib.wiki_user_query  import wiki_user_query
-            exists = wiki_user_query(self.name)
+            wikistate = wiki_user_query(self.name)
 
-            if exists == 'undecidable':
+            if wikistate == 'undecidable':
                 if self.email:
                     from r2.lib.emailer      import wiki_account_unconfirmed
                     wiki_account_unconfirmed(self)
-                exists = 'associated'
-            elif exists == 'unknown':
+                else:
+                    from r2.models.link      import Message
+                    Message._new(Account._by_name(g.admin_account), self, 'wiki account', Account.WIKI_ERROR_MESSAGE, None)
+            elif wikistate == 'unknown':
                 return 'associated'
 
-            self.wiki_account = exists
+            self.wiki_account = wikistate
             self._commit()
         return self.wiki_account
 
