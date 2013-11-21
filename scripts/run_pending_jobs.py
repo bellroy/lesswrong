@@ -82,49 +82,6 @@ def job_send_meetup_email_to_user(meetup_id, username):
       pass
 
 
-
-#Tries to create an account. If connection fails, tries again later.
-#After failing twice or getting error code from wiki, sends email to user.
-def job_create_wiki_account(name, password, email, attempt):
-    tokenmatcher = re.compile('<\?xml version=\"1.0\"\?><api><createaccount token=\"(.*?)\" result=\"needtoken\" /></api>')
-    successmatcher = re.compile('<\?xml\sversion="1\.0"\?><api><createaccount.*?result="success"\s/></api>')
-
-    sendpass = False
-    if not password:
-        password = random_key(6)
-        sendpass = True
-
-    try:
-        response = create_wiki_account(name, password, email)
-
-        resultxml = etree.fromstring(response)
-
-        if resultxml.find("createaccount") is None and resultxml.find("error").attrib["code"] != 'userexists':
-            user = Account._by_name(name)
-            emailer.wiki_failed_email(user)
-        elif sendpass:
-            user = Account._by_name(name)
-            emailer.wiki_password_email(user, password)
-
-    except (urllib2.URLError, urllib2.HTTPError):
-        if attempt == 0:
-            data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 1}
-            time = datetime.now(g.tz) + timedelta(0,15)
-            PendingJob.store(time, 'create_wiki_account', data)
-        elif attempt == 1:
-            data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 2}
-            time = datetime.now(g.tz) + timedelta(0,300)
-            PendingJob.store(time, 'create_wiki_account', data)
-        elif attempt == 2:
-            user = Account._by_name(name)
-            emailer.wiki_failed_email(user)
-            emailer.simple_email('lesswrong.issues@trikeapps.com',
-                                 'contact@lesswrong.com',
-                                 'wiki error',
-                                 traceback.format_exc())
-
-
-
 try:
     JobProcessor().run()
 except Exception as ex:

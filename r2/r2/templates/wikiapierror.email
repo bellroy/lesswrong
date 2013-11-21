@@ -1,0 +1,5 @@
+Hello dev:
+
+The automatic creation of an account on the wiki failed, with the media wiki api giving unknown error ${thing.error}.
+
+Please investigate the change in the wiki api and add handling for this error.

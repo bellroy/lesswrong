@@ -616,7 +616,7 @@ class FrontController(RedditController):
 
     @validate(VUser())
     def GET_verifyemail(self):
-        return BoringPage(_("Verify Email"), content=VerifyEmail()).render()
+        return BoringPage(_("Verify Email"), content=VerifyEmail(), sidewiki=False).render()
 
     @validate(VUser(),
               article = VSubmitLink('article', redirect=False))

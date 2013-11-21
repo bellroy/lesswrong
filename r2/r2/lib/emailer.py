@@ -22,7 +22,7 @@
 from email.MIMEText import MIMEText
 from pylons.i18n import _
 from pylons import c, g, request
-from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupNotification
+from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupNotification, WikiAPIError, WikiAccountUnconfirmed
 from r2.lib.utils import timeago
 from r2.models import passhash, Email, Default, has_opted_out
 from r2.config import cache
@@ -67,12 +67,22 @@ def confirmation_email(user):
 
 def wiki_failed_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'wiki.lesswrong.com sign-up failed',
+                 g.wiki_host + ' sign-up failed',
                  WikiSignupFail(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
+
+def unknown_wiki_error(error):
+    simple_email(g.email_to, g.error_email_from,
+                 'the wiki API gave an unknown error',
+                 WikiAPIError(error=error).render(style='email'))
+
+def wiki_account_unconfirmed(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 g.wiki_host + ' account unconfirmed',
+                 WikiAccountUnconfirmed(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
 
 def wiki_password_email(user, password):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'wiki.lesswrong.com sign-up',
+                 g.wiki_host + ' sign-up',
                  WikiSignupNotification(user=user, password=password).render(style='email'))
 
 def meetup_email(user, meetup):

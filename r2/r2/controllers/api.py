@@ -602,6 +602,26 @@ class ApiController(RedditController):
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
 
+    WIKIERRORS = {
+                  'userexists' : (errors.USERNAME_TAKEN, 'username'),
+                  'noname' : (errors.BAD_USERNAME, 'username'),
+                  'noemailtitle' : (errors.NO_EMAIL, 'email'),
+                  'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
+                  'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
+                  'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
+                  'nocookiesfornew' : (errors.WIKI_DOWN, 'wikipass'),
+                  'sorbs_create_account_reason' : (errors.WIKI_DOWN, 'wikipass'),
+                  'password-login-forbidden' : (errors.BAD_USERNAME, 'username'),
+                  'externaldberror' : (errors.WIKI_DOWN, 'wikipass'),
+                  'noemail' : (errors.NO_EMAIL, 'email'),
+                  'mustbeposted' : (errors.WIKI_DOWN, 'wikipass'),
+                  'acct_creation_throttle_hit' : (errors.WIKI_DOWN, 'wikipass'),
+                  'wrongpassword' : (errors.BAD_PASSWORD, 'wikipass'),
+                  'aborted' : (errors.WIKI_DOWN, 'wikipass'),
+                  'blocked' : (errors.WIKI_DOWN, 'wikipass'),
+                  'permdenied-createaccount' : (errors.WIKI_DOWN, 'wikipass'),
+                 }
+
     @Json
     @validate(VUser('curpass', default = ''),
               VModhash(),
@@ -634,32 +654,82 @@ class ApiController(RedditController):
             result = None
 
         if not result:
-           c.errors.add(errors.WIKI_DOWN)
-           res._chk_error(errors.WIKI_DOWN)
+            c.errors.add(errors.WIKI_DOWN)
+            res._chk_error(errors.WIKI_DOWN)
+            return
+
+        resultxml = etree.fromstring(result)
+
+        if resultxml.find("createaccount") is not None:
+            c.user.wiki_account = 'associated'
+            c.user._commit()
+            return
+        else:
+            error = resultxml.find("error").attrib["code"]
+
+            if error in ApiController.WIKIERRORS:
+                error_slug, field_to_focus = ApiController.WIKIERRORS[error]
+                c.errors.add(error_slug)
+                res._chk_error(error_slug)
+                res._focus(field_to_focus)
+                return
+            else:
+                emailer.unknown_wiki_error(error)
+                c.errors.add(errors.WIKI_DOWN)
+                res._chk_error(errors.WIKI_DOWN)
+                return
+
+    def _reload(self, res):
+        res._redirect(request.referer)
+
+    @Json
+    @validate(password = nop('password'),
+              password_confirm = nop('password_confirm'))
+    def POST_wikiaccountside(self, res, password, password_confirm):
+        res._update('status', innerHTML='')
+
+        if password != password_confirm:
+            c.errors.add(errors.BAD_PASSWORD_MATCH)
+            res._chk_error(errors.BAD_PASSWORD_MATCH)
+            res._focus('password_confirm')
+            return
+
+        if hasattr(c.user, 'email') and c.user.email_validated:
+            email = c.user.email
+        else:
+            c.errors.add(errors.EMAIL_NOT_CONFIRMED)
+            res._chk_error(errors.EMAIL_NOT_CONFIRMED)
+            return
+
+        name = c.user.name
+
+        try:
+            result = create_wiki_account(name, password, email)
+        except (urllib2.URLError, urllib2.HTTPError):
+            result = None
+
+        if not result:
+           c.errors.add(errors.WIKI_SIDE_FAILED)
+           res._chk_error(errors.WIKI_SIDE_FAILED)
+           self.reload(res)
            return
 
         resultxml = etree.fromstring(result)
 
         if resultxml.find("createaccount") is not None:
+            c.user.wiki_account = 'associated'
+            c.user._commit()
+            res._success()
             return
         else:
-            wikierrors = {
-                          'userexists' : (errors.USERNAME_TAKEN, 'username'),
-                          'noname' : (errors.BAD_USERNAME, 'username'),
-                          'noemailtitle' : (errors.NO_EMAIL, 'email'),
-                          'invalidemailaddress' : (errors.BAD_EMAIL, 'email'),
-                          'password-name-match' : (errors.BAD_PASSWORD, 'wikipass'),
-                          'passwordtooshort' : (errors.BAD_PASSWORD_SHORT, 'wikipass'),
-                         }
-
             error = resultxml.find("error").attrib["code"]
 
-            if error in wikierrors:
-                error_slug, field_to_focus = wikierrors[error]
-                c.errors.add(error_slug)
-                res._chk_error(error_slug)
-                res._focus(field_to_focus)
-                return
+            if not error in ApiController.WIKIERRORS:
+                emailer.unknown_wiki_error(error)
+
+            c.errors.add(errors.WIKI_SIDE_FAILED)
+            res._chk_error(errors.WIKI_SIDE_FAILED)
+            return
 
     @Json
     @validate(VUser(),
