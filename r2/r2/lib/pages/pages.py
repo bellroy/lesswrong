@@ -760,7 +760,7 @@ class ProfilePage(Reddit):
     searchbox         = False
     create_reddit_box = False
     submit_box        = False
-    
+
 
     def __init__(self, user, *a, **kw):
         self.user     = user
@@ -1588,7 +1588,7 @@ class MeetupsMap(Wrapped):
         Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
-	  pass
+          pass
 
 class ShowMeetup(Wrapped):
     """docstring for ShowMeetup"""
@@ -1637,4 +1637,3 @@ class WikiPage(Reddit):
                         title = self.pagename,
                         space_compress=False,
                         **context)
-

@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -280,7 +280,7 @@ class Account(Thing):
     def modhash(self):
         to_hash = ','.join((current_login_cookie(), g.SECRET))
         return hashlib.sha1(to_hash).hexdigest()
-    
+
     def valid_hash(self, hash):
         return hash == self.modhash()
 
@@ -315,7 +315,7 @@ class Account(Thing):
         self._deleted = True
         self._commit()
         clear_memo('account._by_name', Account, self.name.lower(), False)
-        
+
         #remove from friends lists
         q = Friend._query(Friend.c._thing2_id == self._id,
                           Friend.c._name == 'friend',
@@ -348,7 +348,7 @@ class Account(Thing):
     def add_share_emails(self, emails):
         if not emails:
             return
-        
+
         if not isinstance(emails, set):
             emails = set(emails)
 
@@ -358,13 +358,13 @@ class Account(Thing):
         share_emails = share['emails']
         for e in emails:
             share_emails[e] = share_emails.get(e, 0) +1
-            
+
         share['recent'] = emails
 
         self.share = share
-        
-            
-            
+
+
+
 
 
 class FakeAccount(Account):
@@ -469,5 +469,3 @@ def register(name, password, email):
 
 class Friend(Relation(Account, Account)): pass
 Account.__bases__ += (UserRel('friend', Friend),)
-
-
