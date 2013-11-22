@@ -187,7 +187,7 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
-    WIKI_ERROR_MESSAGE = 'We were unable to determine if there is an Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to prefs/wiki.'
+    WIKI_ERROR_MESSAGE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to prefs/wiki.'
 
     @property
     def associated_wiki_account(self):
