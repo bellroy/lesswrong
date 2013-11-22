@@ -501,7 +501,7 @@ class PrefsPage(Reddit):
             buttons.append(NamedButton('wikiaccount'))
         else:
             user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.name)
-            buttons.append(NavButton('wikiaccount', user_page_url, style = 'external'))
+            buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
