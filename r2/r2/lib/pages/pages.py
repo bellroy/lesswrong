@@ -498,9 +498,10 @@ class PrefsPage(Reddit):
                    NamedButton('update'),
                    NamedButton('delete')]
         if not c.user.associated_wiki_account == 'associated':
-            buttons += [NamedButton('wikiaccount')]
+            buttons.append(NamedButton('wikiaccount'))
         else:
-            buttons += [NavButton('wikiaccount', 'http://{0}/wiki/index.php?title=User:{1}'.format(g.wiki_host, c.user.name), style = 'external')]
+            user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.name)
+            buttons.append(NavButton('wikiaccount', user_page_url, style = 'external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
