@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -134,7 +134,7 @@ def read_user_cookie(name):
 def set_user_cookie(name, val):
     uname = c.user.name if c.user_is_loggedin else ""
     c.cookies[uname + '_' + name] = Cookie(value = val)
-    
+
 valid_click_cookie = re.compile(r'(t[0-9]_[a-zA-Z0-9]+:)+').match
 def read_click_cookie():
     if c.user_is_loggedin:
@@ -149,7 +149,7 @@ def read_click_cookie():
                 #utils.worker.do(foo(t, c.user))
     set_user_cookie('click', '')
 
-            
+
 def read_mod_cookie():
     cook = [s.split('=')[0:2] for s in read_user_cookie('mod').split(':') if s]
     if cook:
@@ -319,7 +319,7 @@ def set_iface_lang():
         except h.LanguageError:
             #we don't have a translation for that language
             h.set_lang('en', graceful_fail = True)
-            
+
     #TODO: add exceptions here for rtl languages
     if c.lang in ('ar', 'he', 'fa'):
         c.lang_rtl = True
@@ -332,7 +332,7 @@ def set_content_lang():
         c.content_langs = c.user.pref_content_langs
 
 def set_cnameframe():
-    if (bool(request.params.get(utils.UrlParser.cname_get)) 
+    if (bool(request.params.get(utils.UrlParser.cname_get))
         or not request.host.split(":")[0].endswith(g.domain)):
         c.cname = True
         request.environ['REDDIT_CNAME'] = 1
@@ -433,7 +433,7 @@ class RedditController(BaseController):
         key = ''.join((str(c.lang),
                        str(c.content_langs),
                        request.host,
-                       str(c.cname), 
+                       str(c.cname),
                        str(request.fullpath),
                        str(c.over18),
                        ''.join(cookie_keys)))
@@ -445,8 +445,8 @@ class RedditController(BaseController):
     @staticmethod
     def login(user, admin = False, rem = False):
         c.cookies[g.login_cookie] = Cookie(value = user.make_cookie(admin = admin),
-                                           expires = NEVER if rem else None)
-        
+                                            expires = NEVER if rem else None)
+
     @staticmethod
     def logout(admin = False):
         c.cookies[g.login_cookie] = Cookie(value='')
@@ -514,7 +514,7 @@ class RedditController(BaseController):
         # check if the user has access to this subreddit
         if not c.site.can_view(c.user) and not c.error_page:
             abort(403, "forbidden")
- 
+
         #check over 18
         if (c.site.over_18 and not c.over18 and
             request.path not in  ("/frame", "/over18")
@@ -626,5 +626,3 @@ class RedditController(BaseController):
         merged = copy(request.get)
         merged.update(dict)
         return request.path + utils.query_string(merged)
-
-
