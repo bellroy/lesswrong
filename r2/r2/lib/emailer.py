@@ -22,7 +22,7 @@
 from email.MIMEText import MIMEText
 from pylons.i18n import _
 from pylons import c, g, request
-from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupNotification, WikiAPIError, WikiAccountUnconfirmed
+from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupFail, WikiAPIError, WikiIncompatibleName, WikiSignupNotification, WikiUserExists
 from r2.lib.utils import timeago
 from r2.models import passhash, Email, Default, has_opted_out
 from r2.config import cache
@@ -75,15 +75,21 @@ def unknown_wiki_error(error):
                  'the wiki API gave an unknown error',
                  WikiAPIError(error=error).render(style='email'))
 
-def wiki_account_unconfirmed(user):
+def wiki_incompatible_name_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
-                 'LessWrong Wiki account unconfirmed',
-                 WikiAccountUnconfirmed(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
+                 'LessWrong account name incompatible with wiki',
+                 WikiIncompatibleName(user=user, link='http://'+g.wiki_host+'/mediawiki/index.php?title=Special:UserLogin&type=signup').render(style='email'))
 
-def wiki_password_email(user, password):
+def wiki_signup_notification_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
                  'LessWrong Wiki sign-up',
-                 WikiSignupNotification(user=user, password=password).render(style='email'))
+                 WikiSignupNotification(link='http://'+g.wiki_host).render(style='email'))
+
+def wiki_user_exists_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'LessWrong Wiki account exists',
+                 WikiUserExists(user=user,
+                                link='http://'+g.wiki_host+'/mediawiki/index.php?title=Special:UserLogin&type=signup').render(style='email'))
 
 def meetup_email(user, meetup):
     simple_email(user.email, 'contact@lesswrong.com',

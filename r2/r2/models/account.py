@@ -30,6 +30,7 @@ from pylons import c, g
 from pylons.i18n import _
 import sqlalchemy as sa
 
+from r2.lib              import wiki_account
 from r2.lib.db           import tdb_sql as tdb
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
@@ -84,7 +85,9 @@ class Account(Thing):
                      share = {},
                      messagebanned = False,
                      dashboard_visit = datetime(2006,10,1, tzinfo = g.tz),
-                     wiki_account = 'unknown'
+                     wiki_association_attempted_at = None, # None or datetime
+                     wiki_account = None # None, str(account name) or the special string '__taken__', if a new
+                                         # user didn't get an account because someone else already had the name.
                      )
 
     def karma_ups_downs(self, kind, sr = None):
@@ -187,27 +190,57 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
-    WIKI_ERROR_MESSAGE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to prefs/wiki.'
+    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to %s.'
 
-    @property
-    def associated_wiki_account(self):
-        if self.wiki_account == 'unknown':
-            from r2.lib.wiki_user_query  import wiki_user_query
-            wikistate = wiki_user_query(self.name)
+    def attempt_wiki_association(self):
+        '''Attempt to find a wiki account with the same name as the user.'''
+        from r2.models.link import Message
+        self.wiki_association_attempted_at = datetime.now(g.tz)
+        self.wiki_account = '__error__'
 
-            if wikistate == 'undecidable':
-                if self.email:
-                    from r2.lib.emailer      import wiki_account_unconfirmed
-                    wiki_account_unconfirmed(self)
+        if wiki_account.valid_name(self.name):
+            try:
+                if wiki_account.exists(self.name):
+                    self.wiki_account = self.name
                 else:
-                    from r2.models.link      import Message
-                    Message._new(Account._by_name(g.admin_account), self, 'wiki account', Account.WIKI_ERROR_MESSAGE, None)
-            elif wikistate == 'unknown':
-                return 'associated'
+                    self.wiki_account = None
+                    link = '[this form](http://%s/prefs/wikiaccount)' % g.domain
+                    invite = WIKI_INVITE % link
+                    Message._new(Account._by_name(g.admin_account), self, 'Wiki Account', invite, None)
+            except urllib2.URLError as e:
+                g.log.error('error in attempt_wiki_association()')
 
-            self.wiki_account = wikistate
-            self._commit()
-        return self.wiki_account
+        if self.wiki_account == '__error__':
+            link = '[the wiki](https://%s/mediawiki/index.php?title=Special:UserLogin&type=signup)' % g.domain
+            invite = WIKI_INVITE % link
+            Message._new(Account_by_name(g.admin_account), self, 'Wiki Account', invite, None)
+
+        self._commit()
+
+    def create_associated_wiki_account(self, password,
+                                       on_request_error=None,
+                                       on_wiki_error=None):
+        try:
+            wiki_account.create(self.name, password, self.email)
+            a.wiki_account = self.name
+            a._commit()
+            return True
+        except urllib2.URLError as e:
+            g.log.error('URLError creating wiki account')
+            g.log.error(e)
+
+            if on_request_error is not None: on_request_error()
+        except WikiError as e:
+            g.log.error('WikiError creating wiki account')
+            g.log.error(e)
+
+            if e.message == 'userexists':
+                emailer.wiki_user_exists_email(self)
+            else:
+                emailer.wiki_failed_email(self)
+
+            if on_wiki_error is not None: on_wiki_error()
+        return False
 
     def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
@@ -258,6 +291,7 @@ class Account(Thing):
             raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta, kind):
+
         """kind is link or comment"""
         try:
             g.cache.incr(self.downvote_cache_key(kind), delta)
@@ -364,9 +398,6 @@ class Account(Thing):
         self.share = share
 
 
-
-
-
 class FakeAccount(Account):
     _nodb = True
 
@@ -440,27 +471,20 @@ def register(name, password, email):
 
         a.confirmation_code = random_key(6)
         a.email_validated = False
+        a.wiki_account = '__error__'
 
         a._commit()
 
-        from r2.lib.emailer      import confirmation_email, wiki_failed_email
-        confirmation_email(a)
+        from r2.lib import emailer
+        emailer.confirmation_email(a)
 
-        try:
-            from r2.lib.wiki_account import create_wiki_account
-
-            response = create_wiki_account(name, password, email)
-
-            resultxml = etree.fromstring(response)
-
-            if resultxml.find("createaccount") is None:
-                wiki_failed_email(a)
-            else:
-                a.wiki_account = 'associated'
-                a._commit()
-
-        except (urllib2.URLError, urllib2.HTTPError):
-            wiki_failed_email(a)
+        if wiki_account.valid_name(name):
+            def send_wiki_failed_email():
+                emailer.wiki_failed_email(a)
+            a.create_associated_wiki_account(password,
+                                             on_request_error=send_wiki_failed_email)
+        else:
+            emailer.wiki_incompatible_name_email(a)
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)

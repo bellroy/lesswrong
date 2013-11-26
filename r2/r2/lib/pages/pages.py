@@ -129,7 +129,8 @@ class Reddit(Wrapped):
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
         if (c.user_is_loggedin and
-            c.user.associated_wiki_account not in ('associated', 'undecidable') and
+            c.user.wiki_account is None and
+            c.user.email is not None and
             self.sidewiki):
             ps.append(WikiCreateSide())
 
@@ -497,10 +498,12 @@ class PrefsPage(Reddit):
                    NamedButton('friends'),
                    NamedButton('update'),
                    NamedButton('delete')]
-        if not c.user.associated_wiki_account == 'associated':
+        if c.user.wiki_account is None and c.user.email is not None:
             buttons.append(NamedButton('wikiaccount'))
+        elif c.user.wiki_account == '__taken__':
+            pass
         else:
-            user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.name)
+            user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.wiki_account)
             buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
@@ -992,22 +995,35 @@ class EmailVerify(Wrapped):
     pass
 
 class WikiSignupFail(Wrapped):
-    """Form for informing a user that creating a wiki acccount failed."""
+    """Email template. Tells a user that their automatic wiki account
+    creation failed.
+    """
     pass
 
 class WikiSignupNotification(Wrapped):
-    """Form for providing a user with their name and password for the wiki."""
+    """Email template. Tells a user their account on the LessWrong Wiki
+    has been created.
+    """
     pass
 
 class WikiAPIError(Wrapped):
-    """Form for notifying devs of unknown account creation errors."""
+    """Email template to notify devs of unknown account creation errors."""
     pass
 
-class WikiAccountUnconfirmed(Wrapped):
-    """Form for informing a user that they might not have a wiki account."""
+class WikiUserExists(Wrapped):
+    """Email template to tell a user that we tried to make their account
+    but someone else already had it.
+    """
+    pass
+
+class WikiIncompatibleName(Wrapped):
+    """Email template to tell them their username doesn't allow automatic
+    wikification.
+    """
     pass
 
 class Captcha(Wrapped):
+
     """Container for rendering robot detection device."""
     def __init__(self, error=None, tabular=True, label=True):
         self.error = _('Try entering those letters again') if error else ""

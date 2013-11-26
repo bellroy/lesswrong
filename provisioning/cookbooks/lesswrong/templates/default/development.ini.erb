@@ -10,15 +10,15 @@ uncompressedJS = true
 translator = true
 sqlprinting = false
 
-log_path   = 
+log_path   =
 
 memcaches = 127.0.0.1:11211
 permacaches = 127.0.0.1:11211
 rendercaches = 127.0.0.1:11211
 rec_cache = 127.0.0.1:11311
-tracker_url = 
-adtracker_url = 
-clicktracker_url = 
+tracker_url =
+adtracker_url =
+clicktracker_url =
 
 main_db_name = reddit
 main_db_host = <%= @db_host %>
@@ -59,7 +59,7 @@ monitored_servers = localhost
 
 #query cache settings
 num_query_queue_workers = 0
-query_queue_worker = 
+query_queue_worker =
 enable_doquery = False
 use_query_cache = False
 write_query_queue = False
@@ -74,11 +74,13 @@ max_sr_images = 20
 
 login_cookie = reddit_session
 domain = lesswrong.local
-domain_prefix = 
+domain_prefix =
 default_sr = lesswrong
 front_page_title = Less Wrong
 admins = admin
-sponsors = 
+# Account for sending PMs from the site
+admin_account = admin
+sponsors =
 page_cache_time = 30
 static_path = /static/
 useragent = Mozilla/5.0 (compatible; bot/1.0; ChangeMe)
@@ -86,13 +88,14 @@ useragent = Mozilla/5.0 (compatible; bot/1.0; ChangeMe)
 feedbox_urls = http://www.overcomingbias.com/feed, http://slatestarcodex.com/feed, http://rationalaltruist.com/feed/, http://reflectivedisequilibrium.blogspot.com/feeds/posts/default, http://rationalconspiracy.com/feed/, http://feeds.feedburner.com/TheGivewellBlog?format=xml
 recent_edits_feed = http://wiki.lesswrong.com/mediawiki/index.php?title=Special:RecentChanges&feed=atom&hideminor=1&namespace=0
 # Your sitemeter.com username/codename
-site_meter_codename = 
-wiki_api_url = http://wiki.lesswrong.com/mediawiki/api.php
+site_meter_codename =
+wiki_host = <%= @wiki_host %>
+wiki_api_url = http://<%= @wiki_host %>/api.php
 geoip_db_path = /usr/share/GeoIP/GeoLiteCity.dat
 meetups_radius = 100
 meetup_grace_period = 3600
 
-solr_url =  
+solr_url =
 
 google_api_key = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_bbbbbbbbbbbbbbbbbbbbbbbbb_cccccccccccccccccc-d
 SECRET    = abcdefghijklmnopqrstuvwxyz0123456789
@@ -102,7 +105,7 @@ tracking_secret = abcdefghijklmnopqrstuvwxyz0123456789
 # set X-forwarded-for and set this to true
 trust_local_proxies = false
 # hash for validating HTTP_TRUE_CLIENT_IP_HASH
-ip_hash = 
+ip_hash =
 S3KEY_ID = ABCDEFGHIJKLMNOP1234
 S3SECRET_KEY = aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890AbCd
 s3_thumb_bucket = /lesswrong.dev/
@@ -135,7 +138,7 @@ new_link_share_delay = 5 minutes
 share_reply = noreply@yourdomain.com
 
 #user-agents to limit
-agents = 
+agents =
 
 feedback_email = abuse@localhost
 
@@ -179,4 +182,3 @@ beaker.session_secret = somesecret
 # Debug mode will enable the interactive debugging tool, allowing ANYONE to
 # execute malicious code after an exception is raised.
 # debug = false
-

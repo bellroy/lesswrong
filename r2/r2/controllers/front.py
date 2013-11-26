@@ -224,22 +224,23 @@ class FrontController(RedditController):
               location = nop("location"))
     def GET_prefs(self, location=''):
         """Preference page"""
-        content = None
-        infotext = None
+        kwargs = { 'content': None,
+                   'infotext': None }
         if not location or location == 'options':
-            content = PrefOptions(done=request.get.get('done'))
+            kwargs['content'] = PrefOptions(done=request.get.get('done'))
         elif location == 'friends':
-            content = PaneStack()
-            infotext = strings.friends % Friends.path
-            content.append(FriendList())
+            kwargs['content'] = PaneStack()
+            kwargs['infotext'] = strings.friends % Friends.path
+            kwargs['content'].append(FriendList())
         elif location == 'update':
-            content = PrefUpdate()
+            kwargs['content'] = PrefUpdate()
         elif location == 'delete':
-            content = PrefDelete()
+            kwargs['content'] = PrefDelete()
         elif location == 'wikiaccount':
-            content = PrefWiki()
+            kwargs['content'] = PrefWiki()
+            kwargs['sidewiki'] = False
 
-        return PrefsPage(content = content, infotext=infotext).render()
+        return PrefsPage(**kwargs).render()
 
     @validate(VAdmin(),
               name = nop('name'))

@@ -45,7 +45,8 @@ template File.join(node.lesswrong.base_path, 'r2', 'development.ini') do
   variables({
     :db_host => node.lesswrong.db.host,
     :db_user => node.lesswrong.db.user,
-    :db_pass => node.lesswrong.db.password
+    :db_pass => node.lesswrong.db.password,
+    :wiki_host => 'wiki.lesswrong.com'
   })
 end
 
