@@ -20,6 +20,7 @@
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from validator import *
+from pylons.controllers.util import redirect_to
 from pylons.i18n import _, ungettext
 from reddit_base import RedditController, base_listing
 from api import link_listing_by_url
@@ -237,6 +238,8 @@ class FrontController(RedditController):
         elif location == 'delete':
             kwargs['content'] = PrefDelete()
         elif location == 'wikiaccount':
+            if c.user.wiki_account is not None: redirect_to('/prefs')
+
             kwargs['content'] = PrefWiki()
             kwargs['sidewiki'] = False
 
