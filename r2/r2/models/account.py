@@ -190,7 +190,7 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
-    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to %s.'
+    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to [your preferences page](http://%s/prefs/wikiaccount).'
 
     def attempt_wiki_association(self):
         '''Attempt to find a wiki account with the same name as the user.'''
@@ -204,16 +204,10 @@ class Account(Thing):
                     self.wiki_account = self.name
                 else:
                     self.wiki_account = None
-                    link = '[this form](http://%s/prefs/wikiaccount)' % g.domain
-                    invite = WIKI_INVITE % link
-                    Message._new(Account._by_name(g.admin_account), self, 'Wiki Account', invite, None)
+                    Message._new(Account._by_name(g.admin_account),
+                                 self, 'Wiki Account', Account.WIKI_INVITE, None)
             except urllib2.URLError as e:
                 g.log.error('error in attempt_wiki_association()')
-
-        if self.wiki_account == '__error__':
-            link = '[the wiki](https://%s/mediawiki/index.php?title=Special:UserLogin&type=signup)' % g.domain
-            invite = WIKI_INVITE % link
-            Message._new(Account_by_name(g.admin_account), self, 'Wiki Account', invite, None)
 
         self._commit()
 
