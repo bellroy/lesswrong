@@ -36,10 +36,12 @@ def create(name, password, email):
 
 def exists(name):
     '''Check if NAME is a registered account on the LessWrong Wiki.'''
-    query = '{0}?action=query&format=xml&list=users&ususers={1}'
-    response = urllib2.urlopen(query.format(g.wiki_api_url,
-                                            urllib.urlencode(name)))
-    if etree.fromstring(response.read()).find('.//user').get('missing') == '':
+    response = urllib2.urlopen(g.wiki_api_url + '?' +
+                               urllib.urlencode([('action', 'query'),
+                                                 ('format', 'xml'),
+                                                 ('list', 'users'),
+                                                 ('ususers', name)], True))
+    if etree.fromstring(response.read()).find('.//user').attrib.get('missing') == '':
         return False
     return True
 
