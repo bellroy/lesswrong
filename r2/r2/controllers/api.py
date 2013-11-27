@@ -623,8 +623,10 @@ class ApiController(RedditController):
 
         def on_request_error():
             c.errors.add(errors.WIKI_DOWN)
+            res._chk_error(errors.WIKI_DOWN)
         def on_wiki_error():
             c.errors.add(errors.WIKI_ACCOUNT_CREATION_FAILED)
+            res._chk_error(errors.WIKI_ACCOUNT_CREATION_FAILED)
             res._update('wiki-create-form', innerHTML='')
             c.user._commit()
         if c.user.create_associated_wiki_account(password,
