@@ -89,6 +89,7 @@ def wiki_user_exists_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
                  'LessWrong Wiki account exists',
                  WikiUserExists(user=user,
+                                link_base='http://'+g.wiki_host,
                                 link='http://'+g.wiki_host+'/mediawiki/index.php?title=Special:UserLogin&type=signup').render(style='email'))
 
 def meetup_email(user, meetup):
