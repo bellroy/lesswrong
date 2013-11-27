@@ -24,18 +24,11 @@ def create(name, password, email):
                  "language": "en",
                  "token": '' }
 
-    # FIXME: Remove when synchronous wiki account creation is stable
-    data_encoded = urllib.urlencode(formdata)
-    print '***' + data_encoded
     content = opener.open(endpoint, urllib.urlencode(formdata)).read()
-    print '***' + content
     token = etree.fromstring(content).find('.//createaccount').attrib['token']
     formdata['token'] = token
-    data_encoded2 = urllib.urlencode(formdata)
-    print '***' + data_encoded2
     xml = etree.fromstring(opener.open(endpoint,
                                        urllib.urlencode(formdata)).read())
-    print '***' + xml
 
     if xml.find('createaccount') is None:
         raise WikiError, xml.find('.//error').attrib['code']
