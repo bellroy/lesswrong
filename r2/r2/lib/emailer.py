@@ -43,6 +43,11 @@ def send_mail(msg, fr, to):
     session.quit()
 
 def simple_email(to, fr, subj, body):
+    # FIXME: Ugly hack because the templating system has no way to
+    # mark strings as safe, and insists on html-escaping templates for
+    # a text/plain email.
+    body = body.replace('&amp;', '&')
+
     def utf8(s):
         return s.encode('utf8') if isinstance(s, unicode) else s
     msg = MIMEText(utf8(body))
