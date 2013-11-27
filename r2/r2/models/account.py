@@ -216,18 +216,19 @@ class Account(Thing):
                                        on_wiki_error=None):
         try:
             wiki_account.create(self.name, password, self.email)
-            a.wiki_account = self.name
-            a._commit()
+            self.wiki_account = self.name
+            self._commit()
             return True
         except urllib2.URLError as e:
             g.log.error('URLError creating wiki account')
             g.log.error(e)
 
             if on_request_error is not None: on_request_error()
-        except WikiError as e:
+        except wiki_account.WikiError as e:
             g.log.error('WikiError creating wiki account')
             g.log.error(e)
 
+            from r2.lib import emailer
             if e.message == 'userexists':
                 emailer.wiki_user_exists_email(self)
             else:

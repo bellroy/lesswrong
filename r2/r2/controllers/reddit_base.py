@@ -491,9 +491,9 @@ class RedditController(BaseController):
             if request.method.lower() == 'get':
                 read_click_cookie()
                 read_mod_cookie()
-                if (c.wiki_account is None and
-                    c.wiki_association_attempted_at is None):
-                    c.attempt_wiki_association()
+                if (c.user.wiki_account is None and
+                    c.user.wiki_association_attempted_at is None):
+                    c.user.attempt_wiki_association()
             if hasattr(c.user, 'msgtime') and c.user.msgtime:
                 c.have_messages = c.user.msgtime
             c.user_is_admin = maybe_admin and c.user.name in g.admins
