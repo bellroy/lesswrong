@@ -1,0 +1,85 @@
+# -*- org -*-
+Test plans for automatic wiki account creation/association.
+
+* Setup [0%]
+  - [ ] noemail: user without an email address pwnoemail
+  - [ ] bobtest: user with verified email address pwbobtest bobtest@mailinator.com
+  - [ ] iamslow: user with verified email address pwiamslow iamslow@mailinator.com
+  - [ ] __frodo: user with verified email address pw__frodo frodo@mailinator.com
+  - [ ] ihavewiki: user with a wiki account on staging called "ihavewiki" pwihavewiki ihavewiki@mailinator.com
+  - [ ] create wiki account on staging called "new_ihavewiki" pwnew_ihavewiki
+
+Remark: you will need to disassociate accounts and remove their email
+addresses for some of these. Use a paster shell and run things like:
+
+from r2.models import Account
+a = Account._by_name('noemail')
+a.email = None
+a.email_validated = False
+a._commit()
+for name in ['bobtest', 'iamslow', 'ihavewiki']:
+  a = Account._by_name(name)
+  a.wiki_account = None
+  a.wiki_association_attempted_at = None
+  a._commit()
+
+You will also need to remove wiki accounts to test
+auto-association. Use scripts/deleteTestAccounts.php from the lesswrong
+repository.
+
+* "noemail" test procedure [0%]
+Test manual wiki account creation for a user without an email address:
+  - [ ] Log in
+  - [ ] Should not see a wiki account creation form on the sidebar
+  - [ ] Should not see a wiki account link on the preferences page
+  - [ ] Verify email
+  - [ ] Should see a wiki account creation form on the sidebar
+  - [ ] Should see a wiki account link on the preferences page, leading to a wiki account creation form
+  - [ ] Filling out the wiki account form on the sidebar should create a wiki account for "noemail"
+  - [ ] Should not see a wiki account creation form on the sidebar
+  - [ ] Should see a wiki account link on the preferences page
+  - [ ] The wiki account link in the preferences page should now link to the User:noemail page on the wiki
+* "bobtest" test procedure [0%]
+Test manual wiki account creation through the sidebar:
+  - [ ] Log in
+  - [ ] Should see a wiki account creation form on the sidebar
+  - [ ] Should see a wiki account link on the preferences page, leading to a wiki account creation form
+  - [ ] Filling out the wiki accout form on the preferences page should create a wiki account for "bobtest"
+  - [ ] Should not see a wiki account creation form on the sidebar
+  - [ ] Should see a wiki account link on the preferences page
+  - [ ] The wiki account link in the preferences page should now link to the User:bobtest page on the wiki
+* "iamslow" test procedure [0%]
+Test manual wiki account creation through the preferences page and the error when the user already exists:
+  - [ ] Log in
+  - [ ] Manually create a wiki account for "iamslow" using MediaWiki itself
+  - [ ] Attempt to create a wiki account for "iamslow" using the sidebar form
+  - [ ] Should see an error message
+  - [ ] Should not see wiki account link in preferences page
+  - [ ] Should not see wiki account creation form in the sidebar
+* "__frodo" test procedure [0%]
+Test that users with wiki-incompatible names can't access the wiki features:
+  - [ ] Log in
+  - [ ] Should not see the wiki account creation form in the sidebar
+  - [ ] Should not see the wiki account link in the preferences page
+* "ihavewiki" test procedure [0%]
+Test auto-association:
+  - [ ] Log in
+  - [ ] Should not see the wiki account creation form in the sidebar
+  - [ ] Should see the wiki account link in the preferences page, linking to User:ihavewiki on the wiki
+
+Remark: this test should set wiki_association_attempted_at on the account.
+* "__new_frodo" test procedure [0%]
+Test that new users with wiki-incompatible names can't get an automatic wiki account made for them:
+  - [ ] Create account "__new_frodo"
+  - [ ] Should receive email saying that we can't create a wiki account for that name
+* "new_bobtest" test procedure [0%]
+Test that a new user gets their wiki account created:
+  - [ ] Create account "new_bobtest"
+  - [ ] Should not see the wiki account creation form in the sidebar
+  - [ ] Should see a wiki account link in the preferences page, linking to User:new_bobtest on the wiki
+* "new_ihavewiki" test procedure [0%]
+Test that a new user, whose wiki account has been taken, won't get automatically associated:
+  - [ ] Create account "new_ihavewiki"
+  - [ ] Should receive an email saying that the wiki account already exists.
+  - [ ] Should not see the wiki account creation form in the sidebar
+  - [ ] Should not see the wiki account link in the preferences page
