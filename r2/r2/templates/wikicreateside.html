@@ -19,22 +19,37 @@
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
+<%!
+   from r2.lib.template_helpers import add_sr
+   from r2.lib.utils import UrlParser
+   import random
+%>
 
 <%namespace file="utils.html" import="error_field, success_field" />
 
-${success_field(_('Wiki Account Created'))}
-<form id="wiki-create-form" action="/post/wikiaccount" method="post"
-      class="pretty-form medium-text"
-      onsubmit="return post_form(this, 'wikiaccount')">
-<p>
-  There is no Less Wrong Wiki account associated with
-  ${c.user.name}. You can create one now by providing your password:
-</p>
-<input name="password" id="wiki-password" type="password" />
-${error_field("WRONG_PASSWORD")}
-
-<input type="submit" class="btn" value="${_('Create')}"/>
-<span id='status' class='error'></span>
-${error_field('WIKI_ACCOUNT_CREATION_FAILED')}
-${error_field('WIKI_DOWN')}
-</form>
+<div id="side-wiki" class="sidebox">
+  ${success_field(_('Wiki Account Created'))}
+  <form id="wiki-create-form"
+        method="post"
+        action="/post/wikiaccount"
+        onsubmit="return post_form(this, 'wikiaccount')"
+        class="login-form-side">
+    <div class="row">
+      There is no Less Wrong Wiki account associated with
+      ${c.user.name}. You can create one now by supplying your
+      password:
+    </div>
+    <div class="row">
+      <input name="password"
+             id="wiki-password"
+             type="password" maxlength="20" tabindex="1"/>
+      ${error_field('WRONG_PASSWORD')}
+    </div>
+    <div class="row">
+      <button class="btn" type="submit" tabindex="2">${_("Create")}</button>
+      <span id='status' class='error'></span>
+    </div>
+  </form>
+  ${error_field('WIKI_DOWN')}
+  ${error_field('WIKI_ACCOUNT_CREATION_FAILED')}
+</div>

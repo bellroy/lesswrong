@@ -78,7 +78,7 @@ class Reddit(Wrapped):
     extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
-                 infotext = '', content = None, title = '', robots = None,
+                 infotext = '', content = None, title = '', robots = None, sidewiki = True,
                  show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = [], **context):
         Wrapped.__init__(self, **context)
         self.title          = title
@@ -90,6 +90,7 @@ class Reddit(Wrapped):
         self.body_class     = body_class
         self.top_filter     = top_filter
         self.header_sub_nav = header_sub_nav
+        self.sidewiki = sidewiki
 
         # by default, assume the canonical URLs are the ones without query params
         if request.GET:
@@ -127,6 +128,12 @@ class Reddit(Wrapped):
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
+        if (c.user_is_loggedin and
+            c.user.wiki_account is None and
+            c.user.email is not None and
+            self.sidewiki):
+            ps.append(WikiCreateSide())
+
         filters_ps = PaneStack(div=True)
         for toolbar in self.toolbars:
             filters_ps.append(toolbar)
@@ -146,7 +153,7 @@ class Reddit(Wrapped):
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
-        if c.site == Subreddit._by_name('discussion'):
+        if c.site.name == 'discussion':
             ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
             ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
         else:
@@ -260,7 +267,7 @@ class Reddit(Wrapped):
     def right_menu(self):
         """docstring for right_menu"""
         buttons = [
-          AbsButton('wiki', 'http://wiki.lesswrong.com'),
+          AbsButton('wiki', 'http://'+g.wiki_host),
           NamedButton('sequences', sr_path=False),
           NamedButton('about', sr_path=False)
         ]
@@ -285,6 +292,10 @@ class Reddit(Wrapped):
 
 class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
+    pass
+
+class WikiCreateSide(Wrapped):
+    """generates a sidebox for creating a wiki account."""
     pass
 
 class SideBoxPlaceholder(Wrapped):
@@ -483,8 +494,16 @@ class PrefsPage(Reddit):
         buttons = [NavButton(menu.options, ''),
                    NamedButton('friends'),
                    NamedButton('update'),
-                   NamedButton('delete'),
-                   NamedButton('wikiaccount')]
+                   NamedButton('delete')]
+
+        if c.user.email is not None:
+            if c.user.wiki_account is None:
+                buttons.append(NamedButton('wikiaccount'))
+            elif c.user.wiki_account == '__error__':
+                pass
+            else:
+                user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.wiki_account)
+                buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
@@ -746,7 +765,7 @@ class ProfilePage(Reddit):
     searchbox         = False
     create_reddit_box = False
     submit_box        = False
-    
+
 
     def __init__(self, user, *a, **kw):
         self.user     = user
@@ -975,14 +994,35 @@ class EmailVerify(Wrapped):
     pass
 
 class WikiSignupFail(Wrapped):
-    """Form for informing a user that creating a wiki acccount failed."""
+    """Email template. Tells a user that their automatic wiki account
+    creation failed.
+    """
     pass
 
 class WikiSignupNotification(Wrapped):
-    """Form for providing a user with their name and password for the wiki."""
+    """Email template. Tells a user their account on the LessWrong Wiki
+    has been created.
+    """
+    pass
+
+class WikiAPIError(Wrapped):
+    """Email template to notify devs of unknown account creation errors."""
+    pass
+
+class WikiUserExists(Wrapped):
+    """Email template to tell a user that we tried to make their account
+    but someone else already had it.
+    """
+    pass
+
+class WikiIncompatibleName(Wrapped):
+    """Email template to tell them their username doesn't allow automatic
+    wikification.
+    """
     pass
 
 class Captcha(Wrapped):
+
     """Container for rendering robot detection device."""
     def __init__(self, error=None, tabular=True, label=True):
         self.error = _('Try entering those letters again') if error else ""
@@ -1560,7 +1600,7 @@ class MeetupsMap(Wrapped):
         Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
-	  pass
+          pass
 
 class ShowMeetup(Wrapped):
     """docstring for ShowMeetup"""
@@ -1609,4 +1649,3 @@ class WikiPage(Reddit):
                         title = self.pagename,
                         space_compress=False,
                         **context)
-

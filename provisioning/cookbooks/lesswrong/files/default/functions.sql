@@ -44,5 +44,5 @@ create or replace function base_url(url texT) returns text as $$
     select substring($1 from E'(?i)(?:.+?://)?(?:www[\\d]*\\.)?([^#]*[^#/])/?')
 $$ language sql immutable;
 
-create view active as
+create or replace view active as
     select pg_stat_activity.procpid, (now() - pg_stat_activity.query_start) as t, pg_stat_activity.current_query from pg_stat_activity where (pg_stat_activity.current_query <> '<IDLE>'::text) order by (now() - pg_stat_activity.query_start);

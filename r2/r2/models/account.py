@@ -6,29 +6,31 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
 from copy import copy
-import time, hashlib
+import time, hashlib, urllib2
 from datetime import datetime
+from lxml import etree
 
 from geolocator import gislib
 from pylons import c, g
 from pylons.i18n import _
 import sqlalchemy as sa
 
+from r2.lib              import wiki_account
 from r2.lib.db           import tdb_sql as tdb
 from r2.lib.db.thing     import Thing, Relation, NotFound
 from r2.lib.db.operators import lower
@@ -82,7 +84,10 @@ class Account(Thing):
                      pref_media = 'subreddit',
                      share = {},
                      messagebanned = False,
-                     dashboard_visit = datetime(2006,10,1, tzinfo = g.tz)
+                     dashboard_visit = datetime(2006,10,1, tzinfo = g.tz),
+                     wiki_association_attempted_at = None, # None or datetime
+                     wiki_account = None # None, str(account name) or the special string '__taken__', if a new
+                                         # user didn't get an account because someone else already had the name.
                      )
 
     def karma_ups_downs(self, kind, sr = None):
@@ -185,6 +190,53 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
+    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to [your preferences page](http://%s/prefs/wikiaccount).'
+
+    def attempt_wiki_association(self):
+        '''Attempt to find a wiki account with the same name as the user.'''
+        from r2.models.link import Message
+        self.wiki_association_attempted_at = datetime.now(g.tz)
+        self.wiki_account = '__error__'
+
+        if wiki_account.valid_name(self.name):
+            try:
+                if wiki_account.exists(self.name):
+                    self.wiki_account = self.name
+                else:
+                    self.wiki_account = None
+                    Message._new(Account._by_name(g.admin_account),
+                                 self, 'Wiki Account', Account.WIKI_INVITE, None)
+            except urllib2.URLError as e:
+                g.log.error('error in attempt_wiki_association()')
+
+        self._commit()
+
+    def create_associated_wiki_account(self, password,
+                                       on_request_error=None,
+                                       on_wiki_error=None):
+        try:
+            wiki_account.create(self.name, password, self.email)
+            self.wiki_account = self.name
+            self._commit()
+            return True
+        except urllib2.URLError as e:
+            g.log.error('URLError creating wiki account')
+            g.log.error(e)
+
+            if on_request_error is not None: on_request_error()
+        except wiki_account.WikiError as e:
+            g.log.error('WikiError creating wiki account')
+            g.log.error(e)
+
+            from r2.lib import emailer
+            if e.message == 'userexists':
+                emailer.wiki_user_exists_email(self)
+            else:
+                emailer.wiki_failed_email(self)
+
+            if on_wiki_error is not None: on_wiki_error()
+        return False
+
     def downvote_cache_key(self, kind):
         """kind is 'link' or 'comment'"""
         return 'account_%d_%s_downvotes' % (self._id, kind)
@@ -234,6 +286,7 @@ class Account(Thing):
             raise NotEnoughKarma(msg)
 
     def incr_downvote(self, delta, kind):
+
         """kind is link or comment"""
         try:
             g.cache.incr(self.downvote_cache_key(kind), delta)
@@ -256,7 +309,7 @@ class Account(Thing):
     def modhash(self):
         to_hash = ','.join((current_login_cookie(), g.SECRET))
         return hashlib.sha1(to_hash).hexdigest()
-    
+
     def valid_hash(self, hash):
         return hash == self.modhash()
 
@@ -291,7 +344,7 @@ class Account(Thing):
         self._deleted = True
         self._commit()
         clear_memo('account._by_name', Account, self.name.lower(), False)
-        
+
         #remove from friends lists
         q = Friend._query(Friend.c._thing2_id == self._id,
                           Friend.c._name == 'friend',
@@ -324,7 +377,7 @@ class Account(Thing):
     def add_share_emails(self, emails):
         if not emails:
             return
-        
+
         if not isinstance(emails, set):
             emails = set(emails)
 
@@ -334,13 +387,10 @@ class Account(Thing):
         share_emails = share['emails']
         for e in emails:
             share_emails[e] = share_emails.get(e, 0) +1
-            
+
         share['recent'] = emails
 
         self.share = share
-        
-            
-            
 
 
 class FakeAccount(Account):
@@ -416,16 +466,20 @@ def register(name, password, email):
 
         a.confirmation_code = random_key(6)
         a.email_validated = False
+        a.wiki_account = '__error__'
 
         a._commit()
 
-        from r2.lib.emailer      import confirmation_email
-        confirmation_email(a)
+        from r2.lib import emailer
+        emailer.confirmation_email(a)
 
-        data = {'name' : name, 'password' : password, 'email' : email, 'attempt' : 0}
-
-        from r2.models           import PendingJob
-        PendingJob.store(None, 'create_wiki_account', data)
+        if wiki_account.valid_name(name):
+            def send_wiki_failed_email():
+                emailer.wiki_failed_email(a)
+            a.create_associated_wiki_account(password,
+                                             on_request_error=send_wiki_failed_email)
+        else:
+            emailer.wiki_incompatible_name_email(a)
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)
@@ -434,5 +488,3 @@ def register(name, password, email):
 
 class Friend(Relation(Account, Account)): pass
 Account.__bases__ += (UserRel('friend', Friend),)
-
-

@@ -10,56 +10,56 @@ uncompressedJS = true
 translator = true
 sqlprinting = false
 
-log_path   = 
+log_path   =
 
 memcaches = 127.0.0.1:11211
 permacaches = 127.0.0.1:11211
 rendercaches = 127.0.0.1:11211
 rec_cache = 127.0.0.1:11311
-tracker_url = 
-adtracker_url = 
-clicktracker_url = 
+tracker_url =
+adtracker_url =
+clicktracker_url =
 
 main_db_name = reddit
-main_db_host = 127.0.0.1
-main_db_user = reddit
-main_db_pass = password
+main_db_host = <%= @db_host %>
+main_db_user = <%= @db_user %>
+main_db_pass = <%= @db_pass %>
 
 comment_db_name = reddit
-comment_db_host = 127.0.0.1
-comment_db_user = reddit
-comment_db_pass = password
+comment_db_host = <%= @db_host %>
+comment_db_user = <%= @db_user %>
+comment_db_pass = <%= @db_pass %>
 
 vote_db_name = reddit
-vote_db_host = 127.0.0.1
-vote_db_user = reddit
-vote_db_pass = password
+vote_db_host = <%= @db_host %>
+vote_db_user = <%= @db_user %>
+vote_db_pass = <%= @db_pass %>
 
 change_db_name = changes
-change_db_host = 127.0.0.1
-change_db_user = reddit
-change_db_pass = password
+change_db_host = <%= @db_host %>
+change_db_user = <%= @db_user %>
+change_db_pass = <%= @db_pass %>
 
 email_db_name = email
-email_db_host = 127.0.0.1
-email_db_user = reddit
-email_db_pass = password
+email_db_host = <%= @db_host %>
+email_db_user = <%= @db_user %>
+email_db_pass = <%= @db_pass %>
 
 query_queue_db_name = query_queue
-query_queue_db_host = 127.0.0.1
-query_queue_db_user = reddit
-query_queue_db_pass = password
+query_queue_db_host = <%= @db_host %>
+query_queue_db_user = <%= @db_user %>
+query_queue_db_pass = <%= @db_pass %>
 
 ###
 # Other magic settings
 ###
 
-timezone = UTC
+timezone = Australia/Victoria
 monitored_servers = localhost
 
 #query cache settings
 num_query_queue_workers = 0
-query_queue_worker = 
+query_queue_worker =
 enable_doquery = False
 use_query_cache = False
 write_query_queue = False
@@ -74,31 +74,28 @@ max_sr_images = 20
 
 login_cookie = reddit_session
 domain = lesswrong.local
-domain_prefix = 
+domain_prefix =
 default_sr = lesswrong
-blessed_sr = overcomingbias
 front_page_title = Less Wrong
-admins = 
-#create an official sounding account to sent PMs to people without email addresses
-admin_account =
-sponsors = 
+admins = admin
+# Account for sending PMs from the site
+admin_account = admin
+sponsors =
 page_cache_time = 30
-wiki_page_cache_time = 86400
 static_path = /static/
 useragent = Mozilla/5.0 (compatible; bot/1.0; ChangeMe)
 
-feedbox_urls = http://www.overcomingbias.com/feed, http://slatestarcodex.com/feed, http://rationalaltruist.com/feed/, http://reflectivedisequilibrium.blogspot.com/feeds/posts/default, http://rationalconspiracy.com/feed/, http://feeds.feedburner.com/TheGivewellBlog?format=xml, http://rationality.org/blog/feed/, http://meteuphoric.wordpress.com/feed/
+feedbox_urls = http://www.overcomingbias.com/feed, http://slatestarcodex.com/feed, http://rationalaltruist.com/feed/, http://reflectivedisequilibrium.blogspot.com/feeds/posts/default, http://rationalconspiracy.com/feed/, http://feeds.feedburner.com/TheGivewellBlog?format=xml
 recent_edits_feed = http://wiki.lesswrong.com/mediawiki/index.php?title=Special:RecentChanges&feed=atom&hideminor=1&namespace=0
-wiki_host = wiki.lesswrong.com
-geoip_db_path = /usr/share/GeoIP/GeoIP.dat
-# The radius in km for a meetup to be considered nearby
+# Your sitemeter.com username/codename
+site_meter_codename =
+wiki_host = <%= @wiki_host %>
+wiki_api_url = http://<%= @wiki_host %>/api.php
+geoip_db_path = /usr/share/GeoIP/GeoLiteCity.dat
 meetups_radius = 100
-# The amount of time (in seconds) after a meetup is scheduled that it will still appear on the meetups page
 meetup_grace_period = 3600
-# The amount of time (in seconds) before dashboard pages turn over
-dashboard_visits_period = 43200
 
-solr_url =  
+solr_url =
 
 google_api_key = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_bbbbbbbbbbbbbbbbbbbbbbbbb_cccccccccccccccccc-d
 SECRET    = abcdefghijklmnopqrstuvwxyz0123456789
@@ -108,7 +105,7 @@ tracking_secret = abcdefghijklmnopqrstuvwxyz0123456789
 # set X-forwarded-for and set this to true
 trust_local_proxies = false
 # hash for validating HTTP_TRUE_CLIENT_IP_HASH
-ip_hash = 
+ip_hash =
 S3KEY_ID = ABCDEFGHIJKLMNOP1234
 S3SECRET_KEY = aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890AbCd
 s3_thumb_bucket = /lesswrong.dev/
@@ -129,35 +126,32 @@ media_period  = 10 minutes
 rising_period = 12 hours
 
 # time of ratelimit purgatory (min)
-RATELIMIT = 1
+RATELIMIT = 10
 
 num_comments = 200
 max_comments = 500
 num_side_reddits = 20
+poll_max_choices = 20
 
 smtp_server = localhost
 new_link_share_delay = 5 minutes
 share_reply = noreply@yourdomain.com
 
 #user-agents to limit
-agents = 
+agents =
 
 feedback_email = abuse@localhost
 
 about_post_id = 1
-issues_post_id = 2
+issues_post_id = 5
 
 karma_to_post = 40
+discussion_karma_to_post = 5
 post_karma_multiplier = 10
-karma_to_vote = 20
-# Karma required for a user vote on another user's overview page
+karma_to_vote = 0
 karma_to_vote_in_overview = 1000
-# User's with karma above can vote on another user's overview page if that user
-# has this percentage or less upvotes
 karma_percentage_to_be_voted = 80
-poll_max_choices = 20
-
-downvoted_reply_score_threshold = -4
+downvoted_reply_score_threshold = -3
 downvoted_reply_karma_cost = 5
 hide_comment_threshold = -4
 
@@ -166,12 +160,16 @@ side_comments_max_age = 60
 side_posts_max_age = 300
 side_tags_max_age = 43200
 side_contributors_max_age = 3600
-article_navigation_max_age = 0
+article_navigation_max_age = 60
+wiki_page_cache_time = 300
 
 [server:main]
-use = egg:Paste#http
+#use = egg:Paste#http
+#use = egg:PasteScript#flup_scgi_fork
+use = egg:Flup#scgi_thread
 host = 0.0.0.0
-port = %(port)s
+port = 6500
+#port = 8000
 
 [app:main]
 use = egg:r2
@@ -183,5 +181,4 @@ beaker.session_secret = somesecret
 # WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
 # Debug mode will enable the interactive debugging tool, allowing ANYONE to
 # execute malicious code after an exception is raised.
-#set debug = false
-
+# debug = false

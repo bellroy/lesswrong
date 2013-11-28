@@ -57,7 +57,6 @@ class db_manager:
         if need_extra2:
             self.extra_thing2[relation_db] = True
 
-    #unused i guess
     def things(self):
         return [(name, d[0], d[1]) for name, d in self.thing_dbs.items()]
 
