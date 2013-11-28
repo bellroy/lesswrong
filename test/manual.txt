@@ -18,7 +18,9 @@ Click the Preferences button in the side bar
 Enter a Location in the location field, E.g. "Test Land" and click Save options
 You should see "Your preferences have been updated"
 The location should be shown in the sidebar.
-
+If there is a wiki account tab in the preferences page, it should link to the wiki page for that user
+If there is not a wiki account tab in the preferences page, you should have received an email that the wiki account already exists
+In either case, should be a wiki user page for the new user (e.g., mrfoo -> staging.lwiki.trikeapps.com/wiki/User:Mrfoo)
 
 - Browsing
 --------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ Click the "Create new article" button in the side bar.
   Click Submit, you should see your article titled and tagged correctly.
   You should see a red Draft marker in the heading of the article
   Click Article Navigation, it should load the navigation options
-  Click the "test" tag link, you should see a list of articles, including yours
+  Click the "test" tag link (not the Article Navigtion one), you should see a list of articles, including yours
   Click the "Log out" button in the sidebar, your article should no longer be visible
 
 - Karma
@@ -87,4 +89,3 @@ Click the 'Main' link
   Post a new article, choosing to post to 'discussion'
   You should be redirected to the discussion page
   The article should be in the discussion area, but not on the main site
-
