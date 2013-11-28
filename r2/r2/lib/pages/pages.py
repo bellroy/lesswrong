@@ -131,6 +131,7 @@ class Reddit(Wrapped):
         if (c.user_is_loggedin and
             c.user.wiki_account is None and
             c.user.email is not None and
+            c.user.email_validated and
             self.sidewiki):
             ps.append(WikiCreateSide())
 
@@ -496,14 +497,14 @@ class PrefsPage(Reddit):
                    NamedButton('update'),
                    NamedButton('delete')]
 
-        if c.user.email is not None:
-            if c.user.wiki_account is None:
+        if c.user.wiki_account is None:
+            if c.user.email is not None and c.user.email_validated:
                 buttons.append(NamedButton('wikiaccount'))
-            elif c.user.wiki_account == '__error__':
-                pass
-            else:
-                user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.wiki_account)
-                buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
+        elif c.user.wiki_account == '__error__':
+            pass
+        else:
+            user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.wiki_account)
+            buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
