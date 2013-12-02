@@ -16,7 +16,6 @@ from pylons import g
 
 from r2.lib.lock import MemcacheLock
 from r2.lib.rancode import random_key
-from r2.lib.wiki_account import create_wiki_account
 from r2.lib import notify, emailer
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
