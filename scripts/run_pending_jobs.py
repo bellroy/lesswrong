@@ -7,16 +7,21 @@ is claimed by only one node. If an exception occurs while running a job, an
 error will be logged and the job will remain in the queue to be attempted next
 time this script is run.
 """
+import re, traceback, urllib2
 
 from sys import stderr
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pylons import g
 
 from r2.lib.lock import MemcacheLock
-from r2.lib import notify
+from r2.lib.rancode import random_key
+from r2.lib.wiki_account import create_wiki_account
+from r2.lib import notify, emailer
 from r2.lib.db.thing import NotFound
 from r2.models import Account, Meetup, PendingJob
+
+from lxml import etree
 
 
 class JobProcessor:
