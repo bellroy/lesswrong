@@ -72,6 +72,7 @@ class Account(Thing):
                      pref_meetup_notify_enabled = False,
                      pref_meetup_notify_radius = 50,
                      pref_show_parent_comments = False,
+                     email = None,
                      email_validated = True,
                      confirmation_code = 'abcde',
                      reported = 0,
