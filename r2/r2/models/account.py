@@ -72,6 +72,7 @@ class Account(Thing):
                      pref_meetup_notify_enabled = False,
                      pref_meetup_notify_radius = 50,
                      pref_show_parent_comments = False,
+                     email = None,
                      email_validated = True,
                      confirmation_code = 'abcde',
                      reported = 0,
@@ -194,22 +195,25 @@ class Account(Thing):
 
     def attempt_wiki_association(self):
         '''Attempt to find a wiki account with the same name as the user.'''
-        from r2.models.link import Message
-        self.wiki_association_attempted_at = datetime.now(g.tz)
-        self.wiki_account = '__error__'
+        with g.make_lock('wiki_associate_' + self.name):
+            if self.wiki_association_attempted_at is not None: return
 
-        if wiki_account.valid_name(self.name):
-            try:
-                if wiki_account.exists(self.name):
-                    self.wiki_account = self.name
-                else:
-                    self.wiki_account = None
-                    Message._new(Account._by_name(g.admin_account),
-                                 self, 'Wiki Account', Account.WIKI_INVITE, None)
-            except urllib2.URLError as e:
-                g.log.error('error in attempt_wiki_association()')
+            from r2.models.link import Message
+            self.wiki_association_attempted_at = datetime.now(g.tz)
+            self.wiki_account = '__error__'
 
-        self._commit()
+            if wiki_account.valid_name(self.name):
+                try:
+                    if wiki_account.exists(self.name):
+                        self.wiki_account = self.name
+                    else:
+                        self.wiki_account = None
+                        Message._new(Account._by_name(g.admin_account),
+                                     self, 'Wiki Account', Account.WIKI_INVITE, None)
+                except urllib2.URLError as e:
+                    g.log.error('error in attempt_wiki_association()')
+
+            self._commit()
 
     def create_associated_wiki_account(self, password,
                                        on_request_error=None,
