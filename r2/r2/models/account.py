@@ -191,7 +191,7 @@ class Account(Thing):
         ret = self.monthly_karma_ups_downs
         return ret[0] - ret[1]
 
-    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to [your preferences page](http://%s/prefs/wikiaccount).' % g.wiki_host
+    WIKI_INVITE = 'We were unable to determine if there is a Less Wrong wiki account registered to your account.  If you do not have an account and would like one, please go to [your preferences page](/prefs/wikiaccount).'
 
     def attempt_wiki_association(self):
         '''Attempt to find a wiki account with the same name as the user.'''
