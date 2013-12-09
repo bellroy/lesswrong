@@ -28,6 +28,7 @@ from pylons.controllers.util import etag_cache
 
 import hashlib
 import httplib
+import urllib2
 from validator import *
 
 from r2.models import *
@@ -65,10 +66,12 @@ from r2.lib import cssfilter
 from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
+from r2.lib import wiki_account
 
 from datetime import datetime, timedelta
 from simplejson import dumps
 from md5 import md5
+from lxml import etree
 
 from r2.lib.promote import promote, unpromote, get_promoted
 
@@ -289,7 +292,7 @@ class ApiController(RedditController):
             Award._new(c.user, body, subject, to, ip)
 
             messagebody = 'You have been awarded ' + subject + ' karma for ' + body
-            
+
             m, inbox_rel = Message._new(c.user, to, 'Karma Award', messagebody, ip, spam)
 
         else:
@@ -392,7 +395,7 @@ class ApiController(RedditController):
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
-          
+
           #set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
@@ -517,6 +520,8 @@ class ApiController(RedditController):
         user._commit()
 
         c.user = user
+
+        Subreddit.subscribe_defaults(user)
 
         # Create a drafts subredit for this user
         sr = Subreddit._create_and_subscribe(
@@ -648,6 +653,43 @@ class ApiController(RedditController):
                     res._update('status',
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
+
+    @Json
+    @validate(VUser('password', default = ''),
+              VModhash(),
+              password = nop('password'))
+    def POST_wikiaccount(self, res, password):
+        res._update('status', innerHTML='')
+        if res._chk_error(errors.WRONG_PASSWORD):
+            res._focus('wiki-password')
+            res._update('wiki-password', value='')
+            return
+
+        if (not c.user.email or
+            not c.user.email_validated or
+            c.user.wiki_account is not None):
+            # The form isn't rendered but in case someone sends a request directly
+            return
+
+        c.user.wiki_account = '__error__'
+
+        def on_request_error():
+            c.errors.add(errors.WIKI_DOWN)
+            res._chk_error(errors.WIKI_DOWN)
+        def on_wiki_error():
+            c.errors.add(errors.WIKI_ACCOUNT_CREATION_FAILED)
+            res._chk_error(errors.WIKI_ACCOUNT_CREATION_FAILED)
+            res._update('wiki-create-form', innerHTML='')
+            c.user._commit()
+        if c.user.create_associated_wiki_account(password,
+                                                 on_request_error=on_request_error,
+                                                 on_wiki_error=on_wiki_error):
+            res._success()
+            res._update('wiki-create-form', innerHTML='')
+            c.user._commit()
+
+    def _reload(self, res):
+        res._redirect(request.referer)
 
     @Json
     @validate(VUser(),
@@ -951,7 +993,7 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
-    
+
     @Json
     @validate(VUser(), VModhash(),
               comment = VCommentFullName('owner_thing'),
@@ -1010,7 +1052,7 @@ class ApiController(RedditController):
         c.response.content = csv
         c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'
         return c.response
-    
+
     @Json
     @validate(VUser(),
               VModhash(),
@@ -1228,8 +1270,8 @@ class ApiController(RedditController):
         # Key to group cached meetup pages with
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     def GET_side_monthly_contributors(self, *a, **kw):
@@ -1263,8 +1305,8 @@ class ApiController(RedditController):
         location = Meetup.geoLocateIp(ip)
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-front-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     @validate(link = VLink('article_id', redirect=False))
@@ -1868,4 +1910,3 @@ class ApiController(RedditController):
                                                        ip = request.ip)
                 ]
         res.object = links
-
