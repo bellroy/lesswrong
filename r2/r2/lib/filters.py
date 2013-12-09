@@ -99,13 +99,13 @@ def edit_comment_filter(text = ''):
 
 #TODO is this fast?
 url_re = re.compile(r"""
-    (\[[^\]]*\]:?)?         # optional leading pair of square brackets
-    \s*                     # optional whitespace
-    (\()?                   # optional open bracket
-    (?<![<])                # No angle around link already
-    (?![>])                 # No angle around link already
-    (\))?                   # optional close bracket
+    (\[[^\]]*\]:?)?           # optional leading pair of square brackets
+    \s*                       # optional whitespace
+    (\()?                     # optional open bracket
+    (?<![<])                  # No angle around link already
     (https?://[^\s\'\"\]\)]+) # a http or https uri
+    (?![>])                   # No angle around link already
+    (\))?                     # optional close bracket
     """, re.VERBOSE)
 jscript_url = re.compile('<a href="(?!http|ftp|mailto|/).*</a>', re.I | re.S)
 href_re = re.compile('<a href="([^"]+)"', re.I | re.S)
