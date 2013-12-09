@@ -85,6 +85,7 @@ def index_commands(table, type):
         commands.append(index_str(table, 'hot', 'hot(ups, downs, date), date'))
         commands.append(index_str(table, 'score', 'score(ups, downs), date'))
         commands.append(index_str(table, 'controversy', 'controversy(ups, downs), date'))
+        commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma)'))
     elif type == 'data':
         commands.append(index_str(table, 'id', 'thing_id'))
         commands.append(index_str(table, 'thing_id', 'thing_id'))
@@ -128,25 +129,51 @@ def get_rel_type_table(metadata):
 
 
 def get_thing_table(metadata, name):
-    table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
-                     sa.Column('thing_id', BigInteger, primary_key = True),
-                     sa.Column('ups', sa.Integer, default = 0, nullable = False),
-                     sa.Column('downs',
-                               sa.Integer,
-                               default = 0,
-                               nullable = False),
-                     sa.Column('deleted',
-                               sa.Boolean,
-                               default = False,
-                               nullable = False),
-                     sa.Column('spam',
-                               sa.Boolean,
-                               default = False,
-                               nullable = False),
-                     sa.Column('date',
-                               sa.DateTime(timezone = True),
-                               default = sa.func.now(),
-                               nullable = False))
+    if name not in ('comment', 'link'):
+        table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
+                         sa.Column('thing_id', BigInteger, primary_key = True),
+                         sa.Column('ups', sa.Integer, default = 0, nullable = False),
+                         sa.Column('downs',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False),
+                         sa.Column('deleted',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('spam',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('date',
+                                   sa.DateTime(timezone = True),
+                                   default = sa.func.now(),
+                                   nullable = False))
+    else:
+        table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
+                         sa.Column('thing_id', BigInteger, primary_key = True),
+                         sa.Column('ups', sa.Integer, default = 0, nullable = False),
+                         sa.Column('downs',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False),
+                         sa.Column('deleted',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('spam',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('date',
+                                   sa.DateTime(timezone = True),
+                                   default = sa.func.now(),
+                                   nullable = False),
+                         sa.Column('descendant_karma',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False))
+
     return table
 
 def get_data_table(metadata, name):
@@ -369,6 +396,25 @@ def incr_thing_prop(type_id, thing_id, prop, amount):
     for t in extra_thing_tables.get(type_id, ()):
         do_update(t)
 
+def incr_things_prop(type_id, thing_ids, prop, amount):
+    table = types_id[type_id].thing_table
+
+    def render_list(thing_ids):
+        if len(thing_ids) == 1:
+            return '(' + str(int(thing_ids[0])) + ')'
+        else:
+            return tuple([int(id) for id in thing_ids])
+
+    u = """UPDATE %(table)s SET %(prop)s=%(prop)s+%(amount)s
+        WHERE %(table)s.thing_id IN %(thing_ids)s"""
+    u = u % dict(prop = prop,
+                 table = table.name,
+                 amount = amount,
+                 thing_ids = render_list(thing_ids))
+
+    table.engine.execute(u)
+
+
 class CreationError(Exception): pass
 
 #TODO does the type exist?
@@ -516,11 +562,19 @@ def get_thing(type_id, thing_id):
     #if single, only return one storage, otherwise make a dict
     res = {} if not single else None
     for row in r:
-        stor = storage(ups = row.ups,
-                       downs = row.downs,
-                       date = row.date,
-                       deleted = row.deleted,
-                       spam = row.spam)
+        if type_id in (1, 7):
+            stor = storage(ups = row.ups,
+                           downs = row.downs,
+                           date = row.date,
+                           deleted = row.deleted,
+                           spam = row.spam,
+                           descendant_karma = row.descendant_karma)
+        else:
+            stor = storage(ups = row.ups,
+                           downs = row.downs,
+                           date = row.date,
+                           deleted = row.deleted,
+                           spam = row.spam)
         if single:
             res = stor
         else:
@@ -622,6 +676,8 @@ def translate_sort(table, column_name, lval = None, rewrite_name = True):
             return sa.func.score(table.c.ups, table.c.downs)
         elif column_name == 'controversy':
             return sa.func.controversy(table.c.ups, table.c.downs)
+        elif column_name == 'interestingness':
+            return sa.func.interestingness(table.c.ups, table.c.downs, table.c.descendant_karma)
     #else
     return table.c[column_name]
 

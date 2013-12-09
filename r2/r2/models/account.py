@@ -22,6 +22,7 @@
 
 from copy import copy
 import time, hashlib
+from datetime import datetime
 
 from geolocator import gislib
 from pylons import c, g
@@ -81,6 +82,8 @@ class Account(Thing):
                      has_subscribed = False,
                      pref_media = 'subreddit',
                      share = {},
+                     messagebanned = False,
+                     dashboard_visit = datetime(2006,10,1, tzinfo = g.tz)
                      )
 
     def karma_ups_downs(self, kind, sr = None):

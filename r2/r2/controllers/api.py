@@ -223,8 +223,11 @@ class ApiController(RedditController):
             return
 
         currlink = Link._byID(thing.link_id)
+        currlink._incr('_descendant_karma', -(thing._descendant_karma + thing._ups - thing._downs))
+        destination._incr('_descendant_karma', thing._descendant_karma + thing._ups - thing._downs)
         if hasattr(thing, 'parent_id'):
             parent = Comment._byID(thing.parent_id)
+            parent.incr_descendant_karma([], -(thing._descendant_karma + thing._ups - thing._downs))
         else:
             parent = None
 
@@ -299,6 +302,30 @@ class ApiController(RedditController):
               link = VByName('id'))
     def POST_bless(self, res, link):
         link.set_blessed(True)
+
+    @Json
+    @validate(VUser(),
+              link = VByName('id'))
+    def POST_linksubscribe(self, res, link):
+        link.add_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              link = VByName('id'))
+    def POST_linkunsubscribe(self, res, link):
+        link.remove_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              comment = VByName('id'))
+    def POST_commentsubscribe(self, res, comment):
+        comment.add_subscriber(c.user)
+
+    @Json
+    @validate(VUser(),
+              comment = VByName('id'))
+    def POST_commentunsubscribe(self, res, comment):
+        comment.remove_subscriber(c.user)
 
     @Json
     @validate(VAdmin(),

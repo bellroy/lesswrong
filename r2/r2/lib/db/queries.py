@@ -40,6 +40,14 @@ db_times = dict(all = None,
                 quarter = Thing.c._date >= timeago('3 months'),
                 year = Thing.c._date >= timeago('1 year'))
 
+relation_db_times = dict(all = None,
+                         hour = '1 hour',
+                         day = '1 day',
+                         week = '1 week',
+                         month = '1 month',
+                         quarter = '3 months',
+                         year = '1 year')
+
 #we need to define the filter functions here so cachedresults can be pickled
 def filter_identity(x):
     return x
