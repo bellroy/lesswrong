@@ -236,7 +236,7 @@ class ApiController(RedditController):
         g.permacache.delete(comments_key(currlink._id))
         g.permacache.delete(comments_key(destination._id))
 
-        body = "A comment was moved from here to [here]({0}).\n\n".format(thing.make_anchored_permalink(destination)) + (reason if reason else '')
+        body = "A comment was moved to [here]({0}).\n\n".format(thing.make_anchored_permalink(destination)) + (reason if reason else '')
 
         comment, inbox_rel = Comment._new(c.user,
                                           currlink, parent, body,

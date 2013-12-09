@@ -455,14 +455,11 @@ class UnbannedCommentBuilder(QueryBuilder):
 class ToplevelCommentBuilder(UnbannedCommentBuilder):
     def keep_item(self, item):
         try:
-            item.parent_id
+            parent_id = item.parent_id
         except AttributeError:
             return True
-        else:
-            if item.parent_id:
-                return False
-            else:
-                return True
+
+        return parent_id is not None
 
 class ContextualCommentBuilder(CommentBuilderMixin, UnbannedCommentBuilder):
     def __init__(self, query, sr_ids, **kw):
@@ -577,7 +574,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             top = self.comment
             dont_collapse.append(top._id)
             #add parents for context
-            while self.context > 0 and hasattr(top, 'parent_id') and top.parent_id:
+            while self.context > 0 and hasattr(top, 'parent_id') and top.parent_id is not None:
                 self.context -= 1
                 new_top = comment_dict[top.parent_id]
                 comment_tree[new_top._id] = [top]
@@ -660,7 +657,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             to_add = candidates.pop(0)
             direct_child = True
             #ignore top-level comments for now
-            if not hasattr(to_add, 'parent_id') or not to_add.parent_id:
+            if not hasattr(to_add, 'parent_id') or to_add.parent_id is not None:
                 p_id = None
             else:
                 #find the parent actually being displayed
