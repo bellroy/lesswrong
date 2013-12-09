@@ -556,6 +556,22 @@ class ApiController(RedditController):
             fn(friend)
 
 
+    def send_confirmation(self):
+        """Send the conformation code to validate an email address."""
+        c.user.email_validated = False
+        c.user.confirmation_code = random_key(6)
+        c.user._commit()
+        emailer.confirmation_email(c.user)
+
+    @Json
+    @validate(VUser(),
+              VModhash())
+    def POST_resendconfirmation(self, res):
+        if c.user.email is None or c.user.email_validated: return
+        self.send_confirmation()
+        res._update('resend-confirmation-form', innerHTML='')
+        res._success()
+
     @Json
     @validate(VUser('curpass', default = ''),
               VModhash(),
@@ -578,10 +594,7 @@ class ApiController(RedditController):
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
-            c.user.email_validated = False
-            c.user.confirmation_code = random_key(6)
-            c.user._commit()
-            emailer.confirmation_email(c.user)
+            self.send_confirmation()
             res._update('status',
                         innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))
             updated = True
