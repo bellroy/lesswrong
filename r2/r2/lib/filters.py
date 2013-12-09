@@ -103,9 +103,9 @@ url_re = re.compile(r"""
     \s*                     # optional whitespace
     (\()?                   # optional open bracket
     (?<![<])                # No angle around link already
-    (http://[^\s\'\"\]\)]+) # a http uri
     (?![>])                 # No angle around link already
     (\))?                   # optional close bracket
+    (https?://[^\s\'\"\]\)]+) # a http or https uri
     """, re.VERBOSE)
 jscript_url = re.compile('<a href="(?!http|ftp|mailto|/).*</a>', re.I | re.S)
 href_re = re.compile('<a href="([^"]+)"', re.I | re.S)
