@@ -1045,9 +1045,8 @@ class CommentReplyBox(Wrapped):
 
 class MoveBox(Wrapped):
     """Used on LinkInfoPage to render the move thread form."""
-    def __init__(self, link_name='', captcha=None, action = 'comment'):
-        Wrapped.__init__(self, link_name = link_name, captcha = captcha,
-                         action = action)
+    def __init__(self, link_name='', captcha=None):
+        Wrapped.__init__(self, link_name = link_name, captcha = captcha)
 
 class CommentListing(Wrapped):
     """Comment heading and sort, limit options"""

@@ -977,8 +977,6 @@ class Comment(Thing, Printable):
         comment.link_id = newlink._id
         comment.sr_id = newlink.sr_id
 
-        comment._commit()
-
         if not top:
             parent = Comment._byID(comment.parent_id)
             comment.parent_permalink = parent.make_anchored_permalink(Link._byID(parent.link_id), Subreddit._byID(parent.sr_id))
@@ -1087,8 +1085,10 @@ class Comment(Thing, Printable):
         return len(child)>0
 
     def recursive_move(self, origin, destination, top=False):
-        q = Comment._query(Comment.c.parent_id == self._id)
-        children = list(q)
+        """Self is the current comment.  Origin is the link we're
+        moving the comment from.  Destination is the link we're
+        moving the comment to."""
+        children = Comment._query(Comment.c.parent_id == self._id)
 
         Comment._move(self, origin, destination, top)
 
