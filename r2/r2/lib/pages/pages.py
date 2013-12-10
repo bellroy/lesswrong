@@ -498,8 +498,7 @@ class PrefsPage(Reddit):
                    NamedButton('delete')]
 
         if c.user.wiki_account is None:
-            if c.user.email is not None and c.user.email_validated:
-                buttons.append(NamedButton('wikiaccount'))
+            buttons.append(NamedButton('wikiaccount'))
         elif c.user.wiki_account == '__error__':
             pass
         else:
