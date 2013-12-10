@@ -22,6 +22,18 @@
 
 <%namespace file="utils.html" import="error_field, success_field" />
 
+%if c.user.email is None:
+You need to <a href="/prefs/update">assign an email address</a> to
+your account before you can create an associated wiki account.
+%elif not c.user.email_validated:
+You need to have a validated email address to create an associated
+wiki account.
+${success_field(_('Confirmation Code Resent'))}
+<form id="resend-confirmation-form" action="/post/resendconfirmation"
+      method="post" onsubmit="return post_form(this, 'resendconfirmation')">
+  <input type="submit" class="btn" value="${_('Resend Confirmation Code')}" />
+</form>
+%else:
 ${success_field(_('Wiki Account Created'))}
 <form id="wiki-create-form" action="/post/wikiaccount" method="post"
       class="pretty-form medium-text"
@@ -38,3 +50,4 @@ ${error_field("WRONG_PASSWORD")}
 ${error_field('WIKI_ACCOUNT_CREATION_FAILED')}
 ${error_field('WIKI_DOWN')}
 </form>
+%endif
