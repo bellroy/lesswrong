@@ -30,9 +30,9 @@ class Exporter:
         # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
         self.db.raw_connection().connection.text_factory = str
         self.init_db()
+        self.started_at = datetime.now()
 
     def export_db(self):
-        self.started_at = datetime.now()
         self.export_users()
         self.export_links()
         self.export_comments()
