@@ -112,16 +112,6 @@ namespace :deploy do
     sudo "chown -R #{user} #{r2_path}"
   end
 
-  desc "Symlink the INI files into the release path"
-  task :symlink_ini do
-    Dir["/usr/local/etc/reddit/#{application}.*.ini"].each do |ini|
-      if File.basename(ini) =~ /#{Regexp.escape(application)}\.([^\.]+)\.ini/
-        target = "#{r2_path}/#{$1}.ini"
-        FileUtils.ln_sf(ini, target, :verbose => true)
-      end
-    end
-  end
-
   desc 'Compress and concetenate JS and generate MD5 files'
   task :process_static_files do
     Dir.chdir r2_path
@@ -147,11 +137,26 @@ namespace :deploy do
     end
   end
 
+  desc "Check out/update the secrets repository and symlink in the configs"
+  task :secrets do
+    secrets_path = shared_path + "secrets"
+    if secrets_path.directory?
+      FileUtils.cd secrets_path do
+        run "git fetch origin && git checkout origin/master -f"
+      end
+    else
+      FileUtils.cd shared_path do
+        run "git clone git@git.trikeapps.com:settings/lesswrong.git secrets"
+      end
+    end
+
+    FileUtils.ln_sf "#{secrets_path}/#{environment}/#{environment}.ini", inifile, :verbose => true
+  end
 end
 
 desc "Hook for tasks that should run after code update"
 task :after_update_code => %w[
-  deploy:symlink_ini
+  deploy:secrets
   deploy:setup
   deploy:process_static_files
   deploy:crontab
@@ -277,7 +282,7 @@ namespace :db do
           tables.lines.each do |table|
             run "psql #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c 'TRUNCATE TABLE #{table.chomp}'"
           end
-          
+
           sequences = `psql -t -A #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c "select sequence_name from information_schema.sequences where sequence_schema='public'"`
           sequences.lines.each do |seq|
             run %{psql #{postgresql_opts(db)} -d #{db_conf(db, 'name')} -c "SELECT setval('#{seq.chomp}', 1, false)"}
@@ -359,4 +364,3 @@ if defined?(RSpec)
     end
   end
 end
-
