@@ -150,6 +150,12 @@ namespace :deploy do
       end
     end
 
+    FileUtils.cd r2_path do
+      %w[staging.ini production.ini].each do |f|
+        File.delete f if File.file? f
+      end
+    end
+
     FileUtils.ln_sf "#{secrets_path}/#{environment}/#{environment}.ini", inifile, :verbose => true
   end
 end
