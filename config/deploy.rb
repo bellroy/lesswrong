@@ -46,12 +46,6 @@ namespace :deploy do
     run "ln -sv #{shared_subdir} #{public_dir}"
   end
 
-  desc 'Symlink all the INI files into the release dir'
-  task :symlink_remote_reddit_ini, :roles => :app do
-    # Not using remote rake because need to cd to release path not current
-    run "cd #{release_path} && rake --trace deploy:symlink_ini #{rake_options}"
-  end
-
   desc "Restart the Application"
   task :restart, :roles => :app do
     remote_rake "--trace deploy:restart #{rake_options}"
@@ -70,4 +64,3 @@ after 'deploy:cleanup', :admin_message
 task :admin_message, :roles => :app, :only => :primary do
   logger.info "\033[31mEnsure Alex_Altair's admin status remains\033[0m"
 end
-
