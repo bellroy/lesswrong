@@ -84,6 +84,7 @@ dbm.relation('savehide', 'account', 'link', main_engine)
 dbm.relation('click', 'account', 'link', main_engine)
 dbm.relation('subscription', 'account', 'link', main_engine)
 dbm.relation('commentsubscription', 'account', 'comment', main_engine)
+dbm.relation('subscriptionstorage', 'account', 'comment', main_engine)
 dbm.relation('linktag', 'link', 'tag', main_engine)
 
 dbm.thing('comment', comment_engine, comment_engine)

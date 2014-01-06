@@ -38,6 +38,10 @@
                _class = thing.css_class, _id = thing._id, onclick = thing.onclick)}
 </%def>
 
+<%def name="external(selected = False)">
+  <a ${"href=" + thing.dest}>${thing.title}</a>
+</%def>
+
 <%def name="select_option(selected = False)">
   <option value="${add_sr(thing.path)}" ${unsafe('selected="selected"' if selected else "")}>${thing.selected_title() if selected else thing.title}</option>
 </%def>

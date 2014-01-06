@@ -2,13 +2,19 @@ import os
 import sys
 from datetime import datetime
 
+# XXX: We have to cap the cache size to stop the export from eating
+# all available memory. We also have to adjust the cache before
+# importing r2.lib.db.thing, which takes its own reference to whatever
+# cache is currently set.
+import pylons
+from r2.lib.cache import Memcache, SelfEmptyingCache, CacheChain
+pylons.g.cache = CacheChain((SelfEmptyingCache(max_size=1000), Memcache(pylons.g.memcaches)))
+
 from r2.lib.db import tdb_sql as tdb
 from r2.lib.db.thing import NotFound, Relation
 from r2.models import Link, Comment, Account, Vote, Subreddit
-from r2.lib.cache import Memcache, SelfEmptyingCache, CacheChain
 
 from sqlalchemy import *
-import pylons
 
 class Exporter:
 
@@ -24,10 +30,9 @@ class Exporter:
         # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
         self.db.raw_connection().connection.text_factory = str
         self.init_db()
-        pylons.g.cache = CacheChain((SelfEmptyingCache(max_size=1000), Memcache(pylons.g.memcaches)))
+        self.started_at = datetime.now()
 
     def export_db(self):
-        self.started_at = datetime.now()
         self.export_users()
         self.export_links()
         self.export_comments()

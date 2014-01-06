@@ -28,6 +28,7 @@ from pylons.controllers.util import etag_cache
 
 import hashlib
 import httplib
+import urllib2
 from validator import *
 
 from r2.models import *
@@ -41,11 +42,12 @@ from r2.lib.utils import get_title, sanitize_url, timeuntil, \
     set_last_modified, remote_addr
 from r2.lib.utils import query_string, to36, timefromnow
 from r2.lib.wrapped import Wrapped
+from r2.lib.rancode import random_key
 from r2.lib.pages import FriendList, ContributorList, ModList, EditorList, \
     BannedList, BoringPage, FormPage, NewLink, CssError, UploadedImage, \
     RecentArticles, RecentComments, TagCloud, TopContributors, TopMonthlyContributors, WikiPageList, \
     ArticleNavigation, UpcomingMeetups, RecentPromotedArticles, \
-    MeetupsMap
+    MeetupsMap, RecentTagged
 
 
 from r2.lib.menus import CommentSortMenu
@@ -64,10 +66,12 @@ from r2.lib import cssfilter
 from r2.lib import tracking
 from r2.lib.media import force_thumbnail, thumbnail_url
 from r2.lib.comment_tree import add_comment, delete_comment
+from r2.lib import wiki_account
 
 from datetime import datetime, timedelta
 from simplejson import dumps
 from md5 import md5
+from lxml import etree
 
 from r2.lib.promote import promote, unpromote, get_promoted
 
@@ -185,6 +189,20 @@ class ApiController(RedditController):
             res._update('success', innerHTML='')
 
     @Json
+    @validate(VUser(),
+              code = VEmailVerify('code'))
+    def POST_verifyemail(self, res, code):
+        res._update('status', innerHTML = '')
+        if res._chk_error(errors.NO_CODE):
+            res._focus('code')
+        elif res._chk_error(errors.WRONG_CODE):
+            res._focus('code')
+        else:
+            c.user.email_validated = True
+            c.user._commit()
+            res._success()
+
+    @Json
     @validate(VCaptcha(),
               VUser(),
               VModhash(),
@@ -222,7 +240,7 @@ class ApiController(RedditController):
             Award._new(c.user, body, subject, to, ip)
 
             messagebody = 'You have been awarded ' + subject + ' karma for ' + body
-            
+
             m, inbox_rel = Message._new(c.user, to, 'Karma Award', messagebody, ip, spam)
 
         else:
@@ -325,7 +343,7 @@ class ApiController(RedditController):
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
-          
+
           #set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
@@ -398,7 +416,7 @@ class ApiController(RedditController):
     @validate(VCaptcha(),
               VRatelimit(rate_ip = True, prefix='rate_register_'),
               name = VUname(['user_reg']),
-              email = nop('email_reg'),
+              email = ValidEmail('email_reg'),
               password = VPassword(['passwd_reg', 'passwd2_reg']),
               op = VOneOf('op', options = ("login-main", "reg", "login"),
                           default = 'login'),
@@ -417,6 +435,10 @@ class ApiController(RedditController):
             res._focus('user_reg')
         elif res._chk_error(errors.USERNAME_TAKEN, op):
             res._focus('user_reg')
+        elif res._chk_error(errors.BAD_EMAIL, op):
+            res._focus('email_reg')
+        elif res._chk_error(errors.NO_EMAIL, op):
+            res._focus('email_reg')
         elif res._chk_error(errors.BAD_PASSWORD, op):
             res._focus('passwd_reg')
         elif res._chk_error(errors.BAD_PASSWORD_MATCH, op):
@@ -431,12 +453,8 @@ class ApiController(RedditController):
         if res.error:
             return
 
-        user = register(name, password)
+        user = register(name, password, email)
         VRatelimit.ratelimit(rate_ip = True, prefix='rate_register_')
-
-        #anything else we know (email, languages)?
-        if email:
-            user.email = email
 
         user.pref_lang = c.lang
         if c.content_langs == 'all':
@@ -450,6 +468,8 @@ class ApiController(RedditController):
         user._commit()
 
         c.user = user
+
+        Subreddit.subscribe_defaults(user)
 
         # Create a drafts subredit for this user
         sr = Subreddit._create_and_subscribe(
@@ -536,11 +556,27 @@ class ApiController(RedditController):
             fn(friend)
 
 
+    def send_confirmation(self):
+        """Send the conformation code to validate an email address."""
+        c.user.email_validated = False
+        c.user.confirmation_code = random_key(6)
+        c.user._commit()
+        emailer.confirmation_email(c.user)
+
+    @Json
+    @validate(VUser(),
+              VModhash())
+    def POST_resendconfirmation(self, res):
+        if c.user.email is None or c.user.email_validated: return
+        self.send_confirmation()
+        res._update('resend-confirmation-form', innerHTML='')
+        res._success()
+
     @Json
     @validate(VUser('curpass', default = ''),
               VModhash(),
               curpass = nop('curpass'),
-              email = ValidEmails("email", num = 1),
+              email = ValidEmail("email"),
               newpass = nop("newpass"),
               verpass = nop("verpass"),
               password = VPassword(['newpass', 'verpass']))
@@ -551,14 +587,16 @@ class ApiController(RedditController):
             res._update('curpass', value='')
             return
         updated = False
-        if res._chk_error(errors.BAD_EMAILS):
+        if res._chk_error(errors.BAD_EMAIL):
+            res._focus('email')
+        elif not hasattr(c.user,'email') and res._chk_error(errors.NO_EMAIL):
             res._focus('email')
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
-            c.user._commit()
+            self.send_confirmation()
             res._update('status',
-                        innerHTML=_('Your email has been updated'))
+                        innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))
             updated = True
 
         if newpass or verpass:
@@ -576,6 +614,43 @@ class ApiController(RedditController):
                     res._update('status',
                                 innerHTML=_('Your password has been updated'))
                 self.login(c.user)
+
+    @Json
+    @validate(VUser('password', default = ''),
+              VModhash(),
+              password = nop('password'))
+    def POST_wikiaccount(self, res, password):
+        res._update('status', innerHTML='')
+        if res._chk_error(errors.WRONG_PASSWORD):
+            res._focus('wiki-password')
+            res._update('wiki-password', value='')
+            return
+
+        if (not c.user.email or
+            not c.user.email_validated or
+            c.user.wiki_account is not None):
+            # The form isn't rendered but in case someone sends a request directly
+            return
+
+        c.user.wiki_account = '__error__'
+
+        def on_request_error():
+            c.errors.add(errors.WIKI_DOWN)
+            res._chk_error(errors.WIKI_DOWN)
+        def on_wiki_error():
+            c.errors.add(errors.WIKI_ACCOUNT_CREATION_FAILED)
+            res._chk_error(errors.WIKI_ACCOUNT_CREATION_FAILED)
+            res._update('wiki-create-form', innerHTML='')
+            c.user._commit()
+        if c.user.create_associated_wiki_account(password,
+                                                 on_request_error=on_request_error,
+                                                 on_wiki_error=on_wiki_error):
+            res._success()
+            res._update('wiki-create-form', innerHTML='')
+            c.user._commit()
+
+    def _reload(self, res):
+        res._redirect(request.referer)
 
     @Json
     @validate(VUser(),
@@ -879,7 +954,7 @@ class ApiController(RedditController):
                 # User is downvoting and does not have enough karma.
                 res._update('status_'+thing._fullname, innerHTML = e.message)
                 res._show('status_'+thing._fullname)
-    
+
     @Json
     @validate(VUser(), VModhash(),
               comment = VCommentFullName('owner_thing'),
@@ -938,7 +1013,7 @@ class ApiController(RedditController):
         c.response.content = csv
         c.response.headers['Content-Disposition'] = 'attachment; filename="poll.csv"'
         return c.response
-    
+
     @Json
     @validate(VUser(),
               VModhash(),
@@ -1126,6 +1201,21 @@ class ApiController(RedditController):
         # Server side cache is also invalidated when new comment is posted
         return self.render_cached('side-comments', RecentComments, g.side_comments_max_age, self.TWELVE_HOURS)
 
+    def GET_side_open(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in an open thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-open', RecentTagged, g.side_comments_max_age, tagtype = 'open_thread', title = 'Open Thread')
+
+    def GET_side_quote(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in a rationality quote thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-quote', RecentTagged, g.side_comments_max_age, tagtype = 'quotes', title = 'Rationality Quote')
+
+    def GET_side_diary(self, *a, **kw):
+        """Return HTML snippet of the most recent comment in a rationality diary thread for the side bar."""
+        # Server side cache is also invalidated when new comment is posted
+        return self.render_cached('side-diary', RecentTagged, g.side_comments_max_age, tagtype = 'group_rationality_diary', title = 'Rationality Diary')
+
     def GET_side_tags(self, *a, **kw):
         """Return HTML snippet of the tags for the side bar."""
         return self.render_cached('side-tags', TagCloud, g.side_tags_max_age)
@@ -1141,8 +1231,8 @@ class ApiController(RedditController):
         # Key to group cached meetup pages with
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-side-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, UpcomingMeetups, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     def GET_side_monthly_contributors(self, *a, **kw):
@@ -1176,8 +1266,8 @@ class ApiController(RedditController):
         location = Meetup.geoLocateIp(ip)
         invalidating_key = g.rendercache.get_key_group_value(Meetup.group_cache_key())
         cache_key = "%s-front-meetups-%s" % (invalidating_key,ip)
-        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age, 
-                                  cache_time=self.TWELVE_HOURS, location=location, 
+        return self.render_cached(cache_key, MeetupsMap, g.side_meetups_max_age,
+                                  cache_time=self.TWELVE_HOURS, location=location,
                                   max_distance=g.meetups_radius)
 
     @validate(link = VLink('article_id', redirect=False))
@@ -1781,4 +1871,3 @@ class ApiController(RedditController):
                                                        ip = request.ip)
                 ]
         res.object = links
-

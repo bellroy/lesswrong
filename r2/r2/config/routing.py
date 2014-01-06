@@ -38,6 +38,7 @@ def make_map(global_conf={}, app_conf={}):
     mc('/adminon',  controller='front', action='adminon')
     mc('/adminoff', controller='front', action='adminoff')
     mc('/submit',   controller='front', action='submit')
+    mc('/verifyemail', controller='front', action='verifyemail')
 
     mc('/imagebrowser', controller='front', action='imagebrowser')
     mc('/imagebrowser/:article', controller='front', action='imagebrowser')
@@ -89,6 +90,10 @@ def make_map(global_conf={}, app_conf={}):
 
     mc('/:controller', action='listing',
        requirements=dict(controller=listing_controllers))
+
+    mc('/dashboard/comments', action='listing', controller='interestingcomments')
+    mc('/dashboard/subscribed', action='listing', controller='interestingsubscribed')
+    mc('/dashboard/posts', action='listing', controller='interestingposts')
 
     # Can't use map.resource because the version of the Routing module we're
     # using doesn't support the controller_action kw arg

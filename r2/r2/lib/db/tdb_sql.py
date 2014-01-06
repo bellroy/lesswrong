@@ -85,6 +85,8 @@ def index_commands(table, type):
         commands.append(index_str(table, 'hot', 'hot(ups, downs, date), date'))
         commands.append(index_str(table, 'score', 'score(ups, downs), date'))
         commands.append(index_str(table, 'controversy', 'controversy(ups, downs), date'))
+        if table.columns.has_key('descendant_karma'):
+            commands.append(index_str(table, 'interestingness', 'interestingness(ups, downs, descendant_karma)'))
     elif type == 'data':
         commands.append(index_str(table, 'id', 'thing_id'))
         commands.append(index_str(table, 'thing_id', 'thing_id'))
@@ -147,6 +149,12 @@ def get_thing_table(metadata, name):
                                sa.DateTime(timezone = True),
                                default = sa.func.now(),
                                nullable = False))
+    if name in ('comment', 'link'):
+        table.append_column(sa.Column('descendant_karma',
+                            sa.Integer,
+                            default = 0,
+                            nullable = False))
+
     return table
 
 def get_data_table(metadata, name):
@@ -368,6 +376,25 @@ def incr_thing_prop(type_id, thing_id, prop, amount):
     do_update(table)
     for t in extra_thing_tables.get(type_id, ()):
         do_update(t)
+
+def incr_things_prop(type_id, thing_ids, prop, amount):
+    table = types_id[type_id].thing_table
+
+    def render_list(thing_ids):
+        if len(thing_ids) == 1:
+            return '(' + str(int(thing_ids[0])) + ')'
+        else:
+            return tuple([int(id) for id in thing_ids])
+
+    u = """UPDATE %(table)s SET %(prop)s=%(prop)s+%(amount)s
+        WHERE %(table)s.thing_id IN %(thing_ids)s"""
+    u = u % dict(prop = prop,
+                 table = table.name,
+                 amount = amount,
+                 thing_ids = render_list(thing_ids))
+
+    table.engine.execute(u)
+
 
 class CreationError(Exception): pass
 
@@ -622,6 +649,8 @@ def translate_sort(table, column_name, lval = None, rewrite_name = True):
             return sa.func.score(table.c.ups, table.c.downs)
         elif column_name == 'controversy':
             return sa.func.controversy(table.c.ups, table.c.downs)
+        elif column_name == 'interestingness':
+            return sa.func.interestingness(table.c.ups, table.c.downs, table.c.descendant_karma)
     #else
     return table.c[column_name]
 

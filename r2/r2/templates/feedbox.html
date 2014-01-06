@@ -1,34 +1,47 @@
 <%
-   from r2.lib.template_helpers import static, add_sr, join_urls
-   container_id = thing.feed_url 
+   import simplejson
+   from r2.lib.filters import unsafe
+   container_id = thing.feed_urls[0]
    title_id = "%s_title" % container_id
 %>
 <div class="sidebox">
   <h2 id="${title_id}"></h2>
   <ul id="${container_id}"></ul>
   <script type="text/javascript">
-    function initialize() {
-      var feed = new google.feeds.Feed("${thing.feed_url}");
-      feed.setNumEntries(5);
-      feed.load(function(result) {
-        if (!result.error) {
-          var title = document.getElementById("${title_id}");
-          if(title) {
-            title.innerHTML = "${_('New on')} " + result.feed.title + "<br />${_('(Sister Site)')}:";
+    google.setOnLoadCallback(function() {
+      var title = document.getElementById("${title_id}");
+      if(title) {
+        title.innerHTML = "Recent on Rationality Blogs";
+      }
+      var urls = ${unsafe(simplejson.dumps(thing.feed_urls))};
+      var entries = new Array();
+      function sorthelp(item) {
+        return Date.UTC(item.publishedDate);
+      }
+      for (var i = 0; i < ${len(thing.feed_urls)}; i++) {
+        var feed = new google.feeds.Feed(urls[i]);
+        feed.setNumEntries(5);
+        feed.load(function(result) {
+          if (!result.error) {
+            for (var i = 0; i < result.feed.entries.length; i++) {
+              entries.push(result.feed.entries[i]);
+            }
+            if (entries.length == 5*${len(thing.feed_urls)}) {
+              entries.sort(function(a,b){return Date.parse(b.publishedDate) - Date.parse(a.publishedDate)});
+              var container = document.getElementById("${container_id}");
+              for (var i = 0; i < 5; i++) {
+                var entry = entries[i];
+                var li = document.createElement("li");
+                var link = document.createElement("a");
+                link.setAttribute('href', entry.link);
+                link.appendChild(document.createTextNode(entry.title));
+                li.appendChild(link);
+                container.appendChild(li);
+              }
+            }
           }
-          var container = document.getElementById("${container_id}");
-          for (var i = 0; i < result.feed.entries.length; i++) {
-            var entry = result.feed.entries[i];
-            var li = document.createElement("li");
-            var link = document.createElement("a");
-            link.setAttribute('href', entry.link);
-            link.appendChild(document.createTextNode(entry.title));
-            li.appendChild(link);
-            container.appendChild(li);
-          }
-        }
-      });
-    }
-    google.setOnLoadCallback(initialize);
+        });
+      }
+    });
   </script>
 </div>

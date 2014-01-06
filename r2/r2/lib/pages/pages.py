@@ -78,7 +78,7 @@ class Reddit(Wrapped):
     extension_handling = True
 
     def __init__(self, space_compress = True, nav_menus = None, loginbox = True,
-                 infotext = '', content = None, title = '', robots = None,
+                 infotext = '', content = None, title = '', robots = None, sidewiki = True,
                  show_sidebar = True, body_class = None, top_filter = None, header_sub_nav = [], **context):
         Wrapped.__init__(self, **context)
         self.title          = title
@@ -90,6 +90,7 @@ class Reddit(Wrapped):
         self.body_class     = body_class
         self.top_filter     = top_filter
         self.header_sub_nav = header_sub_nav
+        self.sidewiki = sidewiki
 
         # by default, assume the canonical URLs are the ones without query params
         if request.GET:
@@ -127,6 +128,13 @@ class Reddit(Wrapped):
         else:
             ps.append(ProfileBar(c.user, self.corner_buttons()))
 
+        if (c.user_is_loggedin and
+            c.user.wiki_account is None and
+            c.user.email is not None and
+            c.user.email_validated and
+            self.sidewiki):
+            ps.append(WikiCreateSide())
+
         filters_ps = PaneStack(div=True)
         for toolbar in self.toolbars:
             filters_ps.append(toolbar)
@@ -146,17 +154,19 @@ class Reddit(Wrapped):
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        if c.site.name == 'discussion':
+            ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
+            ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
+        else:
+            ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
         ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
 
-        for feed_url in g.feedbox_urls:
-            ps.append(FeedBox(feed_url))
+        ps.append(FeedBox(g.feedbox_urls))
 
-        ps.append(SideBoxPlaceholder('side-tags', _('Tags')))
         ps.append(SideBoxPlaceholder('side-monthly-contributors', _('Top Contributors, 30 Days')))
-        ps.append(SideBoxPlaceholder('side-contributors', _('Top Contributors, All Time')))
         ps.append(SideBoxPlaceholder('karma-awards', _('Recent Karma Awards'), '/karma', sr_path=False))
 
         if g.site_meter_codename:
@@ -261,7 +271,7 @@ class Reddit(Wrapped):
     def right_menu(self):
         """docstring for right_menu"""
         buttons = [
-          AbsButton('wiki', 'http://wiki.lesswrong.com'),
+          AbsButton('wiki', 'http://'+g.wiki_host),
           NamedButton('sequences', sr_path=False),
           NamedButton('about', sr_path=False)
         ]
@@ -286,6 +296,10 @@ class Reddit(Wrapped):
 
 class LoginFormWide(Wrapped):
     """generates a login form suitable for the 300px rightbox."""
+    pass
+
+class WikiCreateSide(Wrapped):
+    """generates a sidebox for creating a wiki account."""
     pass
 
 class SideBoxPlaceholder(Wrapped):
@@ -336,6 +350,43 @@ class RecentComments(RecentItems):
         return UnbannedCommentBuilder(
             self.query(),
             num = 5,
+            wrap = RecentItems.wrap_thing,
+            skip = True,
+            sr_ids = [c.current_or_default_sr._id]
+        )
+
+class RecentTagged(RecentItems):
+    """Finds the most recent post associated with a given tag and shows the most
+       most recent top level comment in that thread"""
+    def __init__(self, *args, **kwargs):
+        self.tag = kwargs['tagtype']
+        self.title = kwargs['title']
+        self.things = self.init_builder()
+        Wrapped.__init__(self, *args, **kwargs)
+
+    def query(self):
+        t = LinkTag._query(LinkTag.c._thing2_id == Tag._by_name(self.tag)._id,
+                           LinkTag.c._name == 'tag',
+                           LinkTag.c._t1_deleted == False,
+                           sort = desc('_date'),
+                           limit = 1,
+                           eager_load = True,
+                           thing_data = not g.use_query_cache
+                      )
+        temp = list(t)[0]._thing1
+        relevantpost = temp._id
+        self.url = temp.url
+        q = Comment._query(Comment.c.link_id == relevantpost,
+                            Comment.c._deleted == False,
+                            Comment.c._spam == False,
+                            sort = desc('_date'),
+                            data = True)
+        return q
+
+    def init_builder(self):
+        return ToplevelCommentBuilder(
+            self.query(),
+            num = 1,
             wrap = RecentItems.wrap_thing,
             skip = True,
             sr_ids = [c.current_or_default_sr._id]
@@ -448,6 +499,14 @@ class PrefsPage(Reddit):
                    NamedButton('friends'),
                    NamedButton('update'),
                    NamedButton('delete')]
+
+        if c.user.wiki_account is None:
+            buttons.append(NamedButton('wikiaccount'))
+        elif c.user.wiki_account == '__error__':
+            pass
+        else:
+            user_page_url = 'http://{0}/wiki/User:{1}'.format(g.wiki_host, c.user.wiki_account)
+            buttons.append(NamedButton('wikiaccount', dest=user_page_url, style='external'))
         return NavMenu(buttons, base_path = "/prefs", _id='nav', type='navlist')
 
 class PrefOptions(Wrapped):
@@ -461,6 +520,10 @@ class PrefUpdate(Wrapped):
 
 class PrefDelete(Wrapped):
     """preference form for deleting a user's own account."""
+    pass
+
+class PrefWiki(Wrapped):
+    """Preference form for creating a Wiki account."""
     pass
 
 
@@ -549,6 +612,9 @@ class Login(Wrapped):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
 
+class VerifyEmail(Wrapped):
+    def __init__(self, success=False):
+        Wrapped.__init__(self, success = success)
 
 class SearchPage(BoringPage):
     """Search results page"""
@@ -702,7 +768,7 @@ class ProfilePage(Reddit):
     searchbox         = False
     create_reddit_box = False
     submit_box        = False
-    
+
 
     def __init__(self, user, *a, **kw):
         self.user     = user
@@ -926,8 +992,40 @@ class ResetPassword(Wrapped):
     (step 3 of password recovery.)"""
     pass
 
+class EmailVerify(Wrapped):
+    """Form for providing a confirmation code to a new user."""
+    pass
+
+class WikiSignupFail(Wrapped):
+    """Email template. Tells a user that their automatic wiki account
+    creation failed.
+    """
+    pass
+
+class WikiSignupNotification(Wrapped):
+    """Email template. Tells a user their account on the LessWrong Wiki
+    has been created.
+    """
+    pass
+
+class WikiAPIError(Wrapped):
+    """Email template to notify devs of unknown account creation errors."""
+    pass
+
+class WikiUserExists(Wrapped):
+    """Email template to tell a user that we tried to make their account
+    but someone else already had it.
+    """
+    pass
+
+class WikiIncompatibleName(Wrapped):
+    """Email template to tell them their username doesn't allow automatic
+    wikification.
+    """
+    pass
 
 class Captcha(Wrapped):
+
     """Container for rendering robot detection device."""
     def __init__(self, error=None, tabular=True, label=True):
         self.error = _('Try entering those letters again') if error else ""
@@ -1435,8 +1533,8 @@ class FeedLinkBar(Wrapped):
 class AboutBox(Wrapped): pass
 
 class FeedBox(Wrapped):
-    def __init__(self, feed_url, *a, **kw):
-        self.feed_url = feed_url
+    def __init__(self, feed_urls, *a, **kw):
+        self.feed_urls = feed_urls
         Wrapped.__init__(self, *a, **kw)
 
 class RecentWikiEditsBox(Wrapped):
@@ -1511,7 +1609,7 @@ class MeetupsMap(Wrapped):
         Wrapped.__init__(self, meetups=meetups, location=location, *a, **kw)
 
 class NotEnoughKarmaToPost(Wrapped):
-	  pass
+          pass
 
 class ShowMeetup(Wrapped):
     """docstring for ShowMeetup"""
@@ -1560,4 +1658,3 @@ class WikiPage(Reddit):
                         title = self.pagename,
                         space_compress=False,
                         **context)
-

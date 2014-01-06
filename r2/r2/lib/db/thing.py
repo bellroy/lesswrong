@@ -455,6 +455,10 @@ class Thing(DataThing):
     def _confidence(self):
         return sorts.confidence(self._ups, self._downs)
 
+    @property
+    def _interestingness(self):
+        return sorts.interestingness(self._ups, self._downs, self._descendant_karma)
+
     def score_triplet(self, likes = None):
         u = self._ups - (likes == True)
         d = self._downs - (likes == False)

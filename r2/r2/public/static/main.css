@@ -192,8 +192,8 @@ ul#nav li {
 	float: left;
 	font-size: 15px;
 	line-height: 1;
-	margin: 0 30px 0 0;
-	padding: 0 30px 0 0;
+	margin: 0 25px 0 0;
+	padding: 0 25px 0 0;
 	position: relative;
 	text-transform: uppercase;
 }
@@ -434,8 +434,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save, div.tools a.edit, div.tools a.hide,
-div.tools a.sub, div.tools a.unsub {
+div.tools a.save, div.tools a.edit, div.tools a.hide, div.tools a.subscription {
 	cursor: pointer;
 	display: block;
 	height: 0;
@@ -444,6 +443,7 @@ div.tools a.sub, div.tools a.unsub {
 	width: 16px;
 }
 div.tools a.save:hover, div.tools a.save.mod,
+div.tools a.subscription:hover, div.tools a.subscription.mod,
 div.tools a.edit:hover,
 div.tools a.hide:hover, div.tools a.hide.mod,
 div.tools a.sub:hover, div.tools a.sub.mod,
@@ -452,6 +452,10 @@ div.tools a.unsub:hover, div.tools a.unsub.mod {
 }
 div.tools a.save {
     background: url(/static/save-button.gif) no-repeat 0 0;
+}
+div.tools a.subscription {
+    background: url(/static/subscribe.png);
+    width: 20px;
 }
 div.tools a.edit {
     background-image: url(/static/edit.png);
@@ -491,7 +495,8 @@ div.tools img.landscape {
 }
 div.tools li.delete,
 div.tools li.promote,
-div.tools li.ban {
+div.tools li.ban,
+div.tools li.subscribe {
 	line-height: 20px;
 }
 div.tools a.license {
@@ -660,10 +665,6 @@ div.message div.message div.message div.message div.message div.message div.mess
 .new-comment,
 div.comment div.new-comment {
     border: 5px solid #eed1ee !important;
-<<<<<<< HEAD
-    /* padding: 10px 0 10px 10px !important; */
-=======
->>>>>>> 83ffb6762b46878ecca867619bc3195dc1f1ccb0
     padding: 0 0 0 10px !important;
     margin-right: 0 !important;
 }
@@ -781,6 +782,10 @@ div.comment-links ul li.up a {
 	background-image: url(/static/vote-up.gif);
 	width: 14px;
 }
+div.comment-links ul li.subscribe a{
+    background-image: url(/static/subscribe.png);
+    width: 20px;
+}
 div.comment-links ul li.down a {
 	background-image: url(/static/vote-down.gif);
 	width: 14px;
@@ -849,7 +854,7 @@ div.comment-links ul li.retract a.yes, div.comment-links ul li.retract a.no  {
 
 /* Temporary styling for text buttons until we have icons */
 div.comment-links ul li.delete a, div.comment-links ul li.unban a,
-div.comment-links ul li.ban a, div.comment-links ul li.ignore a{
+div.comment-links ul li.ban a, div.comment-links ul li.ignore a {
     height: 20px;
     padding-top: 4px;
 }
@@ -1112,6 +1117,63 @@ ul#rightnav li a:hover {
 	margin: 0;
 }
 #side-comments div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
+#side-open h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-open div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-open div.inline-comment:last-child {
+	margin: 0;
+}
+#side-open div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
+#side-diary h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-diary div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-diary div.inline-comment:last-child {
+	margin: 0;
+}
+#side-diary div.inline-comment span.tagline a {
+	color: #58585a;
+}
+
+#side-quote h3 {
+    font-size: 1em;
+    font-weight: bold;
+    height: 1.4em;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+#side-quote div.inline-comment {
+	display: block;
+	margin: 0 0 10px;
+}
+#side-quote div.inline-comment:last-child {
+	margin: 0;
+}
+#side-quote div.inline-comment span.tagline a {
 	color: #58585a;
 }
 
