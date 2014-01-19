@@ -89,7 +89,7 @@ class MeetupsController(RedditController):
     meetup._commit()
 
     l = Link._submit(meetup_article_title(meetup), meetup_article_text(meetup),
-                     c.user, Subreddit._by_name('discussion'),ip, [])
+                     c.user, Subreddit._by_name('meetups'),ip, [])
 
     l.meetup = meetup._id36
     l._commit()
