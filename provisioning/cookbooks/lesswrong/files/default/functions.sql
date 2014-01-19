@@ -28,6 +28,10 @@ create or replace function score(ups integer, downs integer) returns integer as 
     select $1 - $2
 $$ language sql immutable;
 
+create or replace function interestingness(ups integer, downs integer, descendant_karma integer) returns integer as $$
+    select cast($1 - $2 + round($3 / 2.0, 0) as integer)
+$$ language sql immutable;
+
 create or replace function controversy(ups integer, downs integer) returns float as $$
     select cast(($1 + $2) as float)/(abs($1 - $2)+1)
 $$ language sql immutable;
@@ -40,5 +44,5 @@ create or replace function base_url(url texT) returns text as $$
     select substring($1 from E'(?i)(?:.+?://)?(?:www[\\d]*\\.)?([^#]*[^#/])/?')
 $$ language sql immutable;
 
-create view active as
+create or replace view active as
     select pg_stat_activity.procpid, (now() - pg_stat_activity.query_start) as t, pg_stat_activity.current_query from pg_stat_activity where (pg_stat_activity.current_query <> '<IDLE>'::text) order by (now() - pg_stat_activity.query_start);

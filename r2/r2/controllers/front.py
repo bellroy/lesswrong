@@ -6,20 +6,21 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from validator import *
+from pylons.controllers.util import redirect_to
 from pylons.i18n import _, ungettext
 from reddit_base import RedditController, base_listing
 from api import link_listing_by_url
@@ -59,7 +60,7 @@ class FrontController(RedditController):
             return self.redirect('/info/' + to36(new_id) + '/' + rest)
         if type == 'old':
             new_url = "/%s/%s/%s" % \
-                      (dest, article._id36, 
+                      (dest, article._id36,
                        quote_plus(title_to_url(article.title).encode('utf-8')))
             if not c.default_sr:
                 new_url = "/r/%s%s" % (c.site.name, new_url)
@@ -116,7 +117,7 @@ class FrontController(RedditController):
         has been subsubmed by the presence of the LinkInfoBar on the
         rightbox, so it is only useful for Admin-only wizardry."""
         return DetailsPage(link = article).render()
-    
+
 
     @validate(article      = VLink('article'),
               comment      = VCommentID('comment'),
@@ -162,11 +163,11 @@ class FrontController(RedditController):
         if hasattr(article, 'comment_sort_order'):
             sort = article.comment_sort_order
 
-        builder = CommentBuilder(article, CommentSortMenu.operator(sort), 
+        builder = CommentBuilder(article, CommentSortMenu.operator(sort),
                                  comment, context)
         listing = NestedListing(builder, num = num,
                                 parent_name = article._fullname)
-        
+
         displayPane = PaneStack()
 
         # if permalink page, add that message first to the content
@@ -185,7 +186,7 @@ class FrontController(RedditController):
             displayPane.append(CommentReplyBox())
             #no comment box for permalinks
             if not comment:
-                displayPane.append(CommentReplyBox(link_name = 
+                displayPane.append(CommentReplyBox(link_name =
                                                    article._fullname))
         # finally add the comment listing
         displayPane.append(listing.listing())
@@ -211,7 +212,7 @@ class FrontController(RedditController):
         is_canonical = article.canonical_url.endswith(_force_unicode(request.path)) and not request.GET
 
         res = LinkInfoPage(link = article, comment = comment,
-                           content = content, 
+                           content = content,
                            infotext = infotext,
                            is_canonical = is_canonical).render()
 
@@ -224,20 +225,25 @@ class FrontController(RedditController):
               location = nop("location"))
     def GET_prefs(self, location=''):
         """Preference page"""
-        content = None
-        infotext = None
+        kwargs = { 'content': None,
+                   'infotext': None }
         if not location or location == 'options':
-            content = PrefOptions(done=request.get.get('done'))
+            kwargs['content'] = PrefOptions(done=request.get.get('done'))
         elif location == 'friends':
-            content = PaneStack()
-            infotext = strings.friends % Friends.path
-            content.append(FriendList())
+            kwargs['content'] = PaneStack()
+            kwargs['infotext'] = strings.friends % Friends.path
+            kwargs['content'].append(FriendList())
         elif location == 'update':
-            content = PrefUpdate()
+            kwargs['content'] = PrefUpdate()
         elif location == 'delete':
-            content = PrefDelete()
+            kwargs['content'] = PrefDelete()
+        elif location == 'wikiaccount':
+            if c.user.wiki_account is not None: redirect_to('/prefs')
 
-        return PrefsPage(content = content, infotext=infotext).render()
+            kwargs['content'] = PrefWiki()
+            kwargs['sidewiki'] = False
+
+        return PrefsPage(**kwargs).render()
 
     @validate(VAdmin(),
               name = nop('name'))
@@ -245,7 +251,7 @@ class FrontController(RedditController):
         """Create a reddit form"""
         title = _('Create a category')
         content=CreateSubreddit(name = name or '', listings = ListingController.listing_names())
-        res = FormPage(_("Create a category"), 
+        res = FormPage(_("Create a category"),
                        content = content,
                        ).render()
         return res
@@ -299,8 +305,8 @@ class FrontController(RedditController):
                                 Link.c.sr_id == c.site._id,
                                 sort = desc('_date'),
                                 data = True)
-            
-            builder = QueryBuilder(query, num = num, after = after, 
+
+            builder = QueryBuilder(query, num = num, after = after,
                                    count = count, reverse = reverse,
                                    wrap = ListingController.builder_wrapper)
             listing = LinkListing(builder)
@@ -313,8 +319,8 @@ class FrontController(RedditController):
                                 Link.c.sr_id == c.site._id,
                                 sort = desc('_date'),
                                 data = True)
-            
-            builder = QueryBuilder(query, num = num, after = after, 
+
+            builder = QueryBuilder(query, num = num, after = after,
                                    count = count, reverse = reverse,
                                    wrap = ListingController.builder_wrapper)
             listing = LinkListing(builder)
@@ -323,7 +329,7 @@ class FrontController(RedditController):
             return self.abort404()
 
         return EditReddit(content = pane).render()
-                              
+
     # def GET_stats(self):
     #     """The stats page."""
     #     return BoringPage(_("Stats"), content = UserStats()).render()
@@ -362,7 +368,7 @@ class FrontController(RedditController):
 
         num, t, spane = self._search(q, num = num, reverse = reverse,
                                      after = after, count = count)
-        
+
         res = SubredditsPage(content=spane,
                              prev_search = query,
                              elapsed_time = t,
@@ -418,9 +424,9 @@ class FrontController(RedditController):
                          nav_menus = [TimeMenu(default = time),
                                       SearchSortMenu(default=sort)],
                          infotext = infotext).render()
-        
+
         return res
-        
+
     def _search(self, query_obj, num, after, reverse, count=0):
         """Helper function for interfacing with search.  Basically a
         thin wrapper for SearchBuilder."""
@@ -456,7 +462,7 @@ class FrontController(RedditController):
         self.logout()
         return self.redirect('/')
 
-    
+
     @validate(VUser())
     def GET_adminon(self):
         """Enable admin interaction with site"""
@@ -464,7 +470,7 @@ class FrontController(RedditController):
         if not c.user.name in g.admins:
             return self.abort404()
         self.login(c.user, admin = True)
-        
+
         dest = request.referer or '/'
         return self.redirect(dest)
 
@@ -474,7 +480,7 @@ class FrontController(RedditController):
         if not c.user.name in g.admins:
             return self.abort404()
         self.login(c.user, admin = False)
-        
+
         dest = request.referer or '/'
         return self.redirect(dest)
 
@@ -511,9 +517,9 @@ class FrontController(RedditController):
                 # if there is more than one, check the users' subscriptions
                 else:
                     subscribed = [l for l in listing.things
-                                  if c.user_is_loggedin 
+                                  if c.user_is_loggedin
                                   and l.subreddit.is_subscriber_defaults(c.user)]
-                    
+
                     #if there is only 1 link to be displayed, just go there
                     if len(subscribed) == 1:
                         redirect_link = subscribed[0]
@@ -528,7 +534,7 @@ class FrontController(RedditController):
             # we've found a link already.  Redirect to its permalink page
             if redirect_link:
                 return self.redirect(redirect_link.already_submitted_link)
-            
+
         captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
         srs = Subreddit.submit_sr(c.user)
 
@@ -571,8 +577,8 @@ class FrontController(RedditController):
             return self.abort404()
         sent = (has_opted_out(email) == leave)
         return BoringPage(_("Opt out") if leave else _("Welcome back"),
-                          content = OptOut(email = email, leave = leave, 
-                                           sent = sent, 
+                          content = OptOut(email = email, leave = leave,
+                                           sent = sent,
                                            msg_hash = msg_hash)).render()
 
     @validate(msg_hash = nop('x'))
@@ -590,7 +596,7 @@ class FrontController(RedditController):
         posting the subsequently rendered form and is handled in
         ApiController.POST_optin."""
         return self._render_opt_in_out(msg_hash, False)
-    
+
     def GET_frame(self):
         """used for cname support.  makes a frame and
         puts the proper url as the frame source"""
@@ -606,7 +612,7 @@ class FrontController(RedditController):
             u.put_in_frame()
             c.cname = True
             return self.redirect(u.unparse())
-            
+
         return "fail"
 
     def GET_catchall(self):
@@ -614,7 +620,7 @@ class FrontController(RedditController):
 
     @validate(VUser())
     def GET_verifyemail(self):
-        return BoringPage(_("Verify Email"), content=VerifyEmail()).render()
+        return BoringPage(_("Verify Email"), content=VerifyEmail(), sidewiki=False).render()
 
     @validate(VUser(),
               article = VSubmitLink('article', redirect=False))
@@ -643,4 +649,3 @@ class FrontController(RedditController):
 
     def GET_blank(self):
         return ''
-

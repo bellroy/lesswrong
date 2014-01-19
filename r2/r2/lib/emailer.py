@@ -6,23 +6,23 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
 from email.MIMEText import MIMEText
 from pylons.i18n import _
 from pylons import c, g, request
-from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify
+from r2.lib.pages import PasswordReset, MeetupNotification, Share, Mail_Opt, EmailVerify, WikiSignupFail, WikiSignupFail, WikiAPIError, WikiIncompatibleName, WikiSignupNotification, WikiUserExists
 from r2.lib.utils import timeago
 from r2.models import passhash, Email, Default, has_opted_out
 from r2.config import cache
@@ -34,11 +34,20 @@ def email_address(name, address):
 feedback = email_address('reddit feedback', g.feedback_email)
 
 def send_mail(msg, fr, to):
+    if g.debug:
+        g.log.debug(msg.as_string())
+        return
+
     session = smtplib.SMTP(g.smtp_server)
     session.sendmail(fr, to, msg.as_string())
     session.quit()
 
 def simple_email(to, fr, subj, body):
+    # FIXME: Ugly hack because the templating system has no way to
+    # mark strings as safe, and insists on html-escaping templates for
+    # a text/plain email.
+    body = body.replace('&amp;', '&')
+
     def utf8(s):
         return s.encode('utf8') if isinstance(s, unicode) else s
     msg = MIMEText(utf8(body))
@@ -59,7 +68,34 @@ def password_email(user):
 def confirmation_email(user):
     simple_email(user.email, 'contact@lesswrong.com',
                  'lesswrong.com email verification',
-                 EmailVerify(user=user, link='http://'+g.domain+'/verifyemail').render(style='email')) 
+                 EmailVerify(user=user, link='http://'+g.domain+'/verifyemail').render(style='email'))
+
+def wiki_failed_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'LessWrong Wiki sign-up failed',
+                 WikiSignupFail(user=user, link='http://'+g.domain+'/prefs/wikiaccount/').render(style='email'))
+
+def unknown_wiki_error(error):
+    simple_email(g.email_to, g.error_email_from,
+                 'the wiki API gave an unknown error',
+                 WikiAPIError(error=error).render(style='email'))
+
+def wiki_incompatible_name_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'LessWrong account name incompatible with wiki',
+                 WikiIncompatibleName(user=user, link='http://'+g.wiki_host+'/mediawiki/index.php?title=Special:UserLogin&type=signup').render(style='email'))
+
+def wiki_signup_notification_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'LessWrong Wiki sign-up',
+                 WikiSignupNotification(link='http://'+g.wiki_host).render(style='email'))
+
+def wiki_user_exists_email(user):
+    simple_email(user.email, 'contact@lesswrong.com',
+                 'LessWrong Wiki account exists',
+                 WikiUserExists(user=user,
+                                link_base='http://'+g.wiki_host,
+                                link='http://'+g.wiki_host+'/mediawiki/index.php?title=Special:UserLogin&type=signup').render(style='email'))
 
 def meetup_email(user, meetup):
     simple_email(user.email, 'contact@lesswrong.com',
@@ -70,15 +106,15 @@ def meetup_email(user, meetup):
 def _feedback_email(email, body, kind, name='', reply_to = ''):
     """Function for handling feedback and ad_inq emails.  Adds an
     email to the mail queue to the feedback email account."""
-    Email.handler.add_to_queue(c.user if c.user_is_loggedin else None, 
-                               None, [feedback], name, email, 
-                               datetime.datetime.now(), 
-                               request.ip, kind, body = body, 
+    Email.handler.add_to_queue(c.user if c.user_is_loggedin else None,
+                               None, [feedback], name, email,
+                               datetime.datetime.now(),
+                               request.ip, kind, body = body,
                                reply_to = reply_to)
 
 def feedback_email(email, body, name='', reply_to = ''):
     """Queues a feedback email to the feedback account."""
-    return _feedback_email(email, body,  Email.Kind.FEEDBACK, name = name, 
+    return _feedback_email(email, body,  Email.Kind.FEEDBACK, name = name,
                            reply_to = reply_to)
 
 def ad_inq_email(email, body, name='', reply_to = ''):
@@ -86,7 +122,7 @@ def ad_inq_email(email, body, name='', reply_to = ''):
     return _feedback_email(email, body,  Email.Kind.ADVERTISE, name = name,
                            reply_to = reply_to)
 
-    
+
 def share(link, emails, from_name = "", reply_to = "", body = ""):
     """Queues a 'share link' email."""
     now = datetime.datetime.now(g.tz)
@@ -95,7 +131,7 @@ def share(link, emails, from_name = "", reply_to = "", body = ""):
     Email.handler.add_to_queue(c.user, link, emails, from_name, g.share_reply,
                                date, request.ip, Email.Kind.SHARE,
                                body = body, reply_to = reply_to)
-                               
+
 def send_queued_mail():
     """sends mail from the mail queue to smtplib for delivery.  Also,
     on successes, empties the mail queue and adds all emails to the
@@ -116,17 +152,17 @@ def send_queued_mail():
         # exception happens only for local recipient that doesn't exist
         except (smtplib.SMTPRecipientsRefused, smtplib.SMTPSenderRefused):
             # handle error and print, but don't stall the rest of the queue
-	    print "Handled error sending mail (traceback to follow)"
-	    traceback.print_exc(file = sys.stdout)
+            print "Handled error sending mail (traceback to follow)"
+            traceback.print_exc(file = sys.stdout)
             email.set_sent(rejected = True)
-        
+
 
     try:
         for email in Email.get_unsent(now):
             clear = True
 
             should_queue = email.should_queue()
-            # check only on sharing that the mail is invalid 
+            # check only on sharing that the mail is invalid
             if email.kind == Email.Kind.SHARE and should_queue:
                 email.body = Share(username = email.from_name(),
                                    msg_hash = email.msg_hash,
@@ -140,7 +176,7 @@ def send_queued_mail():
                                       leave = True).render(style = "email")
                 email.subject = _("[reddit] email removal notice")
                 sendmail(email)
-                
+
             elif email.kind == Email.Kind.OPTIN:
                 email.body = Mail_Opt(msg_hash = email.msg_hash,
                                       leave = False).render(style = "email")
@@ -161,11 +197,11 @@ def send_queued_mail():
 
     finally:
         session.quit()
-        
+
     # clear is true if anything was found and processed above
     if clear:
         Email.handler.clear_queue(now)
-            
+
 
 
 def opt_out(msg_hash):
@@ -177,7 +213,7 @@ def opt_out(msg_hash):
                                    datetime.datetime.now(g.tz),
                                    '127.0.0.1', Email.Kind.OPTOUT)
     return email, added
-        
+
 def opt_in(msg_hash):
     """Queues an opt-in email (i.e., that the email has been removed
     from our opt out list)"""

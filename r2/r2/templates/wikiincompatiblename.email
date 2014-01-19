@@ -1,0 +1,3 @@
+Hello ${thing.user.name}:
+
+We'd like to crete an account for you on the Less Wrong Wiki at wiki.lesswrong.com, but your account name isn't accepted by the Wiki. If you want to contribute, please create an account yourself at ${thing.link} .

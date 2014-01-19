@@ -6,16 +6,16 @@
 ## software over a computer network and provide for limited attribution for the
 ## Original Developer. In addition, Exhibit A has been modified to be consistent
 ## with Exhibit B.
-## 
+##
 ## Software distributed under the License is distributed on an "AS IS" basis,
 ## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 ## the specific language governing rights and limitations under the License.
-## 
+##
 ## The Original Code is Reddit.
-## 
+##
 ## The Original Developer is the Initial Developer.  The Initial Developer of
 ## the Original Code is CondeNet, Inc.
-## 
+##
 ## All portions of the code written by CondeNet are Copyright (c) 2006-2008
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -29,11 +29,11 @@
 <%namespace file="captcha.html" import="captchagen"/>
 <%namespace file="utils.html" import="error_field, plain_link, text_with_links, img_link"/>
 
-## default content 
+## default content
 %if c.user_is_loggedin:
   <p class="error">${_("You are already logged in.")}</p>
 %else:
-  ${login_panel(user_reg = thing.user_reg, user_login = thing.user_login, 
+  ${login_panel(user_reg = thing.user_reg, user_login = thing.user_login,
                 dest=thing.dest)}
   <script type="text/javascript">
     new_captcha();
@@ -42,12 +42,12 @@
 
 <%def name="login_form(register=False, user='', dest='')">
   <% op = "reg" if register else "login" %>
-  <form id="login_${op}" method="post" 
-        action="${add_sr('/post/' + op, nocname = True)}" 
+  <form id="login_${op}" method="post"
+        action="${add_sr('/post/' + op, nocname = True)}"
         onsubmit="return chklogin(this);"
         target="_top">
     %if c.cname:
-       <input type="hidden" name="${UrlParser.cname_get}" 
+       <input type="hidden" name="${UrlParser.cname_get}"
               value="${random.random()}" />
     %endif
     <input type="hidden" name="reason" value="" />
@@ -59,7 +59,7 @@
       <ul>
         <li>
           <label for="user_${op}">${_('Username')}:</label>
-          <input value="${user}" name="user_${op}" id="user_${op}" 
+          <input value="${user}" name="user_${op}" id="user_${op}"
                  type="text" maxlength="20"/>
           %if register:
             ${error_field("BAD_USERNAME_" + op, kind="span")}
@@ -72,7 +72,7 @@
       %if register:
         <li>
           <label for="email_${op}">${_('Email')}:</label>
-          <input value="" name="email_${op}" id="email_${op}" 
+          <input value="" name="email_${op}" id="email_${op}"
                  type="text" maxlength="50"/>
             ${error_field("NO_EMAIL_" + op, kind="span")}
             ${error_field("BAD_EMAIL_" + op, kind="span")}
@@ -80,7 +80,7 @@
       %endif
         <li>
           <label for="passwd_${op}">${_('Password')}:</label>
-          <input id="passwd_${op}" 
+          <input id="passwd_${op}"
                  name="passwd_${op}" type="password" maxlength="20"/>
           %if register:
             ${error_field("BAD_PASSWORD_" + op, kind="span")}
@@ -91,7 +91,7 @@
       %if register:
         <li>
           <label for="passwd2_${op}">${_('Verify password')}:</label>
-          <input name="passwd2_${op}" id="passwd2_${op}" 
+          <input name="passwd2_${op}" id="passwd2_${op}"
                  type="password" maxlength="20" />
           ${error_field("BAD_PASSWORD_MATCH_" + op, kind="span")}
         </li>
@@ -108,7 +108,7 @@
     </ul>
 ##    %if register:
 ##      <p class="legal">
-##        ${text_with_links(strings.legal, 
+##        ${text_with_links(strings.legal,
 ##          user_agreement = (_("User Agreement"), "http://reddit.com/help/useragreement"),
 ##          privacy_policy = (_("Privacy Policy"), "http://reddit.com/help/privacypolicy"))}
 ##      </p>
@@ -126,9 +126,9 @@
 
 <%def name="login_panel(user_reg = '', user_login = '', dest='')">
   <div class="loginform divide">
-    <h3>${_("Create a new account")}</h3>
+    <h3>${_("Create")}</h3>
     <p class="tagline">
-      ${_("Pick a username and password. You will receive an email to verify your account.")}
+      ${_("Pick a username and password for your Less Wrong and Less Wrong Wiki accounts. You will receive an email to verify your account.")}
     </p>
     ${login_form(register=True, user=user_reg, dest=dest)}
   </div>

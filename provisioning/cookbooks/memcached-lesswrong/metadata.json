@@ -1,0 +1,71 @@
+{
+  "name": "memcached",
+  "description": "Installs memcached-1.2.5 patched version for lesswrong",
+  "maintainer": "Trike Apps",
+  "maintainer_email": "cookbooks@trikeapps.com",
+  "license": "Apache 2.0",
+  "attributes": {
+    "memcached/memory": {
+      "display_name": "Memcached Memory",
+      "description": "Memory allocated for memcached instance",
+      "default": "64",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "memcached/port": {
+      "display_name": "Memcached Port",
+      "description": "Port to use for memcached instance",
+      "default": "11211",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "memcached/user": {
+      "display_name": "Memcached User",
+      "description": "User to run memcached instance as",
+      "default": "nobody",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "memcached/listen": {
+      "display_name": "Memcached IP Address",
+      "description": "IP address to use for memcached instance",
+      "default": "0.0.0.0",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    }
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "memcached": "Installs and configures memcached"
+  },
+  "version": "0.1.0"
+}

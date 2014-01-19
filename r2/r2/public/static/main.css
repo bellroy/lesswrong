@@ -192,8 +192,8 @@ ul#nav li {
 	float: left;
 	font-size: 15px;
 	line-height: 1;
-	margin: 0 30px 0 0;
-	padding: 0 30px 0 0;
+	margin: 0 25px 0 0;
+	padding: 0 25px 0 0;
 	position: relative;
 	text-transform: uppercase;
 }
@@ -434,7 +434,7 @@ body.post div.tools ul li {
 div.tools ul li:first-child {
 	border-left: none;
 }
-div.tools a.save, div.tools a.edit, div.tools a.hide {
+div.tools a.save, div.tools a.edit, div.tools a.hide, div.tools a.subscription {
 	cursor: pointer;
 	display: block;
 	height: 0;
@@ -443,12 +443,19 @@ div.tools a.save, div.tools a.edit, div.tools a.hide {
 	width: 16px;
 }
 div.tools a.save:hover, div.tools a.save.mod,
+div.tools a.subscription:hover, div.tools a.subscription.mod,
 div.tools a.edit:hover,
-div.tools a.hide:hover, div.tools a.hide.mod {
+div.tools a.hide:hover, div.tools a.hide.mod,
+div.tools a.sub:hover, div.tools a.sub.mod,
+div.tools a.unsub:hover, div.tools a.unsub.mod {
 	background-position: 0 -20px;
 }
 div.tools a.save {
     background: url(/static/save-button.gif) no-repeat 0 0;
+}
+div.tools a.subscription {
+    background: url(/static/subscribe.png);
+    width: 20px;
 }
 div.tools a.edit {
     background-image: url(/static/edit.png);
@@ -456,6 +463,14 @@ div.tools a.edit {
 div.tools a.hide {
     background-image: url(/static/hide.png);
     width: 26px;
+}
+div.tools a.sub{
+    background-image: url(/static/agree-button.gif);
+    width: 20px;
+}
+div.tools a.unsub{
+    background-image: url(/static/disagree-button.gif);
+    width: 20px;
 }
 
 div.tools div.tags {
@@ -480,7 +495,8 @@ div.tools img.landscape {
 }
 div.tools li.delete,
 div.tools li.promote,
-div.tools li.ban {
+div.tools li.ban,
+div.tools li.subscribe {
 	line-height: 20px;
 }
 div.tools a.license {
@@ -766,6 +782,10 @@ div.comment-links ul li.up a {
 	background-image: url(/static/vote-up.gif);
 	width: 14px;
 }
+div.comment-links ul li.subscribe a{
+    background-image: url(/static/subscribe.png);
+    width: 20px;
+}
 div.comment-links ul li.down a {
 	background-image: url(/static/vote-down.gif);
 	width: 14px;
@@ -814,6 +834,14 @@ div.comment-links ul li.parent a {
 div.comment-links ul li.hide a {
 	background-image: url(/static/hide.png);
 	width: 20px;
+}
+div.comment-links ul li.subscribe a.sub {
+    background-image: url(/static/agree-button.gif);
+    width: 20px;
+}
+div.comment-links ul li.subscribe a.unsub {
+    background-image: url(/static/disagree-button.gif);
+    width: 20px;
 }
 /* Allow the 'yes/no' popup text to appear */
 div.comment-links ul li.delete a.yes, div.comment-links ul li.delete a.no,

@@ -1,0 +1,80 @@
+<VirtualHost *:<%= @params[:server_port] || node['apache']['listen_ports'].first %>>
+  ServerName <%= @params[:server_name] %>
+  DocumentRoot <%= @params[:docroot] %>
+
+  ExpiresActive On
+  <Directory <%= @params[:docroot] %>>
+    Options <%= [@params[:directory_options] || "FollowSymLinks" ].flatten.join " " %>
+    AllowOverride <%= [@params[:allow_override] || "None" ].flatten.join " " %>
+    Order allow,deny
+    Allow from all
+    ExpiresDefault "access plus 1 year"
+  </Directory>
+
+  <Directory />
+    Options FollowSymLinks
+    AllowOverride None
+  </Directory>
+
+  <Location />
+    Order Allow,Deny
+    Allow from All
+  </Location>
+
+  <Location /r2/i18n>
+      SetHandler None
+  </Location>
+
+  LogLevel info
+  ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-error.log
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined
+
+  <% if @params[:directory_index] -%>
+  DirectoryIndex <%= [@params[:directory_index]].flatten.join " " %>
+  <% end -%>
+
+  RewriteEngine On
+  RewriteLog <%= node['apache']['log_dir'] %>/<%= @application_name %>-rewrite.log
+  RewriteLogLevel 0
+
+  RewriteRule ^/sequences     http://wiki.lesswrong.com/wiki/Sequences [R=302,L]
+  RewriteRule ^/$ /wiki/Homepage/ [passthrough]
+
+  # Ensure about page is only in one location
+  # Matches:
+  # /about, /about/, /lw/1/about_less_wrong/
+  RewriteCond %{REQUEST_URI} ^/about(-less-wrong)?$ [OR]
+  RewriteCond %{REQUEST_URI} ^/lw/1/
+  RewriteRule . /about/ [redirect=301]
+
+  RewriteRule ^/about/$ /wiki/Aboutpage/ [passthrough]
+
+  # Normalise some paths that double up with / and non-/ versions
+  RewriteCond %{REQUEST_URI} /lw/[^/]+/[^/]+$ [ornext]
+  RewriteCond %{REQUEST_URI} ^/user/[^/]+$ [ornext]
+  RewriteCond %{REQUEST_URI} ^/tag/[^/]+$ [ornext]
+  RewriteCond %{REQUEST_URI} /comments$ [ornext]
+  RewriteCond %{REQUEST_URI} /meetups$ [ornext]
+  RewriteCond %{REQUEST_URI} /recentposts$ [ornext]
+  RewriteCond %{REQUEST_URI} /promoted$ [ornext]
+  RewriteCond %{REQUEST_URI} /new$
+  RewriteRule . %{REQUEST_URI}/ [redirect=301,last]
+
+  # Rewrite old user rss path's to new path
+  RewriteRule ^/user/([^/]+)/\.rss$ /user/$1/overview/.rss [redirect=permanent]
+
+  # Deflate
+  AddType application/javascript .js
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/javascript text/css application/x-javascript application/javascript application/xml
+  BrowserMatch ^Mozilla/4 gzip-only-text/html
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+
+  # Don't proxy to the backend for static resources
+  ProxyPass /static !
+
+  # Proxy to the Less Wrong application with SCGI
+  ProxyPass / scgi://127.0.0.1:6500/ retry=0
+
+</VirtualHost>
+

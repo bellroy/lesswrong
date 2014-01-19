@@ -32,6 +32,10 @@
     
     <meta name="keywords" content="${self.keywords()}" />
     <meta name="title" content="${self.Title()}" />
+    <% description = hasattr(thing, 'link') and thing.link._meta_description() %>
+    %if description:
+      <meta name="description" content="${description | h}" />
+    %endif
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     ${self.robots()}
     ##these are globals, so they should be run first

@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -99,13 +99,13 @@ def edit_comment_filter(text = ''):
 
 #TODO is this fast?
 url_re = re.compile(r"""
-    (\[[^\]]*\]:?)?         # optional leading pair of square brackets
-    \s*                     # optional whitespace
-    (\()?                   # optional open bracket
-    (?<![<])                # No angle around link already
-    (http://[^\s\'\"\]\)]+) # a http uri
-    (?![>])                 # No angle around link already
-    (\))?                   # optional close bracket
+    (\[[^\]]*\]:?)?           # optional leading pair of square brackets
+    \s*                       # optional whitespace
+    (\()?                     # optional open bracket
+    (?<![<])                  # No angle around link already
+    (https?://[^\s\'\"\]\)]+) # a http or https uri
+    (?![>])                   # No angle around link already
+    (\))?                     # optional close bracket
     """, re.VERBOSE)
 jscript_url = re.compile('<a href="(?!http|ftp|mailto|/).*</a>', re.I | re.S)
 href_re = re.compile('<a href="([^"]+)"', re.I | re.S)
@@ -137,7 +137,7 @@ def safemarkdown(text, div=True):
     from contrib.markdown import markdown
     if text:
         # increase escaping of &, < and > once
-        text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") 
+        text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         text = wrap_urls(text)
 
         try:

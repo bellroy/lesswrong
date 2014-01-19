@@ -95,7 +95,7 @@ setup(
                       "PasteScript==1.7.2",
                       "Pylons==0.9.6.2",
                       "pycrypto==2.0.1",
-                      "Babel==0.9.5",
+                      "Babel==0.9.6",
                       "flup<=1.0.3",
                       "simplejson==2.1.1",
                       "SQLAlchemy==0.3.10",
@@ -105,7 +105,7 @@ setup(
                       "psycopg2==2.2.1",
                       "py_interface==0.93",
                       "lxml==2.2.6",
-                      "PyYAML==3.09",
+                      "PyYAML==3.10",
                       "pytz", # Best to keep up with DST updates (so no specific version)
                       "geolocator==0.1.1",
                       ],

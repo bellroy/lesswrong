@@ -98,7 +98,7 @@ class WikiPageCached:
 
     @property
     def success(self):
-        return self.page['success']
+        return self.page['success'] and 'There is currently no text in this page.' not in self.page['content']
 
     def content(self):
         return self.page['content']

@@ -49,13 +49,11 @@ error_list = dict((
         ('BAD_EMAIL', _('Invalid email address')),
         ('NO_EMAIL_FOR_USER', _('No email address for that user')),
         ('NO_MESSAGE', _('Please enter a message')),
-        ('NO_TO_ADDRESS', _('Please enter a to address')),
         ('NO_AMOUNT', _('Please enter an amount')),
         ('NO_MSG_BODY', _('Please enter a message')),
         ('NO_SUBJECT', _('Please enter a subject')),
         ('USER_DOESNT_EXIST', _("That user doesn't exist")),
         ('NO_USER', _('Please enter a username')),
-        ('INVALID_PREF', "that preference isn't valid"),
         ('BAD_NUMBER', _("That number isn't in the right range")),
         ('ALREADY_SUB', _("That link has already been submitted")),
         ('SUBREDDIT_EXISTS', _('That category already exists')),
@@ -85,6 +83,8 @@ error_list = dict((
         ('NOT_ENOUGH_KARMA', _('You do not have enough karma')),
         ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
         ('BAD_POLL_BALLOT', _('Error in poll ballot')),
+        ('WIKI_DOWN', _('Connection with wiki failed, try again later')),
+        ('WIKI_ACCOUNT_CREATION_FAILED', _('Wiki account creation failed. Check your email for further instructions.'))
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 
