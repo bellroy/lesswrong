@@ -173,6 +173,7 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self.is_moderator(user) or self.is_contributor(user):
             #private requires contributorship
             return True
+        # r/meetups is private, with all posts added through /meetups. People still need to be able to comment, so we override the private behavior.
         elif self == Subreddit._by_name('meetups'):
             return True
         else:
