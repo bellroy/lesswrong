@@ -84,6 +84,20 @@ class Link(Thing, Printable, ImageHolder):
         return base_url(url.lower()).encode('utf8')
 
     @classmethod
+    def _move_url(cls, url):
+        url_re = re.compile("(?:http://)?.*?(/r/.*?)?(/lw/.*?/.*)")
+        id_re = re.compile("/lw/(\w*)/.*")
+        matcher = url_re.match(url)
+        if not matcher:
+            return False
+        matcher = id_re.match(matcher.group(2))
+        try:
+            link = Link._byID(int(matcher.group(1), 36))
+        except NotFound: return None
+        if not link._loaded: link._load()
+        return link
+
+    @classmethod
     def _by_url(cls, url, sr):
         from subreddit import Default
         if sr == Default:
@@ -694,6 +708,19 @@ class Link(Thing, Printable, ImageHolder):
       q = self._link_nav_query(sort = operators.desc('_date'))
       return self._link_for_query(q)
 
+    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
+                 spam = False, id = None, descendant_karma = 0, **attrs):
+
+        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
+
+        with self.safe_set_attr:
+            self._descendant_karma = descendant_karma
+
+    @classmethod
+    def _build(cls, id, bases):
+        return cls(bases.ups, bases.downs, bases.date,
+                   bases.deleted, bases.spam, id, bases.descendant_karma)
+
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
@@ -893,8 +920,7 @@ class Comment(Thing, Printable):
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False,
-                     _descendant_karma = 0)
+                     show_response_to = False)
 
     def _markdown(self):
         pass
@@ -940,6 +966,37 @@ class Comment(Thing, Printable):
         add_comment(comment)
 
         return (comment, inbox_rel)
+
+    @classmethod
+    def _move(cls, comment, currlink, newlink, top=False):
+        author = Account._byID(comment.author_id)
+
+        if top:
+            if hasattr(comment, 'parent_id'):
+                comment.parent_id = None
+        comment.link_id = newlink._id
+        comment.sr_id = newlink.sr_id
+
+        if not top:
+            parent = Comment._byID(comment.parent_id)
+            comment.parent_permalink = parent.make_anchored_permalink(Link._byID(parent.link_id), Subreddit._byID(parent.sr_id))
+        comment.permalink = comment.make_permalink_slow()
+        comment._commit()
+
+        currlink._incr('num_comments', -1)
+        newlink._incr('num_comments', 1)
+
+        #clear that chache
+        clear_memo('builder.link_comments2', newlink._id)
+        clear_memo('builder.link_comments2', currlink._id)
+
+        # flag search indexer that something has changed
+        tc.changed(comment)
+
+        #update last modified
+        set_last_modified(author, 'overview')
+        set_last_modified(author, 'commented')
+        set_last_modified(newlink, 'comments')
 
     def try_parent(self, func, default):
         """
@@ -1027,6 +1084,20 @@ class Comment(Thing, Printable):
         child = list(q)
         return len(child)>0
 
+    def recursive_move(self, origin, destination, top=False):
+        """Self is the current comment.  Origin is the link we're
+        moving the comment from.  Destination is the link we're
+        moving the comment to."""
+        children = Comment._query(Comment.c.parent_id == self._id)
+
+        Comment._move(self, origin, destination, top)
+
+        if not children:
+            pass
+        else:
+            for child in children:
+                child.recursive_move(origin, destination)
+
     def can_delete(self):
         if not self._loaded:
             self._load()
@@ -1069,8 +1140,7 @@ class Comment(Thing, Printable):
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
     def incr_descendant_karma(self, comments, amount):
-
-        old_val = getattr(self, '_descendant_karma')
+        old_val = self._get_item(self._type_id, self._id).descendant_karma
 
         comments.append(self._id)
 
@@ -1169,7 +1239,7 @@ class Comment(Thing, Printable):
             item.link = links.get(item.link_id)
             if not hasattr(item, 'subreddit'):
                 item.subreddit = item.subreddit_slow
-            if hasattr(item, 'parent_id'):
+            if hasattr(item, 'parent_id') and item.parent_id:
                 parent = Comment._byID(item.parent_id, data=True)
                 parent_author = Account._byID(parent.author_id, data=True)
                 item.parent_author = parent_author
@@ -1211,6 +1281,19 @@ class Comment(Thing, Printable):
             item.score_fmt = Score.points
             item.permalink = item.make_permalink(item.link, item.subreddit)
             item.can_be_deleted = item.can_delete()
+
+    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
+                 spam = False, id = None, descendant_karma = 0, **attrs):
+
+        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
+
+        with self.safe_set_attr:
+            self._descendant_karma = descendant_karma
+
+    @classmethod
+    def _build(cls, id, bases):
+        return cls(bases.ups, bases.downs, bases.date,
+                   bases.deleted, bases.spam, id, bases.descendant_karma)
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent comments.

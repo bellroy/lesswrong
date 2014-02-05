@@ -177,7 +177,7 @@ class FrontController(RedditController):
                     context = context + 1 if context else 1,
                     anchor  = 'comments'
                 ),
-                has_more_comments = hasattr(comment, 'parent_id')
+                has_more_comments = hasattr(comment, 'parent_id') and comment.parent_id
             )
             displayPane.append(permamessage)
 

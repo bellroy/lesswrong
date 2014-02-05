@@ -130,30 +130,50 @@ def get_rel_type_table(metadata):
 
 
 def get_thing_table(metadata, name):
-    table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
-                     sa.Column('thing_id', BigInteger, primary_key = True),
-                     sa.Column('ups', sa.Integer, default = 0, nullable = False),
-                     sa.Column('downs',
-                               sa.Integer,
-                               default = 0,
-                               nullable = False),
-                     sa.Column('deleted',
-                               sa.Boolean,
-                               default = False,
-                               nullable = False),
-                     sa.Column('spam',
-                               sa.Boolean,
-                               default = False,
-                               nullable = False),
-                     sa.Column('date',
-                               sa.DateTime(timezone = True),
-                               default = sa.func.now(),
-                               nullable = False))
-    if name in ('comment', 'link'):
-        table.append_column(sa.Column('descendant_karma',
-                            sa.Integer,
-                            default = 0,
-                            nullable = False))
+    if name not in ('comment', 'link'):
+        table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
+                         sa.Column('thing_id', BigInteger, primary_key = True),
+                         sa.Column('ups', sa.Integer, default = 0, nullable = False),
+                         sa.Column('downs',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False),
+                         sa.Column('deleted',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('spam',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('date',
+                                   sa.DateTime(timezone = True),
+                                   default = sa.func.now(),
+                                   nullable = False))
+    else:
+        table = sa.Table(settings.DB_APP_NAME + '_thing_' + name, metadata,
+                         sa.Column('thing_id', BigInteger, primary_key = True),
+                         sa.Column('ups', sa.Integer, default = 0, nullable = False),
+                         sa.Column('downs',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False),
+                         sa.Column('deleted',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('spam',
+                                   sa.Boolean,
+                                   default = False,
+                                   nullable = False),
+                         sa.Column('date',
+                                   sa.DateTime(timezone = True),
+                                   default = sa.func.now(),
+                                   nullable = False),
+                         sa.Column('descendant_karma',
+                                   sa.Integer,
+                                   default = 0,
+                                   nullable = False))
 
     return table
 
@@ -543,11 +563,19 @@ def get_thing(type_id, thing_id):
     #if single, only return one storage, otherwise make a dict
     res = {} if not single else None
     for row in r:
-        stor = storage(ups = row.ups,
-                       downs = row.downs,
-                       date = row.date,
-                       deleted = row.deleted,
-                       spam = row.spam)
+        if type_id in (types_name["link"].type_id, types_name["comment"].type_id):
+            stor = storage(ups = row.ups,
+                           downs = row.downs,
+                           date = row.date,
+                           deleted = row.deleted,
+                           spam = row.spam,
+                           descendant_karma = row.descendant_karma)
+        else:
+            stor = storage(ups = row.ups,
+                           downs = row.downs,
+                           date = row.date,
+                           deleted = row.deleted,
+                           spam = row.spam)
         if single:
             res = stor
         else:

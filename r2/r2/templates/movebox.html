@@ -1,0 +1,71 @@
+## The contents of this file are subject to the Common Public Attribution
+## License Version 1.0. (the "License"); you may not use this file except in
+## compliance with the License. You may obtain a copy of the License at
+## http://code.reddit.com/LICENSE. The License is based on the Mozilla Public
+## License Version 1.1, but Sections 14 and 15 have been added to cover use of
+## software over a computer network and provide for limited attribution for the
+## Original Developer. In addition, Exhibit A has been modified to be consistent
+## with Exhibit B.
+## 
+## Software distributed under the License is distributed on an "AS IS" basis,
+## WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+## the specific language governing rights and limitations under the License.
+## 
+## The Original Code is Reddit.
+## 
+## The Original Developer is the Initial Developer.  The Initial Developer of
+## the Original Code is CondeNet, Inc.
+## 
+## All portions of the code written by CondeNet are Copyright (c) 2006-2008
+## CondeNet, Inc. All Rights Reserved.
+################################################################################
+<%!
+   from r2.lib.template_helpers import get_domain, static, json
+%>
+
+<%namespace file="utils.html" import="error_field"/>
+
+%if not thing.link_name:
+<div id="samplemove_" style="display:none">
+%else:
+<div class="realmove">
+%endif
+  <form id="moveform_${thing.link_name}" 
+        onsubmit='return chkmove(this);'
+        action="/post/move" method="post" class="commentreplacement">
+    %if thing.link_name:
+    <input id="isroot_${thing.link_name}"
+           type="hidden" name="isroot" value="1" />
+    %endif
+    <input id="replace_${thing.link_name}"
+           type="hidden" name="replace" value="" />
+    ${error_field("NO_URL_" + thing.link_name)}
+    ${error_field("BAD_URL_" + thing.link_name)}
+    ${error_field("COMMENT_TOO_LONG_" + thing.link_name)}
+    ${error_field("ALREADY_MOVED_" + thing.link_name)}
+    ## I know we don't need this div.  You know we don't need this div.  IE
+    ## begs to differ.
+    <table>
+      <tr><th><label for="destination_url_${thing.link_name}">Destination URL:</label></th></tr>
+      <tr><td><input type="text" name="destination" size="120" id="destination_url_${thing.link_name}"\
+                   value=""/></td></tr>
+      <tr><th><label for="comment_replacement_${thing.link_name}">Reason for Moving (Optional):</label></th></tr>
+      <tr><td><textarea id="comment_replacement_${thing.link_name}" name="comment" 
+                      rows="2" onfocus="clearTitle(this);" ></td></tr>
+      </textarea>
+    </table>
+    <div class="buttons">
+      <button id="comment_submit_${thing.link_name}" 
+              type="submit" class="btn">Move
+      </button>
+      <button id="cancel_" class="btn"
+              onclick="cancelMove(this);return false">
+        ${_("Close")}</button>
+      <span id='status_${thing.link_name}' class='error'></span>
+    </div>
+    <span class="loading"><img src="${static('ajax-loader.gif')}" alt="" /></span>
+    <div class="clear"></div>
+  </form>
+</div>
+
+

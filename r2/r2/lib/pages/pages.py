@@ -668,6 +668,7 @@ class LinkInfoPage(Reddit):
 
         # link is a wrapped Link object
         self.link = self.link_listing.things[0]
+        self.movebox = MoveBox()
 
         link_title = ((self.link.title) if hasattr(self.link, 'title') else '')
         if comment:
@@ -689,7 +690,7 @@ class LinkInfoPage(Reddit):
         Reddit.__init__(self, title = title, body_class = 'post', robots = self.robots, *a, **kw)
 
     def content(self):
-        return self.content_stack(self.infobar, self.link_listing, self._content)
+        return self.content_stack(self.infobar, self.link_listing, self.movebox, self._content)
 
     def build_toolbars(self):
         return []
@@ -1040,6 +1041,11 @@ class CommentReplyBox(Wrapped):
     def __init__(self, link_name='', captcha=None, action = 'comment'):
         Wrapped.__init__(self, link_name = link_name, captcha = captcha,
                          action = action)
+
+class MoveBox(Wrapped):
+    """Used on LinkInfoPage to render the move thread form."""
+    def __init__(self, link_name='', captcha=None):
+        Wrapped.__init__(self, link_name = link_name, captcha = captcha)
 
 class CommentListing(Wrapped):
     """Comment heading and sort, limit options"""

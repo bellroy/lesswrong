@@ -168,7 +168,10 @@ class CommentJsonTemplate(ThingJsonTemplate):
             return make_fullname(Link, thing.link_id)
         elif attr == "parent_id":
             try:
-                return make_fullname(Comment, thing.parent_id)
+                if thing.parent_id:
+                    return make_fullname(Comment, thing.parent_id)
+                else:
+                    return make_fullname(Link, thing.link_id)
             except AttributeError:
                 return make_fullname(Link, thing.link_id)
         return ThingJsonTemplate.thing_attr(self, thing, attr)
@@ -184,7 +187,10 @@ class CommentJsonTemplate(ThingJsonTemplate):
         except AttributeError:
             parent_id = make_fullname(Link, wrapped.link_id)
         else:
-            parent_id = make_fullname(Comment, parent_id)
+            if parent_id:
+                parent_id = make_fullname(Comment, parent_id)
+            else:
+                parent_id = make_fullname(Link, wrapped.link_id)
         d = ThingJsonTemplate.rendered_data(self, wrapped)
         d.update(mass_part_render(wrapped, contentHTML = 'commentBody',
                                   contentTxt = 'commentText'))

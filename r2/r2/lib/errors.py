@@ -25,6 +25,7 @@ from copy import copy
 
 error_list = dict((
         ('NO_URL', _('Url required')),
+        ('ALREADY_MOVED', _('This comment is already at that destination')),
         ('BAD_URL', _('You should check that url')),
         ('NO_TITLE', _('Title required')),
         ('TITLE_TOO_LONG', _('Title too long')),

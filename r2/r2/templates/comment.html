@@ -164,6 +164,10 @@ ${parent.midcol()}
         <% allow_delete = thing.can_be_deleted %>
         ${parent.delete_or_report_buttons(allow_delete,False,True)}
         ${parent.buttons()}
+        %if thing.can_ban:
+          <li class="move">
+            ${parent.simple_button("move", fullname, _("Move"), "move", tool_tip=_("Move"))}
+        %endif
         %if c.user_is_loggedin and not thing.author == c.user:
           <li class='subscribe'>
           ${parent.state_button("commentsubscribe", fullname, _("Subscribe"), \

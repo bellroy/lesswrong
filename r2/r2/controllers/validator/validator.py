@@ -377,6 +377,20 @@ class VSubredditName(VRequired):
             except NotFound:
                 return name
 
+class VMoveURL(VRequired):
+    def __init__(self, item, *a, **kw):
+        VRequired.__init__(self, item, errors.NO_URL, *a, **kw)
+
+    def run(self, url):
+        if not url:
+            return self.error()
+        else:
+            link = Link._move_url(url)
+            if not link:
+                return self.error(errors.BAD_URL)
+            else:
+                return link
+
 class VSubredditTitle(Validator):
     def run(self, title):
         if not title:

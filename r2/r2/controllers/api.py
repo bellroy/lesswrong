@@ -23,7 +23,7 @@
 from reddit_base import RedditController
 
 from pylons.i18n import _
-from pylons import c, request, response
+from pylons import c, request, response, g
 from pylons.controllers.util import etag_cache
 
 import hashlib
@@ -201,6 +201,58 @@ class ApiController(RedditController):
             c.user.email_validated = True
             c.user._commit()
             res._success()
+
+    @Json
+    @validate(VModhash(),
+              VSrCanBan('id'),
+              thing = VByName('id'),
+              ip = ValidIP(),
+              destination = VMoveURL('destination'),
+              reason = VComment('comment'))
+    def POST_move(self, res, thing, destination, reason, ip):
+        res._update('status_' + thing._fullname, innerHTML = '')
+        if res._chk_errors((errors.NO_URL, errors.BAD_URL),
+                           thing._fullname):
+            res._focus("destination_url_" + thing._fullname)
+            return
+        if res._chk_error(errors.COMMENT_TOO_LONG,
+                           thing._fullname):
+            res._focus("comment_replacement_" + thing._fullname)
+            return
+        if destination._id == thing.link_id:
+            c.errors.add(errors.ALREADY_MOVED)
+            res._chk_error(errors.ALREADY_MOVED, thing._fullname)
+            res._focus("destination_url_" + thing._fullname)
+            return
+
+        currlink = Link._byID(thing.link_id)
+        currlink._incr('_descendant_karma', -(thing._descendant_karma + thing._ups - thing._downs))
+        destination._incr('_descendant_karma', thing._descendant_karma + thing._ups - thing._downs)
+        if hasattr(thing, 'parent_id') and thing.parent_id is not None:
+            parent = Comment._byID(thing.parent_id)
+            parent.incr_descendant_karma([], -(thing._descendant_karma + thing._ups - thing._downs))
+        else:
+            parent = None
+
+        from r2.lib.comment_tree import lock_key, comments_key
+
+        with g.make_lock(lock_key(thing.link_id)):
+            thing.recursive_move(currlink, destination, True)
+
+        g.permacache.delete(comments_key(currlink._id))
+        g.permacache.delete(comments_key(destination._id))
+
+        body = "A comment was moved to [here]({0}).\n\n".format(thing.make_anchored_permalink(destination)) + (reason if reason else '')
+
+        comment, inbox_rel = Comment._new(c.user,
+                                          currlink, parent, body,
+                                          ip)
+
+
+        if g.write_query_queue:
+            queries.new_comment(comment, None)
+
+        res._send_things([comment, thing])
 
     @Json
     @validate(VCaptcha(),

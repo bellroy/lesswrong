@@ -107,6 +107,29 @@ Comment.prototype.show_editor = function(listing, where, text) {
     return edit_box;
 };
 
+Comment.prototype.show_move = function(listing, where, text) {
+    var edit_box = this.cloneAndReIDNodeOnce("samplemove");
+    if (edit_box.parentNode != listing.listing) {
+        if (edit_box.parentNode) {
+            edit_box.parentNode.removeChild(edit_box);
+        }
+        listing.insert_node_before(edit_box, where);
+    }
+    else if (edit_box.parentNode.firstChild != edit_box) {
+        var p = edit_box.parentNode;
+        p.removeChild(edit_box);
+        p.insertBefore(edit_box, p.firstChild);
+    }
+    var box = this.$parent("comment_replacement");
+    clearTitle(box);
+    box.value = text;
+    box.setAttribute("data-orig-value", text);
+    show(edit_box);
+    BeforeUnload.bind(Comment.checkModified, this._id);
+    return edit_box;
+};
+
+
 Comment.prototype.edit = function() {
     this.show_editor(this.parent_listing(), this.row, this.text);
     this.$parent("commentform").replace.value = "yes";
@@ -145,12 +168,27 @@ Comment.prototype.reply = function (showFlamebaitOverlay) {
         this.$parent("comment_reply").focus();
 };
 
+
+Comment.prototype.move = function() {
+    this.show_move(this.parent_listing(), this.row, '');
+    this.$parent("moveform").replace.value = "";
+    this.$parent("destination_url").focus();
+    this.hide();
+};
+
 Comment.prototype.cancel = function() {
     var edit_box = this.cloneAndReIDNodeOnce("samplecomment");
     hide(edit_box);
     BeforeUnload.unbind(Comment.checkModified, this._id);
     this.show();
 };
+
+Comment.prototype.cancelmove = function() {
+    var edit_box = this.cloneAndReIDNodeOnce("samplemove");
+    hide(edit_box);
+    this.show();
+};
+
 
 Comment.comment = function(r, context) {
     var id = r.id;
@@ -188,6 +226,14 @@ Comment.editcomment = function(r, context) {
     com.get('body').innerHTML = unsafe(r.contentHTML);
     com.get('edit_body').innerHTML = unsafe(r.contentTxt);
     com.cancel();
+    com.show();
+};
+
+Comment.move = function(r, s, context) {
+    var com = new Comment(s.id, context);
+    com.get('body').innerHTML = unsafe(r.contentHTML);
+    com.get('edit_body').innerHTML = unsafe(r.contentTxt);
+    com.cancelmove();
     com.show();
 };
 
@@ -276,6 +322,9 @@ function cancelReply(canceler) {
     new Comment(_id(canceler), Thing.getThingRow(canceler)).cancel();
 };
 
+function cancelMove(canceler) {
+    new Comment(_id(canceler), Thing.getThingRow(canceler)).cancelmove();
+};
 
 function reply(id, link, showFlamebaitOverlay) {
     if (logged) {
@@ -285,6 +334,16 @@ function reply(id, link, showFlamebaitOverlay) {
         showcover(true, 'reply_' + id);
     }
 };
+
+function move(id, link) {
+    if (logged) {
+        var com = new Comment(id, Thing.getThingRow(link)).move();
+    }
+    else {
+        showcover(true, 'reply_' + id);
+    }
+};
+
 
 function chkcomment(form) {
     if(checkInProgress(form)) {
@@ -306,6 +365,34 @@ function chkcomment(form) {
         if (obj && obj.length)
             for (var o = 0, ol = obj.length; o < ol; ++o)
                 Comment[action](obj[o].data, context);
+    }
+
+    return post_form(form, action, null, null, true, null, {
+        handle_obj: false,
+        cleanup_func: cleanup_func
+    });
+};
+
+function chkmove(form) {
+    if(checkInProgress(form)) {
+        var r = confirm("Request still in progress\n(click Cancel to attempt to stop the request)");
+        if (r==false)
+          tagInProgress(form, false);
+        return false;
+    }
+
+    var action = 'move';
+    var context = Thing.getThingRow(form);
+
+    tagInProgress(form, true);
+
+    function cleanup_func(res_obj) {
+        tagInProgress(form, false);
+
+        var obj = res_obj && res_obj.response && res_obj.response.object;
+        if (obj && obj.length)
+            for (var o = 0, ol = obj.length; o < ol; o += 2)
+                Comment[action](obj[o].data, obj[o+1].data, context);
     }
 
     return post_form(form, action, null, null, true, null, {

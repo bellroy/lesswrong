@@ -854,7 +854,8 @@ div.comment-links ul li.retract a.yes, div.comment-links ul li.retract a.no  {
 
 /* Temporary styling for text buttons until we have icons */
 div.comment-links ul li.delete a, div.comment-links ul li.unban a,
-div.comment-links ul li.ban a, div.comment-links ul li.ignore a {
+div.comment-links ul li.ban a, div.comment-links ul li.ignore a,
+div.comment-links ul li.move a {
     height: 20px;
     padding-top: 4px;
 }
