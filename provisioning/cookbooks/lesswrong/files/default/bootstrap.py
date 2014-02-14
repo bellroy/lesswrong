@@ -5,8 +5,6 @@ from r2.models.account import Account, AccountExists, register
 from r2.models.link import Tag, TagExists
 from r2.models.subreddit import Subreddit
 
-print "HEY!"
-
 try:
     register('admin', 'swordfish', '')
 except AccountExists:
