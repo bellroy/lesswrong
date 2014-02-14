@@ -173,6 +173,9 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self.is_moderator(user) or self.is_contributor(user):
             #private requires contributorship
             return True
+        # r/meetups is private, with all posts added through /meetups. People still need to be able to comment, so we override the private behavior.
+        elif self == Subreddit._by_name('meetups'):
+            return True
         else:
             return False
 
@@ -388,6 +391,12 @@ class Subreddit(Thing, Printable, ImageHolder):
                 srs.insert(0, discussion_sr)
         except NotFound:
           pass
+        try:
+            meetup_sr = Subreddit._by_name('meetups')
+            if meetup_sr in srs:
+                srs.remove(meetup_sr)
+        except NotFound:
+            pass
 
         srs.sort(key=lambda a:a.title)
         return srs
