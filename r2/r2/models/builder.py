@@ -184,6 +184,7 @@ class Builder(object):
         """whether or not to skip any item regardless of whether the builder
         was contructed with skip=true"""
         user = c.user if c.user_is_loggedin else None
+        # Meetups are accessed through /meetups.
         if hasattr(item, 'subreddit') and not item.subreddit.can_view(user) and item.subreddit.name != 'meetups':
             return True
 
