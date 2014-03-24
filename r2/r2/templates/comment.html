@@ -176,6 +176,8 @@ ${parent.midcol()}
     ## Each comment has a hidden status span that is used to indicate voting errors.
     <span id='${"status_"+thing._fullname}' class="error" style="display: none;"></span>
   %endif
+  ${thing._get_item(thing._type_id, thing._id)}
+  ${thing._descendant_karma}
   ${self.admintagline()}
 </%def>
 

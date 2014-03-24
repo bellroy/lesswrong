@@ -72,7 +72,7 @@ class Memcache(CacheUtils, memcache.Client):
                                   time = time)
 
     def get(self, key, default=None):
-        r = memcache.Client.get(self, key)
+        r = None#memcache.Client.get(self, key)
         if r is None: return default
         return r
 
@@ -95,7 +95,7 @@ class LocalCache(dict, CacheUtils):
             raise TypeError('Key must be a string.')
 
     def get(self, key, default=None):
-        r = dict.get(self, key)
+        r = None#dict.get(self, key)
         if r is None: return default
         return r
 

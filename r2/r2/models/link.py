@@ -53,6 +53,8 @@ class LinkExists(Exception): pass
 # defining types
 class Link(Thing, Printable, ImageHolder):
     _data_int_props = Thing._data_int_props + ('num_comments', 'reported')
+    _base_props = Thing._base_props + ('_descendant_karma',)
+    _int_props = Thing._int_props + ('_descendant_karma',)
     _defaults = dict(is_self = False,
                      reported = 0, num_comments = 0,
                      moderator_banned = False,
@@ -70,14 +72,10 @@ class Link(Thing, Printable, ImageHolder):
                      blessed = False,
                      comments_enabled = True,
                      notify_on_comment = False,
-                     cc_licensed = False,
-                     _descendant_karma = 0)
+                     cc_licensed = False)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
-
-    def __init__(self, *a, **kw):
-        Thing.__init__(self, *a, **kw)
 
     @classmethod
     def by_url_key(cls, url):
@@ -689,6 +687,7 @@ class Link(Thing, Printable, ImageHolder):
 
     @classmethod
     def _build(cls, id, bases):
+        print "building"
         return cls(bases.ups, bases.downs, bases.date,
                    bases.deleted, bases.spam, id, bases.descendant_karma)
 
@@ -886,6 +885,8 @@ class LinkTag(Relation(Link, Tag)):
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
+    _base_props = Thing._base_props + ('_descendant_karma',)
+    _int_props = Thing._int_props + ('_descendant_karma',)
     _defaults = dict(reported = 0, 
                      moderator_banned = False,
                      banned_before_moderator = False,
@@ -1218,6 +1219,7 @@ class Comment(Thing, Printable):
 
     @classmethod
     def _build(cls, id, bases):
+        print "building"
         return cls(bases.ups, bases.downs, bases.date,
                    bases.deleted, bases.spam, id, bases.descendant_karma)
 
