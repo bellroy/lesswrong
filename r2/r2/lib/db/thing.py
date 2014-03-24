@@ -263,7 +263,6 @@ class DataThing(object):
         def items_db(ids):
             items = cls._get_item(cls._type_id, ids)
             for i in items.keys():
-                print i
                 items[i] = cls._build(i, items[i])
 
             #avoid race condition when incrmenting int props (data int
