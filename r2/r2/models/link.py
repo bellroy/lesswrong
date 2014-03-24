@@ -687,7 +687,6 @@ class Link(Thing, Printable, ImageHolder):
 
     @classmethod
     def _build(cls, id, bases):
-        print "building"
         return cls(bases.ups, bases.downs, bases.date,
                    bases.deleted, bases.spam, id, bases.descendant_karma)
 
@@ -1067,7 +1066,7 @@ class Comment(Thing, Printable):
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
     def incr_descendant_karma(self, comments, amount):
-        old_val = self._get_item(self._type_id, self._id).descendant_karma
+        old_val = getattr(self, '_descendant_karma')
 
         comments.append(self._id)
 
@@ -1219,7 +1218,6 @@ class Comment(Thing, Printable):
 
     @classmethod
     def _build(cls, id, bases):
-        print "building"
         return cls(bases.ups, bases.downs, bases.date,
                    bases.deleted, bases.spam, id, bases.descendant_karma)
 
