@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -92,7 +92,7 @@ def index_commands(table, type):
         commands.append(index_str(table, 'thing_id', 'thing_id'))
         commands.append(index_str(table, 'key_value', 'key, substring(value, 1, %s)' \
                                   % max_val_len))
-                                  
+
         #lower name
         commands.append(index_str(table, 'lower_key_value', 'key, lower(value)',
                                   where = "key = 'name'"))
@@ -134,21 +134,21 @@ def get_thing_table(metadata, name):
                      sa.Column('thing_id', BigInteger, primary_key = True),
                      sa.Column('ups', sa.Integer, default = 0, nullable = False),
                      sa.Column('downs',
-                                   sa.Integer,
-                                   default = 0,
-                                   nullable = False),
-                         sa.Column('deleted',
-                                   sa.Boolean,
-                                   default = False,
-                                   nullable = False),
-                         sa.Column('spam',
-                                   sa.Boolean,
-                                   default = False,
-                                   nullable = False),
-                         sa.Column('date',
-                                   sa.DateTime(timezone = True),
-                                   default = sa.func.now(),
-                                   nullable = False))
+                               sa.Integer,
+                               default = 0,
+                               nullable = False),
+                     sa.Column('deleted',
+                               sa.Boolean,
+                               default = False,
+                               nullable = False),
+                     sa.Column('spam',
+                               sa.Boolean,
+                               default = False,
+                               nullable = False),
+                     sa.Column('date',
+                               sa.DateTime(timezone = True),
+                               default = sa.func.now(),
+                               nullable = False))
 
     if name in ('comment', 'link'):
         table.append_column(sa.Column('descendant_karma',
@@ -339,14 +339,14 @@ def make_thing(type_id, ups, downs, date, deleted, spam, id=None):
         params['thing_id'] = id
         for t in extra_thing_tables.get(type_id, ()):
             do_insert(t)
-    
+
         return id
     except sa.exceptions.SQLError, e:
         if not 'IntegrityError' in e.message:
             raise
         # wrap the error to prevent db layer bleeding out
         raise CreationError, "Thing exists (%s)" % str(params)
-        
+
 
 def set_thing_props(type_id, thing_id, **props):
     table = types_id[type_id].thing_table
@@ -367,7 +367,7 @@ def set_thing_props(type_id, thing_id, **props):
 
 def incr_thing_prop(type_id, thing_id, prop, amount):
     table = types_id[type_id].thing_table
-    
+
     def do_update(t):
         transactions.add_engine(t.engine)
         u = t.update(t.c.thing_id == thing_id,
@@ -404,12 +404,12 @@ class CreationError(Exception): pass
 def make_relation(rel_type_id, thing1_id, thing2_id, name, date=None):
     table = rel_types_id[rel_type_id].rel_table[0]
     transactions.add_engine(table.engine)
-    
+
     if not date: date = datetime.now(tz)
     try:
         r = table.insert().execute(thing1_id = thing1_id,
                                    thing2_id = thing2_id,
-                                   name = name, 
+                                   name = name,
                                    date = date)
         return r.last_inserted_ids()[0]
     except sa.exceptions.SQLError, e:
@@ -417,7 +417,7 @@ def make_relation(rel_type_id, thing1_id, thing2_id, name, date=None):
             raise
         # wrap the error to prevent db layer bleeding out
         raise CreationError, "Relation exists (%s, %s, %s)" % (name, thing1_id, thing2_id)
-        
+
 
 def set_rel_props(rel_type_id, rel_id, **props):
     t = rel_types_id[rel_type_id].rel_table[0]
@@ -507,7 +507,7 @@ def fetch_query(table, id_col, thing_id):
     if not isinstance(thing_id, iters):
         single = True
         thing_id = (thing_id,)
-    
+
     s = sa.select([table], sa.or_(*[id_col == tid
                                     for tid in thing_id]))
     r = s.execute().fetchall()
@@ -531,7 +531,7 @@ def set_thing_data(type_id, thing_id, **vals):
 
 def incr_thing_data(type_id, thing_id, prop, amount):
     table = types_id[type_id].data_table[0]
-    return incr_data_prop(table, type_id, thing_id, prop, amount)    
+    return incr_data_prop(table, type_id, thing_id, prop, amount)
 
 def get_thing_data(type_id, thing_id):
     table = types_id[type_id].data_table[0]
@@ -585,7 +585,7 @@ def get_rel_data(rel_type_id, rel_id):
 def get_rel(rel_type_id, rel_id):
     r_table = rel_types_id[rel_type_id].rel_table[0]
     r, single = fetch_query(r_table, r_table.c.rel_id, rel_id)
-    
+
     res = {} if not single else None
     for row in r:
         stor = storage(thing1_id = row.thing1_id,
@@ -699,7 +699,7 @@ def add_sort(sort, t_table, select):
         #default to asc
         return (sa.desc(real_col) if isinstance(s, operators.desc)
                 else sa.asc(real_col))
-        
+
     sa_sort = [make_sa_sort(s) for s in sort]
     select.order_by(*sa_sort)
     return cols
@@ -716,7 +716,7 @@ def find_things(type_id, get_cols, sort, limit, constraints):
     constraints = deepcopy(constraints)
 
     s = sa.select([table.c.thing_id.label('thing_id')])
-    
+
     for op in operators.op_iter(constraints):
         #assume key starts with _
         #if key.startswith('_'):
@@ -744,9 +744,9 @@ def translate_data_value(alias, op):
     #add the substring func
     if need_substr:
         lval = sa.func.substring(lval, 1, max_val_len)
-    
+
     op.lval = lval
-        
+
     #convert the rval to db types
     #convert everything to strings for pg8.3
     op.rval = tuple(str(py2db(v)) for v in tup(op.rval))
@@ -789,10 +789,10 @@ def find_data(type_id, get_cols, sort, limit, constraints):
 
             if id_col:
                 s.append_whereclause(id_col == alias.c.thing_id)
-            
+
             s.append_column(alias.c.value.label(key))
             s.append_whereclause(alias.c.key == key)
-            
+
             #add the substring constraint if no other functions are there
             translate_data_value(alias, op)
 
@@ -806,7 +806,7 @@ def find_data(type_id, get_cols, sort, limit, constraints):
     if sort:
         need_join = True
         add_sort(sort, {'_':t_table}, s)
-            
+
     if need_join:
         s.append_whereclause(first_alias.c.thing_id == t_table.c.thing_id)
 
@@ -834,7 +834,7 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
         #vals = con.rval
         key = op.lval_name
         prefix = key[:4]
-        
+
         if prefix in ('_t1_', '_t2_'):
             #not a thing attribute
             key = key[4:]
@@ -870,17 +870,17 @@ def find_rels(rel_type_id, get_cols, sort, limit, constraints):
         cols = add_sort(sort,
                         {'_':r_table, '_t1_':t1_table, '_t2_':t2_table},
                         s)
-        
+
         #do we need more joins?
         for (col, table) in cols:
             if table == need_join1[1]:
                 joins_needed.add(need_join1)
             elif table == need_join2[1]:
                 joins_needed.add(need_join2)
-        
+
     for j in joins_needed:
         col, table = j
-        s.append_whereclause(r_table.c[col] == table.c.thing_id)    
+        s.append_whereclause(r_table.c[col] == table.c.thing_id)
 
     if limit:
         s.limit = limit
