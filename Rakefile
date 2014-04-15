@@ -1,3 +1,4 @@
+# -*- ruby -*-
 require 'fileutils'
 require 'tempfile'
 require 'pathname'
@@ -15,7 +16,7 @@ namespace :test do
     $:.unshift 'tasks/manual_test_script/lib'
     require 'active_support'
     require 'manual_test_script'
-    ManualTestScript.run('test/manual.txt')
+    ManualTestScript.run(:script => 'test/manual.txt')
   end
 end
 
