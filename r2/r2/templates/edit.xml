@@ -11,8 +11,8 @@
   <pubDate>${rfc822format(thing._date)}</pubDate>
   <description>
 	<% domain = get_domain(cname = c.cname, subreddit = False) %>
-    Edited by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.author.name}&lt;/a&gt;
-    Original by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.link_author.name}&lt;/a&gt;
+    Edited by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.author.printable_name}&lt;/a&gt;
+    Original by &lt;a href="http://${domain}/user/${thing.link_author.name}"&gt;${thing.link_author.printable_name}&lt;/a&gt;
     <% entities = {"\n": "&#x0a;"} %>
     &lt;pre&gt;
     ${saxutils.escape("\n".join(thing.diff[2:]), entities)}

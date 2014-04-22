@@ -2,7 +2,7 @@
 <div class="contributors">
 %for user in thing.things:
   <div class="user">
-    <a href="/user/${user.name}">${user.name}</a>&#32;
+    <a href="/user/${user.name}">${user.printable_name}</a>&#32;
     (<b>${user.safe_karma}</b>)
   </div>
 %endfor

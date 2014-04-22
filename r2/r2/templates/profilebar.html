@@ -27,7 +27,7 @@
 %if thing.user:
 <div id="side-user" class="sidebox">
   <div id="side-status" class="clear">
-    <h2><a href="/user/${thing.user.name}">${thing.user.name}</a></h2>
+    <h2><a href="/user/${thing.user.name}">${thing.user.printable_name}</a></h2>
     %if thing.buttons:
       ${thing.buttons.render()}
     %endif

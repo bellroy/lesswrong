@@ -7,7 +7,7 @@
   <h3><a href="${thing.make_anchored_permalink()}">${killhtml(thing.body)}</a></h3>
   <span class='tagline'>
     by&#32;<a href="http://${get_domain(cname=True, subreddit=False)}/user/${thing.author.name}">
-    <strong>${thing.author.name}</strong></a>&#32;
+    <strong>${thing.author.printable_name}</strong></a>&#32;
     on&#32;
     ${thing.link.title}&#32;|&#32;
     <span id="score_${thing._fullname}">${thing.score_fmt(thing.score)['label']}</span>

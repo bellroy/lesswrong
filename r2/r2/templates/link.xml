@@ -43,7 +43,7 @@
       votes = thing.score_fmt(thing.score)['label']
       votes_lbl = ungettext("vote", "votes", votes)
     %>
-    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.printable_name}&lt;/a&gt;
     &amp;bull;
     ${votes} ${votes_lbl}
     &amp;bull;

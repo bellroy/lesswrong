@@ -577,15 +577,32 @@ class ApiController(RedditController):
               VModhash(),
               curpass = nop('curpass'),
               email = ValidEmail("email"),
+              realname = VRname("real_name"),
               newpass = nop("newpass"),
               verpass = nop("verpass"),
               password = VPassword(['newpass', 'verpass']))
-    def POST_update(self, res, email, curpass, password, newpass, verpass):
+    def POST_update(self, res, email, curpass, realname, password, newpass, verpass):
         res._update('status', innerHTML='')
         if res._chk_error(errors.WRONG_PASSWORD):
             res._focus('curpass')
             res._update('curpass', value='')
             return
+
+        if res._chk_error(errors.BAD_REALNAME_CHARS):
+            res._focus('real_name')
+        elif res._chk_error(errors.BAD_REALNAME_SHORT):
+            res._focus('real_name')
+        elif res._chk_error(errors.BAD_REALNAME_LONG):
+            res._focus('real_name')    
+        if realname and realname == c.user.real_name:
+            c.user.real_name = None
+            c.user._commit()
+            res._update('status', innerHTML=_('Your real name has been removed'))
+        elif realname:
+            c.user.real_name = realname
+            c.user._commit()
+            res._update('status', innerHTML=_('Your real name has been updated'))
+
         updated = False
         if res._chk_error(errors.BAD_EMAIL):
             res._focus('email')
@@ -594,6 +611,7 @@ class ApiController(RedditController):
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
+            c.user._commit()
             self.send_confirmation()
             res._update('status',
                         innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))

@@ -34,7 +34,7 @@
     <%
       domain = get_domain(cname = c.cname, subreddit = False)
     %>
-    Awarded by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt; to &lt;a href="http://${domain}/user/${thing.recipient().name}"&gt;${thing.recipient().name}&lt;/a&gt; for ${thing.reason}
+    Awarded by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.printable_name}&lt;/a&gt; to &lt;a href="http://${domain}/user/${thing.recipient().name}"&gt;${thing.recipient().printable_name}&lt;/a&gt; for ${thing.reason}
   </description>
 
 </item>
