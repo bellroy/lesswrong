@@ -39,6 +39,15 @@
     </td>
 </tr>
 <tr>
+    <td align="right">${_("Real Name")}:</td>
+    <td><input name="real_name" type="text" value="${hasattr(c.user,'real_name') and c.user.real_name or ''}" title="Enter your current real name to remove it"/></td>
+    <td>
+      ${error_field("BAD_REALNAME_CHARS")}
+      ${error_field("BAD_REALNAME_SHORT")}
+      ${error_field("BAD_REALNAME_LONG")}
+    </td>
+</tr>
+<tr>
     <td align="right">${_("New password")}:</td>
     <td><input name="newpass" type="password" maxlength="20"/></td>
     <td>${error_field("BAD_PASSWORD")}</td>

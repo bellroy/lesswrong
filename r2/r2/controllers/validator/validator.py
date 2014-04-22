@@ -600,6 +600,36 @@ class VUname(VRequired):
             except NotFound:
                 return user_name
 
+realname_rx = re.compile(r"^[a-zA-Z\s\-]{3,40}$", re.UNICODE)
+
+def chkrealname(x):
+    try:
+        return str(x) if realname_rx.match(x) else None
+    except TypeError:
+        return None
+    except UnicodeEncodeError:
+        return None
+
+def whyrealnamebad(x):
+    if not x:
+        return errors.BAD_REALNAME_CHARS
+    if len(x)<3:
+        return errors.BAD_REALNAME_SHORT
+    if len(x)>40:
+        return errors.BAD_REALNAME_LONG
+    return errors.BAD_REALNAME_CHARS
+
+class VRname(VRequired):
+    def __init__(self, item, *a, **kw):
+        VRequired.__init__(self, item, errors.BAD_REALNAME, *a, **kw)
+    def run(self, real_name):
+        original_real_name = real_name;
+        real_name = chkrealname(real_name)
+        if not real_name:
+            return self.error(whyrealnamebad(original_real_name))
+        else:
+            return real_name
+
 class VLogin(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.WRONG_PASSWORD, *a, **kw)

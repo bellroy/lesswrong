@@ -87,9 +87,17 @@ class Account(Thing):
                      messagebanned = False,
                      dashboard_visit = datetime(2006,10,1, tzinfo = g.tz),
                      wiki_association_attempted_at = None, # None or datetime
-                     wiki_account = None # None, str(account name) or the special string '__taken__', if a new
+                     wiki_account = None, # None, str(account name) or the special string '__taken__', if a new
                                          # user didn't get an account because someone else already had the name.
+                     real_name = None
                      )
+
+    @property
+    def printable_name(self):
+        if self.real_name:
+            return self.real_name + " [" + self.name + "]"
+        else:
+            return self.name
 
     def karma_ups_downs(self, kind, sr = None):
         # NOTE: There is a legacy inconsistency in this method. If no subreddit

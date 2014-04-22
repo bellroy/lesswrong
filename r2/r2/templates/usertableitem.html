@@ -35,7 +35,7 @@
 <%def name="cell_type(name)">
   %if name == "user":
       <span class="user">
-         ${plain_link(thing.user.name, "/user/%s/" % thing.user.name, _sr_path=False)}
+         ${plain_link(thing.user.printable_name, "/user/%s/" % thing.user.name, _sr_path=False)}
          &nbsp;(<b>${thing.user.safe_karma}</b>)
       </span>&nbsp;
   %elif c.user_is_loggedin and name == "sendmessage" and c.user != thing.user:

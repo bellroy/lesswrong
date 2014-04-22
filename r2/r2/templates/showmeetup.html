@@ -17,7 +17,7 @@
       %else:
         <%
            author = meetup.author()
-           name = websafe(author.name)
+           name = websafe(author.printable_name)
            href = unsafe('href="%s"' % "/user/%s/" % name)
            if c.user_is_admin: name += " (%d)" % (author.link_karma)
         %>
