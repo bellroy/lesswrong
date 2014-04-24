@@ -45,7 +45,7 @@ try:
 except NotFound:
     s = Subreddit._create_and_subscribe('meetups', admin,
                                         { 'title': 'Less Wrong Meetups',
-                                          'type': 'private',
+                                          'type': 'restricted',
                                           'default_listing': 'new' })
 
     s.posts_per_page_multiplier = 4
