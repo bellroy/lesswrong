@@ -1,3 +1,4 @@
+# coding: utf8
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -23,7 +24,7 @@ from pylons import c, request, g
 from pylons.i18n import _
 from pylons.controllers.util import abort
 from r2.lib import utils, captcha
-from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii
+from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii, _force_unicode
 from r2.lib.wikipagecached import WikiPageCached
 from r2.lib.db.operators import asc, desc
 from r2.config import cache
@@ -600,11 +601,11 @@ class VUname(VRequired):
             except NotFound:
                 return user_name
 
-realname_rx = re.compile(r"^[a-zA-Z\s\-]{3,40}$", re.UNICODE)
+realname_rx = re.compile(ur"^[\w\s\-]{3,40}$", re.UNICODE)
 
 def chkrealname(x):
     try:
-        return str(x) if realname_rx.match(x) else None
+        return x if realname_rx.match(x) else None
     except TypeError:
         return None
     except UnicodeEncodeError:
@@ -623,12 +624,12 @@ class VRname(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.BAD_REALNAME, *a, **kw)
     def run(self, real_name):
-        original_real_name = real_name;
+        original_real_name = real_name
         real_name = chkrealname(real_name)
         if not real_name:
             return self.error(whyrealnamebad(original_real_name))
         else:
-            return real_name
+            return real_name.encode('utf8')
 
 class VLogin(VRequired):
     def __init__(self, item, *a, **kw):
