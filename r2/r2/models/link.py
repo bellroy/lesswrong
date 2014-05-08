@@ -53,8 +53,6 @@ class LinkExists(Exception): pass
 # defining types
 class Link(Thing, Printable, ImageHolder):
     _data_int_props = Thing._data_int_props + ('num_comments', 'reported')
-    _base_props = Thing._base_props + ('_descendant_karma',)
-    _int_props = Thing._int_props + ('_descendant_karma',)
     _defaults = dict(is_self = False,
                      reported = 0, num_comments = 0,
                      moderator_banned = False,
@@ -72,10 +70,14 @@ class Link(Thing, Printable, ImageHolder):
                      blessed = False,
                      comments_enabled = True,
                      notify_on_comment = False,
-                     cc_licensed = False)
+                     cc_licensed = False,
+                     _descendant_karma = 0)
 
     _only_whitespace = re.compile('^\s*$', re.UNICODE)
     _more_marker = '<a id="more"></a>'
+
+    def __init__(self, *a, **kw):
+        Thing.__init__(self, *a, **kw)
 
     @classmethod
     def by_url_key(cls, url):
@@ -692,19 +694,6 @@ class Link(Thing, Printable, ImageHolder):
       q = self._link_nav_query(sort = operators.desc('_date'))
       return self._link_for_query(q)
 
-    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
-                 spam = False, id = None, descendant_karma = 0, **attrs):
-
-        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
-
-        with self.safe_set_attr:
-            self._descendant_karma = descendant_karma
-
-    @classmethod
-    def _build(cls, id, bases):
-        return cls(bases.ups, bases.downs, bases.date,
-                   bases.deleted, bases.spam, id, bases.descendant_karma)
-
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent posts.
 
@@ -899,14 +888,13 @@ class LinkTag(Relation(Link, Tag)):
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
-    _base_props = Thing._base_props + ('_descendant_karma',)
-    _int_props = Thing._int_props + ('_descendant_karma',)
     _defaults = dict(reported = 0, 
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
                      retracted = False,
-                     show_response_to = False)
+                     show_response_to = False,
+                     _descendant_karma = 0)
 
     def _markdown(self):
         pass
@@ -1081,6 +1069,7 @@ class Comment(Thing, Printable):
         return self.try_parent(lambda p: p.reply_costs_karma, False)
 
     def incr_descendant_karma(self, comments, amount):
+
         old_val = getattr(self, '_descendant_karma')
 
         comments.append(self._id)
@@ -1222,19 +1211,6 @@ class Comment(Thing, Printable):
             item.score_fmt = Score.points
             item.permalink = item.make_permalink(item.link, item.subreddit)
             item.can_be_deleted = item.can_delete()
-
-    def __init__(self, ups = 0, downs = 0, date = None, deleted = False,
-                 spam = False, id = None, descendant_karma = 0, **attrs):
-
-        Thing.__init__(self, ups, downs, date, deleted, spam, id, **attrs)
-
-        with self.safe_set_attr:
-            self._descendant_karma = descendant_karma
-
-    @classmethod
-    def _build(cls, id, bases):
-        return cls(bases.ups, bases.downs, bases.date,
-                   bases.deleted, bases.spam, id, bases.descendant_karma)
 
     def _commit(self, *a, **kw):
         """Detect when we need to invalidate the sidebar recent comments.
