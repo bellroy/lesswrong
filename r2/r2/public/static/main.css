@@ -1428,3 +1428,20 @@ span.morecomments {
     margin: -9px 0 9px;
 }
 
+/* New home page outline */
+.masthead ul {
+font-size: 1.5em;
+margin-bottom: 0.5em;
+}
+.masthead {
+width: 70%;
+margin: 0 auto;
+text-align: left;
+}
+.masthead h2 {
+font-weight: bold;
+border: none;
+}
+.masthead ul a {
+font-weight: bold;
+}
