@@ -31,14 +31,26 @@ except NotFound:
                                           'default_listing': 'new' })
     s.header = "/static/logo-discussion.png"
     s.stylesheet = "/static/discussion.css"
-    s.infotext = u"""This part of the site is for the discussion of topics not
-                     yet ready or not suitable for normal top-level posts.
-                     Votes are only worth \N{PLUS-MINUS SIGN}1 point here. For
-                     more information, see [About Less Wrong](/about-less-wrong)."""
+    s.infotext = u"""You're looking at Less Wrong's discussion board. This includes
+                     all posts, including those that haven't been promoted to the front
+                     page yet. For more information, see [About Less Wrong](/about-less-wrong)."""
 
     s.posts_per_page_multiplier = 4
     s.post_karma_multiplier = 1
     s._commit()
+
+try:
+    Subreddit._by_name('meetups')
+except NotFound:
+    s = Subreddit._create_and_subscribe('meetups', admin,
+                                        { 'title': 'Less Wrong Meetups',
+                                          'type': 'restricted',
+                                          'default_listing': 'new' })
+
+    s.posts_per_page_multiplier = 4
+    s.post_karma_multiplier = 1
+    s._commit()
+
 
 tags = ['group_rationality_diary', 'open_thread', 'quotes']
 for tag in tags:
