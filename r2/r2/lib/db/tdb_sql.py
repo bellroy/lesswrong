@@ -544,16 +544,11 @@ def get_thing(type_id, thing_id):
     #if single, only return one storage, otherwise make a dict
     res = {} if not single else None
     for row in r:
-        kwargs = { 'ups': row.ups,
-                   'downs': row.downs,
-                   'date': row.date,
-                   'deleted': row.deleted,
-                   'spam': row.spam }
-        if type_id in (types_name["link"].type_id, types_name["comment"].type_id):
-            kwargs['descendant_karma'] = row.descendant_karma
-
-        stor = storage(**kwargs)
-
+        stor = storage(ups = row.ups,
+                       downs = row.downs,
+                       date = row.date,
+                       deleted = row.deleted,
+                       spam = row.spam)
         if single:
             res = stor
         else:
