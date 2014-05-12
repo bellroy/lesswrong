@@ -19,15 +19,28 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from r2.config import cache
+
+from hashlib import sha1
 
 class NoneResult(object): pass
 
-def memoize(iden, time = 0):
+def sha1_args(*args, **kwargs):
+    '''Stringify args and kwargs, concatenate and sha1 the result.'''
+    return sha1(str(args) + str(kwargs)).hexdigest()
+
+def memoize(iden, time = 0, hash=None):
+    def default_hash(*args, **kwargs):
+        '''Not much of a hash, but good enough for small args.'''
+        return str(args) + str(kwargs)
+
+    if hash is None: hash = default_hash
+
     def memoize_fn(fn):
         from r2.lib.memoize import NoneResult
         def new_fn(*a, **kw):
-            key = iden + str(a) + str(kw)
+            from r2.config import cache
+
+            key = iden + hash(*a, **kw)
             #print 'CHECKING', key
             res = cache.get(key)
             if res is None:
@@ -42,6 +55,7 @@ def memoize(iden, time = 0):
     return memoize_fn
 
 def clear_memo(iden, *a, **kw):
+    from r2.config import cache
     key = iden + str(a) + str(kw)
     #print 'CLEARING', key
     cache.delete(key)
