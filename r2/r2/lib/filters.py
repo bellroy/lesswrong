@@ -29,6 +29,8 @@ import lxml.html
 from lxml.html import soupparser
 from lxml.html.clean import Cleaner, autolink_html
 
+from r2.lib.memoize import memoize, sha1_args
+
 MD_START = '<div class="md">'
 MD_END = '</div>'
 
@@ -185,6 +187,7 @@ control_chars = re.compile('[\x00-\x08\x0b\x0c\x0e-\x1f]')   # Control character
 def remove_control_chars(text):
     return control_chars.sub('',text)
 
+@memoize('r2.filters.cleanhtml', hash=sha1_args, time=60 * 60 * 12) # 12 hours
 def cleanhtml(html='', cleaner=None):
     html_doc = soupparser.fromstring(remove_control_chars(html))
     if not cleaner:
