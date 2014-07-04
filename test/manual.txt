@@ -89,3 +89,11 @@ Click the 'Main' link
   Post a new article, choosing to post to 'discussion'
   You should be redirected to the discussion page
   The article should be in the discussion area, but not on the main site
+
+- Banning
+--------------------------------------------------------------------------------
+Log in as an administrator and ban your test user from /r/discussion
+Log in as your test user
+  Browse to a topic in /r/discussion
+    Attempt to vote on the link - it should fail
+    Attempt to vote on a comment - it should fail

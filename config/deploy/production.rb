@@ -16,6 +16,11 @@ role :db,  "salad.trikeapps.com", :primary => true, :no_release => true
 role :backups, "backup.trikeapps.com", :user => 'backup', :no_release => true
 
 before "deploy:update_code", "tests_check:manual_tests_executed?"
+after 'deploy:update_code', 'git:tag_deploy'
+
+# XXX: Disabled for now - it fails to remove the 20110705001432
+# release. Fix when we cut the next AMI.
+# after 'deploy:restart', 'deploy:cleanup'
 
 after 'multistage:ensure', :check_hostname
 after 'deploy:cleanup', :check_hostname
@@ -33,4 +38,3 @@ task :check_hostname, :roles => :app, :only => :primary do
     end
   end
 end
-
