@@ -6,7 +6,7 @@ require 'pathname'
 # Note, subversion is required for some of the python dependencies
 %w[libyaml-dev libfreetype6-dev libjpeg62-dev libpng12-dev curl gettext
 python2.7-dev python-setuptools python-imaging libevent1-dev python-geoip
-subversion].each do |deb|
+ruby1.9.1-dev subversion].each do |deb|
   package deb
 end
 
