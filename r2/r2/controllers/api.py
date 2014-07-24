@@ -928,6 +928,12 @@ class ApiController(RedditController):
 
         isRetracted = thing.retracted if thing and isinstance(thing,Comment) else False
 
+        if thing.subreddit_slow.is_banned(c.user):
+            res._update('status_' + thing._fullname,
+                        innerHTML = 'You have been banned and cannot vote.')
+            res._show('status_' + thing._fullname)
+            return
+
         # Ensure authors can't vote on their own posts / comments
         # Cannot vote on retracted comments
         if thing and thing.author_id != c.user._id and not isRetracted:
