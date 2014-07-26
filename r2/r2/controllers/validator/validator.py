@@ -601,7 +601,7 @@ class VUname(VRequired):
             except NotFound:
                 return user_name
 
-realname_rx = re.compile(ur"^[\w\s\-]{3,40}$", re.UNICODE)
+realname_rx = re.compile(ur"^[\w\s\-]{1,40}$", re.UNICODE)
 
 def chkrealname(x):
     try:
@@ -614,7 +614,7 @@ def chkrealname(x):
 def whyrealnamebad(x):
     if not x:
         return errors.BAD_REALNAME_CHARS
-    if len(x)<3:
+    if len(x)<1:
         return errors.BAD_REALNAME_SHORT
     if len(x)>40:
         return errors.BAD_REALNAME_LONG

@@ -611,7 +611,6 @@ class ApiController(RedditController):
         elif email and (not hasattr(c.user,'email')
                         or c.user.email != email):
             c.user.email = email
-            c.user._commit()
             self.send_confirmation()
             res._update('status',
                         innerHTML=_('Your email has been updated.  You will have to confirm before commenting or posting.'))
