@@ -60,7 +60,7 @@
 	url = https://github.com/opscode-cookbooks/apt.git
 [submodule "provisioning/cookbooks/chef-sugar"]
 	path = provisioning/cookbooks/chef-sugar
-	url = https://github.com/opscode-cookbooks/chef-sugar.git
+	url = https://github.com/sethvargo/chef-sugar.git
 [submodule "provisioning/cookbooks/xfs"]
 	path = provisioning/cookbooks/xfs
 	url = https://github.com/opscode-cookbooks/xfs.git
