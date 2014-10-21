@@ -83,7 +83,7 @@ end
 
 def app_server(action)
   return unless [:start, :stop, :restart].include?(action)
-  sudo "#{action} paster"
+  sudo "/etc/init.d/paster #{action}"
 end
 
 # These tasks assume they are running in a capistrano managed directory structure.
