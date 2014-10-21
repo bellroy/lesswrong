@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DIR="/srv/www/lesswrong/current"
-PIDFILE="/srv/www/lesswrong/shared/pids/paster.pid"
+DIR="/srv/www/lesswrong.com/current"
+PIDFILE="/srv/www/lesswrong.com/shared/pids/paster.pid"
 
 # This aims to set environment variables, APPLICATION, APPLICATION_USER, APPLICATION_ENV
 eval $(curl --silent http://169.254.169.254/latest/user-data | grep '^export')
