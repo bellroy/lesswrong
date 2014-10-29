@@ -8,18 +8,17 @@ if [ $fqdn_exit_code != 0 ]; then
   sed -i".bak" "/^127.0.1.1/ s/$/ `hostname`/" /etc/hosts
 fi
 
-/usr/local/sys_scripts/bin/git-clone-update git@git.trike.com.au:sys_scripts.git /usr/local/sys_scripts --branch master
-
 export APPLICATION=lesswrong.com
-export APPLICATION_USER=www-data
+export APPLICATION_USER=lesswrong
 export APPLICATION_ENV=staging
-APP_REPO='git://github.com/tricycle/lesswrong.git'
-APP_DIR=/srv/www/lesswrong.com
+APP_REPO='git@github.com:tricycle/lesswrong.git'
+APP_DIR=/srv/www/lesswrong
 
 rm /etc/apache2/sites-enabled/*
 a2ensite $APPLICATION_ENV
+cp /etc/init/paster-$APPLICATION_ENV.conf /etc/init/paster.conf
 
-sudo -u $APPLICATION_USER /usr/local/sys_scripts/bin/git-clone-update $APP_REPO $APP_DIR/current --branch staging || sudo poweroff
+sudo -u $APPLICATION_USER /usr/local/bin/git-clone-update $APP_REPO $APP_DIR/current --branch staging || sudo poweroff
 cd $APP_DIR/current && sudo -u $APPLICATION_USER env APPLICATION=$APPLICATION APPLICATION_USER=$APPLICATION_USER APPLICATION_ENV=$APPLICATION_ENV rake after_update_code > $APP_DIR/shared/log/after_update_code.log 2>&1
 cd $APP_DIR/current && sudo -u $APPLICATION_USER env APPLICATION=$APPLICATION APPLICATION_USER=$APPLICATION_USER APPLICATION_ENV=$APPLICATION_ENV rake deploy:restart > $APP_DIR/shared/log/deploy-restart.log 2>&1
 sudo -u $APPLICATION_USER $APP_DIR/current/scripts/sync_wiki_export.sh

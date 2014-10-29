@@ -40,7 +40,7 @@ cd "$APPDIR"
 # Stop the current server
 if [ -e "$PIDFILE" ]; then
   echo "Stopping server"
-  sudo -u www-data paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
+  sudo -u lesswrong paster serve --stop-daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
 
 # Drop existing databases
@@ -64,7 +64,7 @@ fi
 # Start the server
 if [ ! -e "$PIDFILE" ]; then
   echo "Starting server"
-  sudo -u www-data paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
+  sudo -u lesswrong paster serve --daemon --pid-file "$PIDFILE" "$INIFILE"
 fi
 
 # Run the export
