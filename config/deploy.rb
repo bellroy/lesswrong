@@ -21,7 +21,7 @@ set :engine, "paster"
 # Be sure to change these in your application-specific files
 set :branch, 'stable'
 set :rails_env, nil
-set :user, "www-data"            # defaults to the currently logged in user
+set :user, "lesswrong"            # defaults to the currently logged in user
 set :public_path, lambda { "#{current_path}/r2/r2/public" }
 set :databases, %w[main change email query_queue]
 
