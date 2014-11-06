@@ -84,8 +84,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   setup = <<-EOF
   apt-get update
-  apt-get install -y ruby1.9.1-dev
-  gem install chef
+  apt-get install -y ruby1.9.1-dev build-essential
+  gem install chef --no-ri --no-rdoc
   EOF
 
   config.vm.provision :shell, inline: setup
