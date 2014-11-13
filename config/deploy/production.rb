@@ -1,6 +1,6 @@
 load 'config/cap-tasks/trike-aws.rb'
 
-set :application, "lesswrong.com"
+set :application, "lesswrong"
 set :domains, %w[ lesswrong.com ]
 set :elb_name, 'lblw'
 set :hosts, lambda { AWS.elb_hosts(elb_name) }

@@ -1,7 +1,7 @@
 require 'socket'
 load 'config/cap-tasks/trike-aws.rb'
 
-set :application, "lesswrong.com"
+set :application, "lesswrong"
 set :domains, %w[ lesswrong.com ]
 set :deploy_to, "/srv/www/#{application}"
 set :branch, 'staging'
@@ -42,4 +42,3 @@ task :check_hostname, :roles => :app, :only => :primary do
     end
   end
 end
-

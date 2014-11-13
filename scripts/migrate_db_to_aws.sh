@@ -11,10 +11,10 @@ if [ `hostname` == 'serpent' ]; then
   # Sync the dump
   rsync -av $DB_DUMP root@turnip.trike.com.au:$DB_DUMP
 else
-  cd /srv/www/lesswrong.com/current/r2
+  cd /srv/www/lesswrong/current/r2
 
   # Stop paster
-  sudo -u www-data -H paster serve --stop-daemon --pid-file /srv/www/lesswrong.com/shared/pids/paster.pid lesswrong.com.ini
+  sudo -u lesswrong -H paster serve --stop-daemon --pid-file /srv/www/lesswrong/shared/pids/paster.pid lesswrong.com.ini
 
   # Extract and load the dump
   sudo -u postgres sh -c "zcat $DB_DUMP | psql -f -"
