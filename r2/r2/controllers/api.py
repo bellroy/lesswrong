@@ -588,12 +588,8 @@ class ApiController(RedditController):
             res._update('curpass', value='')
             return
 
-        if res._chk_error(errors.BAD_REALNAME_CHARS):
+        if res._chk_error(errors.BAD_REALNAME_CHARS) or res._chk_error(errors.BAD_REALNAME_SHORT) or res._chk_error(errors.BAD_REALNAME_LONG):
             res._focus('real_name')
-        elif res._chk_error(errors.BAD_REALNAME_SHORT):
-            res._focus('real_name')
-        elif res._chk_error(errors.BAD_REALNAME_LONG):
-            res._focus('real_name')    
         if realname and realname == c.user.real_name:
             c.user.real_name = None
             c.user._commit()
