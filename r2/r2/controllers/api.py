@@ -577,7 +577,7 @@ class ApiController(RedditController):
               VModhash(),
               curpass = nop('curpass'),
               email = ValidEmail("email"),
-              realname = VRname("real_name"),
+              realname = VRealName("real_name"),
               newpass = nop("newpass"),
               verpass = nop("verpass"),
               password = VPassword(['newpass', 'verpass']))
@@ -588,9 +588,9 @@ class ApiController(RedditController):
             res._update('curpass', value='')
             return
 
-        if res._chk_error(errors.BAD_REALNAME_CHARS) or res._chk_error(errors.BAD_REALNAME_SHORT) or res._chk_error(errors.BAD_REALNAME_LONG):
+        if res._chk_error(errors.BAD_REALNAME_CHARS) or res._chk_error(errors.BAD_REALNAME_LONG):
             res._focus('real_name')
-        if realname and realname == c.user.real_name:
+        if realname is None and c.user.real_name is not None:
             c.user.real_name = None
             c.user._commit()
             res._update('status', innerHTML=_('Your real name has been removed'))
