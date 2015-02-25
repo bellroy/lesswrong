@@ -1411,6 +1411,9 @@ div.footer ul.footer-links li a {
 	font-weight: bold;
 	text-decoration: none;
 }
+div.footer ul.footer-links li.privacy-policy a {
+  color: #cc0000;
+}
 
 * .loading {
     display: none;
