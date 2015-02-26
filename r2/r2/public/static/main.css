@@ -1411,7 +1411,7 @@ div.footer ul.footer-links li a {
 	font-weight: bold;
 	text-decoration: none;
 }
-div.footer ul.footer-links li.privacy-policy a {
+div.footer ul.footer-links li.privacy-policy span {
   color: #cc0000;
 }
 
