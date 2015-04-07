@@ -29,6 +29,23 @@ ORDER BY
     for row in res:
         print(row[0], row[1])
 
+def list_voters_for_comment(id36):
+    sql = '''
+SELECT
+  voter.value,
+  vote.name,
+  vote.date
+FROM
+  reddit_rel_vote_account_comment AS vote
+  INNER JOIN reddit_data_account AS voter ON voter.thing_id = vote.thing1_id
+WHERE vote.thing2_id = :comment_id and voter.key = 'name'
+'''
+    res = databases.main_engine.execute(text(sql), comment_id=int(id36, 36))
+    format = '%35s %4s %s'
+    print format % ('voter', 'vote', 'time')
+    for row in res:
+        print format % (row[0], row[1], row[2].isoformat())
+
 def num_comments(user):
     sql = '''
 SELECT
