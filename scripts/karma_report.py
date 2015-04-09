@@ -29,6 +29,25 @@ ORDER BY
     for row in res:
         print(row[0], row[1])
 
+def list_voter_ips_for_comment(id36):
+    sql = '''
+SELECT
+  account.value,
+  votes.name,
+  vote_data.value
+FROM
+  reddit_data_account AS account
+  INNER JOIN reddit_rel_vote_account_comment AS votes ON votes.thing1_id = account.thing_id
+  INNER JOIN reddit_data_rel_vote_account_comment AS vote_data ON vote_data.thing_id = votes.rel_id
+WHERE
+  account.key = 'name'
+  AND vote_data.key = 'ip'
+  AND votes.thing2_id = :comment_id
+'''
+    res = databases.main_engine.execute(text(sql), comment_id=int(id36, 36))
+    for row in res:
+        print(row[0], row[1], row[2])
+
 def list_voters_for_comment(id36):
     sql = '''
 SELECT
