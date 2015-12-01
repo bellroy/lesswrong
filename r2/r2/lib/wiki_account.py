@@ -14,10 +14,11 @@ def create(name, password, email):
 
     '''
     cj = CookieJar()
-    endpoint = g.wiki_api_url + '?action=createaccount'
+    endpoint = g.wiki_api_url
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     # input-type values from the html form
-    formdata = { "format": "xml",
+    formdata = { "action": "createaccount",
+                 "format": "xml",
                  "name": name,
                  "password": password,
                  "email": email,
