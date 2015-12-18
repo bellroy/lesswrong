@@ -112,7 +112,10 @@
   jQuery.noConflict();
 
   var class_dict = ${class_dict()};
-  var where = ${path_info()};
+  var where = {
+    path: location.pathname,
+    params: parseQueryString(location.search)
+  };
   %if hasattr(c.site, '_fullname'):
     var cur_site = "${c.site._fullname if not c.default_sr else ''}";
   %else:
