@@ -96,7 +96,7 @@ setup(
                       "Pylons==0.9.6.2",
                       "pycrypto==2.0.1",
                       "Babel==0.9.6",
-                      "flup<=1.0.3",
+                      "flup==1.0.3.dev-20110405",
                       "simplejson==2.1.1",
                       "SQLAlchemy==0.3.10",
                       "BeautifulSoup==3.0.7a",
