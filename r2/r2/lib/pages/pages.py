@@ -155,12 +155,12 @@ class Reddit(Wrapped):
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
         ps.append(VirtualStudyRoom())
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
         if c.site.name == 'discussion':
             ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
             ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
         else:
             ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
-        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
