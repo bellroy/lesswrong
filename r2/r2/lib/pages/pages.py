@@ -153,6 +153,7 @@ class Reddit(Wrapped):
             ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
+        ps.append(VirtualStudyRoom())
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
         if c.site.name == 'discussion':
             ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
@@ -1597,7 +1598,6 @@ class NumberPollResults(PollResults):
     def __init__(self, poll, *a, **kw):
         PollResults.__init__(self, poll, *a, **kw)
 
-
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
         meetups = Meetup.upcoming_meetups_near(location, max_distance, 2)
@@ -1643,6 +1643,7 @@ class MeetupIndex(Wrapped):
 
 class MeetupNotification(Wrapped): pass
 
+class VirtualStudyRoom(Wrapped): pass
 
 class WikiPageInline(Wrapped): pass
 
