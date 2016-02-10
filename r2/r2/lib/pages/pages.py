@@ -153,13 +153,14 @@ class Reddit(Wrapped):
             ps.append(FeedLinkBar(getattr(self, 'canonical_link', request.path)))
 
         ps.append(SideBoxPlaceholder('side-meetups', _('Nearest Meetups'), '/meetups', sr_path=False))
+        ps.append(VirtualStudyRoom())
         ps.append(SideBoxPlaceholder('side-comments', _('Recent Comments'), '/comments'))
+        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
         if c.site.name == 'discussion':
             ps.append(SideBoxPlaceholder('side-open', _('Recent Open Threads'), '/tag/open_thread'))
             ps.append(SideBoxPlaceholder('side-diary', _('Recent Rationality Diaries'), '/tag/group_rationality_diary'))
         else:
             ps.append(SideBoxPlaceholder('side-quote', _('Recent Rationality Quotes'), '/tag/quotes'))
-        ps.append(SideBoxPlaceholder('side-posts', _('Recent Posts'), '/recentposts'))
 
         if g.recent_edits_feed:
             ps.append(RecentWikiEditsBox(g.recent_edits_feed))
@@ -1588,7 +1589,6 @@ class NumberPollResults(PollResults):
     def __init__(self, poll, *a, **kw):
         PollResults.__init__(self, poll, *a, **kw)
 
-
 class UpcomingMeetups(SpaceCompressedWrapped):
     def __init__(self, location, max_distance, *a, **kw):
         meetups = Meetup.upcoming_meetups_near(location, max_distance, 2)
@@ -1634,6 +1634,7 @@ class MeetupIndex(Wrapped):
 
 class MeetupNotification(Wrapped): pass
 
+class VirtualStudyRoom(Wrapped): pass
 
 class WikiPageInline(Wrapped): pass
 
