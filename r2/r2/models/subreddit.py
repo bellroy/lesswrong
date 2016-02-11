@@ -196,8 +196,6 @@ class Subreddit(Thing, Printable, ImageHolder):
             return False
         elif self.type == 'public':
             return True
-        elif self == Subreddit._by_name(g.default_sr) and user.safe_karma >= g.karma_to_post:
-            return True
         else:
             return False
 

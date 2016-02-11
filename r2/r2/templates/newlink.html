@@ -76,7 +76,7 @@
                       %elif sr._id == thing.sr_id:
                         selected="selected"
                       %endif
-              >${sr.title} ${_('(Your karma must be at least %d to post here)' % g.karma_to_post) if not sr.can_submit(c.user) else ''}
+              >${sr.title} ${'(Posting to main is currently disabled)' if not sr.can_submit(c.user) else ''}
               </option>
             %endfor
           </select>
