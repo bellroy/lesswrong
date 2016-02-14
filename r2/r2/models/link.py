@@ -116,7 +116,7 @@ class Link(Thing, Printable, ImageHolder):
             elif self.author_id == c.user._id:
                 # They can submit if they are the author and still have access
                 # to the subreddit of the article
-                return sr.can_submit(user)
+                return sr.can_submit(user, self)
             else:
                 return False
 

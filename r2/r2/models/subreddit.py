@@ -179,7 +179,7 @@ class Subreddit(Thing, Printable, ImageHolder):
         else:
             return False
 
-    def can_submit(self, user):
+    def can_submit(self, user, thing = None):
         if c.user_is_admin:
             return True
         elif self.type == 'private' and self.is_contributor(user):
@@ -195,6 +195,12 @@ class Subreddit(Thing, Printable, ImageHolder):
         elif self == Subreddit._by_name('discussion') and user.safe_karma < g.discussion_karma_to_post:
             return False
         elif self.type == 'public':
+            return True
+        elif (self == Subreddit._by_name(g.default_sr) 
+                and thing 
+                and hasattr(thing, 'sr_id') and Subreddit._byID(thing.sr_id) == Subreddit._by_name(g.default_sr) 
+                and hasattr(thing, 'author_id') and thing.author_id == user._id): 
+            # although new posts to main are disabled, editing of previous posts is permitted
             return True
         else:
             return False
