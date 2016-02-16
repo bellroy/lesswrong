@@ -53,6 +53,7 @@ class Globals(object):
                  'poll_max_choices',
                  'downvoted_reply_score_threshold',
                  'downvoted_reply_karma_cost',
+                 'no_voting_threshold',
                  'hide_comment_threshold',
                  'side_meetups_max_age',
                  'side_comments_max_age',
