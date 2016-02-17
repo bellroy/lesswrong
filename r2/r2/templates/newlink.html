@@ -71,12 +71,12 @@
           <select id="sr" name="sr">
             %for sr in thing.subreddits:
               <option value="${sr.name}"
-                      %if not sr.can_submit(c.user):
+                      %if not sr.can_submit(c.user, thing):
                         disabled="disabled"
                       %elif sr._id == thing.sr_id:
                         selected="selected"
                       %endif
-              >${sr.title} ${_('(Your karma must be at least %d to post here)' % g.karma_to_post) if not sr.can_submit(c.user) else ''}
+              >${sr.title} ${_('(Posting to main is currently disabled)') if not sr.can_submit(c.user, thing) else ''}
               </option>
             %endfor
           </select>

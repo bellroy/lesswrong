@@ -546,7 +546,6 @@ class VSubmitSR(Validator):
 
         if sr and not (c.user_is_loggedin and sr.can_submit(c.user)):
             c.errors.add(errors.SUBREDDIT_FORBIDDEN)
-            sr = None
 
         return sr
         
