@@ -467,7 +467,7 @@ class Link(Thing, Printable, ImageHolder):
             item.votable = bool(c.user_is_loggedin
                                 and c.user != item.author
                                 and not getattr(item, 'for_comment_permalink', False)
-                                and c.user.safe_karma >= g.no_voting_threshold)
+                                and c.user.safe_karma >= g.karma_to_vote)
 
             if c.user_is_loggedin and item.author._id == c.user._id:
                 item.nofollow = False
@@ -1192,7 +1192,7 @@ class Comment(Thing, Printable):
             item.votable = bool(c.user_is_loggedin
                                 and c.user != item.author 
                                 and not item.retracted
-                                and c.user.safe_karma >= g.no_voting_threshold)
+                                and c.user.safe_karma >= g.karma_to_vote)
             
             if item.votable and c.profilepage:
                 # Can only vote on profile page under certain conditions
