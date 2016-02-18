@@ -320,6 +320,12 @@ class Link(Thing, Printable, ImageHolder):
             #if author_karma <= 0 and random.randint(author_karma, 0) != 0:
                 #return False
 
+        if wrapped.hidden:
+            return False
+        
+        if not user and wrapped._score < g.default_min_link_score:
+            return False
+
         if user:
             if user.pref_hide_ups and wrapped.likes == True:
                 return False
@@ -328,9 +334,6 @@ class Link(Thing, Printable, ImageHolder):
                 return False
 
             if wrapped._score < user.pref_min_link_score:
-                return False
-
-            if wrapped.hidden:
                 return False
 
         return True
@@ -1063,7 +1066,11 @@ class Comment(Thing, Printable):
     def collapse_in_link_threads(self):
         if c.user_is_admin:
             return False
-        return self._score <= g.hide_comment_threshold
+      
+        if c.user_is_loggedin and self._score < c.user.pref_min_comment_score:
+            return True
+        
+        return self._score < g.default_min_comment_score
 
     @property
     def reply_costs_karma(self):
@@ -1164,7 +1171,10 @@ class Comment(Thing, Printable):
                                      data=True,return_dict=False)
         can_reply_srs = set(s._id for s in subreddits if s.can_comment(user))
 
-        min_score = c.user.pref_min_comment_score
+        if c.user_is_loggedin:
+            min_score = c.user.pref_min_comment_score
+        else:
+            min_score = g.default_min_comment_score
 
         cids = dict((w._id, w) for w in wrapped)
 
