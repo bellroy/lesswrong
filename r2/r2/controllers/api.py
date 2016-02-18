@@ -983,9 +983,9 @@ class ApiController(RedditController):
         if not comment:
             return
 
-        if c.user.safe_karma < g.karma_to_vote:
+        if c.user.safe_karma < g.karma_to_vote_on_polls:
             res._set_error(errors.BAD_POLL_BALLOT, comment._fullname,
-                           'You do not have the required {0} karma to vote'.format(g.karma_to_vote))
+                           'You do not have the required {0} karma to vote'.format(g.karma_to_vote_on_polls))
             return
 
         any_submitted = False
