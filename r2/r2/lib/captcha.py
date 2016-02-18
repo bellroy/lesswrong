@@ -19,8 +19,6 @@
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
-from __future__ import absolute_import
-
 import random, string
 #TODO find a better way to cache the captchas
 from r2.config import cache
