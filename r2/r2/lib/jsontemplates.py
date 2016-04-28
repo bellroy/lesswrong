@@ -94,6 +94,9 @@ class ThingJsonTemplate(JsonTemplate):
             return thing.author.name
         elif attr == "created":
             return time.mktime(thing._date.timetuple())
+        elif attr == "clicked":
+            clicked = thing.clicked()
+            return time.mktime(clicked._date.timetuple()) if clicked else None
         return getattr(thing, attr) if hasattr(thing, attr) else None
 
     def data(self, thing):
