@@ -6,19 +6,21 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
+from __future__ import absolute_import
+
 import random, string
 #TODO find a better way to cache the captchas
 from r2.config import cache
@@ -63,7 +65,7 @@ def valid_solution(iden, solution):
         or not solution
         or len(iden) != IDEN_LENGTH
         or len(solution) != SOL_LENGTH
-        or solution.upper() != cache.get(str(iden))): 
+        or solution.upper() != cache.get(str(iden))):
         solution = make_solution()
         cache.set(str(iden), solution, time = 300)
         return False
