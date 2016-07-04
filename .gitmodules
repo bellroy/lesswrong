@@ -4,3 +4,9 @@
 [submodule "tasks/manual_test_script"]
 	path = tasks/manual_test_script
 	url = git://github.com/tricycle/manual_test_script.git
+[submodule "provisioning/azavea.postgresql"]
+	path = provisioning/azavea.postgresql
+	url = git@github.com:azavea/ansible-postgresql.git
+[submodule "provisioning/geerlingguy.apache"]
+	path = provisioning/geerlingguy.apache
+	url = git@github.com:geerlingguy/ansible-role-apache.git
