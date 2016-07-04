@@ -8,6 +8,7 @@
     - name: Install ansible dependencies
       apt: name={{ item }} state=present
       with_items:
+        - 'git'
         - 'python-psycopg2'
 
     - name: Install lesswrong dependencies
@@ -22,12 +23,53 @@
         - 'subversion' # Needed to fetch some deps
 
     - name: Fetch GeoIP DB
-      script: fetch_geolite2_city.sh /usr/share/GeoIP/GeoLiteCity.dat
+      script: fetch_geolite_city.sh /usr/share/GeoIP/GeoLiteCity.dat
         creates=/usr/share/GeoIP/GeoLiteCity.dat
 
     - name: Fetch Wiki XML
       script: fetch_wiki_xml.sh /vagrant/r2/r2/public/files/wiki.lesswrong.xml
         creates=/vagrant/r2/r2/public/files/wiki.lesswrong.xml
+
+    - name: Fetch memcached-lesswrong
+      git:
+        repo=https://github.com/tricycle/memcached.git
+        dest=/opt/src/memcached-lesswrong
+        update=no
+
+    - name: Install memcached-lesswrong dependencies
+      apt: name={{ item }} state=present
+      with_items:
+        - 'libevent1-dev'
+
+    - name: Configure memcached-lesswrong
+      command: ./configure
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /opt/src/memcached-lesswrong/Makefile
+
+    - name: Build memcached-lesswrong
+      command: make
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /opt/src/memcached-lesswrong/memcached
+
+    - name: Install memcached-lesswrong
+      command: make install
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /usr/local/bin/memcached
+
+    - name: Install memcached-lesswrong init scripts
+      script: memcached_init_scripts.sh
+        creates=/etc/init.d/memcached
+
+    - name: Copy memcached-lesswrong config file
+      copy:
+        src=memcached-lesswrong.conf
+        dest=/etc/memcached.conf
+
+    - name: Start memcached-lesswrong
+      service: name=memcached state=started enabled=true
 
     - name: Create lesswrong DB user
       postgresql_user:
