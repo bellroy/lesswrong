@@ -97,6 +97,7 @@ menu =   MenuHandler(hot          = _('Popular'),
                      prefs        = _("Preferences"),
                      stats        = _("Stats"),
                      submit       = _("Create new article"),
+                     submitlink   = _("Submit a new link"),
                      meetupsnew   = _("Add new meetup"),
                      help         = _("Help"),
                      blog         = _("Blog"),
@@ -263,12 +264,13 @@ class NavButton(Styled):
     passed to a NavMenu instance upon its construction."""
     def __init__(self, title, dest, sr_path = True,
                  nocname=False, opt = '', aliases = [],
-                 target = "", style = "plain", **kw):
+                 target = "", style = "plain", dest_params = {}, **kw):
 
         # keep original dest to check against c.location when rendering
         self.aliases = set(a.rstrip('/') for a in aliases)
         self.aliases.add(dest.rstrip('/'))
         self.dest = dest
+        self.dest_params = dest_params
 
         Styled.__init__(self, style = style, sr_path = sr_path,
                         nocname = nocname, target = target,
@@ -289,6 +291,7 @@ class NavButton(Styled):
         else:
             p = {}
             base_path = ("%s/%s/" % (base_path, self.dest)).replace('//', '/')
+        p.update(self.dest_params)
 
         self.bare_path = _force_unicode(base_path.replace('//', '/')).lower()
         self.bare_path = self.bare_path.rstrip('/')
@@ -362,7 +365,7 @@ class NamedButton(NavButton):
             return NavButton.selected_title(self)
 
 class ExpandableButton(NamedButton):
-    def __init__(self, name, sr_path = True, nocname=False, dest = None, 
+    def __init__(self, name, sr_path = True, nocname=False, dest = None,
                  sub_reddit = "/", sub_menus=[], **kw):
         self.sub = sub_menus
         self.sub_reddit  = sub_reddit
@@ -613,5 +616,3 @@ class AdminTimeMenu(TimeMenu):
     get_param = 't'
     default   = 'day'
     options   = ('hour', 'day', 'week')
-
-
