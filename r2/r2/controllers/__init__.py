@@ -46,6 +46,8 @@ from listingcontroller import InterestingpostsController
 
 from listingcontroller import MyredditsController
 
+from admincontroller import VotemultiplierController
+
 from feedback import FeedbackController
 from front import FrontController
 from buttons import ButtonsController
@@ -68,4 +70,3 @@ except ImportError:
 
 from admin import AdminController
 from redirect import RedirectController
-
