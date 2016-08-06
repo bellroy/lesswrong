@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -29,7 +29,7 @@ def api_type(subtype = ''):
 def is_api(subtype = ''):
     from pylons import c
     return c.render_style and c.render_style.startswith(api_type(subtype))
-    
+
 def get_api_subtype():
     from pylons import c
     if is_api() and c.render_style.startswith('api-'):
@@ -54,12 +54,12 @@ class JsonTemplate(Template):
 
 class ThingJsonTemplate(JsonTemplate):
     __data_attrs__ = dict()
-    
+
     def points(self, wrapped):
         scores = wrapped.score_triplet(wrapped.likes)
         return map(wrapped.score_fmt, scores)
-        
-    
+
+
     def kind(self, wrapped):
         _thing = wrapped.lookups[0] if isinstance(wrapped, Wrapped) else wrapped
         return make_typename(_thing.__class__)
@@ -84,10 +84,10 @@ class ThingJsonTemplate(JsonTemplate):
                 return x.render()
             else:
                 return x
-        
+
         return dict((k, strip_data(self.thing_attr(thing, v)))
                     for k, v in self.__data_attrs__.iteritems())
-            
+
     def thing_attr(self, thing, attr):
         import time
         if attr == "author":
@@ -105,10 +105,10 @@ class ThingJsonTemplate(JsonTemplate):
             return self.rendered_data(thing)
         else:
             return self.raw_data(thing)
-        
+
     def render(self, thing = None, action = None, *a, **kw):
         return dict(kind = self.kind(thing), data = self.data(thing))
-        
+
 class SubredditJsonTemplate(ThingJsonTemplate):
     __data_attrs__ = dict(id           = "_id36",
                           name         = "_fullname",
@@ -131,7 +131,7 @@ class LinkJsonTemplate(ThingJsonTemplate):
                           domain       = "domain",
                           title        = "title",
                           url          = "url",
-                          author       = "author", 
+                          author       = "author",
                           num_comments = "num_comments",
                           created      = "created",
                           subreddit    = "subreddit",
@@ -143,7 +143,7 @@ class LinkJsonTemplate(ThingJsonTemplate):
         elif attr == 'subreddit_id':
             return thing.subreddit._fullname
         return ThingJsonTemplate.thing_attr(self, thing, attr)
-                          
+
     def rendered_data(self, thing):
         d = ThingJsonTemplate.rendered_data(self, thing)
         d['sr'] = thing.subreddit._fullname
@@ -159,7 +159,7 @@ class CommentJsonTemplate(ThingJsonTemplate):
                           replies      = "child",
                           body         = "body",
                           likes        = "likes",
-                          author       = "author", 
+                          author       = "author",
                           created      = "created",
                           link_id      = "link_id",
                           parent_id    = "parent_id",
@@ -242,7 +242,7 @@ class PanestackJsonTemplate(JsonTemplate):
         res = [x for x in res if x]
         if not res:
             return {}
-        return res if len(res) > 1 else res[0] 
+        return res if len(res) > 1 else res[0]
 
 class NullJsonTemplate(JsonTemplate):
     def render(self, thing = None, *a, **kw):
@@ -250,7 +250,7 @@ class NullJsonTemplate(JsonTemplate):
 
 class ListingJsonTemplate(ThingJsonTemplate):
     __data_attrs__ = dict(children = "things")
-    
+
     def points(self, w):
         return []
 
@@ -266,7 +266,7 @@ class ListingJsonTemplate(ThingJsonTemplate):
                 r = spaceCompress(r)
             res.append(r)
         return res
-    
+
     def kind(self, wrapped):
         return "Listing"
 

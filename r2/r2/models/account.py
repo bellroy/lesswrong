@@ -80,6 +80,7 @@ class Account(Thing):
                      report_correct = 0,
                      report_ignored = 0,
                      spammer = 0,
+                     vote_multiplier = 1,
                      sort_options = {},
                      has_subscribed = False,
                      pref_media = 'subreddit',
@@ -284,6 +285,7 @@ class Account(Thing):
 
         karma_balance = self.safe_karma * 4
         vote_cost = c.current_or_default_sr.post_karma_multiplier if vote_kind == 'link' else 1
+        vote_cost *= self.vote_multiplier
         if karma_spent + vote_cost > karma_balance:
             points_needed = abs(karma_balance - karma_spent - vote_cost)
             msg = strings.not_enough_downvote_karma % (points_needed, plurals.N_points(points_needed))
