@@ -62,7 +62,7 @@ def make_map(global_conf={}, app_conf={}):
        requirements=dict(where='subscriber|contributor|moderator'))
 
     #mc('/stats', controller='front', action='stats')
-
+    mc('/user/:username/multiplier', controller='votemultiplier', action='edit')
     mc('/user/:username/:where', controller='user', action='listing',
        where='profile')
 
@@ -79,11 +79,11 @@ def make_map(global_conf={}, app_conf={}):
     mc('/stylesheet', controller = 'front', action = 'stylesheet')
 
     mc('/', controller='promoted', action='listing')
-    
+
     for name,page in allWikiPagesCached.items():
         if page.has_key('route'):
             mc("/wiki/"+page['route'], controller='wikipage', action='wikipage', name=name)
-        
+
     mc('/invalidate_cache', controller='wikipage', action='invalidate_cache')
 
     listing_controllers = "hot|saved|toplinks|topcomments|new|recommended|randomrising|comments|blessed|recentposts|edits|promoted"
@@ -159,4 +159,3 @@ def make_map(global_conf={}, app_conf={}):
     mc("/*url", controller='front', action='catchall')
 
     return map
-

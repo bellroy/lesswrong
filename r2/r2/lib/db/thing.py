@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -90,7 +90,7 @@ class DataThing(object):
     def __setattr__(self, attr, val, make_dirty=True):
         if attr.startswith('__') or self.__safe__:
             object.__setattr__(self, attr, val)
-            return 
+            return
 
         if attr.startswith('_'):
             #assume baseprops has the attr
@@ -148,10 +148,10 @@ class DataThing(object):
 
             if data_props:
                 self._set_data(self._type_id, self._id, **data_props)
-            
+
             if thing_props:
                 self._set_props(self._type_id, self._id, **thing_props)
-            
+
             if keys:
                 for k in keys:
                     if self._dirties.has_key(k):
@@ -206,7 +206,7 @@ class DataThing(object):
                     to_save[pp(prop, i._id)] = val
 
         cache.set_multi(to_save, prefix)
-        
+
 
     def _load(self):
         self._load_multi(self)
@@ -239,7 +239,7 @@ class DataThing(object):
             else:
                 self._incr_data(self._type_id, self._id, prop, amt)
             cache.set(prefix + str(self._id), self)
-            
+
         #cache
         if cache_val:
             cache.incr(key, amt)
@@ -301,7 +301,7 @@ class DataThing(object):
 
     @classmethod
     def _by_fullname(cls, names,
-                     return_dict = True, 
+                     return_dict = True,
                      data=False, extra_props=None):
         names, single = tup(names, True)
 
@@ -391,7 +391,7 @@ class ThingMeta(type):
         thing_types[cls._type_id] = cls
 
         super(ThingMeta, cls).__init__(name, bases, dct)
-    
+
     def __repr__(cls):
         return '<thing: %s>' % cls._type_name
 
@@ -418,7 +418,7 @@ class Thing(DataThing):
                 self._loaded = False
 
             if not date: date = datetime.now(tz)
-            
+
             self._ups = ups
             self._downs = downs
             self._date = date
@@ -428,7 +428,7 @@ class Thing(DataThing):
         #new way
         for k, v in attrs.iteritems():
             self.__setattr__(k, v, not self._created)
-        
+
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__,
                             self._id if self._created else '[unsaved]')
@@ -459,10 +459,10 @@ class Thing(DataThing):
     def _interestingness(self):
         return sorts.interestingness(self._ups, self._downs, self._descendant_karma)
 
-    def score_triplet(self, likes = None):
-        u = self._ups - (likes == True)
-        d = self._downs - (likes == False)
-        return [(u, d + 1), (u, d), (u + 1, d)]
+    def score_triplet(self, likes = None, multiplier = 1):
+        u = self._ups - ((likes == True) * multiplier)
+        d = self._downs - ((likes == False) * multiplier)
+        return [(u, d + multiplier), (u, d), (u + multiplier, d)]
 
     @classmethod
     def _build(cls, id, bases):
@@ -495,8 +495,8 @@ class Thing(DataThing):
 
     def __getattr__(self, attr):
         return DataThing.__getattr__(self, attr)
-            
-        
+
+
 
 class RelationMeta(type):
     def __init__(cls, name, bases, dct):
@@ -566,7 +566,7 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
             def denormalize(denorm, src, dest):
                 if denorm:
                     setattr(dest, denorm[0], getattr(src, denorm[1]))
-                
+
             #denormalize
             if not self._created:
                 denormalize(denorm1, thing2, thing1)
@@ -583,7 +583,7 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
                 return getattr(self._thing2, attr[3:])
             else:
                 return DataThing.__getattr__(self, attr)
-                            
+
         def __repr__(self):
             return ('<%s %s: <%s %s> - <%s %s> %s>' %
                     (self.__class__.__name__, self._name,
@@ -597,13 +597,14 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
             if denorm1: self._thing1._commit(denorm1[0])
             if denorm2: self._thing2._commit(denorm2[0])
             #set fast query cache
-            cache.set(thing_prefix(self.__class__.__name__)
-                      + str((self._thing1_id, self._thing2_id, self._name)),
-                      self._id)
+
+            prefix = thing_prefix(self.__class__.__name__)
+            cache.set(prefix + str((self._thing1_id, self._thing2_id)), [self._id])
+            cache.set(prefix + str((self._thing1_id, self._thing2_id, self._name)), self._id)
 
         def _delete(self):
             tdb.del_rel(self._type_id, self._id)
-            
+
             #clear cache
             prefix = thing_prefix(self.__class__.__name__)
             #TODO - there should be just one cache key for a rel?
@@ -620,9 +621,8 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
         def _uncache(cls, thing1, thing2, name):
             # Remove a rel from from the fast query cache
             prefix = thing_prefix(cls.__name__)
-            cache.delete(prefix + str((thing1._id,
-                                       thing2._id,
-                                       name)))
+            cache.delete(prefix + str((thing1._id, thing1._id)))
+            cache.delete(prefix + str((thing1._id, thing2._id, name)))
 
         @classmethod
         def _fast_query(cls, thing1s, thing2s, name, data=True):
@@ -665,11 +665,11 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
                     #l = rel_ids.setdefault((rel._thing1_id, rel._thing2_id), [])
                     #l.append(rel._id)
                     rel_ids[(rel._thing1._id, rel._thing2._id, rel._name)] = rel._id
-                
+
                 for p in pairs:
                     if p not in rel_ids:
                         rel_ids[p] = None
-                        
+
                 return rel_ids
 
             res = sgm(cache, pairs, items_db, prefix)
@@ -680,9 +680,63 @@ def Relation(type1, type2, denorm1 = None, denorm2 = None):
             for k, rid in res.iteritems():
                 obj_key = (thing1_dict[k[0]], thing2_dict[k[1]], k[2])
                 res_obj[obj_key] = cls._byID(rid, data=data) if rid else None
-                
+
             return res_obj
-            
+
+        @classmethod
+        def _fast_query_all_names(cls, thing1s, thing2s, data=True):
+            """looks up all the relationships between thing1_ids and thing2_ids
+            and caches them
+            """
+            prefix = thing_prefix(cls.__name__)
+
+            thing1_dict = dict((t._id, t) for t in thing1s)
+            thing2_dict = dict((t._id, t) for t in thing2s)
+
+            thing1_ids = thing1_dict.keys()
+            thing2_ids = thing2_dict.keys()
+
+            pairs = set((x, y)
+                        for x in thing1_ids
+                        for y in thing2_ids)
+
+            def items_db(pairs):
+                t1_ids = set()
+                t2_ids = set()
+                for t1, t2 in pairs:
+                    t1_ids.add(t1)
+                    t2_ids.add(t2)
+
+                q = cls._query(cls.c._thing1_id == t1_ids,
+                               cls.c._thing2_id == t2_ids,
+                               eager_load = True,
+                               data = data)
+
+                rel_ids = {}
+                for rel in q:
+                    l = rel_ids.setdefault((rel._thing1_id, rel._thing2_id), [])
+                    l.append(rel._id)
+
+                for p in pairs:
+                    if p not in rel_ids:
+                        rel_ids[p] = []
+
+                return rel_ids
+
+            res = sgm(cache, pairs, items_db, prefix)
+            #convert the keys back into objects
+            #we can assume the rels will be in the cache and just call
+            #_byID lots
+            res_obj = {}
+            for k, rids in res.iteritems():
+                for rid in rids:
+                    obj_key = (thing1_dict[k[0]], thing2_dict[k[1]])
+                    result = cls._byID(rid, data=data) if rid else None
+                    if res_obj.get(obj_key) is None:
+                        res_obj[obj_key] = result
+
+            return res_obj
+
         @classmethod
         def _gay(cls):
             return cls._type1 == cls._type2
@@ -712,7 +766,7 @@ class Query(object):
         self._sort = kw.get('sort', ())
 
         self._filter(*rules)
-    
+
     def _setsort(self, sorts):
         sorts = tup(sorts)
         #make sure sorts are wrapped in a Sort obj
@@ -837,7 +891,7 @@ class Things(Query):
         self._rules += rules
         return self
 
-            
+
     def _cursor(self):
         #TODO why was this even here?
         #get_cols = bool(self._sort_param)
@@ -851,7 +905,7 @@ class Things(Query):
             c = tdb.find_data(*params)
         else:
             c = tdb.find_things(*params)
-            
+
         #TODO simplfy this! get_cols is always false?
         #called on a bunch of rows to fetch their properties in batch
         def row_fn(rows):
@@ -924,9 +978,9 @@ class MultiCursor(object):
     def fetchone(self):
         if not self._cursor:
             self._cursor = self._execute(*self._execute_params)
-            
+
         return self._cursor.next()
-                
+
     def fetchall(self):
         if not self._cursor:
             self._cursor = self._execute(*self._execute_params)
@@ -1094,7 +1148,7 @@ def MultiRelation(name, *relations):
                 for i in items:
                     types.setdefault(i.__class__, []).append(i)
                 return types
-            
+
             sub_dict = type_dict(tup(sub))
             obj_dict = type_dict(tup(obj))
 
@@ -1103,8 +1157,10 @@ def MultiRelation(name, *relations):
             for types, rel in cls.rels.iteritems():
                 t1, t2 = types
                 if sub_dict.has_key(t1) and obj_dict.has_key(t2):
-                    res.update(rel._fast_query(sub_dict[t1], obj_dict[t2], name,
-                                               data = True))
+                    if name is not None:
+                        res.update(rel._fast_query(sub_dict[t1], obj_dict[t2], name, data = True))
+                    else:
+                        res.update(rel._fast_query_all_names(sub_dict[t1], obj_dict[t2], data = True))
 
             return res
 
@@ -1174,4 +1230,3 @@ def MultiRelation(name, *relations):
 
 #     def __getattr__(self, attr):
 #         return QueryAttr(*list(self.cols) + [attr])
-

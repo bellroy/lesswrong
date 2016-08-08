@@ -215,6 +215,10 @@ class Reddit(Wrapped):
 
             buttons += [NamedButton('submit', sr_path = not c.default_sr,
                                     nocname=not c.authorized_cname)]
+            buttons += [NamedButton('submitlink', dest = 'submit',
+                                    dest_params = { 'link': True },
+                                    sr_path = not c.default_sr,
+                                    nocname=not c.authorized_cname)]
             if c.user.safe_karma >= g.discussion_karma_to_post:
                 buttons += [NamedButton('meetups/new', False,
                                         nocname=not c.authorized_cname)]
@@ -573,6 +577,7 @@ class KarmaAward(Wrapped):
                          reason = reason, success = success,
                          captcha = captcha)
 
+
 class BoringPage(Reddit):
     """parent class For rendering all sorts of uninteresting,
     sortless, navless form-centric pages.  The top navmenu is
@@ -612,6 +617,25 @@ class Login(Wrapped):
     def __init__(self, user_reg = '', user_login = '', dest=''):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
+
+class VoteMultiplierEditPage(BoringPage):
+    searchbox = False
+    navlist = False
+
+    def __init__(self, title, user, captcha, *a, **kw):
+        self.captcha = captcha
+        self.user = user
+        BoringPage.__init__(self, title)
+
+    def content(self):
+        return VoteMultiplierEdit(self.user, self.captcha)
+
+class VoteMultiplierEdit(Wrapped):
+    def __init__(self, user, captcha, success = False):
+        Wrapped.__init__(self, success = success,
+                               username = user.name,
+                               vote_multiplier = user.vote_multiplier,
+                               captcha = captcha)
 
 class VerifyEmail(Wrapped):
     def __init__(self, success=False):
@@ -1163,10 +1187,20 @@ class FrameToolbar(Wrapped):
         Wrapped.__init__(self, link = link, *kw)
 
 
-
 class NewLink(Wrapped):
     """Render the link submission form"""
-    def __init__(self, captcha = None, article = '', title= '', subreddits = (), tags = (), sr_id = None):
+    def __init__(self, captcha = None,
+                       article = '',
+                       title= '',
+                       subreddits = (),
+                       tags = (),
+                       sr_id = None,
+                       tab = 'article'):
+        self.tabs = Tabs()
+        self.tabs.add_tab('Text Article', 'article-field-pane', tab == 'article')
+        self.tabs.add_tab('Link', 'link-field-pane', tab == 'link')
+        self.editing = False
+
         Wrapped.__init__(self, captcha = captcha, article = article,
                          title = title, subreddits = subreddits, tags = tags,
                          sr_id = sr_id, notify_on_comment = True,
@@ -1174,7 +1208,16 @@ class NewLink(Wrapped):
 
 class EditLink(Wrapped):
     """Render the edit link form"""
-    pass
+    def __init__(self, article, subreddits, tags, captcha):
+       self.editing = True
+       self.tabs = Tabs()
+       if article.is_self:
+           self.tabs.add_tab('Text Article', 'article-field-pane')
+       else:
+           self.tabs.add_tab('Link', 'link-field-pane')
+
+       Wrapped.__init__(self, article, captcha = captcha,
+                        subreddits = subreddits, tags = tags)
 
 class ShareLink(Wrapped):
     def __init__(self, link_name = "", emails = None):
@@ -1659,3 +1702,39 @@ class WikiPage(Reddit):
                         title = self.pagename,
                         space_compress=False,
                         **context)
+
+class TabModel(object):
+    def __init__(self, title, pane_id, is_selected):
+        self.title = title
+        self.pane_id = pane_id
+        self.is_selected = is_selected
+
+class Tabs(Wrapped):
+    """Renders a list of tabs which can be clicked on.
+    """
+    def __init__(self):
+        self.tabs = []
+
+    def add_tab(self, title, pane_id, is_selected = False):
+        # The first tab is always selected
+        if len(self.tabs) == 0:
+            is_selected = True
+        # Ensure at most one tab is selected
+        if is_selected:
+            for tab in self.tabs:
+                tab.is_selected = False
+
+        self.tabs.append(TabModel(title, pane_id, is_selected))
+
+    def _get_tab(self, pane_id):
+        for tab in self.tabs:
+            if tab.pane_id == pane_id:
+                return tab
+
+    def has_tab(self, pane_id):
+        tab = self._get_tab(pane_id)
+        return tab is not None
+
+    def is_selected(self, pane_id):
+        tab = self._get_tab(pane_id)
+        return tab is not None and tab.is_selected
