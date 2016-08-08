@@ -691,6 +691,7 @@ class MessageController(ListingController):
                                  success = success)
         return MessagePage(content = content, title = self.title('compose')).render()
 
+
 class KarmaawardController(ListingController):
     show_sidebar = True
 
@@ -914,7 +915,7 @@ def last_dashboard_visit():
         return cache_visit
     else:
         last_visit = c.user.dashboard_visit
-        g.permacache.set(hc_key, last_visit, time = int(g.dashboard_visits_period)) 
+        g.permacache.set(hc_key, last_visit, time = int(g.dashboard_visits_period))
         c.user.dashboard_visit = datetime.now(g.tz)
         c.user._commit()
         return last_visit
