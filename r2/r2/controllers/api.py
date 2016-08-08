@@ -747,8 +747,17 @@ class ApiController(RedditController):
         '''for retracting comments'''
 
         if isinstance(thing, Comment):
-            thing.retracted = True
-            thing._commit()
+            if not thing.retracted:
+                if thing._ups != 0:
+                    # Upvotes for retracted comments do not count towards a
+                    # users's karma, but downvotes still count.
+                    sr = thing.subreddit_slow
+                    ups_change = -thing._ups
+                    KarmaAdjustment.store(c.user, sr, ups_change)
+                    c.user.incr_karma('comment', sr, ups_change, 0)
+
+                thing.retracted = True
+                thing._commit()
             if g.use_query_cache:
                 queries.new_comment(thing, None)
 
