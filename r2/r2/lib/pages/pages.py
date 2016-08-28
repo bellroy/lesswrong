@@ -618,20 +618,18 @@ class VoteMultiplierEditPage(BoringPage):
     searchbox = False
     navlist = False
 
-    def __init__(self, title, user, captcha, *a, **kw):
-        self.captcha = captcha
+    def __init__(self, title, user, *a, **kw):
         self.user = user
         BoringPage.__init__(self, title)
 
     def content(self):
-        return VoteMultiplierEdit(self.user, self.captcha)
+        return VoteMultiplierEdit(self.user)
 
 class VoteMultiplierEdit(Wrapped):
-    def __init__(self, user, captcha, success = False):
+    def __init__(self, user, success = False):
         Wrapped.__init__(self, success = success,
                                username = user.name,
-                               vote_multiplier = user.vote_multiplier,
-                               captcha = captcha)
+                               vote_multiplier = user.vote_multiplier)
 
 class VerifyEmail(Wrapped):
     def __init__(self, success=False):

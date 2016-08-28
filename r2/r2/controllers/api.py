@@ -248,8 +248,7 @@ class ApiController(RedditController):
 
 
     @Json
-    @validate(VCaptcha(),
-              VUser(),
+    @validate(VUser(),
               VAdmin(),
               VModhash(),
               ip = ValidIP(),
@@ -261,8 +260,6 @@ class ApiController(RedditController):
               res._chk_error(errors.AMOUNT_NOT_NUM) or
               res._chk_error(errors.AMOUNT_NEGATIVE)):
             res._focus('amount')
-        elif res._chk_captcha(errors.BAD_CAPTCHA):
-            pass
 
         banned = errors.BANNED_IP in c.errors or errors.BANNED_DOMAIN in c.errors
         if not res.error and not banned:
@@ -330,14 +327,14 @@ class ApiController(RedditController):
               tags = VTags('tags'))
     def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment, cc_licensed):
         res._update('status', innerHTML = '')
-        
+
         if res._chk_error(errors.SUBREDDIT_FORBIDDEN):
             # although new posts to main are disabled, editing of previous posts is permitted
             if sr == Subreddit._by_name(g.default_sr) and l.can_submit(c.user):
                 c.errors.remove(errors.SUBREDDIT_FORBIDDEN)
             else:
                 sr = None
-                
+
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
 
         #remove the ratelimit error if the user's karma is high

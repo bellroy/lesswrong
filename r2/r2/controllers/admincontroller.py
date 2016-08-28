@@ -68,6 +68,5 @@ class VotemultiplierController(RedditController):
             return self.abort404()
 
         self.vuser = vuser
-        captcha = Captcha() if c.user.needs_captcha() else None
-        page = VoteMultiplierEditPage(self.title(), vuser, captcha)
+        page = VoteMultiplierEditPage(self.title(), vuser)
         return page.render()

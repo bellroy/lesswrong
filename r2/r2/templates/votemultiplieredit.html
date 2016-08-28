@@ -31,9 +31,6 @@ ${success_field(_("Vote multiplier set"),
         ${error_field("AMOUNT_NOT_NUM", "span")}
         ${error_field("AMOUNT_NEGATIVE", "span")}</td>
     </tr>
-    %if thing.captcha:
-      ${thing.captcha.render()}
-    %endif
     <tr>
       <th>
         <label for="submit"></label>
