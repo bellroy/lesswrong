@@ -85,9 +85,6 @@
       %if thing.user.name in g.admins:
         <span class="role">Editor</span>
       %endif
-      %if thing.user.vote_multiplier != 1:
-        <span class="role">${thing.user.vote_multiplier}x vote multiplier</span>
-      %endif
 
       %if thing.isMe:
         <%
@@ -113,6 +110,10 @@
       %if thing.user.pref_url:
         <dt>Website</dt>
         <dd><a href="${thing.user.pref_url}" rel="nofollow">${thing.user.pref_url}</a></dd>
+      %endif
+      %if thing.user.vote_multiplier != 1:
+        <dt></dt>
+        <dd>${thing.user.vote_multiplier}⨉ vote multiplier</dd>
       %endif
     </dl>
 
