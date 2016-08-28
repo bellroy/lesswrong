@@ -158,17 +158,17 @@ class VVoteMultiplierAmount(Validator):
             c.errors.add(e)
 
     def run(self, item):
-        if not item:
+        if not item or len(item) == 0:
             self.error()
         else:
             try:
                 item = int(item)
                 if item < 0:
-                    c.errors.add(errors.AMOUNT_NEGATIVE)
+                    c.errors.add(errors.VOTE_MULTIPLIER_NEGETIVE)
                 else:
                     return item
             except ValueError:
-                c.errors.add(errors.AMOUNT_NOT_NUM)
+                c.errors.add(errors.VOTE_MULTIPLIER_NOT_INT)
 
 class ValueOrBlank(Validator):
     def run(self, value):

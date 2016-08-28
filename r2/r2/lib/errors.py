@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -84,7 +84,10 @@ error_list = dict((
         ('BAD_POLL_SYNTAX', _('Error in poll syntax')),
         ('BAD_POLL_BALLOT', _('Error in poll ballot')),
         ('WIKI_DOWN', _('Connection with wiki failed, try again later')),
-        ('WIKI_ACCOUNT_CREATION_FAILED', _('Wiki account creation failed. Check your email for further instructions.'))
+        ('WIKI_ACCOUNT_CREATION_FAILED', _('Wiki account creation failed. Check your email for further instructions.')),
+        ('NO_VOTE_MULTIPLIER', _("Vote multiplier is required")),
+        ('VOTE_MULTIPLIER_NEGETIVE', _("Must not be negative")),
+        ('VOTE_MULTIPLIER_NOT_INT', _("Must be an integer"))
     ))
 errors = Storage([(e, e) for e in error_list.keys()])
 
@@ -94,7 +97,7 @@ class Error(object):
         self.name = name
         self.i18n_message = i18n_message
         self.msg_params = msg_params or {}
-        
+
     @property
     def message(self):
         return _(self.i18n_message) % self.msg_params
@@ -123,10 +126,10 @@ class ErrorSet(object):
     def __iter__(self):
         for x in self.errors:
             yield x
-        
+
     def _add(self, error_name, msg, msg_params = None):
         self.errors[error_name] = Error(error_name, msg, msg_params)
-        
+
     def add(self, error_name, msg_params = None):
         msg = error_list[error_name]
         self._add(error_name,  msg, msg_params = msg_params)
