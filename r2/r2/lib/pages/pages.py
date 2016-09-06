@@ -1177,7 +1177,7 @@ class NewLink(Wrapped):
                        sr_id = None,
                        tab = 'article'):
         self.tabs = Tabs()
-        self.tabs.add_tab('Text Article', 'article-field-pane', tab == 'article')
+        self.tabs.add_tab('Article', 'article-field-pane', tab == 'article')
         self.tabs.add_tab('Link', 'link-field-pane', tab == 'link')
         self.editing = False
 
@@ -1192,7 +1192,7 @@ class EditLink(Wrapped):
        self.editing = True
        self.tabs = Tabs()
        if article.is_self:
-           self.tabs.add_tab('Text Article', 'article-field-pane')
+           self.tabs.add_tab('Article', 'article-field-pane')
        else:
            self.tabs.add_tab('Link', 'link-field-pane')
 

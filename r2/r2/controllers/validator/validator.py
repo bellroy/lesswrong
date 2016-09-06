@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -70,11 +70,11 @@ def validate(*simple_vals, **param_vals):
             try:
                 for validator in simple_vals:
                     validator(env)
-                
+
                 kw = self.build_arg_list(fn, env)
                 for var, validator in param_vals.iteritems():
                     kw[var] = validator(env)
-                
+
                 return fn(self, *a, **kw)
 
             except UserRequiredException:
@@ -109,7 +109,7 @@ class VRequired(Validator):
         if not e: e = self._error
         if e:
             c.errors.add(e)
-        
+
     def run(self, item):
         if not item:
             self.error()
@@ -134,7 +134,7 @@ class VAwardAmount(Validator):
         if not e: e = self._error
         if e:
             c.errors.add(e)
-        
+
     def run(self, item):
         if not item:
             self.error()
@@ -156,7 +156,7 @@ class VLink(Validator):
     def __init__(self, param, redirect = True, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
         self.redirect = redirect
-    
+
     def run(self, link_id):
         if link_id:
             try:
@@ -170,7 +170,7 @@ class VLink(Validator):
 
 class VCommentFullName(Validator):
     valid_re = re.compile(Comment._type_prefix + str(Comment._type_id) + r'_([0-9a-z]+)$')
-    
+
     def run(self, thing_fullname):
         if thing_fullname:
             match = self.valid_re.match(thing_fullname)
@@ -203,7 +203,7 @@ class VEditMeetup(VMeetup):
 
     def run(self, param):
         meetup = VMeetup.run(self, param)
-        if meetup and not (c.user_is_loggedin and 
+        if meetup and not (c.user_is_loggedin and
                            meetup.can_edit(c.user, c.user_is_admin)):
             abort(403, "forbidden")
         return meetup
@@ -211,7 +211,7 @@ class VEditMeetup(VMeetup):
 class VTagByName(Validator):
     def __init__(self, param, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
-        
+
     def run(self, name):
         if name:
             cleaned = _force_ascii(name)
@@ -224,10 +224,10 @@ class VTagByName(Validator):
 
 class VTags(Validator):
     comma_sep = re.compile('[,\s]+', re.UNICODE)
-    
+
     def __init__(self, param, *a, **kw):
         Validator.__init__(self, param, *a, **kw)
-        
+
     def run(self, tag_field):
         tags = []
         if tag_field:
@@ -266,7 +266,7 @@ class VCount(Validator):
 class VLimit(Validator):
     def run(self, limit):
         if limit is None:
-            return c.user.pref_numsites 
+            return c.user.pref_numsites
         return min(max(int(limit), 1), 250)
 
 class VCssMeasure(Validator):
@@ -293,7 +293,7 @@ class VLinkUrls(Validator):
     def __init__(self, item, *a, **kw):
         self.item = item
         Validator.__init__(self, item, *a, **kw)
-    
+
     def run(self, val):
         res=[]
         for v in self.splitter.split(val):
@@ -313,11 +313,11 @@ class VLinkFullnames(Validator):
     def __init__(self, item, *a, **kw):
         self.item = item
         Validator.__init__(self, item, *a, **kw)
-    
+
     def run(self, val):
         if val and self.valid_re.match(val):
             return self.splitter.split(val)
-    
+
 class VLength(Validator):
     def __init__(self, item, length = 10000,
                  empty_error = errors.BAD_COMMENT,
@@ -335,30 +335,47 @@ class VLength(Validator):
             c.errors.add(self.len_error)
         else:
             return title
-        
+
 class VTitle(VLength):
     only_whitespace = re.compile(r"^\s*$", re.UNICODE)
-    
+
     def __init__(self, item, length = 200, **kw):
         VLength.__init__(self, item, length = length,
                          empty_error = errors.NO_TITLE,
                          length_error = errors.TITLE_TOO_LONG, **kw)
 
+    def strip_link_prefix(self, title):
+        """Remove the prefix '[Link]' from the begining of a title.
+
+        LessWrong adds the prefix when rendering links, so there's no need to put
+        it in the title.
+        """
+        if title is None:
+            return
+
+        title = title.strip()
+        if title.startswith('['):
+            for prefix in ['[Link]', '[ Link ]', '[link]', '[ link ]', '[LINK]']:
+                if title.startswith(prefix):
+                    return title[len(prefix):].strip()
+        return title
+
     def run(self, title):
+        title = self.strip_link_prefix(title)
         title = VLength.run(self, title)
         if title and self.only_whitespace.match(title):
             c.errors.add(errors.NO_TITLE)
         else:
             return title
-    
+
 class VComment(VLength):
     def __init__(self, item, length = 10000, **kw):
         VLength.__init__(self, item, length = length, **kw)
 
-        
+
 class VMessage(VLength):
     def __init__(self, item, length = 10000, **kw):
-        VLength.__init__(self, item, length = length, 
+        VLength.__init__(self, item, length = length,
                          empty_error = errors.NO_MSG_BODY, **kw)
 
 
@@ -395,7 +412,7 @@ class VSubredditDesc(Validator):
 class VAccountByName(VRequired):
     def __init__(self, param, error = errors.USER_DOESNT_EXIST, *a, **kw):
         VRequired.__init__(self, param, error, *a, **kw)
-        
+
     def run(self, name):
         if name:
             try:
@@ -404,7 +421,7 @@ class VAccountByName(VRequired):
         return self.error()
 
 class VByName(VRequired):
-    def __init__(self, param, 
+    def __init__(self, param,
                  error = errors.NO_THING_ID, *a, **kw):
         VRequired.__init__(self, param, error, *a, **kw)
 
@@ -427,7 +444,7 @@ class VByNameIfAuthor(VByName):
 
 class VCaptcha(Validator):
     default_param = ('iden', 'captcha')
-    
+
     def run(self, iden, solution):
         if (not c.user_is_loggedin or c.user.needs_captcha()):
             if not captcha.valid_solution(iden, solution):
@@ -440,7 +457,7 @@ class VUser(Validator):
 
         if (password is not None) and not valid_password(c.user, password):
             c.errors.add(errors.WRONG_PASSWORD)
-            
+
 class VModhash(Validator):
     default_param = 'uh'
     def run(self, uh):
@@ -468,7 +485,7 @@ class VSponsor(Validator):
 
 class VSrModerator(Validator):
     def run(self):
-        if not (c.user_is_loggedin and c.site.is_moderator(c.user) 
+        if not (c.user_is_loggedin and c.site.is_moderator(c.user)
                 or c.user_is_admin):
             abort(403, "forbidden")
 
@@ -525,11 +542,11 @@ class VSubmitParent(Validator):
                     return parent
         #else
         abort(403, "forbidden")
-        
+
 class VSubmitLink(VLink):
     def __init__(self, param, redirect = True, *a, **kw):
         VLink.__init__(self, param, redirect = redirect, *a, **kw)
-        
+
     def run(self, link_name):
         link = VLink.run(self, link_name)
         if link and not (c.user_is_loggedin and link.can_submit(c.user)):
@@ -548,7 +565,7 @@ class VSubmitSR(Validator):
             c.errors.add(errors.SUBREDDIT_FORBIDDEN)
 
         return sr
-        
+
 pass_rx = re.compile(r".{3,20}")
 
 def chkpass(x):
@@ -602,7 +619,7 @@ class VUname(VRequired):
 class VLogin(VRequired):
     def __init__(self, item, *a, **kw):
         VRequired.__init__(self, item, errors.WRONG_PASSWORD, *a, **kw)
-        
+
     def run(self, user_name, password):
         user_name = chkuser(user_name)
         user = None
@@ -640,7 +657,7 @@ class VUrl(VRequired):
                 sr = None
         else:
             sr = None
-        
+
         if not url:
             return self.error(errors.NO_URL)
         url = utils.sanitize_url(url)
@@ -694,7 +711,7 @@ class VBoolean(Validator):
 
 class VLocation(VLength):
     def __init__(self, item, length = 100, **kw):
-        VLength.__init__(self, item, length = length, 
+        VLength.__init__(self, item, length = length,
                          length_error = errors.LOCATION_TOO_LONG,
                          empty_error = None, **kw)
 
@@ -759,7 +776,7 @@ class VCssName(Validator):
     def run(self, name):
         if name and self.r_css_name.match(name):
             return name
-    
+
 class VMenu(Validator):
 
     def __init__(self, param, menu_cls, remember = True, default_item = None, **kw):
@@ -774,14 +791,14 @@ class VMenu(Validator):
             pref = "%s_%s" % (where, self.nav.get_param)
             user_prefs = copy(c.user.sort_options) if c.user else {}
             user_pref = user_prefs.get(pref)
-    
+
             # check to see if a default param has been set
             if not sort:
                 sort = user_pref
 
         if not sort:
             sort = self.default_item
-            
+
         # validate the sort
         if sort not in self.nav.options:
             sort = self.nav.default
@@ -794,7 +811,7 @@ class VMenu(Validator):
             utils.worker.do(lambda: user._commit())
 
         return sort
-            
+
 
 class VRatelimit(Validator):
     def __init__(self, rate_user = False, rate_ip = False,
@@ -891,7 +908,7 @@ class VReason(Validator):
 
         if reason.startswith('redirect_'):
             dest = reason[9:]
-            if (not dest.startswith(c.site.path) and 
+            if (not dest.startswith(c.site.path) and
                 not dest.startswith("http:")):
                 dest = (c.site.path + dest).replace('//', '/')
             return ('redirect', dest)
@@ -917,12 +934,12 @@ class VReason(Validator):
 
 class ValidEmail(Validator):
     """Validates an email address"""
-    
+
     email_re  = re.compile(r'.+@.+\..+')
 
     def __init__(self, param, **kw):
         Validator.__init__(self, param = param, **kw)
-        
+
     def run(self, email):
         if not email:
             c.errors.add(errors.NO_EMAIL)
@@ -936,14 +953,14 @@ class ValidEmails(Validator):
     delineated by whitespace, ',' or ';'.  Also validates quantity of
     provided emails.  Returns a list of valid email addresses on
     success"""
-    
+
     separator = re.compile(r'[^\s,;]+')
     email_re  = re.compile(r'.+@.+\..+')
 
     def __init__(self, param, num = 20, **kw):
         self.num = num
         Validator.__init__(self, param = param, **kw)
-        
+
     def run(self, emails0):
         emails = set(self.separator.findall(emails0) if emails0 else [])
         failures = set(e for e in emails if not self.email_re.match(e))

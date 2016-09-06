@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -94,7 +94,7 @@ class Error(object):
         self.name = name
         self.i18n_message = i18n_message
         self.msg_params = msg_params or {}
-        
+
     @property
     def message(self):
         return _(self.i18n_message) % self.msg_params
@@ -123,10 +123,10 @@ class ErrorSet(object):
     def __iter__(self):
         for x in self.errors:
             yield x
-        
+
     def _add(self, error_name, msg, msg_params = None):
         self.errors[error_name] = Error(error_name, msg, msg_params)
-        
+
     def add(self, error_name, msg_params = None):
         msg = error_list[error_name]
         self._add(error_name,  msg, msg_params = msg_params)

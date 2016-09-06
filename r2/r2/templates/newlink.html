@@ -177,8 +177,12 @@
 
       var form = $('newlink');
       if(form) {
-        setMessage(form.title, ${json(_('Enter a title for the article.'))});
+        setMessage(form.title, ${json(_('Enter a title.'))});
         setMessage(form.tags, ${json(_('Enter tags separated by commas or spaces.'))});
+
+        %if thing.tabs.has_tab('article-field-pane'):
+          setMessage(form.url, ${json(_('Enter a url.'))});
+        %endif
 
         form.title.setAttribute("data-orig-value", form.title.value);
         form.tags.setAttribute("data-orig-value", form.tags.value);

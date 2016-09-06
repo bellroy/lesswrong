@@ -89,22 +89,6 @@ def link_listing_by_url(url, count = None):
     listing = LinkListing(builder).listing()
     return listing
 
-def strip_link_prefix(title):
-    """Remove the prefix '[Link]' from the begining of a title.
-
-    LessWrong adds the prefix when rendering links, so there's no need to put
-    it in the title.
-    """
-    if title is None:
-        return
-
-    title = title.strip()
-    if title.startswith('['):
-        for prefix in ['[Link]', '[ Link ]', '[link]', '[ link ]']:
-            if title.startswith(prefix):
-                return title[len(prefix):].strip()
-    return title
-
 
 class ApiController(RedditController):
     def response_func(self, **kw):
@@ -344,26 +328,23 @@ class ApiController(RedditController):
         if kind == 'link':
             if not edit_mode:
                 # validate url on link submissions
-                if res._chk_errors((errors.NO_URL, errors.BAD_URL)):
-                    res._focus('url')
-                elif res._chk_error(errors.ALREADY_SUB):
-                    link = url[0]
-                    res._redirect(link.already_submitted_link)
+                if res._chk_errors((errors.NO_URL, errors.BAD_URL, errors.ALREADY_SUB)):
+                    if res.focus is None:
+                        res._focus('url')
+
         # TODO: Validate article content, enforce max-length.
 
         # check for title
-        if res._chk_error(errors.NO_TITLE):
-            res._chk_error(errors.TITLE_TOO_LONG) # clear out this error
-            res._focus('title')
-        elif res._chk_error(errors.TITLE_TOO_LONG):
-            res._focus('title')
-        elif res._chk_captcha(errors.BAD_CAPTCHA):
+        if res._chk_errors((errors.NO_TITLE, errors.TITLE_TOO_LONG)):
+            if res.focus is None:
+                res._focus('title')
+
+        if res._chk_captcha(errors.BAD_CAPTCHA):
             pass
         elif res._chk_error(errors.SUBREDDIT_FORBIDDEN):
             pass
 
-        post_title = strip_link_prefix(request.post.title)
-        if res.error or not title or not post_title:
+        if res.error:
             return
 
         # check whether this is spam:
@@ -376,7 +357,7 @@ class ApiController(RedditController):
 
         # well, nothing left to do but submit it
         if not edit_mode:
-          l = Link._submit(post_title, new_content,
+          l = Link._submit(title, new_content,
                            url if kind == 'link' else 'self',
                            c.user, sr, ip, tags, spam,
                            notify_on_comment=notify_on_comment,
@@ -399,7 +380,7 @@ class ApiController(RedditController):
           if c.user._id != l.author_id:
             edit = Edit._new(l,c.user,new_content)
           old_url = l.url
-          l.title = post_title
+          l.title = title
           if kind == 'self':
               l.set_article(new_content)
           l.notify_on_comment = notify_on_comment
