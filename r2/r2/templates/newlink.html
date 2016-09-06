@@ -70,9 +70,9 @@
 
 	<table>
     %if thing.tabs.has_tab('link-field-pane'):
-      <input name="kind" value="link" ${disabled_input('link-field-pane')} type="hidden"/>
       %if thing.editing == False:
         <tr class="tab-pane ${active_class('link-field-pane')}" id="link-field-pane">
+          <input name="kind" value="link" ${disabled_input('link-field-pane')} type="hidden"/>
           <td>
             <label for="url">${_("Url")}:</label>
             <input id="url"
@@ -86,6 +86,8 @@
             ${error_field("ALREADY_SUB", "span")}
           </td>
         </tr>
+      %else:
+        <input name="kind" value="link" ${disabled_input('link-field-pane')} type="hidden"/>
       %endif
     %endif
       <tr>
