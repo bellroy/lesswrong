@@ -20,18 +20,32 @@
 ## CondeNet, Inc. All Rights Reserved.
 ################################################################################
 
-<%! 
+<%!
    from r2.lib.template_helpers import static, get_domain, json
    import os
 %>
 <%namespace file="utils.html" import="error_field, submit_form, plain_link, text_with_links, checkbox"/>
 <%namespace file="printable.html" import="yes_no_button"/>
 
-<script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
-<script src="${static('tinymce.js')}" type="text/javascript"></script>
+%if thing.tabs.has_tab('article-field-pane'):
+  <script src="${static(os.path.join('tiny_mce','tiny_mce.js'))}" type="text/javascript"></script>
+  <script src="${static('tinymce.js')}" type="text/javascript"></script>
+%endif
 
 ## Exists to be overidden by child templates
 <%def name="form_extra()"></%def>
+
+<%def name="active_class(pane_id)">
+  %if thing.tabs.is_selected(pane_id):
+    active
+  %endif
+</%def>
+
+<%def name="disabled_input(pane_id)">
+  %if not thing.tabs.is_selected(pane_id):
+    disabled
+  %endif
+</%def>
 
 <%call expr="submit_form(action='/submit', _class='long-text content', _id='newlink')">
   %if not thing.subreddits:
@@ -39,23 +53,64 @@
   %endif
   ${self.form_extra()}
 	%if thing.subreddits:
-	  <h1>${_("Submit article")}</h1>
+    %if thing.editing:
+      <h1>${_("Edit post")}</h1>
+    %else:
+	   <h1>${_("Submit post")}</h1>
+    %endif
 	%else:
-	  <h1>${_("Submit article to %(site)s") % dict(site=c.site.name)}</h1>
+    %if thing.editing:
+      <h1>${_("Edit post on %(site)s") % dict(site=c.site.name)}</h1>
+    %else:
+      <h1>${_("Submit post to %(site)s") % dict(site=c.site.name)}</h1>
+    %endif
 	%endif
+
+  ${thing.tabs.render()}
+
 	<table>
-    <tr>
-      <td>
-      <label for="title">${_("Title")}:</label>
-      <input id="title" name="title" value="${thing.title}"
-                 onfocus="clearTitle(this)" type="text" />
-        ${error_field("NO_TITLE", "span")}
-        ${error_field("TITLE_TOO_LONG", "span")}
-      </td>
-    </tr>
-    <tr>
-      <td><textarea id="article" name="article" rows="35">${thing.article}</textarea></td>
-    </tr>
+    %if thing.tabs.has_tab('link-field-pane'):
+      %if thing.editing == False:
+        <tr class="tab-pane ${active_class('link-field-pane')}" id="link-field-pane">
+          <input name="kind" value="link" ${disabled_input('link-field-pane')} type="hidden"/>
+          <td>
+            <label for="url">${_("Url")}:</label>
+            <input id="url"
+                   name="url"
+                   onfocus="clearTitle(this)"
+                   ${disabled_input('link-field-pane')}
+                   type="text"
+            />
+            ${error_field("NO_URL", "span")}
+            ${error_field("BAD_URL", "span")}
+            ${error_field("ALREADY_SUB", "span")}
+          </td>
+        </tr>
+      %else:
+        <input name="kind" value="link" ${disabled_input('link-field-pane')} type="hidden"/>
+      %endif
+    %endif
+      <tr>
+        <td>
+          <label for="title">${_("Title")}:</label>
+          <input id="title"
+                 name="title"
+                 value="${thing.title}"
+                 onfocus="clearTitle(this)"
+                 type="text"
+          />
+            ${error_field("NO_TITLE", "span")}
+            ${error_field("TITLE_TOO_LONG", "span")}
+        </td>
+      </tr>
+    %if thing.tabs.has_tab('article-field-pane'):
+      <tr class="tab-pane ${active_class('article-field-pane')}" id="article-field-pane">
+        <td>
+          <input name="kind" value="self" type="hidden" ${disabled_input('article-field-pane')} />
+          <textarea id="article" name="article" ${disabled_input('article-field-pane')} rows="35">${thing.article}</textarea>
+        </td>
+      </tr>
+    %endif
     <tr>
       <td>
         <label for="tags">${_("Tags:")}</label>
@@ -116,16 +171,25 @@
 
   <script type="text/javascript">
     (function () {
-      init_tinymce("http://${get_domain(subreddit=False)}/");
-      var form = $('newlink');
+      %if thing.tabs.has_tab('article-field-pane'):
+        init_tinymce("http://${get_domain(subreddit=False)}/");
+      %endif
 
+      var form = $('newlink');
       if(form) {
-        setMessage(form.title, ${json(_('Enter a title for the article.'))});
+        setMessage(form.title, ${json(_('Enter a title.'))});
         setMessage(form.tags, ${json(_('Enter tags separated by commas or spaces.'))});
 
+        %if thing.tabs.has_tab('article-field-pane'):
+          setMessage(form.url, ${json(_('Enter a url.'))});
+        %endif
+
         form.title.setAttribute("data-orig-value", form.title.value);
-        form.article.setAttribute("data-orig-value", form.article.value);
         form.tags.setAttribute("data-orig-value", form.tags.value);
+
+        %if thing.tabs.has_tab('article-field-pane'):
+          form.article.setAttribute("data-orig-value", form.article.value);
+        %endif
 
         function unsavedPrompt() {
           var message = "You've made changes to the article, but haven't submitted it.";
@@ -134,24 +198,29 @@
               (form.tags.value && form.tags.value !== form.tags.getAttribute("data-orig-value")))
             return message;
 
-          // Ensure that TinyMCE has saved the content back to the textarea
-          // before checking its content
-          var editor = tinyMCE.activeEditor;
-          if (editor && editor.isDirty()) {
-            editor.save();
-          }
+          %if thing.tabs.has_tab('article-field-pane'):
+            // Ensure that TinyMCE has saved the content back to the textarea
+            // before checking its content
+            var editor = tinyMCE.activeEditor;
+            if (editor && editor.isDirty()) {
+              editor.save();
+            }
 
-          // The editor sometimes inserts or modifies extraneous HTML tags, which
-          // we need to ignore to prevent false positives
-          var articleText = stripHTMLTagsDangerously(form.article.value);
-          if (articleText && articleText !== stripHTMLTagsDangerously(form.article.getAttribute("data-orig-value")))
-            return message;
+            // The editor sometimes inserts or modifies extraneous HTML tags, which
+            // we need to ignore to prevent false positives
+            var articleText = stripHTMLTagsDangerously(form.article.value);
+            if (articleText && articleText !== stripHTMLTagsDangerously(form.article.getAttribute("data-orig-value")))
+              return message;
+          %endif
         }
 
         BeforeUnload.bind(unsavedPrompt);
 
         jQuery(form).bind("submit", function () {
-          tinyMCE.get("article").save();
+          %if thing.tabs.has_tab('article-field-pane'):
+            tinyMCE.get("article").save();
+          %endif
+
           function prehandle(res_obj) {
             if (res_obj && !res_obj.error)
               BeforeUnload.unbind(unsavedPrompt);

@@ -367,7 +367,24 @@ class VTitle(VLength):
                          empty_error = errors.NO_TITLE,
                          length_error = errors.TITLE_TOO_LONG, **kw)
 
+    def strip_link_prefix(self, title):
+        """Remove the prefix '[Link]' from the begining of a title.
+
+        LessWrong adds the prefix when rendering links, so there's no need to put
+        it in the title.
+        """
+        if title is None:
+            return
+
+        title = title.strip()
+        if title.startswith('['):
+            for prefix in ['[Link]', '[ Link ]', '[link]', '[ link ]', '[LINK]']:
+                if title.startswith(prefix):
+                    return title[len(prefix):].strip()
+        return title
+
     def run(self, title):
+        title = self.strip_link_prefix(title)
         title = VLength.run(self, title)
         if title and self.only_whitespace.match(title):
             c.errors.add(errors.NO_TITLE)

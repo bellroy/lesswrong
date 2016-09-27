@@ -315,6 +315,8 @@ class ApiController(RedditController):
               VCaptcha(),
               VRatelimit(rate_user = True, rate_ip = True, prefix='rate_submit_'),
               VModhash(),
+              ValidDomain('url'),
+              url = VUrl(['url']),
               ip = ValidIP(),
               sr = VSubmitSR('sr'),
               title = VTitle('title'),
@@ -324,9 +326,16 @@ class ApiController(RedditController):
               continue_editing = VBoolean('keep_editing'),
               notify_on_comment = VBoolean('notify_on_comment'),
               cc_licensed = VBoolean('cc_licensed'),
-              tags = VTags('tags'))
-    def POST_submit(self, res, l, new_content, title, save, continue_editing, sr, ip, tags, notify_on_comment, cc_licensed):
+              tags = VTags('tags'),
+              kind = VOneOf('kind', ['link', 'self']))
+    def POST_submit(self, res, l, new_content, title, url, save,
+                    continue_editing, sr, ip, tags, notify_on_comment,
+                    cc_licensed, kind):
         res._update('status', innerHTML = '')
+
+        # If an article_id is present, then we are editing an existing article/link
+        # Otherwise, we are creating a new article/link.
+        edit_mode = not not l
 
         if res._chk_error(errors.SUBREDDIT_FORBIDDEN):
             # although new posts to main are disabled, editing of previous posts is permitted
@@ -335,29 +344,34 @@ class ApiController(RedditController):
             else:
                 sr = None
 
+        # remove the ratelimit error if the user's karma is high
         should_ratelimit = sr.should_ratelimit(c.user, 'link') if sr else True
-
-        #remove the ratelimit error if the user's karma is high
         if not should_ratelimit:
             c.errors.remove(errors.RATELIMIT)
+        else:
+            res._chk_error(errors.RATELIMIT)
 
-        #ratelimiter
-        if res._chk_error(errors.RATELIMIT):
-            pass
-        # check for title, otherwise look it up and return it
-        elif res._chk_error(errors.NO_TITLE):
-            # clear out this error
-            res._chk_error(errors.TITLE_TOO_LONG)
-            res._focus('title')
-        elif res._chk_error(errors.TITLE_TOO_LONG):
-            res._focus('title')
-        elif res._chk_captcha(errors.BAD_CAPTCHA):
+        if kind == 'link':
+            if not edit_mode:
+                # validate url on link submissions
+                if res._chk_errors((errors.NO_URL, errors.BAD_URL, errors.ALREADY_SUB)):
+                    if res.focus is None:
+                        res._focus('url')
+
+        # TODO: Validate article content, enforce max-length.
+
+        # check for title
+        if res._chk_errors((errors.NO_TITLE, errors.TITLE_TOO_LONG)):
+            if res.focus is None:
+                res._focus('title')
+
+        if res._chk_captcha(errors.BAD_CAPTCHA):
             pass
         elif res._chk_error(errors.SUBREDDIT_FORBIDDEN):
             pass
 
-
-        if res.error or not title: return
+        if res.error:
+            return
 
         # check whether this is spam:
         spam = (c.user._spam or
@@ -368,17 +382,19 @@ class ApiController(RedditController):
             new_content = ''
 
         # well, nothing left to do but submit it
-        # TODO: include article body in arguments to Link model
-        # print "\n".join(request.post.va)
-        if not l:
-          l = Link._submit(request.post.title, new_content, c.user, sr, ip, tags, spam,
-                           notify_on_comment=notify_on_comment, cc_licensed=cc_licensed)
+        if not edit_mode:
+          l = Link._submit(title, new_content,
+                           url if kind == 'link' else 'self',
+                           c.user, sr, ip, tags, spam,
+                           notify_on_comment=notify_on_comment,
+                           cc_licensed=cc_licensed
+                          )
           if save == 'on':
               r = l._save(c.user)
               if g.write_query_queue:
                   queries.new_savehide(r)
 
-          #set the ratelimiter
+          # set the ratelimiter
           if should_ratelimit:
               VRatelimit.ratelimit(rate_user=True, rate_ip = True, prefix='rate_submit_')
 
@@ -390,8 +406,9 @@ class ApiController(RedditController):
           if c.user._id != l.author_id:
             edit = Edit._new(l,c.user,new_content)
           old_url = l.url
-          l.title = request.post.title
-          l.set_article(new_content)
+          l.title = title
+          if kind == 'self':
+              l.set_article(new_content)
           l.notify_on_comment = notify_on_comment
           l.cc_licensed = cc_licensed
           l.change_subreddit(sr._id)
@@ -1867,6 +1884,7 @@ class ApiController(RedditController):
 
             res._redirect('/promote/edit_promo/%s' % to36(l._id))
         else:
+            # TODO: This appears to be dead code. Investigate whether it can be removed
             l = Link._submit(title, url, c.user, sr, ip, False)
 
             if expire == 'expirein' and timelimitlength and timelimittype:

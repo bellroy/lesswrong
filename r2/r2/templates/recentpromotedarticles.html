@@ -1,10 +1,10 @@
 <%namespace file="utils.html" import="plain_link"/>
-<% 
+<%
    t = thing.things
    article_generator = t.item_iter(t.get_items())
 %>
 <ul>
   %for a in article_generator:
-    <li><a href="${a.url}">${a.title}</a></li>
+    <li><a href="${a.permalink}">${a.display_title}</a></li>
   %endfor:
 </ul>

@@ -544,11 +544,16 @@ class FrontController(RedditController):
         except NotFound:
             sr = None
 
+        tab = 'article'
+        if 'link' in request.get:
+            tab = 'link'
+
         return FormPage(_("Submit Article"),
                         content=NewLink(title=title or '',
                                         subreddits = srs,
                                         tags=tags,
                                         sr_id = sr._id if sr else None,
+                                        tab=tab,
                                         captcha=captcha)).render()
 
     @validate(VUser(),
@@ -568,7 +573,12 @@ class FrontController(RedditController):
         captcha = Captcha(tabular=False) if c.user.needs_captcha() else None
 
         return FormPage(_("Edit article"),
-                      content=EditLink(article, subreddits=subreddits, tags=article.tag_names(), captcha=captcha)).render()
+                      content=EditLink(article,
+                                       subreddits=subreddits,
+                                       tags=article.tag_names(),
+                                       captcha=captcha
+                                       )
+                       ).render()
 
     def _render_opt_in_out(self, msg_hash, leave):
         """Generates the form for an optin/optout page"""

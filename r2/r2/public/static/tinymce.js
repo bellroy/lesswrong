@@ -4,6 +4,7 @@ function init_tinymce(base_url) {
     elements : "article",
     theme : "advanced",
     width : "100%",
+    height: "500px",
     content_css : "/static/lesswrong.css",
     body_class : "md",
     theme_advanced_toolbar_location : "top",
@@ -15,12 +16,12 @@ function init_tinymce(base_url) {
     relative_urls : false,
     document_base_url : base_url,
     gecko_spellcheck : true
-  }); 
+  });
 };
 
 function showImageBrowser(field_name, url, type, win) {
   var location = window.location;
-  
+
   // Get the last path component
   var path = location.pathname;
   var article_id = '';
