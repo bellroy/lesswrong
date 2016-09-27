@@ -573,6 +573,7 @@ class KarmaAward(Wrapped):
                          reason = reason, success = success,
                          captcha = captcha)
 
+
 class BoringPage(Reddit):
     """parent class For rendering all sorts of uninteresting,
     sortless, navless form-centric pages.  The top navmenu is
@@ -612,6 +613,23 @@ class Login(Wrapped):
     def __init__(self, user_reg = '', user_login = '', dest=''):
         Wrapped.__init__(self, user_reg = user_reg, user_login = user_login,
                          dest = dest)
+
+class VoteMultiplierEditPage(BoringPage):
+    searchbox = False
+    navlist = False
+
+    def __init__(self, title, user, *a, **kw):
+        self.user = user
+        BoringPage.__init__(self, title)
+
+    def content(self):
+        return VoteMultiplierEdit(self.user)
+
+class VoteMultiplierEdit(Wrapped):
+    def __init__(self, user, success = False):
+        Wrapped.__init__(self, success = success,
+                               username = user.name,
+                               vote_multiplier = user.vote_multiplier)
 
 class VerifyEmail(Wrapped):
     def __init__(self, success=False):

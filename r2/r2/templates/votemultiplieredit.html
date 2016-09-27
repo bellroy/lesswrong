@@ -1,0 +1,44 @@
+<%namespace file="utils.html" import="error_field, submit_form, success_field"/>
+
+<h1>${_("Edit Vote Multiplier for")} ${thing.username}</h1>
+
+<p>
+  By setting a user's vote multipler, admins can control how much karma a user's votes count for.
+  Vote multiplier must be a non-negetive integer, and only effects new votes.
+</p>
+
+${success_field(_("Vote multiplier set"),
+                successful=thing.success)}
+
+<%call expr="submit_form(onsubmit='return post_form(this, \'votemultiplier\', null, null, true)',
+             method='post',
+             action='/votemultiplier', _class='iform')">
+  <table>
+    <tr>
+      <th>
+        <label for="multiplier">${_("Vote multiplier")}</label>
+      </th>
+      <td>
+        <input type="hidden" name="username" id="username"
+               value="${thing.username}"/>
+        <input type="number" min="0" step="1"
+               name="multiplier"
+               size="40"
+               id="multiplier"
+               value="${thing.vote_multiplier}"/>
+        ${error_field("NO_VOTE_MULTIPLIER", "span")}
+        ${error_field("VOTE_MULTIPLIER_NOT_INT", "span")}
+        ${error_field("VOTE_MULTIPLIER_NEGETIVE", "span")}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <label for="submit"></label>
+      </th>
+      <td>
+        <button id="submit" name="submit" type="submit">${_("Submit")}</button>
+        <span id='status' class='error'></span>
+      </td>
+    </tr>
+  </table>
+</%call>

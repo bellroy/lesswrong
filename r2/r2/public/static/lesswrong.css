@@ -253,6 +253,7 @@ h1 a, h2 a {
 .pretty-form input[type=text],
 .pretty-form input[type=file],
 .pretty-form input[type=password],
+.pretty-form input[type=number],
 .pretty-form select,
 .pretty-form b,
 .pretty-form textarea,

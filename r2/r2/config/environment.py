@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -61,12 +61,14 @@ def load_environment(global_conf={}, app_conf={}):
     #tmpl_options['myghty.escapes'] = dict(l=webhelpers.auto_link, s=webhelpers.simple_format)
 
     tmpl_options = config['buffet.template_options']
+    tmpl_options['mako.output_encoding'] = 'utf-8'
+    tmpl_options['mako.input_encoding'] = 'utf-8'
     tmpl_options['mako.default_filters'] = ["websafe"]
     tmpl_options['mako.imports'] = \
                                  ["from r2.lib.filters import websafe, unsafe",
                                   "from pylons import c, g, request",
                                   "from pylons.i18n import _, ungettext"]
-    
+
     # Add your own template options config options here,
     # note that all config options will override
     # any Pylons config options

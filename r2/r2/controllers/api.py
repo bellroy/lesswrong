@@ -247,6 +247,32 @@ class ApiController(RedditController):
             res._update('success', innerHTML='')
 
 
+    @Json
+    @validate(VUser(),
+              VAdmin(),
+              VModhash(),
+              ip = ValidIP(),
+              user = VExistingUname('username'),
+              multiplier = VVoteMultiplierAmount('multiplier', errors.NO_VOTE_MULTIPLIER))
+    def POST_votemultiplier(self, res, user, multiplier, ip):
+        res._update('status', innerHTML='')
+        if (res._chk_error(errors.NO_VOTE_MULTIPLIER) or
+              res._chk_error(errors.VOTE_MULTIPLIER_NEGETIVE) or
+              res._chk_error(errors.VOTE_MULTIPLIER_NOT_INT)):
+            res._focus('amount')
+
+        banned = errors.BANNED_IP in c.errors or errors.BANNED_DOMAIN in c.errors
+        if not res.error and not banned:
+            user.vote_multiplier = multiplier
+            user._commit()
+
+            res._update('success',
+                        innerHTML=_("Vote multiplier updated"))
+            res._update('multiplier', value=str(multiplier))
+            res._redirect('/user/{0}'.format(user.name))
+        else:
+            res._update('success', innerHTML='')
+
 
     @Json
     @validate(VAdmin(),

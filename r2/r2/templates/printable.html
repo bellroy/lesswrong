@@ -195,12 +195,12 @@ ${self.RenderPrintable()}
 <%def name="score(this, likes=None, inline=True, label = True, _id = True)">
 <%
    tag = "span" if inline else "div"
-   _class = "" if likes is None else "likes" if likes else "dislikes"
+   _class = "" if likes == None else "likes" if likes else "dislikes"
    _id = ("id='score_%s'" % this._fullname) if _id else ""
 
    # figure out alterna-points
    score = thing.score_fmt((this._ups, this._downs))
-   base_scores = map(thing.score_fmt, this.score_triplet(likes))
+   base_scores = map(thing.score_fmt, this.score_triplet(likes=likes, multiplier=c.user.vote_multiplier))
  %>
   <${tag} class="votes ${_class}" ${_id}
       %if score['hover']:
@@ -304,4 +304,3 @@ ${k.strip('_')}="${v}" \
   ${plain_link(link_text, link, id="%s_%s" % (name, fullname), _class="%s %s" % (a_class, cls), title=title, target=target)}
 
 </%def>
-
