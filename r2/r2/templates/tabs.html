@@ -1,0 +1,18 @@
+%if len(thing.tabs) > 1:
+  <ul class="tabs">
+    %for tab in thing.tabs:
+      <li
+        %if tab.is_selected:
+          class="selected"
+        %endif
+      >
+        <a href="javascript:void(0)"
+           class="link-button choice"
+           onClick="return select_form_tab(this, '#${tab.pane_id}', ${[ '#' + t.pane_id for t in thing.tabs if t.pane_id != tab.pane_id ]} );"
+        >
+          ${tab.title}
+        </a>
+    </li>
+    %endfor
+  </ul>
+%endif

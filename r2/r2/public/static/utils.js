@@ -481,7 +481,7 @@ function handleResponse(action, options) {
 
         if (cleanup_func)
             cleanup_func(res_obj);
-  
+
         var r = res_obj.response;
         if(!r)
             return;
@@ -576,7 +576,7 @@ function re_id_node(node, id) {
 
 // Return the value of an input element, unless that input element is in a "placeholder text"-like state
 function field(form_field) {
-    if (form_field == null || form_field.value == null ||
+    if (form_field == null || form_field.value == null || form_field.disabled ||
         ((form_field.type == 'text'  || form_field.type == 'textarea')
          && form_field.style.color == "gray") ||
         (form_field.type == 'radio' && ! form_field.checked)) {
@@ -619,6 +619,28 @@ function change_state_by_class(link, type, className) {
     }
     redditRequest(type, {id: id, uh: modhash});
     return false;
+}
+
+// Used for the tabs in the article submission form
+function select_form_tab(elem, to_show, ids_to_hide) {
+    // change which tab is active
+    var link_parent = jQuery(elem).parent();
+    link_parent
+        .addClass('selected')
+        .siblings().removeClass('selected');
+
+    // show/hide tab contents and enable/disable form inputs
+    jQuery(to_show)
+      .addClass("active")
+      .find(":input")
+      .removeAttr("disabled")
+      .end();
+
+    jQuery(ids_to_hide.join(','))
+      .removeClass("active")
+      .find(":input")
+      .attr("disabled", true)
+      .end();
 }
 
 function post_form(form, where, statusfunc, nametransformfunc, block, api_loc, options) {

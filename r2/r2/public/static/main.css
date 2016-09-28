@@ -130,6 +130,66 @@ input, select, textarea, button {
 }
 
 
+/* Tabs on link submision page
+-------------------------------------------------------------------------------------- */
+.tabs {
+	  margin-left: 0;
+    list-style-type: none;
+    white-space: nowrap;
+    display: block;
+    vertical-align: bottom;
+		padding-left: 10px;
+		margin-top: 5px;
+		border-bottom: 3px solid #538d4d;
+}
+
+.tabs ul {
+    list-style: none;
+    margin: 0;
+		padding: 0;
+}
+
+.tabs li {
+	font-size: 15px;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+
+.tabs li a {
+	font-weight: normal;
+	outline: none;
+	padding: 5px 12px 3px 12px;
+	vertical-align: bottom;
+	border: 1px solid #999;
+	border-bottom: none;
+	text-decoration: none;
+	background-color: #f7f7f8;
+	position: relative;
+	bottom: 4px;
+ }
+
+.tabs li.selected a {
+  color: #fff;
+	font-size: 130%;
+  background-color: #538d4d;
+	border: none;
+	z-index: 100;
+}
+
+.tabs a {
+
+}
+
+.tabs .selected a {
+    font-weight: bold;
+}
+
+.tab-pane:not(.active) {
+	display: none;
+}
+
 /* Header
 -------------------------------------------------------------------------------------- */
 #header {
@@ -996,6 +1056,7 @@ div.sidebox select {
 	font-weight: bold;
 	line-height: 22px;
 }
+
 #side-status div.userinfo span.mail {
     margin-top: 8px;
     clear: both;

@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -119,10 +119,14 @@ class Builder(object):
                 w.subreddit = subreddits[item.sr_id]
 
             vote = likes.get((user, item))
-            if vote:
-                w.likes = (True if vote._name == '1'
-                             else False if vote._name == '-1'
-                             else None)
+            if vote is not None:
+                amount = int(vote._name)
+                if amount > 0:
+                    w.likes = True
+                elif amount < 0:
+                    w.likes = False
+                else:
+                    w.likes = None
             else:
                 w.likes = None
 
@@ -131,7 +135,7 @@ class Builder(object):
 
             # update vote tallies
             compute_votes(w, item)
-            
+
             w.score = [w.upvotes, w.downvotes]
             w.deleted = item._deleted
 
@@ -210,7 +214,7 @@ class QueryBuilder(Builder):
         self.start_count = kw.get('count', 0) or 0
         self.after = kw.get('after')
         self.reverse = kw.get('reverse')
-        
+
         self.prewrap_fn = None
         if hasattr(query, 'prewrap_fn'):
             self.prewrap_fn = query.prewrap_fn
@@ -270,7 +274,7 @@ class QueryBuilder(Builder):
 
         #logloop
         self.loopcount = 0
-        
+
         while not done:
             done, new_items = self.fetch_more(last_item, num_have)
 
@@ -315,7 +319,7 @@ class QueryBuilder(Builder):
                 if self.wrap:
                     i.num = count
                 last_item = i
-        
+
         #unprewrap the last item
         if self.prewrap_fn and last_item:
             last_item = orig_items[last_item._id]
@@ -566,7 +570,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             top = self.comment[0]
             #assume the comments all have the same parent
             # TODO: removed by Chris to get rid of parent being sent
-            # when morecomments is used.  
+            # when morecomments is used.
             #if hasattr(candidates[0], "parent_id"):
             #    parent = comment_dict[candidates[0].parent_id]
             #    items.append(parent)
@@ -596,7 +600,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
 
         def sort_candidates():
             candidates.sort(key = self.sort_key, reverse = self.rev_sort)
-        
+
         #find the comments
         num_have = 0
         sort_candidates()
@@ -622,7 +626,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
         wrapped = self.wrap_items(items)
 
         cids = dict((cm._id, cm) for cm in wrapped)
-        
+
         final = []
         #make tree
 
@@ -691,7 +695,7 @@ class CommentBuilder(CommentBuilderMixin, Builder):
             #add more children
             if comment_tree.has_key(to_add._id):
                 candidates.extend(comment_tree[to_add._id])
-                
+
             if direct_child:
                 mc2.children.append(to_add)
 

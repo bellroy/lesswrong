@@ -1,0 +1,158 @@
+---
+- hosts: vagrant
+
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=86400
+
+    - name: Install ansible dependencies
+      apt: name={{ item }} state=present
+      with_items:
+        - 'git'
+        - 'python-psycopg2'
+
+    - name: Install lesswrong dependencies
+      apt: name={{ item }} state=present
+      with_items:
+        - 'libxml2-dev'
+        - 'libxslt1-dev'
+        - 'python2.7-dev'
+        - 'python-geoip'
+        - 'python-imaging'
+        - 'python-setuptools'
+        - 'subversion' # Needed to fetch some deps
+
+    - name: Fetch GeoIP DB
+      script: fetch_geolite_city.sh /usr/share/GeoIP/GeoLiteCity.dat
+        creates=/usr/share/GeoIP/GeoLiteCity.dat
+
+    - name: Fetch Wiki XML
+      script: fetch_wiki_xml.sh /vagrant/r2/r2/public/files/wiki.lesswrong.xml
+        creates=/vagrant/r2/r2/public/files/wiki.lesswrong.xml
+
+    - name: Fetch memcached-lesswrong
+      git:
+        repo=https://github.com/tricycle/memcached.git
+        dest=/opt/src/memcached-lesswrong
+        update=no
+
+    - name: Install memcached-lesswrong dependencies
+      apt: name={{ item }} state=present
+      with_items:
+        - 'libevent1-dev'
+
+    - name: Configure memcached-lesswrong
+      command: ./configure
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /opt/src/memcached-lesswrong/Makefile
+
+    - name: Build memcached-lesswrong
+      command: make
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /opt/src/memcached-lesswrong/memcached
+
+    - name: Install memcached-lesswrong
+      command: make install
+      args:
+        chdir: /opt/src/memcached-lesswrong
+        creates: /usr/local/bin/memcached
+
+    - name: Install memcached-lesswrong init scripts
+      script: memcached_init_scripts.sh
+        creates=/etc/init.d/memcached
+
+    - name: Copy memcached-lesswrong config file
+      copy:
+        src=memcached-lesswrong.conf
+        dest=/etc/memcached.conf
+
+    - name: Start memcached-lesswrong
+      service: name=memcached state=started enabled=true
+
+    - name: Create lesswrong DB user
+      postgresql_user:
+        name=lesswrong
+        password=lesswr0ng
+      become: yes
+      become_user: postgres
+
+    - name: Create lesswrong databases
+      postgresql_db:
+        name={{ item }}
+        owner=lesswrong
+      with_items: ['reddit', 'changes', 'email', 'query_queue']
+      become: yes
+      become_user: postgres
+
+    - name: Load DB functions
+      shell: PGPASSWORD=lesswr0ng psql -h localhost -U lesswrong reddit -f functions.sql
+      args:
+        chdir: /vagrant/provisioning
+
+    - name: Install python dependencies
+      command: python setup.py develop
+      args:
+        chdir: /vagrant/r2
+
+    - name: Bootstrap DB
+      command: paster run development.ini ../provisioning/bootstrap.py
+      args:
+        chdir: /vagrant/r2
+
+  vars:
+    apache_mods_enabled:
+      - expires.load
+      - proxy.load
+      - proxy_http.load
+      - proxy_scgi.load
+      - rewrite.load
+    apache_vhosts:
+      - servername: 'lesswrong.local'
+        documentroot: '/vagrant/r2/r2/public'
+        extra_parameters: |
+          RewriteEngine On
+          RewriteRule ^/sequences     http://wiki.lesswrong.com/wiki/Sequences [R=302,L]
+          RewriteRule ^/$ /wiki/Homepage/ [passthrough]
+          # Ensure about page is only in one location
+          # Matches:
+          # /about, /about/, /lw/1/about_less_wrong/
+          RewriteCond %{REQUEST_URI} ^/about(-less-wrong)?$ [OR]
+          RewriteCond %{REQUEST_URI} ^/lw/1/
+          RewriteRule . /about/ [redirect=301]
+
+          RewriteRule ^/about/$ /wiki/Aboutpage/ [passthrough]
+          # Normalise some paths that double up with / and non-/ versions
+          RewriteCond %{REQUEST_URI} /lw/[^/]+/[^/]+$ [ornext]
+          RewriteCond %{REQUEST_URI} ^/user/[^/]+$ [ornext]
+          RewriteCond %{REQUEST_URI} ^/tag/[^/]+$ [ornext]
+          RewriteCond %{REQUEST_URI} /comments$ [ornext]
+          RewriteCond %{REQUEST_URI} /meetups$ [ornext]
+          RewriteCond %{REQUEST_URI} /recentposts$ [ornext]
+          RewriteCond %{REQUEST_URI} /promoted$ [ornext]
+          RewriteCond %{REQUEST_URI} /new$
+          RewriteRule . %{REQUEST_URI}/ [redirect=301,last]
+
+          # Rewrite old user rss path's to new path
+          RewriteRule ^/user/([^/]+)/\.rss$ /user/$1/overview/.rss [redirect=permanent]
+
+          # Deflate
+          AddType application/javascript .js
+          AddOutputFilterByType DEFLATE text/html text/plain text/xml text/javascript text/css application/x-javascript application/javascript application/xml
+          BrowserMatch ^Mozilla/4 gzip-only-text/html
+          BrowserMatch ^Mozilla/4\.0[678] no-gzip
+          BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+
+          # Don't proxy to the backend for static resources
+          ProxyPass /static !
+
+          # Proxy to the Less Wrong application with SCGI
+          ProxyPass / scgi://127.0.0.1:6500/ retry=0
+
+    postgresql_version: '9.3'
+    postgresql_package_version: '9.3.*'
+
+  roles:
+    - 'azavea.postgresql'
+    - 'geerlingguy.apache'

@@ -22,7 +22,6 @@ db
 /tags
 /TAGS
 lighttpd.**
-development.ini
 development_*.ini
 lesswrong.com*.ini
 r2/r2/public/files/wiki.lesswrong.xml
