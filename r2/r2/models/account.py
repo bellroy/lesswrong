@@ -80,6 +80,7 @@ class Account(Thing):
                      report_correct = 0,
                      report_ignored = 0,
                      spammer = 0,
+                     vote_multiplier = 1,
                      sort_options = {},
                      has_subscribed = False,
                      pref_media = 'subreddit',
@@ -284,6 +285,7 @@ class Account(Thing):
 
         karma_balance = self.safe_karma * 4
         vote_cost = c.current_or_default_sr.post_karma_multiplier if vote_kind == 'link' else 1
+        vote_cost *= self.vote_multiplier
         if karma_spent + vote_cost > karma_balance:
             points_needed = abs(karma_balance - karma_spent - vote_cost)
             msg = strings.not_enough_downvote_karma % (points_needed, plurals.N_points(points_needed))
@@ -459,7 +461,7 @@ def change_password(user, newpassword):
     return True
 
 #TODO reset the cache
-def register(name, password, email):
+def register(name, password, email, create_wiki_account=True):
     try:
         a = Account._by_name(name)
         raise AccountExists
@@ -477,13 +479,14 @@ def register(name, password, email):
         from r2.lib import emailer
         emailer.confirmation_email(a)
 
-        if wiki_account.valid_name(name):
-            def send_wiki_failed_email():
-                emailer.wiki_failed_email(a)
-            a.create_associated_wiki_account(password,
-                                             on_request_error=send_wiki_failed_email)
-        else:
-            emailer.wiki_incompatible_name_email(a)
+        if create_wiki_account:
+            if wiki_account.valid_name(name):
+                def send_wiki_failed_email():
+                    emailer.wiki_failed_email(a)
+                a.create_associated_wiki_account(password,
+                                                 on_request_error=send_wiki_failed_email)
+            else:
+                emailer.wiki_incompatible_name_email(a)
 
         # Clear memoization of both with and without deleted
         clear_memo('account._by_name', Account, name.lower(), True)

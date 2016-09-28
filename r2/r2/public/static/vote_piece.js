@@ -13,16 +13,16 @@ function cookieName(name) {
     return (logged || '') + "_" + name;
 }
 
-function createLCookie(name,value,days) { 
+function createLCookie(name,value,days) {
     var domain = "; domain=" + cur_domain;
-    if (days) { 
+    if (days) {
         var date = new Date();
         date.setTime(date.getTime()+(days*24*60*60*1000));
         var expires="; expires="+date.toGMTString();
     }
     else expires="";
     document.cookie=name+"="+ escape(value) +expires+domain+"; path=/";
-} 
+}
 
 function createCookie(name, value, days) {
   return createLCookie(cookieName(name), value, days);
@@ -32,15 +32,15 @@ function readLCookie(nameEQ) {
     nameEQ=nameEQ+'=';
     var ca=document.cookie.split(';');
     /* walk the list backwards so we always get the last cookie in the list */
-    for(var i = ca.length-1; i >= 0; i--) { 
-        var c = ca[i]; 
+    for(var i = ca.length-1; i >= 0; i--) {
+        var c = ca[i];
         while(c.charAt(0)==' ') c=c.substring(1,c.length);
         if(c.indexOf(nameEQ)==0) {
           /* we can unescape even if it's not escaped */
           return unescape(c.substring(nameEQ.length,c.length));
         }
     }
-    return '';  
+    return '';
 }
 
 function readCookie(name) {

@@ -6,16 +6,16 @@
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
 # with Exhibit B.
-# 
+#
 # Software distributed under the License is distributed on an "AS IS" basis,
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
-# 
+#
 # The Original Code is Reddit.
-# 
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of the
 # Original Code is CondeNet, Inc.
-# 
+#
 # All portions of the code written by CondeNet are Copyright (c) 2006-2008
 # CondeNet, Inc. All Rights Reserved.
 ################################################################################
@@ -88,7 +88,7 @@ class Link(Thing, Printable, ImageHolder):
         from subreddit import Default
         if sr == Default:
             sr = None
-            
+
         url = cls.by_url_key(url)
         link_ids = g.permacache.get(url)
         if link_ids:
@@ -152,28 +152,34 @@ class Link(Thing, Printable, ImageHolder):
         return submit_url
 
     @classmethod
-    def _submit(cls, title, article, author, sr, ip, tags, spam = False, date = None, **kwargs):
+    def _submit(cls, title, article, url, author, sr, ip, tags, spam = False, date = None, **kwargs):
         # Create the Post and commit to db.
         l = cls(title = title,
-                url = 'self',
+                url = url,
+                is_self = url == 'self',
+                permalink = None,
                 _spam = spam,
                 author_id = author._id,
-                sr_id = sr._id, 
+                sr_id = sr._id,
                 lang = sr.lang,
                 ip = ip,
-                article = article,
+                article = None,
                 date = date,
                 **kwargs
                 )
         l._commit()
 
         # Now that the post id is known update the Post with the correct permalink.
-        l.url = l.make_permalink_slow()
-        l.is_self = True
+        if l.url == 'self':
+            l.is_self = True
+            l.url = l.make_permalink_slow()
+            l.permalink = l.url
+            # Parse and create polls in the article
+            l.set_article(article)
+        else:
+            l.permalink = l.make_permalink_slow()
+            l.is_self = False
         l._commit()
-
-        # Parse and create polls in the article
-        l.set_article(article)
 
         l.set_url_cache()
 
@@ -182,21 +188,39 @@ class Link(Thing, Printable, ImageHolder):
             l.add_tag(tag)
 
         return l
-        
+
     def set_article(self, article):
         self.article = article
         self._commit()
-    
 
+    @property
+    def permalink(self):
+        # Older articles don't have a permalink, so use url instead
+        # This works because for articles, the url links to the article.
+        if self.is_self:
+            return self.url
+        # For link posts, the url links to an external site, while the
+        # permalink links to the comments.
+        return self._permalink
+
+    @permalink.setter
+    def permalink_setter(self, value):
+        self._permalink = permalink
+
+    @property
+    def display_title(self):
+        if not self.is_self:
+            return '[Link] {}'.format(self.title)
+        return self.title
 
     def _summary(self):
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[0]
-            
+
     def _has_more(self):
         if hasattr(self, 'article'):
             return self.article.find(self._more_marker) >= 0
-            
+
     def _more(self):
         if hasattr(self, 'article'):
             return self.article.split(self._more_marker)[1]
@@ -315,21 +339,21 @@ class Link(Thing, Printable, ImageHolder):
             if self._spam and (not user or
                                (user and self.author_id != user._id)):
                 return False
-        
+
             #author_karma = wrapped.author.link_karma
             #if author_karma <= 0 and random.randint(author_karma, 0) != 0:
                 #return False
 
         if wrapped.hidden:
             return False
-        
+
         if not user and wrapped._score < g.default_min_link_score:
             return False
 
         if user:
             if user.pref_hide_ups and wrapped.likes == True:
                 return False
-        
+
             if user.pref_hide_downs and wrapped.likes == False:
                 return False
 
@@ -355,7 +379,7 @@ class Link(Thing, Printable, ImageHolder):
                               c.user.pref_compress,
                               c.user.pref_media,
                               request.host,
-                              c.cname, 
+                              c.cname,
                               wrapped.author == c.user,
                               wrapped.likes,
                               wrapped.saved,
@@ -396,7 +420,7 @@ class Link(Thing, Printable, ImageHolder):
 
     def make_permalink_slow(self):
         return self.make_permalink(self.subreddit_slow)
-    
+
     @property
     def canonical_url(self):
         from r2.lib.template_helpers import get_domain
@@ -431,7 +455,7 @@ class Link(Thing, Printable, ImageHolder):
                 item.thumbnail = thumbnail_url(item)
             else:
                 item.thumbnail = g.default_thumb
-            
+
             item.domain = (domain(item.url) if not item.is_self
                           else 'self.' + item.subreddit.name)
             if not hasattr(item,'top_link'):
@@ -569,13 +593,13 @@ class Link(Thing, Printable, ImageHolder):
         updated_tags = set(tags)
         removed_tags = current_tags.difference(updated_tags)
         new_tags = updated_tags.difference(current_tags)
-        
+
         for tag in new_tags:
             self.add_tag(tag)
-        
+
         for tag in removed_tags:
             self.remove_tag(tag)
-        
+
     def tag_names(self):
         """Returns just the names of the tags of this article"""
         return [tag.name for tag in self.get_tags()]
@@ -894,7 +918,7 @@ class LinkTag(Relation(Link, Tag)):
 
 class Comment(Thing, Printable):
     _data_int_props = Thing._data_int_props + ('reported',)
-    _defaults = dict(reported = 0, 
+    _defaults = dict(reported = 0,
                      moderator_banned = False,
                      banned_before_moderator = False,
                      is_html = False,
@@ -908,7 +932,7 @@ class Comment(Thing, Printable):
     def _delete(self):
         link = Link._byID(self.link_id, data = True)
         link._incr('num_comments', -1)
-    
+
     @classmethod
     def _new(cls, author, link, parent, body, ip, spam = False, date = None):
         comment = Comment(body = body,
@@ -917,7 +941,7 @@ class Comment(Thing, Printable):
                           author_id = author._id,
                           ip = ip,
                           date = date)
-        
+
         comment._spam = spam
 
         #these props aren't relations
@@ -1066,10 +1090,10 @@ class Comment(Thing, Printable):
     def collapse_in_link_threads(self):
         if c.user_is_admin:
             return False
-      
+
         if c.user_is_loggedin and self._score < c.user.pref_min_comment_score:
             return True
-        
+
         return self._score < g.default_min_comment_score
 
     @property
@@ -1115,7 +1139,7 @@ class Comment(Thing, Printable):
                               bool(c.user_is_loggedin),
                               c.focal_comment == wrapped._id36,
                               request.host,
-                              c.cname, 
+                              c.cname,
                               wrapped.author == c.user,
                               wrapped.likes,
                               wrapped.friend,
@@ -1155,18 +1179,18 @@ class Comment(Thing, Printable):
         author = Account._byID(self.author_id, data=True).name
         params = {'author' : _force_unicode(author), 'title' : _force_unicode(link.title), 'site' : c.site.title}
         return strings.permalink_title % params
-          
+
     @classmethod
     def add_props(cls, user, wrapped):
         #fetch parent links
         links = Link._byID(set(l.link_id for l in wrapped), True)
-        
+
 
         #get srs for comments that don't have them (old comments)
         for cm in wrapped:
             if not hasattr(cm, 'sr_id'):
                 cm.sr_id = links[cm.link_id].sr_id
-        
+
         subreddits = Subreddit._byID(set(cm.sr_id for cm in wrapped),
                                      data=True,return_dict=False)
         can_reply_srs = set(s._id for s in subreddits if s.can_comment(user))
@@ -1200,10 +1224,10 @@ class Comment(Thing, Printable):
             # Don't allow users to vote on their own comments
             # Also require user karma to be >= global threshold as anti-sockpuppet measure
             item.votable = bool(c.user_is_loggedin
-                                and c.user != item.author 
+                                and c.user != item.author
                                 and not item.retracted
                                 and c.user.safe_karma >= g.karma_to_vote)
-            
+
             if item.votable and c.profilepage:
                 # Can only vote on profile page under certain conditions
                 item.votable = bool((c.user.safe_karma > g.karma_to_vote_in_overview) and (g.karma_percentage_to_be_voted > item.author.percent_up()))
@@ -1221,7 +1245,7 @@ class Comment(Thing, Printable):
                              not (c.profilepage or
                                   item.deleted or
                                   c.user_is_admin))
-                
+
             if not hasattr(item,'editted'):
                 item.editted = False
             #will get updated in builder
@@ -1272,12 +1296,12 @@ class MoreComments(object):
     @staticmethod
     def cache_key(item):
         return False
-    
+
     def __init__(self, link, depth, parent=None):
         if parent:
             self.parent_id = parent._id
             self.parent_name = parent._fullname
-            self.parent_permalink = parent.make_permalink(link, 
+            self.parent_permalink = parent.make_permalink(link,
                                                           link.subreddit_slow)
         self.link_name = link._fullname
         self.link_id = link._id
@@ -1299,7 +1323,7 @@ class MoreRecursion(MoreComments):
 
 class MoreChildren(MoreComments):
     pass
-    
+
 class Message(Thing, Printable):
     _defaults = dict(reported = 0,)
     _data_int_props = Thing._data_int_props + ('reported', )
@@ -1329,7 +1353,7 @@ class Message(Thing, Printable):
         #TODO global-ish functions that shouldn't be here?
         #reset msgtime after this request
         msgtime = c.have_messages
-        
+
         #load the "to" field if required
         to_ids = set(w.to_id for w in wrapped)
         tos = Account._byID(to_ids, True) if to_ids else {}
@@ -1342,7 +1366,7 @@ class Message(Thing, Printable):
                 item.new = False
             item.score_fmt = Score.none
 
- 
+
     @staticmethod
     def cache_key(wrapped):
         #warning: inbox/sent messages
@@ -1369,10 +1393,10 @@ class Inbox(MultiRelation('inbox',
 
         if not to._loaded:
             to._load()
-            
+
         #if there is not msgtime, or it's false, set it
         if not hasattr(to, 'msgtime') or not to.msgtime:
             to.msgtime = obj._date
             to._commit()
-            
+
         return i
