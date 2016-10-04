@@ -180,7 +180,7 @@
         setMessage(form.title, ${json(_('Enter a title.'))});
         setMessage(form.tags, ${json(_('Enter tags separated by commas or spaces.'))});
 
-        %if thing.tabs.has_tab('article-field-pane'):
+        %if thing.tabs.has_tab('link-field-pane') and not thing.editing:
           setMessage(form.url, ${json(_('Enter a url.'))});
         %endif
 

@@ -3,7 +3,7 @@ from r2.models import Account, Link, Subreddit, Vote
 def create_about_post():
     user = Account._by_name('Eliezer_Yudkowsky')
     sr = Subreddit._by_name('admin')
-    link = Link._submit('About LessWrong', 'TBC', user, sr, '::1', [])
+    link = Link._submit('About LessWrong', 'TBC', 'self', user, sr, '::1', [])
 
 def fix_about_post():
     user = Account._by_name('Eliezer_Yudkowsky')

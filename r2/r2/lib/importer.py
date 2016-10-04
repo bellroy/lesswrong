@@ -105,7 +105,7 @@ class Importer(object):
 
         if not post:
             # Create new post
-            post = Link._submit(title, article, account, sr, ip, tags, date=utc_date)
+            post = Link._submit(title, article, 'self', account, sr, ip, tags, date=utc_date)
             post.blessed = True
             post.comment_sort_order = 'old'
             post.ob_permalink = post_data['permalink']
