@@ -210,7 +210,7 @@ class Link(Thing, Printable, ImageHolder):
     @property
     def display_title(self):
         if not self.is_self:
-            return '[Link] {}'.format(self.title)
+            return u'[Link] {}'.format(self.title)
         return self.title
 
     def _summary(self):
