@@ -8,6 +8,7 @@
     - name: Install ansible dependencies
       apt: name={{ item }} state=present
       with_items:
+        - 'acl'
         - 'git'
         - 'python-psycopg2'
 
