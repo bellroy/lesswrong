@@ -255,6 +255,8 @@ class Account(Thing):
         This makes the assumption that the user can't cast a vote for something
         on the non-current subreddit.
         """
+        
+        raise NotEnoughKarma('Downvoting temporarily disabled.')
         from r2.models.vote import Vote, Link, Comment
 
         def get_cached_downvotes(content_cls):
