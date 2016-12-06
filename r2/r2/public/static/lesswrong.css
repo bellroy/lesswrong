@@ -610,9 +610,6 @@ div.meta.meetup strong {
     #content .post .post-body h2 {
         padding-left: 34px;
     }
-    #content .post .post-body .content .md {
-        font-size: 32px;
-    }
     #content .post .post-body {
         margin-left: 5px;
         margin-right: 5px;
@@ -627,40 +624,51 @@ div.meta.meetup strong {
         width: 690px;
         word-wrap: break-word;
     }
-    .md { font-size: 32px; }
-    .md h2 { font-size: 36px; }
-    .md h3 { font-size: 34px; }
-    .md h4 { font-size: 32px; }
-    ul#nav li {
-        font-size: 20px;
-    }
-    div.post div.postedby {
-        font-size: 24px;
-        line-height: 26px;
-    }
-    #content .post .post-body .post-comment-count a {
-        font-size: 24px;
-    }
-    div.footer {
-        font-size: 18px;
-    }
-    div.comment-meta span {
-        font-size: 32px;
-    }
-    #wrapper {
-        font-size: 20px;
-    }
     #comments {
         margin-left: 5px;
     }
-    #comments h2 {
-        font-size: 28px;
-    }
-    #comment-controls div.filter-inactive, #comment-controls div.filter-active {
-        font-size: 18px;
-    }
-    .comment-links {
-        zoom: 2;
-    }
     html * {max-height:1000000px;}
+
+    /* to keep from making things look giant on tablets and narrow
+       desktop screens, only make fonts bigger if the device-width is low.
+       Phones will have a device-width of under 450px, while tablets will
+       have a device width of over 600px, so this pulls them apart pretty
+       well */
+    @media only screen and (max-device-width: 550px) {
+        #content .post .post-body .content .md {
+            font-size: 32px;
+        }
+        .md { font-size: 32px; }
+        .md h2 { font-size: 36px; }
+        .md h3 { font-size: 34px; }
+        .md h4 { font-size: 32px; }
+        ul#nav li {
+            font-size: 20px;
+        }
+        div.post div.postedby {
+            font-size: 24px;
+            line-height: 26px;
+        }
+        #content .post .post-body .post-comment-count a {
+            font-size: 24px;
+        }
+        div.footer {
+            font-size: 18px;
+        }
+        div.comment-meta span {
+            font-size: 32px;
+        }
+        #wrapper {
+            font-size: 20px;
+        }
+        #comments h2 {
+            font-size: 28px;
+        }
+        #comment-controls div.filter-inactive, #comment-controls div.filter-active {
+            font-size: 18px;
+        }
+        .comment-links {
+            zoom: 2;
+        }
+    }
 }
