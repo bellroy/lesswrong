@@ -37,6 +37,8 @@
       <meta name="description" content="${description | h}" />
     %endif
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, min-width=780, inital-scale=1.0"/>
+    <script type="text/javascript" src="${static('viewport-min-width.js')}"></script>
     ${self.robots()}
     ##these are globals, so they should be run first
     ##things that need are referenced by the reddit, the buttons, and
