@@ -1,0 +1,46 @@
+.wiki-page-main #fhi #cfar #miri {
+  float: left;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.wiki-page-main #sidebar{
+  display: none;
+}
+.wiki-page-main #content{
+  width: 900px;
+}
+.wiki-page-main #nav {
+  display: none;
+}
+.wiki-page-main #wiki {
+  padding-right: 150px;
+  padding-left: 150px;
+  font-size: 16px;
+}
+.wiki-page-main .article-list {
+  font-size: 13px;
+  width: 280px;
+}
+
+.wiki-page-main .sequences-button {
+  text-align: center;
+  margin-bottom: 0px;
+}
+
+.wiki-page-main .sequences-button > p {
+  margin-bottom: 0px;
+}
+
+.wiki-page-main .sequences-button > p > a {
+  font-size: 30px;
+  text-decoration: none;
+}
+
+.wiki-page-main .org-table {
+  font-size: 20px;
+}
+
+.wiki-page-main .org-table > td > a {
+  text-decoration: none;
+}
