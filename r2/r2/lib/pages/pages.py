@@ -1686,10 +1686,14 @@ class WikiPage(Reddit):
         self.pagename = wikiPage.title()
         content = WikiPageInline(html=html, name=name, skiplayout=skiplayout,
             title=self.pagename, wiki_url=page['url'])
+
+        body_class = 'wiki-page-{0}'.format(name)
+
         Reddit.__init__(self,
                         content = content,
                         title = self.pagename,
                         space_compress=False,
+                        body_class = body_class,
                         **context)
 
 class TabModel(object):
