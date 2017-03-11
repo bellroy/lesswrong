@@ -1449,7 +1449,7 @@ class FriendList(UserList):
         return c.user._fullname
 
 class ContributorList(UserList):
-    """Contributor list on a restricted/private reddit."""
+    """Contributor list; only viewable by mods."""
     type = 'contributor'
 
     @property
