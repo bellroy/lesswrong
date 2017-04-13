@@ -401,7 +401,7 @@ div.meta span.votes span.votes {
 	height: 18px;
 	line-height: 18px;
 	margin: 0;
-	padding: 0 7px;
+	padding: 2px 7px 0;
 	font-weight: bold;
 	text-align: center;
 }
@@ -411,7 +411,7 @@ div.editors-pick div.meta span.votes span.votes {
         border: none;
 	height: 22px;
 	line-height: 22px;
-	padding: 0 9px;
+	padding: 2px 9px 0;
 }
 div.meta span.editors-pick {
 	color: #538d4d;
