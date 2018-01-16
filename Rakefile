@@ -108,7 +108,7 @@ namespace :deploy do
   desc 'Run Reddit setup routine'
   task :setup do
     Dir.chdir r2_path
-    sudo "python setup.py install"
+    "python setup.py install"
     Dir.chdir basepath
     sudo "chown -R #{user} #{r2_path}"
   end
