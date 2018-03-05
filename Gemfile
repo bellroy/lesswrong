@@ -10,4 +10,5 @@ gem 'treetop', '~>1.4.8'
 gem 'capybara'
 gem 'selenium-webdriver'
 gem 'rspec'
-
+gem 'nokogiri', '~> 1.8.1'
+gem 'rubyzip', '~> 1.2.1'
