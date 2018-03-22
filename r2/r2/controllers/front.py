@@ -283,7 +283,7 @@ class FrontController(RedditController):
             pane = EditorList(editable = c.user_is_admin)
         elif is_moderator and location == 'banned':
             pane = BannedList(editable = is_moderator)
-        elif location == 'contributors' and c.site.type != 'public':
+        elif is_moderator and location == 'contributors':
             pane = ContributorList(editable = is_moderator)
         elif (location == 'stylesheet'
               and c.site.can_change_stylesheet(c.user)
