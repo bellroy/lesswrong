@@ -38,7 +38,7 @@
   <pubDate>${rfc822format(thing._date)}</pubDate>
   <description>
     <% domain = get_domain(cname = c.cname, subreddit = False) %>
-    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.name}&lt;/a&gt;
+    Submitted by &lt;a href="http://${domain}/user/${thing.author.name}"&gt;${thing.author.printable_name}&lt;/a&gt;
     &lt;a href="${url}#comments"&gt;${thing.num_comments} ${com_label}&lt;/a&gt;
   </description>
   %if use_thumbs:

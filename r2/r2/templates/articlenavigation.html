@@ -60,7 +60,7 @@
     ${_('Unknown')}
   %else:
     <% author_path = unsafe(add_sr("/user/%s/" % websafe(author.name), sr_path = False)) %>
-    <a href="${author_path}">${author.name}</a>
+    <a href="${author_path}">${author.printable_name}</a>
   %endif
 </%def>
 

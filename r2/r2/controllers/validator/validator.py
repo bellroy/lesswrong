@@ -1,3 +1,4 @@
+# coding: utf8
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -23,7 +24,7 @@ from pylons import c, request, g
 from pylons.i18n import _
 from pylons.controllers.util import abort
 from r2.lib import utils, captcha
-from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii
+from r2.lib.filters import unkeep_space, websafe, _force_utf8, _force_ascii, _force_unicode
 from r2.lib.wikipagecached import WikiPageCached
 from r2.lib.db.operators import asc, desc
 from r2.config import cache
@@ -638,6 +639,36 @@ class VUname(VRequired):
                 return self.error(errors.USERNAME_TAKEN)
             except NotFound:
                 return user_name
+
+class VRealName(VRequired):
+    def __init__(self, item, *a, **kw):
+        VRequired.__init__(self, item, errors.BAD_REALNAME, *a, **kw)
+    def run(self, real_name):
+        if real_name is None:
+            return None
+        original_real_name = real_name
+        real_name = self.check_real_name(real_name)
+        if not real_name:
+            return self.error(self.why_real_name_bad(original_real_name))
+        else:
+            return real_name.encode('utf8')
+
+    @staticmethod
+    def check_real_name(x):
+        try:
+            return x if re.match(ur"^[\w\s\-]{1,40}$", x, re.UNICODE) else None
+        except TypeError:
+            return None
+        except UnicodeEncodeError:
+            return None
+
+    @staticmethod
+    def why_real_name_bad(x):
+        if not x:
+            return errors.BAD_REALNAME_CHARS
+        if len(x)>40:
+            return errors.BAD_REALNAME_LONG
+        return errors.BAD_REALNAME_CHARS
 
 class VLogin(VRequired):
     def __init__(self, item, *a, **kw):

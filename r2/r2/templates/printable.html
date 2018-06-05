@@ -162,7 +162,7 @@ ${self.RenderPrintable()}
           author_cls += " friend"
        elif gray:
           author_cls += " gray"
-       name = websafe(author.name)
+       name = websafe(author.printable_name)
        href = unsafe('href="%s"' % add_sr("/user/%s/" % name, sr_path = False))
        if c.user_is_admin: name += " (%d)" % (author.link_karma)
     %>
