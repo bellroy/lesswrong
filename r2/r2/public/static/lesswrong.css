@@ -1,6 +1,6 @@
 #content.clear.fullwidth {
     padding: 0 15px;
-    width: 920px;
+    max-width: 920px;
 }
 
 div.comment-meta span span {

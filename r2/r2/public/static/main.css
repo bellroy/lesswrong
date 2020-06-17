@@ -30,6 +30,8 @@ body {
 	background-color: #d8d8d8;
 	margin: 0;
 	padding: 0;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 #wrapper {
 	background-color: #fff;
@@ -38,19 +40,29 @@ body {
 	box-shadow: 0px 0px 10px #555;
 	margin: 0 auto;
 	padding: 0;
-	width: 990px;
+	max-width: 990px;
+	min-width: 780px;
 }
 #main {
-	padding: 15px 20px;
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+	
 }
 #content {
-	float: left;
-	padding: 0 0 0 15px;
-	width: 695px;
+	width: 100%;
+	padding: 15px 20px 20px 35px;
 }
 #sidebar {
-	float: right;
 	width: 220px;
+	padding: 15px 20px 20px 0;
+}
+#header {
+	overflow: hidden;
+}
+#content, #sidebar {
+	display: table-cell;
+	vertical-align: top;
 }
 
 
@@ -200,7 +212,9 @@ input, select, textarea, button {
 a#logo {
   display: block;
   float: left;
-  margin: 35px 10px 0 35px;
+  height: 54px;
+  overflow: hidden;
+  margin: 35px 10px 14px 35px;
 }
 img#tagline {
   display: block;
